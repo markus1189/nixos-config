@@ -26,7 +26,6 @@ rec {
       ./packages.nix
       ./scripts/module.nix
       ./ssh.nix
-      ./tmux.nix
       ./xps.nix
       ./zsh.nix
       ./packages

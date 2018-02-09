@@ -5,9 +5,9 @@
     xserver = {
       displayManager = {
         sessionCommands = ''
-          tmux new-session -d -s immortals || true
-          tmux new-session -d -s default || true
-          tmux new-session -d -s im || true
+          tmux new-session -d -s immortals || true &
+          tmux new-session -d -s default || true &
+          tmux new-session -d -s im || true &
         '';
       };
     };
@@ -20,7 +20,7 @@
   programs = {
     tmux = {
       enable = true;
-      extraTmuxConf = pkgs.lib.readFile dotfiles/.tmux.conf;
+      extraTmuxConf = pkgs.lib.readFile ./tmux.conf;
     };
   };
 }
