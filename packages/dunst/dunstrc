@@ -1,0 +1,139 @@
+[global]
+font = Source Code Pro 11 # ensure availability: @sourceCodePro@
+
+allow_markup = yes
+plain_text = no
+
+format = "<b>%s</b>\n%b"
+
+sort = no
+
+indicate_hidden = yes
+
+alignment = center
+
+bounce_freq = 0
+
+show_age_threshold = -1
+
+word_wrap = yes
+
+ignore_newline = no
+
+stack_duplicates = yes
+hide_duplicates_count = yes
+
+geometry = "400x60-30-45"
+
+shrink = no
+
+transparency = 5
+
+idle_threshold = 0
+
+follow = mouse
+
+sticky_history = yes
+
+history_length = 15
+
+show_indicators = no
+
+line_height = 3
+
+separator_height = 2
+
+padding = 6
+
+horizontal_padding = 6
+
+separator_color = frame
+
+startup_notification = false
+
+icon_position = off
+max_icon_size = 80
+
+[frame]
+width = 3
+color = "#2B313C"
+
+[shortcuts]
+
+close = ctrl+space
+
+history = ctrl+grave
+
+
+[urgency_low]
+frame_color = "#4BD700"
+foreground = "#4BD700"
+background = "#191311"
+#background = "#2B313C"
+timeout = 4
+
+[urgency_normal]
+frame_color = "#FF8500"
+foreground = "#FF8500"
+background = "#191311"
+#background = "#2B313C"
+timeout = 6
+
+[urgency_critical]
+frame_color = "#D40500"
+foreground = "#D40500"
+background = "#191311"
+#background = "#2B313C"
+timeout = 8
+
+# Every section that isn't one of the above is interpreted as a rules to
+# override settings for certain messages.
+# Messages can be matched by "appname", "summary", "body", "icon", "category",
+# "msg_urgency" and you can override the "timeout", "urgency", "foreground",
+# "background", "new_icon" and "format".
+# Shell-like globbing will get expanded.
+#
+# SCRIPTING
+# You can specify a script that gets run when the rule matches by
+# setting the "script" option.
+# The script will be called as follows:
+#   script appname summary body icon urgency
+# where urgency can be "LOW", "NORMAL" or "CRITICAL".
+#
+# NOTE: if you don't want a notification to be displayed, set the format
+# to "".
+# NOTE: It might be helpful to run dunst -print in a terminal in order
+# to find fitting options for rules.
+
+#[espeak]
+#    summary = "*"
+#    script = dunst_espeak.sh
+
+#[script-test]
+#    summary = "*script*"
+#    script = dunst_test.sh
+
+#[ignore]
+#    # This notification will not be displayed
+#    summary = "foobar"
+#    format = ""
+
+#[signed_on]
+#    appname = Pidgin
+#    summary = "*signed on*"
+#    urgency = low
+#
+#[signed_off]
+#    appname = Pidgin
+#    summary = *signed off*
+#    urgency = low
+#
+#[says]
+#    appname = Pidgin
+#    summary = *says*
+#    urgency = critical
+#
+#[twitter]
+#    appname = Pidgin
+#    summary = *twitter.com*
+#    urgency = normal

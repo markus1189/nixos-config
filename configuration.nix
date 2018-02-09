@@ -17,7 +17,6 @@ rec {
   imports =
     [
       ./bluetooth.nix
-      ./dunst.nix
       ./fasd.nix
       ./fzf.nix
       ./hardware-configuration.nix

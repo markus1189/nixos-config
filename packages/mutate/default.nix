@@ -1,5 +1,5 @@
 # adapted from https://github.com/grahamc/nixos-config/
-{ stdenvNoCC }:
+{ stdenvNoCC, gnugrep }:
 file: args:
 (stdenvNoCC.mkDerivation (args // rec {
   name = baseNameOf file;
@@ -14,11 +14,10 @@ file: args:
   doCheck = true;
 
   checkPhase = ''
-    if grep -q '@[[:alnum:]]\+@' $out; then
-      echo Found non interpolated pattern in $out, failing.  Matches are:
-      grep -Hn '@[[:alpha:][:digit:]]\+@' $out
-      echo "####################"
-      return 1
+    if ${gnugrep}/bin/grep -Hn '@[[:alpha:][:digit:]-]\+@' $out; then
+      echo "[ERROR] Found non interpolated pattern in $out, failing.  Matches are:"
+      echo "$MATCHES"
+      exit 1
     fi
   '';
 }))
