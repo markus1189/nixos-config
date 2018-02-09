@@ -1,0 +1,5 @@
+{
+  imports = [
+    ./symlinks/service.nix
+  ];
+}

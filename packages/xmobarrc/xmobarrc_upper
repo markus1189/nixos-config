@@ -1,0 +1,71 @@
+Config { font = "xft:Source Code Pro-9:bold"
+       , bgColor = "black"
+       , fgColor = "grey"
+       , position = TopW L 100
+       , lowerOnStart = False
+       , commands = [ Run Network "wlp2s0"
+                        [ "-t", "<rx>kB ↓<tx>kB ↑"
+                        , "-L" , "10"
+                        , "-H" ,"40"
+                        , "--normal","#42d3a5"
+                        , "--high", "red"
+                        , "--minwidth", "2"
+                        , "--maxwidth", "8"
+                        ] 40
+                    , Run Wireless "wlp2s0"
+                        [ "-t", "<fc=orange><essid></fc> (<quality>%)"
+                        , "-L", "40"
+                        , "-H", "70"
+                        , "--low", "red"
+                        , "--high", "#42d3a5"
+                        ] 40
+                    , Run MultiCpu
+                        [ "-t", "<autototal>"
+                        , "-L","10"
+                        , "-H","40"
+                        , "--normal","#42d3a5"
+                        , "--high","red"
+                        , "-p", "4"
+                        , "-W", "10"
+                        ] 40
+                    , Run Memory
+                        [ "-t", "<usedratio>% <used> MiB"
+                        ] 300
+                    , Run Swap
+                        [ "-t", "<usedratio>%"
+                        ] 300
+                    , Run ThermalZone 0
+                        ["-t", "<temp>°C"
+                        ] 300
+                    , Run TopProc
+                        [ "-t", "<both1> | <both2> | <both3> | <both4> | <mboth1> | <mboth2>"
+                        , "-L","25"
+                        , "-H","60"
+                        , "--normal","#42d3a5"
+                        , "--high","red"
+                        ] 40
+                    , Run BatteryP ["BAT0"]
+                        [ "-t","<left> <timeleft> <acstatus>"
+                        , "-L","20"
+                        , "-H","70"
+                        , "--low","red"
+                        , "--normal","white"
+                        , "--high" ,"#42d3a5"
+                        , "--minwidth","2"
+                        , "--"
+                        , "-i","<fc=green>0</fc>"
+                        , "-O","<fc=orange>0</fc>"
+                        , "-o","<fc=red>O</fc>"
+                        ] 100
+                    , Run DiskU
+                        [("/","<usedp>% <used>/<size>")]
+                        ["-L", "20", "-H", "50", "-m", "1", "-p", "2"]
+                        100
+                    , Run Date "%T" "date" 1
+                    , Run Com "@isVpnActive@" [] "vpn" 100
+                    , Run StdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %wlp2s0% %wlp2s0wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
+       }
