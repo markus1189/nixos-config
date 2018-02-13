@@ -29,6 +29,7 @@ rec {
       ./zsh.nix
       ./packages
       ./packages/services.nix
+      ./containers
       ./hosts.nix
       ./contextual/codecentric.nix
     ] ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix;
@@ -39,6 +40,8 @@ rec {
       dates = "12:30";
       options = "--delete-older-than 5d";
     };
+
+    useSandbox = true;
   };
 
   boot = {
