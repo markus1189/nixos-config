@@ -1,0 +1,75 @@
+[alias]
+        co = checkout
+        d = diff
+        fa = fetch --all --prune --tags
+        lg = !@gitPrettyLog@
+        rh = reset --hard
+        s = status
+        zip = archive -o zipped-repository.zip -9
+
+[color]
+        ui = auto
+        branch = auto
+        diff = auto
+        interactive = auto
+        status = auto
+
+[color "branch"]
+        current = yellow
+        local = green
+        remote = red
+
+[color "status"]
+        added = green
+        changed = red
+        untracked = yellow
+
+[core]
+        excludesfile = @gitignoreGlobal@
+        whitespace = trailing-space,space-before-tab
+
+[credential]
+        helper = cache --timeout=3600
+
+[diff]
+        mnemonicprefix = true
+
+[difftool]
+        prompt=false
+
+[giggle]
+        main-window-maximized = false
+        main-window-geometry = 854x743+0+0
+        file-view-vpane-position = 419
+        main-window-view = FileView
+        history-view-vpane-position = 437
+
+[hooks]
+        allowunannotated = false
+
+[help]
+        autocorrect = 1
+
+[push]
+        default = tracking
+
+[rerere]
+        enabled = true
+
+[user]
+        name = "Markus Hauck"
+        email = markus1189@gmail.com
+        signingkey = A7767559
+
+[init]
+        templatedir = @gitTemplate@
+
+[apply]
+        whitespace=fix
+
+[rebase]
+        stat=true
+        autosquash=true
+
+[commit]
+        template = @gitCommitTemplate@

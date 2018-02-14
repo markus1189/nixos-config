@@ -27,6 +27,7 @@ in
           };
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
+          gitconfig = callPackage ./git { inherit mutate; };
         };
       };
     };

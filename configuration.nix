@@ -209,6 +209,9 @@ rec {
       enable = true;
     };
   };
+      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
+      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
+      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
 
   users.extraUsers.${userName} = {
     isNormalUser = true;

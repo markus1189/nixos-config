@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+
+checkMatch() {
+    MATCH="$1"
+    if git diff --exit-code --staged -G"$MATCH" "$REF" > /dev/null; then
+        :
+    else
+        echo "Refusing to commit, because there where changes matching '$MATCH'" >&2
+        exit 1
+    fi
+}
+
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+    export REF="HEAD"
+else
+    export REF="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+fi
+
+checkMatch "DONOTCOMMIT"
+
+exit 0

@@ -15,8 +15,7 @@ file: args:
 
   checkPhase = ''
     if ${gnugrep}/bin/grep -Hn '@[[:alpha:][:digit:]-]\+@' $out; then
-      echo "[ERROR] Found non interpolated pattern in $out, failing.  Matches are:"
-      echo "$MATCHES"
+      echo "[ERROR] Found non interpolated pattern in $out!" >&2
       exit 1
     fi
   '';
