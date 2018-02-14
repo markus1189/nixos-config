@@ -6,11 +6,26 @@ let
   pkgsRelease17 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-17.09.tar.gz) {};
 in
 {
-  nixpkgs.config.packageOverrides = pkgs: {
-    ncmpcpp = pkgs.ncmpcpp.override { clockSupport = true; };
-    dwarf-fortress = pkgs.dwarf-fortress.override {
-      theme = pkgs.dwarf-fortress-packages.phoebus-theme;
-      enableDFHack = true;
+  nixpkgs = {
+    config = {
+      packageOverrides = pkgs: {
+        ncmpcpp = pkgs.ncmpcpp.override { clockSupport = true; };
+        dwarf-fortress = pkgs.dwarf-fortress.override {
+          theme = pkgs.dwarf-fortress-packages.phoebus-theme;
+          enableDFHack = true;
+        };
+      };
+
+      firefox = {
+        enableGoogleTalkPlugin = true;
+        enableOfficialBranding = true;
+      };
+
+      chromium = {
+        enableWideVine = false;
+        enablePepperFlash = true;
+      };
+
     };
   };
 
@@ -36,7 +51,7 @@ in
       darktable
       docker_compose
       dmenu
-      dropbox-cli
+      # dropbox-cli
       ddgr
       deluge
       dstat

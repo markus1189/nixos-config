@@ -22,7 +22,7 @@ rec {
       ./hardware-configuration.nix
       ./keybase.nix
       ./lastpass.nix
-      ./packages.nix
+      ./programs.nix
       ./scripts/module.nix
       ./ssh.nix
       ./xps.nix
@@ -71,18 +71,7 @@ rec {
 
   nixpkgs = {
     config = {
-
       allowUnfree = true;
-
-      firefox = {
-        enableGoogleTalkPlugin = true;
-        enableOfficialBranding = true;
-      };
-
-      chromium = {
-        enableWideVine = false;
-        enablePepperFlash = true;
-      };
     };
   };
 
@@ -209,9 +198,6 @@ rec {
       enable = true;
     };
   };
-      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
-      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
-      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
 
   users.extraUsers.${userName} = {
     isNormalUser = true;
@@ -223,6 +209,7 @@ rec {
     initialPassword = "markus"; # for qemu
     symlinks = {
       ".xmonad/xmonad.hs" = pkgs.myConfigFiles.xmonad;
+      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
     };
   };
 
@@ -315,6 +302,7 @@ rec {
       clip = "${xclip}/bin/xclip -i -selection clipboard";
       ff = "${emacs}/bin/emacsclient -n -c";
       ll = "${exa}/bin/exa -labgSh --git";
+      nix-zshell = "nix-shell --command zsh";
     });
 
     etc = {
