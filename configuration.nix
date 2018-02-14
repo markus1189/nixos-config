@@ -207,9 +207,9 @@ rec {
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${userName}";
     initialPassword = "markus"; # for qemu
-    symlinks = {
-      ".xmonad/xmonad.hs" = pkgs.myConfigFiles.xmonad;
-      ".gitconfig" = pkgs.myConfigFiles.gitconfig;
+    symlinks = with pkgs.myConfigFiles; {
+      ".xmonad/xmonad.hs" = xmonad;
+      ".gitconfig" = gitconfig;
     };
   };
 
