@@ -12,6 +12,7 @@ let
   userName = "markus";
   usrPkgs = import ./scripts/scripts.nix { inherit pkgs; };
   custom = import ./custom.nix;
+  secrets = import ./secrets.nix;
 in
 rec {
   imports =
@@ -76,29 +77,17 @@ rec {
   };
 
   services = {
-    actkbd = {
-      bindings = [
-        {
-          keys = [171];
-          events = ["key"];
-          command = "${pkgs.playerctl}/bin/playerctl next";
-        }
-        {
-          keys = [172];
-          events = ["key"];
-          command = "${pkgs.playerctl}/bin/playerctl previous";
-        }
-        {
-          keys = [173];
-          events = ["key"];
-          command = "${pkgs.playerctl}/bin/playerctl play-pause";
-        }
-      ];
+    x11vnc = {
+      enable = true;
+      auth = "/home/${userName}/.Xauthority";
+      password = secrets.x11vnc.password;
     };
 
     avahi.enable = true;
 
     atd.enable = true;
+
+    arbtt.enable = true;
 
     cron = {
       enable = true;
@@ -113,38 +102,16 @@ rec {
       ttyNumber = 8;
     };
 
-    mpd = {
-      enable = false;
-      musicDirectory = "/var/lib/mpd/music";
-      extraConfig = ''
-        # log_level "verbose"
-
-        audio_output {
-          type "alsa"
-          name "My ALSA Device"
-          device "front:CARD=PCH,DEV=0"
-          format "44100:16:2"
-          mixer_type "software"
-        }
-
-        audio_output {
-          type "pulse"
-          name "mpd pulse audio"
-          mixer_type "software"
-        }
-      '';
-    };
-
     udisks2.enable = true;
 
     physlock = {
       enable = true;
     };
 
-    # printing = {
-    #   enable = true;
-    #   drivers = [ pkgs.gutenprint pkgs.foo2zjs ];
-    # };
+    printing = {
+      enable = false;
+      drivers = [ pkgs.gutenprint pkgs.foo2zjs ];
+    };
 
     unclutter.enable = true;
 
@@ -152,6 +119,10 @@ rec {
       enable = true;
       interval = "hourly";
       localuser = userName;
+    };
+
+    logkeys = {
+      enable = true;
     };
 
     sysstat = {
