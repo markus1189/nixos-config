@@ -25,10 +25,37 @@ in {
       type = types.bool;
       description = "Whether the x11vnc server is started automatically";
     };
+
+    port = mkOption {
+      default = 5900;
+      type = types.int;
+      description = "Port for the x11vnc server";
+    };
+
+    shared = mkOption {
+      default = true;
+      type = types.bool;
+      description = "Allow sharing of the screen";
+    };
+
+    viewonly = mkOption {
+      default = false;
+      type = types.bool;
+      description = "Add the -viewonly flag if true";
+    };
   };
 
-  config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [5900];
+  config = let
+    flags = [
+      "-forever"
+      "-display :0"
+      "-auth ${cfg.auth}"
+      "-passwd ${cfg.password}"
+      "-ncache"
+      "-rfbport ${toString cfg.port}"
+    ] ++ optional cfg.viewonly "-viewonly" ++ (if cfg.shared then ["-shared"] else ["-noshared"]);
+  in mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
 
     systemd.services.x11vnc = {
       description = "x11vnc server";
@@ -38,7 +65,7 @@ in {
         nettools
       ];
       serviceConfig = {
-        ExecStart = "${pkgs.x11vnc}/bin/x11vnc -display :0 -auth ${cfg.auth} -passwd ${cfg.password} -ncache";
+        ExecStart = "${pkgs.x11vnc}/bin/x11vnc ${concatStringsSep " " flags}";
         Restart = "always";
       };
     };

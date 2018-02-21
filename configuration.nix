@@ -81,6 +81,9 @@ rec {
       enable = true;
       auth = "/home/${userName}/.Xauthority";
       password = secrets.x11vnc.password;
+      viewonly = true;
+      shared = true;
+      autoStart = false;
     };
 
     avahi.enable = true;
