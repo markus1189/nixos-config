@@ -19,6 +19,12 @@ in {
       description = "X11vnc password";
       type = types.string;
     };
+
+    autoStart = mkOption {
+      default = false;
+      type = types.bool;
+      description = "Whether the x11vnc server is started automatically";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -26,7 +32,7 @@ in {
 
     systemd.services.x11vnc = {
       description = "x11vnc server";
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = optional cfg.autoStart "graphical-session.target";
       path = with pkgs; [
         gawk
         nettools
