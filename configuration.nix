@@ -126,6 +126,7 @@ rec {
 
     logkeys = {
       enable = true;
+      device = "/dev/input/event15";
     };
 
     sysstat = {
