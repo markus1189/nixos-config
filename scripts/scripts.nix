@@ -98,7 +98,7 @@ rec {
     name = "ts";
     deps = [ coreutils ];
   } ''
-    FORMAT="''${1:-"%H:%M:%S"}"
+    FORMAT="''${1:-"%H:%M:%S".%N}"
     while read -r line ; do echo "$(date "+$FORMAT"): $line"; done
   '';
 
