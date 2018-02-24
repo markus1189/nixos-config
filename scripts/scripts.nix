@@ -102,30 +102,6 @@ rec {
     while read -r line ; do echo "$(date "+$FORMAT"): $line"; done
   '';
 
-  multihead-datawerks = writeXrandrScript {
-    name = "multihead-datawerks";
-    deps = [ xorg.xrandr libnotify ];
-  } ''
-    xrandr --output VIRTUAL1 --off \
-           --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal \
-           --output DP1 --off \
-           --output HDMI2 --off \
-           --output HDMI1 --mode 1920x1080 --pos 0x0 --rotate normal \
-           --output DP2 --off
-  '';
-
-  multihead-asus = writeShellScriptBin {
-    name = "multihead-asus";
-    deps = [ xorg.xrandr libnotify ];
-  } ''
-    xrandr --output VIRTUAL1 --off \
-           --output eDP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal \
-           --output DP1 --mode 1920x1080 --pos 1920x0 --rotate normal \
-           --output HDMI2 --off \
-           --output HDMI1 --off \
-           --output DP2 --off
-  '';
-
   multihead-left = writeXrandrScript {
     name = "multihead-left";
     deps = [ xorg.xrandr libnotify ];

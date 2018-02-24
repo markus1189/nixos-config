@@ -16,10 +16,8 @@ in
       gnuplot-quick
       is-vpn-active
       lock-screen
-      multihead-datawerks
       multihead-left
       multihead-right
-      multihead-asus
       multihead-4k
       singlehead
       select-spotify
