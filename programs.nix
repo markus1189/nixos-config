@@ -95,6 +95,7 @@ in
       imagemagick
       imv
       inkscape
+      insomnia
       jo
       jq
       libnotify
@@ -108,6 +109,7 @@ in
       netcat-openbsd
       nethogs
       nix-repl
+      nixUnstable
       nmap
       openssl
       openvpn
