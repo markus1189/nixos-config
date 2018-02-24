@@ -7,7 +7,7 @@ in
     config = rec {
       packageOverrides = pkgs:
       let
-        allPkgs = pkgs // myScripts // {
+        allPkgs = pkgs // myScripts // pkgs.xorg // {
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
           xmobar = pkgs.haskellPackages.xmobar;
@@ -18,8 +18,9 @@ in
         myScripts = pkgs.callPackage ./scripts { };
         xmobars = callPackage ./xmobarrc { inherit mutate; };
         mutate = callPackage ./mutate { };
-      in rec {
-        inherit myScripts mutate;
+        insomnia = callPackage ./insomnia { };
+    in rec {
+        inherit myScripts mutate insomnia;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             inherit mutate;
