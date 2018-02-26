@@ -124,7 +124,7 @@ rec {
       localuser = userName;
     };
 
-    logkeys = {
+    logkeyscustom = {
       enable = true;
       device = "/dev/input/event15";
     };
