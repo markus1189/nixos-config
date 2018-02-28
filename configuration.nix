@@ -275,7 +275,7 @@ rec {
     shellAliases = (with pkgs; {
       "..." = "cd ../..";
       ".." = "cd ..";
-      cdpr = "if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo 'Not a git repository'; fi";
+      cdpr = "if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo \"Not a git repository\"; fi";
       clipout = "${xclip}/bin/xclip -o -selection clipboard";
       clip = "${xclip}/bin/xclip -i -selection clipboard";
       ff = "${emacs}/bin/emacsclient -n -c";
