@@ -281,6 +281,7 @@ rec {
       ff = "${emacs}/bin/emacsclient -n -c";
       ll = "${exa}/bin/exa -labgSh --git";
       nix-zshell = "nix-shell --command zsh";
+      clone = "cd ~/repos/clones; git clone";
     });
 
     etc = {
