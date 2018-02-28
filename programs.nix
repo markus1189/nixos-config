@@ -108,7 +108,6 @@ in
       mtools
       netcat-openbsd
       nethogs
-      nix-repl
       nixUnstable
       nmap
       openssl
