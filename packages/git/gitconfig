@@ -60,6 +60,7 @@
         name = "Markus Hauck"
         email = markus1189@gmail.com
         signingkey = A7767559
+        useConfigOnly = true
 
 [init]
         templatedir = @gitTemplate@
