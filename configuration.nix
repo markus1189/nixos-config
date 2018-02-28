@@ -210,6 +210,7 @@ rec {
       corefonts
       google-fonts
       inconsolata
+      iosevka
       powerline-fonts
       source-code-pro
       source-sans-pro
