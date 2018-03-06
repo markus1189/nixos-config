@@ -11,6 +11,7 @@ libnotify,
 nixos-artwork,
 playerctl,
 psmisc,
+procps,
 pulseaudioFull,
 rofi,
 scrot,
@@ -111,11 +112,12 @@ rec {
 
   isVpnActive = writeShellScript {
     name = "isVpnActive";
-    deps = [ systemd ];
+    deps = [ systemd procps ];
     failFast = false;
   } ''
     OUTPUT="$(systemctl is-active openvpn-*.service)"
-    COLOR=$(if [[ "$OUTPUT" == active ]]; then echo lightgreen; else echo red; fi)
+    OPENCONNECT="$(pgrep openconnect)"
+    COLOR=$(if [[ "$OUTPUT" == active || ! -z "$OPENCONNECT" ]]; then echo lightgreen; else echo red; fi)
     echo "<fc=$COLOR>VPN</fc>"
   '';
 
