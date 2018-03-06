@@ -109,6 +109,8 @@ in
       netcat-openbsd
       nethogs
       nixUnstable
+      nix-index
+      nixops
       nmap
       openssl
       openvpn
