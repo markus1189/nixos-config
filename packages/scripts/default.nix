@@ -1,5 +1,6 @@
 {
 coreutils,
+emacs,
 gnugrep,
 gnuplot,
 gnused,
@@ -322,5 +323,42 @@ rec {
       ALBUM2="$(if [[ "$TITLE" == "$ALBUM" ]]; then echo ; else echo "($ALBUM)"; fi)"
       echo -n "<fc=orange>''${TITLE}</fc> by <fc=orange>''${ARTIST}</fc> ''${ALBUM2}"
     fi
+  '';
+
+  emacsAnywhere = writeShellScript {
+    name = "emacsAnywhere";
+    deps = [ xdotool libnotify emacs coreutils ];
+    failFast = false;
+  } ''
+
+    function waitForClose {
+      until ! xdotool search --name 'Emacs Anywhere'; do
+          :
+      done
+    }
+    read -r -d ''' ELISP <<'EOF'
+    (defun ea-on-delete (frame)
+      (clipboard-kill-ring-save
+       (point-min)
+       (point-max))
+      (sit-for 0.3)
+      (kill-buffer "*Emacs Anywhere*"))
+
+    (defun ea-hook ()
+      (add-hook 'delete-frame-functions 'ea-on-delete))
+
+    (ea-hook)
+    (message "ready")
+    (switch-to-buffer "*Emacs Anywhere*")
+    (select-frame-set-input-focus (selected-frame))
+    EOF
+
+    timeout 2s waitForClose
+
+    emacsclient -a "" -c -e "(progn $ELISP)"
+
+    sleep 0.1
+
+    notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
 }

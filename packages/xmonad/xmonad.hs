@@ -210,6 +210,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_F2)        , spawn "@multihead4k@")
          , ((myModKey   , xK_F12)       , spawn "@takeScreenshot@")
          , ((myModCtrl  , xK_l)         , spawn "@lockScreen@")
+         , ((myModCtrl  , xK_e)         , spawn "@emacsAnywhere@")
 
          -- Spotify client
          , ((myModCtrl, xK_F4), spawn "@playerctl@/bin/playerctl previous")
