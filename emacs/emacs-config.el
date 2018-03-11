@@ -36,10 +36,15 @@
   :defer
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
-         ("s-G" . magit-dispatch-popup))
-  :config
-  (fullframe magit-status magit-mode-quit-window)
-  )
+         ("s-G" . magit-dispatch-popup)
+	 :map magit-process-mode
+	 ("k" . magit-process-kill))
+  :init
+  (defun mh/magit-log-edit-mode-hook ()
+    (flyspell-mode)
+    (set-fill-column 72))
+  :hook
+  ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)))
 
 (use-package projectile
   :ensure t
