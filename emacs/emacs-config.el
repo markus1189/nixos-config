@@ -25,6 +25,12 @@
   :defer 2
   :config (global-flycheck-mode))
 
+(use-package fullframe
+  :ensure t
+  :demand t
+  :init
+  (fullframe magit-status magit-mode-quit-window))
+
 (use-package magit
   :ensure t
   :defer
