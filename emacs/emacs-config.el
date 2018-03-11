@@ -1,6 +1,9 @@
 (require 'package)
 
+(desktop-save-mode 1)
+
 ;; make unpure packages archives unavailable
+(setq package-archives nil)
 (setq package-archives nil)
 
 (package-initialize 'noactivate)
@@ -120,7 +123,9 @@
   :ensure t
   :diminish undo-tree-mode
   :config (global-undo-tree-mode)
-  :bind ("s-/" . undo-tree-visualize))
+  :bind (("s-/" . undo-tree-visualize)
+	 ("C-/" . undo-tree-undo)
+	 ("C-?" . undo-tree-redo)))
 
 (use-package goto-chg
   :ensure t
@@ -296,9 +301,12 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t)
 
 (use-package smartparens
+  :demand t
   :ensure t
   :bind
-  ("C-k" . sp-kill-hybrid-sexp)
+  (("C-k" . sp-kill-hybrid-sexp)
+   ("M-D" . sp-unwrap-sexp)
+   ("C-s-s" . sp-split-sexp))
   :config
   (require 'smartparens-config)
   (show-smartparens-global-mode t)
