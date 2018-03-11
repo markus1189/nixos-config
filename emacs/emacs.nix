@@ -20,37 +20,44 @@ let
   '';
 in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
-    myEmacsConfig
-    magit
-    use-package
-    projectile
-    company
-    flycheck
-    solarized-theme
-    avy
-    fasd
-    quick-yes
-    undo-tree
-    goto-chg
-    yasnippet
-    indent-guide
-    git-link
-    helm
-    helm-projectile
-    wgrep-helm
-    nix-mode
-    liso-theme
-    expand-region
-    scala-mode
-    sbt-mode
-    smartparens
-    move-text
-    find-temp-file
-    f
-    s
-    haskell-mode
-    ox-jira
-  ]) ++ (with epkgs.elpaPackages; [
+  avy
+  company
+  evil-numbers
+  expand-region
+  f
+  fasd
+  find-temp-file
+  flycheck
+  fullframe
+  git-commit
+  git-link
+  goto-chg
+  haskell-mode
+  helm
+  helm-flyspell
+  helm-projectile
+  iedit
+  indent-guide
+  iy-go-to-char
+  liso-theme
+  magit
+  move-text
+  multiple-cursors
+  nix-mode
+  ox-jira
+  projectile
+  quick-yes
+  s
+  sbt-mode
+  scala-mode
+  smartparens
+  solarized-theme
+  undo-tree
+  use-package
+  wgrep-helm
+  yasnippet
+  myEmacsConfig
+]) ++ (with epkgs.elpaPackages; [
     # auctex
   ]) ++ [
     pkgs.mu
