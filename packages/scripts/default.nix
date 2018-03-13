@@ -348,16 +348,16 @@ rec {
       (add-hook 'delete-frame-functions 'ea-on-delete))
 
     (ea-hook)
-    (message "ready")
     (switch-to-buffer "*Emacs Anywhere*")
     (select-frame-set-input-focus (selected-frame))
+    (call-interactively 'find-temp-file)
     EOF
-
-    timeout 2s waitForClose
 
     emacsclient -a "" -c -e "(progn $ELISP)"
 
-    sleep 0.1
+    timeout 2s waitForClose
+
+    sleep 0.2
 
     notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
