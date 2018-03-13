@@ -3,6 +3,123 @@
 
 (desktop-save-mode 1)
 
+;; (custom-set-faces
+;;  '(helm-selection ((t (:background "#eee8d5" :foreground "red" :weight bold))))
+;;  '(default ((t (:inherit nil :stipple nil :background "#fdf6e3" :foreground "#657b83" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "ADBO" :family "Source Code Pro"))))
+;;  '(magit-hash ((t (:foreground "#268bd2"))))
+;;  '(sp-show-pair-match-face ((t (:background "#d33682" :foreground "black" :weight bold)))))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#f6f3e8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Source Code Pro"))))
+ '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
+ '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
+ '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
+ '(ace-jump-face-foreground ((t (:foreground "dark orange" :underline nil))))
+ '(agda2-highlight-datatype-face ((t (:foreground "deep sky blue"))))
+ '(agda2-highlight-function-face ((t (:foreground "deep sky blue"))))
+ '(avy-lead-face ((t (:background "orange1" :foreground "black"))))
+ '(avy-lead-face-0 ((t (:background "pale green" :foreground "black"))))
+ '(avy-lead-face-1 ((t (:background "sky blue" :foreground "black"))))
+ '(avy-lead-face-2 ((t (:background "IndianRed2" :foreground "black"))))
+ '(bmkp-*-mark ((t (:foreground "orange"))))
+ '(bmkp-D-mark ((t (:foreground "red"))))
+ '(bmkp-a-mark ((t (:foreground "yellow"))))
+ '(bmkp-bad-bookmark ((t (:foreground "Red" :underline t :slant italic))))
+ '(bmkp-local-directory ((t (:foreground "Pink"))))
+ '(col-highlight ((t (:inherit hl-line))))
+ '(company-preview ((t (:foreground "dim gray"))))
+ '(company-preview-common ((t (:inherit company-preview :foreground "dark orange"))))
+ '(company-scrollbar-bg ((t (:inherit company-tooltip :background "dark gray"))))
+ '(company-scrollbar-fg ((t (:background "dark orange"))))
+ '(company-tooltip ((t (:background "gray17" :foreground "light gray"))))
+ '(company-tooltip-annotation ((t (:inherit company-tooltip :foreground "dark orange"))))
+ '(company-tooltip-common ((t (:inherit company-tooltip :foreground "dark orange"))))
+ '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :foreground "black"))))
+ '(company-tooltip-selection ((t (:inherit company-tooltip :background "orange1" :foreground "black"))))
+ '(cursor ((t (:background "white smoke" :inverse-video t))))
+ '(diredp-compressed-file-suffix ((t (:foreground "steel blue"))))
+ '(diredp-date-time ((t (:foreground "pale goldenrod"))))
+ '(diredp-deletion ((t (:foreground "red"))))
+ '(diredp-dir-heading ((t (:foreground "pale green" :height 1.15))))
+ '(diredp-dir-priv ((t (:foreground "#8ac6f2"))))
+ '(diredp-exec-priv ((t (:foreground "yellow"))))
+ '(diredp-file-name ((t (:foreground "white"))))
+ '(diredp-file-suffix ((t (:foreground "light gray"))))
+ '(diredp-flag-mark ((t (:foreground "DarkOrange1"))))
+ '(diredp-flag-mark-line ((t (:background "gray20"))))
+ '(diredp-ignored-file-name ((t (:foreground "dark gray"))))
+ '(diredp-link-priv ((t (:foreground "dodger blue"))))
+ '(diredp-mode-line-marked ((t (:foreground "#6B6BFFFF2C2C"))))
+ '(diredp-number ((t (:foreground "pale goldenrod"))))
+ '(diredp-rare-priv ((t (:background "red" :foreground "black"))))
+ '(diredp-read-priv ((t (:foreground "tomato"))))
+ '(diredp-symlink ((t (:foreground "pale green"))))
+ '(diredp-write-priv ((t (:foreground "spring green"))))
+ '(ediff-current-diff-C ((t (:background "RoyalBlue4"))))
+ '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
+ '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
+ '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
+ '(ensime-implicit-highlight ((t (:underline (:color "dim gray" :style wave)))))
+ '(eshell-prompt ((t (:foreground "light sky blue" :weight bold))))
+ '(flyspell-duplicate ((t (:underline "red"))))
+ '(flyspell-incorrect ((t (:foreground "red" :underline "red"))))
+ '(guide-key/highlight-command-face ((t (:foreground "spring green"))))
+ '(guide-key/key-face ((t (:foreground "dark orange"))))
+ '(guide-key/prefix-command-face ((t (:foreground "dark orange"))))
+ '(helm-candidate-number ((t (:inherit helm-source-header :height 0.7))))
+ '(helm-ff-directory ((t (:foreground "#8ac6f2"))))
+ '(helm-ff-executable ((t (:foreground "chartreuse2"))))
+ '(helm-selection ((t (:background "gray24" :weight bold))))
+ '(helm-source-header ((t (:foreground "DarkOrange2" :weight bold :height 1.3 :family "Sans Serif"))))
+ '(helm-visible-mark ((t (:background "dark orange" :foreground "black"))))
+ '(hl-line ((t (:background "gray20"))))
+ '(hl-paren-face ((t (:weight ultra-bold))) t)
+ '(linum ((t (:inherit (shadow default) :height 0.9))))
+ '(magit-item-highlight ((t (:inherit hl-line))))
+ '(match ((t (:background "dark green" :foreground "white"))))
+ '(minesweeper-1 ((t (:foreground "steel blue"))))
+ '(minesweeper-2 ((t (:foreground "light green"))))
+ '(minesweeper-3 ((t (:foreground "medium violet red"))))
+ '(minesweeper-marked ((t (:foreground "yellow"))))
+ '(minesweeper-neighbor ((t (:background "black"))))
+ '(newsticker-treeview-selection-face ((t (:inherit hl-line))))
+ '(org-level-4 ((t (:foreground "dark orange"))))
+ '(org-todo ((t (:foreground "indian red" :weight bold))))
+ '(popup-isearch-match ((t (:background "orange" :foreground "black"))))
+ '(popup-menu-selection-face ((t (:background "dark orange" :foreground "black"))))
+ '(region ((t (:background "#444444" :foreground "#f6f3e8" :weight bold))))
+ '(shm-current-face ((t (:background "gray18"))))
+ '(sp-show-pair-match-face ((t (:inherit match))))
+ '(term-color-blue ((t (:background "cornflower blue" :foreground "cornflower blue"))))
+ '(term-color-green ((t (:background "light green" :foreground "light green"))))
+ '(term-color-magenta ((t (:background "orchid" :foreground "orchid"))))
+ '(term-color-red ((t (:background "firebrick1" :foreground "firebrick1"))))
+ '(term-color-yellow ((t (:background "yellow" :foreground "yellow"))))
+ '(trailing-whitespace ((t (:underline "dark red"))))
+ '(visible-mark-face ((t (:background "dim gray"))))
+ '(vr/group-0 ((t (:background "RoyalBlue4"))))
+ '(vr/group-1 ((t (:background "#335533"))))
+ '(vr/group-2 ((t (:background "brown4"))))
+ '(vr/match-0 ((t (:background "gray30"))))
+ '(vr/match-1 ((t (:background "black"))))
+ '(wgrep-delete-face ((t (:background "firebrick4"))))
+ '(wgrep-face ((t (:background "dark green"))))
+ '(window-number-face ((t (:foreground "white"))))
+ '(writegood-duplicates-face ((t (:inherit font-lock-warning-face :background "DeepPink" :foreground "black"))))
+ '(writegood-passive-voice-face ((t (:inherit font-lock-warning-face :background "LemonChiffon" :foreground "black"))))
+ '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
+
+(custom-set-variables
+ '(custom-enabled-themes (quote (wombat)))
+ '(helm-split-window-default-side (quote right))
+ '(helm-for-files-preferred-list
+   (quote
+    (helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir helm-source-locate))))
+
 ;; make unpure packages archives unavailable
 (setq package-archives nil)
 (setq package-archives nil)
@@ -29,7 +146,7 @@
 (use-package fullframe
   :ensure t
   :demand t
-  :init
+  :config
   (fullframe magit-status magit-mode-quit-window))
 
 (use-package magit
@@ -38,8 +155,8 @@
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
          ("s-G" . magit-dispatch-popup)
-	 :map magit-process-mode
-	 ("k" . magit-process-kill))
+         :map magit-process-mode-map
+         ("k" . magit-process-kill))
   :init
   (defun mh/magit-log-edit-mode-hook ()
     (flyspell-mode)
@@ -79,16 +196,17 @@
          ("C-w" . backward-kill-word)
          ("C-S-n" . mh/helm-next-line-fast)
          ("C-S-p" . mh/helm-previous-line-fast))
-  :init
   :config
-  ;; (setq magit-completing-read-function 'helm-completing-read)
+
   (defun mh/helm-next-line-fast ()
     (interactive)
     (progn (helm-next-line 5)))
+
   (defun mh/helm-previous-line-fast ()
     (interactive)
     (progn (helm-previous-line 5)))
-  (helm-mode 1)
+
+
   (defun helm-fasd ()
     "Preconfigured helm to search using fasd."
     (interactive)
@@ -99,7 +217,12 @@
     (helm-build-sync-source "helm-source-fasd"
       :volatile 't
       :candidates (lambda () (s-lines (shell-command-to-string "fasd -lR"))) ; TODO: use mutate
-      :action 'helm-type-file-actions)))
+      :action 'helm-type-file-actions))
+  (helm-mode 1))
+
+(use-package helm-swoop
+  :ensure t
+  :bind ("M-s o" . helm-swoop))
 
 (use-package wgrep-helm
     :ensure t)
@@ -111,7 +234,8 @@
   (setq solarized-use-variable-pitch nil)
   (setq solarized-high-contrast-mode-line t)
   :config
-  (load-theme 'solarized-light))
+  ;; (load-theme 'solarized-light)
+  )
 
 (use-package avy
   :ensure t
@@ -136,8 +260,8 @@
   :diminish undo-tree-mode
   :config (global-undo-tree-mode)
   :bind (("s-/" . undo-tree-visualize)
-	 ("C-/" . undo-tree-undo)
-	 ("C-?" . undo-tree-redo)))
+         ("C-/" . undo-tree-undo)
+         ("C-?" . undo-tree-redo)))
 
 (use-package goto-chg
   :ensure t
@@ -278,8 +402,8 @@ Position the cursor at its beginning, according to the current mode."
     (when (not buffer-backed-up)
       ;; Override the default parameters for per-session backups.
       (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-	    (kept-new-versions 3))
-	(backup-buffer)))
+            (kept-new-versions 3))
+        (backup-buffer)))
     ;; Make a "per save" backup on each save.  The first save results in
     ;; both a per-session and a per-save backup, to keep the numbering
     ;; of per-save backups consistent.
@@ -333,18 +457,34 @@ Position the cursor at its beginning, according to the current mode."
 (use-package find-temp-file
   :ensure t
   :bind
-  ("C-s-f" . find-temp-file))
-
-(custom-set-faces
- '(helm-selection ((t (:background "#eee8d5" :foreground "red" :weight bold))))
- '(default ((t (:inherit nil :stipple nil :background "#fdf6e3" :foreground "#657b83" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "ADBO" :family "Source Code Pro"))))
- '(magit-hash ((t (:foreground "#268bd2")))))
-
-(custom-set-variables
- '(helm-split-window-default-side (quote right))
- '(helm-for-files-preferred-list
-   (quote
-    (helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir helm-source-locate))))
+  ("C-s-f" . find-temp-file)
+  :config
+  (setq find-temp-file-prefix (list "etf-alpha"
+                                    "etf-bravo"
+                                    "etf-charlie"
+                                    "etf-delta"
+                                    "etf-echo"
+                                    "etf-foxtrot"
+                                    "etf-golf"
+                                    "etf-hotel"
+                                    "etf-india"
+                                    "etf-juliet"
+                                    "etf-kilo"
+                                    "etf-lima"
+                                    "etf-mike"
+                                    "etf-november"
+                                    "etf-oscar"
+                                    "etf-papa"
+                                    "etf-quebec"
+                                    "etf-romeo"
+                                    "etf-sierra"
+                                    "etf-tango"
+                                    "etf-uniform"
+                                    "etf-victor"
+                                    "etf-whiskey"
+                                    "etf-x-ray"
+                                    "etf-yankee"
+                                    "etf-zulu")))
 
 (use-package haskell-mode
   :ensure t)
@@ -352,4 +492,26 @@ Position the cursor at its beginning, according to the current mode."
 (use-package ox-jira
   :ensure t)
 
+(use-package multiple-cursors
+  :ensure t
+  :init
+  (defun mh/mc/create-fake-cursor-at-point () (interactive) mc/create-fake-cursor-at-point)
+  (defun mh/multiple-cursors-mode () (interactive) (multiple-cursors-mode 1))
+  :bind
+  (("C-M->" . mh/mc/create-fake-cursor-at-point)
+   ("C-M-<" . mh/multiple-cursors-mode)
+   ("C-#" . mc/mark-all-like-this-dwim)
+   ("C->" . mc/mark-next-like-this)
+   ("C-<" . mc/mark-previous-like-this)))
+
+(use-package compile
+  :ensure t
+  :demand t
+  :config
+  (require 'ansi-color)
+  (defun colorize-compilation-buffer ()
+    (toggle-read-only)
+    (ansi-color-apply-on-region compilation-filter-start (point))
+    (toggle-read-only))
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
 ;;;

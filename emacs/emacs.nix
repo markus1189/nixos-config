@@ -16,48 +16,50 @@ let
   in
     pkgs.runCommand "download-quick-yes" {} ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${src} $out/share/emacs/site-lisp/default.el
+    cp ${src} $out/share/emacs/site-lisp/quick-yes.el
   '';
 in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
-  avy
-  company
-  evil-numbers
-  expand-region
-  f
-  fasd
-  find-temp-file
-  flycheck
-  fullframe
-  git-commit
-  git-link
-  goto-chg
-  haskell-mode
-  helm
-  helm-flyspell
-  helm-projectile
-  iedit
-  indent-guide
-  iy-go-to-char
-  liso-theme
-  magit
-  move-text
-  multiple-cursors
-  nix-mode
-  ox-jira
-  projectile
-  quick-yes
-  s
-  sbt-mode
-  scala-mode
-  smartparens
-  solarized-theme
-  undo-tree
-  use-package
-  wgrep-helm
-  yasnippet
-  myEmacsConfig
-]) ++ (with epkgs.elpaPackages; [
+    avy
+    company
+    dash
+    evil-numbers
+    expand-region
+    f
+    fasd
+    find-temp-file
+    flycheck
+    fullframe
+    git-commit
+    git-link
+    goto-chg
+    haskell-mode
+    helm
+    helm-flyspell
+    helm-projectile
+    helm-swoop
+    iedit
+    indent-guide
+    iy-go-to-char
+    liso-theme
+    magit
+    move-text
+    multiple-cursors
+    nix-mode
+    ox-jira
+    projectile
+    quick-yes
+    s
+    sbt-mode
+    scala-mode
+    smartparens
+    solarized-theme
+    undo-tree
+    use-package
+    wgrep-helm
+    yasnippet
+    myEmacsConfig
+  ]) ++ (with epkgs.elpaPackages; [
     # auctex
   ]) ++ [
     pkgs.mu
