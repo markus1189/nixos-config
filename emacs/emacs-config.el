@@ -1,4 +1,5 @@
 (require 'package)
+(require 'quick-yes) ;; added via load path...
 
 (desktop-save-mode 1)
 
