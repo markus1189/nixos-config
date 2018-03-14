@@ -1,5 +1,6 @@
 (require 'package)
 (require 'quick-yes) ;; added via load path...
+(require 'dired+) ;; added via load path...
 
 (desktop-save-mode 1)
 
@@ -114,14 +115,49 @@
  '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
 
 (custom-set-variables
+ '(dired-auto-revert-buffer (quote dired-directory-changed-p))
+ '(dired-dwim-target t)
+ '(dired-filter-saved-filters (quote (("custom-filters" (omit)))))
+ '(dired-guess-shell-alist-user
+   (quote
+    (("\\.hp\\'" "hp2pretty" "hp2ps")
+     ("\\.\\(svg\\)\\|\\(png\\)\\|\\(jpg\\)\\'" "imv")
+     ("\\.\\(mp4\\)\\|\\(avi\\)\\|\\(mkv\\)\\|\\(m4v\\)\\'" "mplayer -really-quiet")
+     ("\\.pdf\\'" "zathura" "pdftotext ? /dev/stdout" "evince")
+     ("\\.ps\\'" "evince")
+     ("\\.\\(ods\\)\\|\\(odf\\)\\'" "libreoffice")
+     ("\\.\\(zip\\)\\|\\(rar\\)\\'" "file-roller")
+     ("\\.jar\\'" "java -jar"))))
+ '(dired-isearch-filenames (quote dwim))
+ '(dired-listing-switches "-al --block-size=M --group-directories-first")
+ '(diredp-hide-details-initially-flag nil)
  '(custom-enabled-themes (quote (wombat)))
  '(helm-split-window-default-side (quote right))
+ '(magit-default-tracking-name-function (quote magit-default-tracking-name-branch-only))
+ '(magit-diff-options (quote ("--minimal" "--patience")))
+ '(magit-diff-refine-hunk nil)
+ '(magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n100")))
+ '(magit-log-auto-more t)
+ '(magit-merge-arguments (quote ("--no-ff")))
+ '(magit-mode-hook (quote (magit-load-config-extensions)))
+ '(magit-process-log-max 50)
+ '(magit-process-popup-time -1)
+ '(magit-rebase-arguments (quote ("--autostash")))
+ '(magit-remote-ref-format (quote remote-slash-branch))
+ '(magit-repo-dirs (quote ("~/repos")))
+ '(magit-repository-directories (quote ("~/repos")))
+ '(magit-restore-window-configuration t)
+ '(magit-revert-buffers (quote silent) t)
+ '(magit-server-window-for-rebase (quote pop-to-buffer))
+ '(magit-set-upstream-on-push t)
+ '(magit-tag-arguments (quote ("--annotate")))
+ '(magit-use-overlays t)
  '(helm-for-files-preferred-list
    (quote
-    (helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir helm-source-locate))))
+    (helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir helm-source-locate)))
+ '(whitespace-action (quote (auto-cleanup))))
 
 ;; make unpure packages archives unavailable
-(setq package-archives nil)
 (setq package-archives nil)
 
 (package-initialize 'noactivate)
@@ -154,9 +190,9 @@
   :defer
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
-         ("s-G" . magit-dispatch-popup)
-         :map magit-process-mode-map
-         ("k" . magit-process-kill))
+	 ("s-G" . magit-dispatch-popup)
+	 :map magit-process-mode-map
+	 ("k" . magit-process-kill))
   :init
   (defun mh/magit-log-edit-mode-hook ()
     (flyspell-mode)
@@ -169,11 +205,13 @@
   :diminish projectile-mode
   :commands projectile-global-mode
   :defer 5
-  :bind
-  ("C-s-p" . projectile-find-file)
+  :bind (("C-s-p" . projectile-find-file))
+
   :config
   (use-package helm-projectile
-    :bind ("C-s-p" . projectile-find-file)
+    :demand t
+    :bind (("C-s-p" . projectile-find-file)
+	   ("s-h" . helm-projectile-grep))
     :config
     (setq projectile-completion-system 'helm)
     (helm-projectile-on))
@@ -188,14 +226,14 @@
 (use-package helm
   :ensure t
   :bind (("s-;" . helm-for-files)
-         ("s-'" . helm-M-x)
-         ("s-f" . helm-find-files)
-         ("M-y" . helm-show-kill-ring)
-         ("s-RET" . 'helm-man-woman)
-         :map helm-map
-         ("C-w" . backward-kill-word)
-         ("C-S-n" . mh/helm-next-line-fast)
-         ("C-S-p" . mh/helm-previous-line-fast))
+	 ("s-'" . helm-M-x)
+	 ("s-f" . helm-find-files)
+	 ("M-y" . helm-show-kill-ring)
+	 ("s-RET" . 'helm-man-woman)
+	 :map helm-map
+	 ("C-w" . backward-kill-word)
+	 ("C-S-n" . mh/helm-next-line-fast)
+	 ("C-S-p" . mh/helm-previous-line-fast))
   :config
 
   (defun mh/helm-next-line-fast ()
@@ -211,7 +249,7 @@
     "Preconfigured helm to search using fasd."
     (interactive)
     (helm :sources '(helm-source-fasd)
-          :buffer "*helm async fasd source*"))
+	  :buffer "*helm async fasd source*"))
 
   (defvar helm-source-fasd
     (helm-build-sync-source "helm-source-fasd"
@@ -244,11 +282,11 @@
   (defun mh/avy-goto-word-or-subword-or-char (prefix)
     (interactive "P")
     (cond ((equal (list 4) prefix) (avy-goto-word-or-subword-1))
-          (t (avy-goto-char-timer))))
+	  (t (avy-goto-char-timer))))
   :bind (("s-l" . mh/avy-goto-word-or-subword-or-char)
-         ("s-:" . avy-goto-line)
-         :map isearch-mode-map
-         ("C-'" . avy-isearch)))
+	 ("s-:" . avy-goto-line)
+	 :map isearch-mode-map
+	 ("C-'" . avy-isearch)))
 
 (use-package fasd
   :ensure t
@@ -260,14 +298,14 @@
   :diminish undo-tree-mode
   :config (global-undo-tree-mode)
   :bind (("s-/" . undo-tree-visualize)
-         ("C-/" . undo-tree-undo)
-         ("C-?" . undo-tree-redo)))
+	 ("C-/" . undo-tree-undo)
+	 ("C-?" . undo-tree-redo)))
 
 (use-package goto-chg
   :ensure t
   :commands goto-last-change
   :bind (("C-." . goto-last-change)
-         ("C-," . goto-last-change-reverse)))
+	 ("C-," . goto-last-change-reverse)))
 
 (use-package yasnippet
   :ensure t
@@ -289,33 +327,33 @@
   :config
   (defun mh/git-link-aareal-gogs (hostname dirname filename branch commit start end)
     (format "http://%s/%s/src/%s/%s"
-            hostname
-            dirname
-            commit
-            (concat filename
-                    (when start
-                      (concat "#"
-                              (if end
-                                  (format "L%s-L%s" start end)
-                                (format "L%s" start)))))))
+	    hostname
+	    dirname
+	    commit
+	    (concat filename
+		    (when start
+		      (concat "#"
+			      (if end
+				  (format "L%s-L%s" start end)
+				(format "L%s" start)))))))
 
   (defun mh/git-link-github (hostname dirname filename branch commit start end)
     (format "https://%s/%s/blob/%s/%s"
-            hostname
-            dirname
-            commit
-            (concat filename
-                    (when start
-                      (concat "#"
-                              (if end
-                                  (format "L%s-L%s" start end)
-                                (format "L%s" start)))))))
+	    hostname
+	    dirname
+	    commit
+	    (concat filename
+		    (when start
+		      (concat "#"
+			      (if end
+				  (format "L%s-L%s" start end)
+				(format "L%s" start)))))))
   (setq git-link-remote-alist
-        '(("github.com" mh/git-link-github)
-          ("bitbucket" git-link-bitbucket)
-          ("gitorious" git-link-gitorious)
-          ("gitlab" git-link-gitlab)
-          ("gogs.default.dev.aareality.aareal.org" mh/git-link-aareal-gogs))))
+	'(("github.com" mh/git-link-github)
+	  ("bitbucket" git-link-bitbucket)
+	  ("gitorious" git-link-gitorious)
+	  ("gitlab" git-link-gitlab)
+	  ("gogs.default.dev.aareality.aareal.org" mh/git-link-aareal-gogs))))
 
 (use-package nix-mode
   :ensure t)
@@ -351,6 +389,12 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (other-window 1))
 
+  (defun mh/copy-file-and-line ()
+    (interactive)
+    (let ((name buffer-file-name))
+      (message "Copied: %s" name)
+      (kill-new name)))
+
   (global-set-key (kbd "M-i") 'back-to-indentation)
   (global-set-key (kbd "s-[") 'mh/other-window-backward)
   (global-set-key (kbd "s-]") 'mh/other-window-forward)
@@ -374,7 +418,16 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "s-TAB") 'winner-undo)
   (global-set-key (kbd "C-S-s-i") 'winner-redo)
 
-  (setq frame-title-format "Emacs: %b (%f)")
+  (global-set-key (kbd "C-c y") 'mh/copy-file-and-line)
+  (global-set-key (kbd "C-w") 'backward-kill-word)
+  (global-set-key (kbd "C-s-k") 'kill-region)
+  (global-set-key (kbd "C-c t") 'make-frame)
+  (global-set-key (kbd "<f7>") (Λ (switch-to-buffer "*scratch*")))
+
+  (global-set-key (kbd "C-;") 'iedit-mode)
+  (global-set-key (kbd "C-c o") 'org-open-at-point-global)
+
+  (setq frame-title-format "Nixmacs: %b (%f)")
   (put 'narrow-to-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
   (put 'set-goal-column 'disabled nil)
@@ -402,8 +455,8 @@ Position the cursor at its beginning, according to the current mode."
     (when (not buffer-backed-up)
       ;; Override the default parameters for per-session backups.
       (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-            (kept-new-versions 3))
-        (backup-buffer)))
+	    (kept-new-versions 3))
+	(backup-buffer)))
     ;; Make a "per save" backup on each save.  The first save results in
     ;; both a per-session and a per-save backup, to keep the numbering
     ;; of per-save backups consistent.
@@ -414,21 +467,21 @@ Position the cursor at its beginning, according to the current mode."
 
   (if window-system
       (progn
-        (tool-bar-mode -1)
-        (menu-bar-mode -1)
-        (toggle-scroll-bar -1)))
+	(tool-bar-mode -1)
+	(menu-bar-mode -1)
+	(toggle-scroll-bar -1)))
 
   (add-hook 'focus-out-hook (lambda () (interactive) (save-some-buffers t))))
 
 (use-package quick-yes
   :bind (
-         :map query-replace-map
-         ("M-y" . act)
-         ("M-n" . skip)))
+	 :map query-replace-map
+	 ("M-y" . act)
+	 ("M-n" . skip)))
 
 (use-package expand-region
   :bind (("C-M-w" . er/expand-region)
-         ("C-!" . er/contract-region)))
+	 ("C-!" . er/contract-region)))
 
 (use-package scala-mode
   :ensure t)
@@ -460,31 +513,31 @@ Position the cursor at its beginning, according to the current mode."
   ("C-s-f" . find-temp-file)
   :config
   (setq find-temp-file-prefix (list "etf-alpha"
-                                    "etf-bravo"
-                                    "etf-charlie"
-                                    "etf-delta"
-                                    "etf-echo"
-                                    "etf-foxtrot"
-                                    "etf-golf"
-                                    "etf-hotel"
-                                    "etf-india"
-                                    "etf-juliet"
-                                    "etf-kilo"
-                                    "etf-lima"
-                                    "etf-mike"
-                                    "etf-november"
-                                    "etf-oscar"
-                                    "etf-papa"
-                                    "etf-quebec"
-                                    "etf-romeo"
-                                    "etf-sierra"
-                                    "etf-tango"
-                                    "etf-uniform"
-                                    "etf-victor"
-                                    "etf-whiskey"
-                                    "etf-x-ray"
-                                    "etf-yankee"
-                                    "etf-zulu")))
+				    "etf-bravo"
+				    "etf-charlie"
+				    "etf-delta"
+				    "etf-echo"
+				    "etf-foxtrot"
+				    "etf-golf"
+				    "etf-hotel"
+				    "etf-india"
+				    "etf-juliet"
+				    "etf-kilo"
+				    "etf-lima"
+				    "etf-mike"
+				    "etf-november"
+				    "etf-oscar"
+				    "etf-papa"
+				    "etf-quebec"
+				    "etf-romeo"
+				    "etf-sierra"
+				    "etf-tango"
+				    "etf-uniform"
+				    "etf-victor"
+				    "etf-whiskey"
+				    "etf-x-ray"
+				    "etf-yankee"
+				    "etf-zulu")))
 
 (use-package haskell-mode
   :ensure t)
@@ -514,4 +567,16 @@ Position the cursor at its beginning, according to the current mode."
     (ansi-color-apply-on-region compilation-filter-start (point))
     (toggle-read-only))
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
+
+(use-package whitespace
+  :ensure t
+  :hook
+  ((before-save . whitespace-cleanup)))
+
+(use-package persistent-scratch
+  :ensure t
+  :demand t
+  :config
+  (persistent-scratch-setup-default))
+
 ;;;
