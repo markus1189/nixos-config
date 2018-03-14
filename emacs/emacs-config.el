@@ -185,6 +185,14 @@
   :config
   (fullframe magit-status magit-mode-quit-window))
 
+(use-package flyspell
+  :ensure t)
+
+(use-package helm-flyspell
+  :ensure t
+  :bind (:map flyspell-mode
+	      ("C-." . hel-flyspell-correct)))
+
 (use-package magit
   :ensure t
   :defer
@@ -359,6 +367,7 @@
   :ensure t)
 
 (use-package prog-mode
+  :demand t
   :init
   (defmacro Λ (&rest body)
     `(lambda ()
@@ -423,9 +432,44 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "C-s-k") 'kill-region)
   (global-set-key (kbd "C-c t") 'make-frame)
   (global-set-key (kbd "<f7>") (Λ (switch-to-buffer "*scratch*")))
+  (global-set-key (kbd "<f9>") 'calc)
+  (global-set-key (kbd "M-SPC") 'cycle-spacing)
+  (global-set-key (kbd "C-h") 'backward-delete-char)
 
-  (global-set-key (kbd "C-;") 'iedit-mode)
+  (defun mh/comment-or-uncomment-current-line-or-region (prefix)
+    "Comments or uncomments current current line or whole lines in region."
+    (interactive "P")
+    (cond ((equal (list 4) prefix) (kill-comment nil))
+	  (t (save-excursion
+	       (let (min max)
+		 (if (region-active-p)
+		     (setq min (region-beginning) max (region-end))
+		   (setq min (point) max (point)))
+		 (comment-or-uncomment-region
+		  (progn (goto-char min) (line-beginning-position))
+		  (progn (goto-char max) (line-end-position))))))))
+
+  (global-set-key (kbd "M-;") 'mh/comment-or-uncomment-current-line-or-region)
+
   (global-set-key (kbd "C-c o") 'org-open-at-point-global)
+
+  (defun mh/duplicate-current-line-below ()
+    "duplicate current line, position cursor at the top."
+    (interactive)
+    (save-excursion
+      (let ((current-line (thing-at-point 'line)))
+	(when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
+	  (insert "\n"))
+	(insert current-line))))
+
+  (defun mh/duplicate-current-line-above ()
+    "duplicate current line, position cursor at the bottom."
+    (interactive)
+    (mh/duplicate-current-line-below)
+    (forward-line 1))
+
+  (global-set-key (kbd "C-M-ï") 'mh/duplicate-current-line-above)
+  (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
 
   (setq frame-title-format "Nixmacs: %b (%f)")
   (put 'narrow-to-region 'disabled nil)
@@ -578,5 +622,32 @@ Position the cursor at its beginning, according to the current mode."
   :demand t
   :config
   (persistent-scratch-setup-default))
+
+(use-package iedit
+  :ensure t
+  :demand t
+  :bind ("C-;" . iedit-mode))
+
+(use-package evil-numbers
+  :ensure t
+  :bind
+  (("C-s-+" . evil-numbers/inc-at-pt)
+   ("C-s-=" . evil-numbers/inc-at-pt)
+   ("C-s--" . evil-numbers/dec-at-pt)))
+
+(use-package git-commit
+  :ensure t
+  :init
+  (defun mh/commit-insert-branch ()
+    "Insert the current branch name at point."
+    (interactive)
+    (insert
+     (replace-regexp-in-string "^\\(bugfix\\|feature\\)/"
+			       ""
+			       (concat (magit-get-current-branch) ": "))))
+  :bind
+  (("C-c b" . mh/commit-insert-branch)))
+
+
 
 ;;;
