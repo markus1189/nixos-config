@@ -470,12 +470,15 @@ Position the cursor at its beginning, according to the current mode."
 
   (global-set-key (kbd "C-M-ï") 'mh/duplicate-current-line-above)
   (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
+  (global-set-key (kbd "C-z") 'eshell)
 
   (setq frame-title-format "Nixmacs: %b (%f)")
   (put 'narrow-to-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
   (put 'set-goal-column 'disabled nil)
   (put 'downcase-region 'disabled nil)
+
+  (set-mouse-color "OrangeRed")
 
   (global-auto-revert-mode 1)
   (delete-selection-mode)

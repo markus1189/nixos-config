@@ -5,9 +5,19 @@
 { config, pkgs, ... }:
 
 let
-  codecentricWallpaper = pkgs.fetchurl {
-    url = "https://www.dropbox.com/s/hoy6xdgnudwy64g/codecentric.jpg?dl=1";
-    sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
+  wallpapers = {
+    cc = pkgs.fetchurl {
+      url = "https://www.dropbox.com/s/hoy6xdgnudwy64g/codecentric.jpg?dl=1";
+      sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
+    };
+    ccItsSimple = pkgs.fetchurl {
+      url = "https://public.centerdevice.de/05e684ac-c97c-4b3d-a358-d1dc26b87808";
+      sha256 = "1z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
+    };
+    ccDontDrinkAndCode = pkgs.fetchurl {
+      url = "https://public.centerdevice.de/095e40b2-34e8-4ff3-be52-b7c7357f690d";
+      sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d3k";
+    };
   };
   userName = "markus";
   usrPkgs = import ./scripts/scripts.nix { inherit pkgs; };
@@ -152,7 +162,7 @@ rec {
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr
-          ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${codecentricWallpaper} &
+          ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${wallpapers.cc} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
           ${pkgs.parcellite}/bin/parcellite &
         '';
