@@ -20,8 +20,7 @@ let
   '';
   dired-plus = let
     src = pkgs.fetchurl {
-      url = "https://www.emacswiki.org/emacs/download/dired%2b.el";
-      name = "dired+.el";
+      url = "https://www.emacswiki.org/emacs/download/dired+.el";
       sha256 = "1kj6f081f60sbgvy903hfhf2y4bb0g48xk5wl5m8yaibmi5vnyzi";
     };
   in
@@ -54,6 +53,7 @@ in
     indent-guide
     iy-go-to-char
     liso-theme
+    mvn
     magit
     move-text
     multiple-cursors

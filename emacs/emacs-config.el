@@ -421,7 +421,6 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "C-S-b") (Λ (ignore-errors (backward-char 10))))
   (global-set-key "\M-o" 'smart-open-line)
   (global-set-key "\C-o" 'smart-open-line-above)
-  (global-set-key (kbd "<f5>") 'recompile)
 
   (winner-mode 1)
   (global-set-key (kbd "s-TAB") 'winner-undo)
@@ -471,6 +470,8 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "C-M-ï") 'mh/duplicate-current-line-above)
   (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
   (global-set-key (kbd "C-z") 'eshell)
+
+  (global-set-key (kbd "C-c j") 'mh/scala-open-in-intellij)
 
   (setq frame-title-format "Nixmacs: %b (%f)")
   (put 'narrow-to-region 'disabled nil)
@@ -607,13 +608,33 @@ Position the cursor at its beginning, according to the current mode."
 (use-package compile
   :ensure t
   :demand t
+  :bind (("<f5>" . recompile))
   :config
+
+  (defun play-sound-file-async (file)
+    "Play FILE asynchronously"
+    (start-process-shell-command "appt-notify" nil "mplayer" "-really-quiet" file)) ;; TODO: extract
+
+  (defun mh/compilation-start-sound (proc)
+    (interactive)
+    (play-sound-file-async "/home/markus/.emacs.d/sounds/pop.wav")) ;; TODO: extract
+
+  (defun mh/compilation-play-sound-after-finish (buffer string)
+    "Play a sound after compilation finished"
+    (if (s-prefix? "finished" string)
+	(play-sound-file-async "/home/markus/.emacs.d/sounds/yes.wav") ;; TODO: extract
+      (play-sound-file-async "/home/markus/.emacs.d/sounds/no.wav"))) ;; TODO: extract
+
   (require 'ansi-color)
   (defun colorize-compilation-buffer ()
     (toggle-read-only)
     (ansi-color-apply-on-region compilation-filter-start (point))
     (toggle-read-only))
-  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
+
+  (add-hook 'compilation-finish-functions 'mh/compilation-play-sound-after-finish)
+  :hook
+  (compilation-filter . colorize-compilation-buffer)
+  (compilation-start . mh/compilation-start-sound))
 
 (use-package whitespace
   :ensure t
@@ -650,7 +671,5 @@ Position the cursor at its beginning, according to the current mode."
 			       (concat (magit-get-current-branch) ": "))))
   :bind
   (("C-c b" . mh/commit-insert-branch)))
-
-
 
 ;;;
