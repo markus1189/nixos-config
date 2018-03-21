@@ -82,7 +82,7 @@ myManageHook = composeAll . concat $
         classFloats    = [ "Xmessage", "Unity-2d-launcher", "Vncviewer", "feh", "Gpick"
                          , "Ubuntu-tweak", "de-tud-cs-se-flashcards-Main", "xv", "mplayer2"
                          , "Gxmessage", "gxmessage", "de-hackermuehle-pdfpresenter-PdfPresenter"
-                         , "gtk-recordmydesktop", "Gtk-recordmydesktop", "nethack-qt"
+                         , "gtk-recordmydesktop", "Gtk-recordmydesktop", "nethack-qt", "zoom"
                          ]
         titleFloats    = [ "Save As...", "Save File", "Options", "Document Print Status"
                          , "Terminator Preferences"]
