@@ -30,6 +30,7 @@ in
           xmobarUpper = xmobars.upper;
           gitconfig = callPackage ./git { inherit mutate; };
         };
+        emacs = callPackage ./emacs { inherit mutate; };
       };
     };
   };
