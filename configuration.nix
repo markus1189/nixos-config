@@ -87,6 +87,10 @@ rec {
   };
 
   services = {
+    tlp = {
+      enable = true;
+    };
+
     x11vnc = {
       enable = true;
       auth = "/home/${userName}/.Xauthority";
