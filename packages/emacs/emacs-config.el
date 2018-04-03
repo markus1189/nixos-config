@@ -177,7 +177,9 @@
 (use-package flycheck
   :ensure t
   :defer 2
-  :config (global-flycheck-mode))
+  :config (global-flycheck-mode)
+  :bind (("C-s-SPC" . flycheck-next-error)
+	 ("C-S-s-SPC" . flycheck-previous-error)))
 
 (use-package fullframe
   :ensure t
@@ -262,7 +264,7 @@
   (defvar helm-source-fasd
     (helm-build-sync-source "helm-source-fasd"
       :volatile 't
-      :candidates (lambda () (s-lines (shell-command-to-string "fasd -lR"))) ; TODO: use mutate
+      :candidates (lambda () (s-lines (shell-command-to-string "@fasd@ -lR")))
       :action 'helm-type-file-actions))
   (helm-mode 1))
 
@@ -317,9 +319,13 @@
 
 (use-package yasnippet
   :ensure t
+  :demand t
   :diminish yas-minor-mode
-  :commands yas-minor-mode
-  :config (yas-reload-all))
+  :hook
+  (prog-mode . yas-minor-mode)
+  (text-mode . yas-minor-mode)
+  :config
+  (yas-reload-all))
 
 (use-package indent-guide
   :ensure t
@@ -473,6 +479,22 @@ Position the cursor at its beginning, according to the current mode."
 
   (global-set-key (kbd "C-c j") 'mh/scala-open-in-intellij)
 
+  (defun mh/delete-or-kill-window (prefix)
+    "Without prefix, delete-window, with prefix, kill the buffer."
+    (interactive "P")
+    (cond ((equal (list 4) prefix) (kill-buffer (current-buffer)))
+	  ((equal (list 16) prefix) (let ((kill-buffer-query-functions nil)) (kill-buffer (current-buffer))))
+	  (t (delete-window))))
+
+  (global-set-key (kbd "s-y") 'mh/delete-or-kill-window)
+
+  (defun mh/delete-horizontal-space-forward ()
+    "*Delete all spaces and tabs after point."
+    (interactive "*")
+    (delete-region (point) (progn (skip-chars-forward " \t") (point))))
+
+  (global-set-key (kbd "C-M-\\") 'mh/delete-horizontal-space-forward)
+
   (setq frame-title-format "Nixmacs: %b (%f)")
   (put 'narrow-to-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
@@ -517,6 +539,7 @@ Position the cursor at its beginning, according to the current mode."
       (progn
 	(tool-bar-mode -1)
 	(menu-bar-mode -1)
+	(scroll-bar-mode -1)
 	(toggle-scroll-bar -1)))
 
   (add-hook 'focus-out-hook (lambda () (interactive) (save-some-buffers t))))
@@ -543,7 +566,8 @@ Position the cursor at its beginning, according to the current mode."
   :bind
   (("C-k" . sp-kill-hybrid-sexp)
    ("M-D" . sp-unwrap-sexp)
-   ("C-s-s" . sp-split-sexp))
+   ("C-s-s" . sp-split-sexp)
+   ("C-s-d" . sp-splice-sexp-killing-around))
   :config
   (require 'smartparens-config)
   (show-smartparens-global-mode t)
@@ -588,7 +612,57 @@ Position the cursor at its beginning, according to the current mode."
 				    "etf-zulu")))
 
 (use-package haskell-mode
-  :ensure t)
+  :demand t
+  :config
+  (defun mh/haskell-mode-organize-imports ()
+    (interactive)
+    (haskell-sort-imports)
+    (haskell-align-imports))
+  (defun mh/haskell-set-compilation-command ()
+    (set (make-local-variable 'compile-command) "stack --nix build "))
+  (defun mh/haskell-import-qualified-p ()
+    (interactive)
+    (save-excursion
+      (beginning-of-line)
+      (search-forward "qualified" (line-end-position) t)))
+
+  (defun mh/haskell-import-line-p ()
+    (interactive)
+    (save-excursion
+      (beginning-of-line)
+      (re-search-forward "^import" (line-end-position) t)))
+
+  (defun mh/haskell-import-toggle-qualified ()
+    (interactive)
+    (if (not (mh/haskell-import-line-p))
+	(message "Not at import line.")
+      (cond ((mh/haskell-import-qualified-p)
+	     (beginning-of-line)
+	     (search-forward "qualified")
+	     (backward-kill-word 1)
+	     (just-one-space)
+	     (forward-sexp)
+	     (unless (equal (point) (line-end-position)) (kill-line)))
+	    (t
+	     (beginning-of-line)
+	     (search-forward "import" (line-end-position) t)
+	     (insert " qualified")
+	     (just-one-space)
+	     (forward-sexp)
+	     (unless (equal (point) (line-end-position)) (kill-line))
+	     (insert " as ")))))
+
+  (defun mh/haskell-insert-undefined (prefix)
+    (interactive "P")
+    (cond ((equal (list 4) prefix) (insert "_undefined"))
+	  (t (insert "undefined"))))
+
+  :bind (("C-c C-a" . mh/haskell-mode-organize-imports)
+	 ("C-c C-q" . mh/haskell-import-toggle-qualified)
+	 ("C-c ?" . mh/haskell-insert-undefined))
+  :ensure t
+  :hook
+  (haskell-mode . mh/haskell-set-compilation-command))
 
 (use-package ox-jira
   :ensure t)
@@ -613,17 +687,17 @@ Position the cursor at its beginning, according to the current mode."
 
   (defun play-sound-file-async (file)
     "Play FILE asynchronously"
-    (start-process-shell-command "appt-notify" nil "mplayer" "-really-quiet" file)) ;; TODO: extract
+    (start-process-shell-command "appt-notify" nil "@mplayer@" "-really-quiet" file))
 
   (defun mh/compilation-start-sound (proc)
     (interactive)
-    (play-sound-file-async "/home/markus/.emacs.d/sounds/pop.wav")) ;; TODO: extract
+    (play-sound-file-async "@popSound@"))
 
   (defun mh/compilation-play-sound-after-finish (buffer string)
     "Play a sound after compilation finished"
     (if (s-prefix? "finished" string)
-	(play-sound-file-async "/home/markus/.emacs.d/sounds/yes.wav") ;; TODO: extract
-      (play-sound-file-async "/home/markus/.emacs.d/sounds/no.wav"))) ;; TODO: extract
+	(play-sound-file-async "@yesSound@")
+      (play-sound-file-async "@noSound@")))
 
   (require 'ansi-color)
   (defun colorize-compilation-buffer ()
@@ -672,4 +746,234 @@ Position the cursor at its beginning, according to the current mode."
   :bind
   (("C-c b" . mh/commit-insert-branch)))
 
+(use-package yaml-mode
+  :ensure t
+  :demand t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode)))
+
+(use-package flycheck-yamllint
+  :ensure t)
+
+(use-package iy-go-to-char
+  :ensure t
+  :bind (("M-m" . iy-go-up-to-char)
+	 ("M-M" . iy-go-up-to-char-backward)))
+
+(use-package hydra
+  :ensure t
+  :config
+  (defhydra hydra-goto-error ()
+		  "hydra-errors"
+		  ("DEL" kill-whole-line "delete-line")
+		  ("j" next-error "next")
+		  ("k" previous-error "prev")
+		  ("g" first-error "first")
+		  ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
+		  ("q" nil "cancel"))
+  :bind (("M-g" . hydra-goto-error/body)))
+
+(use-package jq-mode
+  :ensure t)
+
+(use-package which-key
+  :ensure t
+  :demand t
+  :config
+  (which-key-mode))
+
+(use-package restclient
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.restclient\\'" . restclient-mode)))
+
+;; TODO: figure out how to customize build
+;; (use-package pdf-tools
+;;   :init
+;;   (setq pdf-info-epdfinfo-program "/tmp/epdfinfo")
+;;   :config
+;;   (pdf-tools-install))
+
+(use-package hippie-exp
+  :ensure t
+  :demand t
+  :bind (("M-/" . hippie-expand)
+	 ("C-M-/" . hippie-expand-lines))
+  :config
+  (defvar he-search-loc-backward (make-marker))
+  (defvar he-search-loc-forward (make-marker))
+
+  (defun try-expand-dabbrev-closest-first (old)
+    "Try to expand word \"dynamically\", searching the current buffer.
+The argument OLD has to be nil the first call of this function, and t
+for subsequent calls (for further possible expansions of the same
+string). It returns t if a new expansion is found, nil otherwise."
+    (let (expansion)
+      (unless old
+	(he-init-string (he-dabbrev-beg) (point))
+	(set-marker he-search-loc-backward he-string-beg)
+	(set-marker he-search-loc-forward he-string-end))
+
+      (if (not (equal he-search-string ""))
+	  (save-excursion
+	    (save-restriction
+	      (if hippie-expand-no-restriction
+		  (widen))
+
+	      (let (forward-point
+		    backward-point
+		    forward-distance
+		    backward-distance
+		    forward-expansion
+		    backward-expansion
+		    chosen)
+
+		;; search backward
+		(goto-char he-search-loc-backward)
+		(setq expansion (he-dabbrev-search he-search-string t))
+
+		(when expansion
+		  (setq backward-expansion expansion)
+		  (setq backward-point (point))
+		  (setq backward-distance (- he-string-beg backward-point)))
+
+		;; search forward
+		(goto-char he-search-loc-forward)
+		(setq expansion (he-dabbrev-search he-search-string nil))
+
+		(when expansion
+		  (setq forward-expansion expansion)
+		  (setq forward-point (point))
+		  (setq forward-distance (- forward-point he-string-beg)))
+
+		;; choose depending on distance
+		(setq chosen (cond
+			      ((and forward-point backward-point)
+			       (if (< forward-distance backward-distance) :forward :backward))
+
+			      (forward-point :forward)
+			      (backward-point :backward)))
+
+		(when (equal chosen :forward)
+		  (setq expansion forward-expansion)
+		  (set-marker he-search-loc-forward forward-point))
+
+		(when (equal chosen :backward)
+		  (setq expansion backward-expansion)
+		  (set-marker he-search-loc-backward backward-point))
+
+		))))
+
+      (if (not expansion)
+	  (progn
+	    (if old (he-reset-string))
+	    nil)
+	(progn
+	  (he-substitute-string expansion t)
+	  t))))
+
+  (defun try-expand-line-closest-first (old)
+    "Try to complete the current line to an entire line in the buffer.
+The argument OLD has to be nil the first call of this function, and t
+for subsequent calls (for further possible completions of the same
+string). It returns t if a new completion is found, nil otherwise."
+    (let ((expansion ())
+	  (strip-prompt (and (get-buffer-process (current-buffer))
+			     comint-use-prompt-regexp
+			     comint-prompt-regexp)))
+      (unless old
+	(he-init-string (he-line-beg strip-prompt) (point))
+	(set-marker he-search-loc-backward he-string-beg)
+	(set-marker he-search-loc-forward he-string-end))
+
+      (if (not (equal he-search-string ""))
+	  (save-excursion
+	    (save-restriction
+	      (if hippie-expand-no-restriction
+		  (widen))
+
+	      (let (forward-point
+		    backward-point
+		    forward-distance
+		    backward-distance
+		    forward-expansion
+		    backward-expansion
+		    chosen)
+
+		;; search backward
+		(goto-char he-search-loc-backward)
+		(setq expansion (he-line-search he-search-string
+						strip-prompt t))
+
+		(when expansion
+		  (setq backward-expansion expansion)
+		  (setq backward-point (point))
+		  (setq backward-distance (- he-string-beg backward-point)))
+
+		;; search forward
+		(goto-char he-search-loc-forward)
+		(setq expansion (he-line-search he-search-string
+						strip-prompt nil))
+
+		(when expansion
+		  (setq forward-expansion expansion)
+		  (setq forward-point (point))
+		  (setq forward-distance (- forward-point he-string-beg)))
+
+		;; choose depending on distance
+		(setq chosen (cond
+			      ((and forward-point backward-point)
+			       (if (< forward-distance backward-distance) :forward :backward))
+
+			      (forward-point :forward)
+			      (backward-point :backward)))
+
+		(when (equal chosen :forward)
+		  (setq expansion forward-expansion)
+		  (set-marker he-search-loc-forward forward-point))
+
+		(when (equal chosen :backward)
+		  (setq expansion backward-expansion)
+		  (set-marker he-search-loc-backward backward-point))
+
+		))))
+
+      (if (not expansion)
+	  (progn
+	    (if old (he-reset-string))
+	    ())
+	(progn
+	  (he-substitute-string expansion t)
+	  t))))
+
+
+  ;; Create own function to expand lines (C-S-.)
+  (defun hippie-expand-lines ()
+    (interactive)
+    (let ((hippie-expand-try-functions-list '(try-expand-line-closest-first
+					      try-expand-line-all-buffers)))
+      (end-of-line)
+      (hippie-expand nil))))
+
+;; (use-package magithub
+;;   :ensure t)
+
+(use-package goto-chg
+  :ensure t
+  :demand t
+  :config
+  (defhydra hydra-goto-changes ()
+		  "hydra-goto-changes"
+		  ("SPC" goto-last-change "goto-last-change")
+		  ("C-x C-SPC" goto-last-change "goto-last-change")
+		  ("DEL" goto-last-change-reverse "goto-last-change-reverse")
+		  ("q" nil "cancel"))
+  :bind (("C-x C-SPC" . hydra-goto-changes/body)))
+
+(use-package beacon
+  :demand t
+  :ensure t
+  :config
+  (beacon-mode 1))
 ;;;

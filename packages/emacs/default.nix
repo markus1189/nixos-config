@@ -1,10 +1,15 @@
-{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen }:
+{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd }:
 
 let
-  # mutatedEmacsConfig = pkgs.mutate ./emacs-config.el { inherit (pkgs) fasd; };
+  mutatedEmacsConfig = mutate ./emacs-config.el {
+    inherit mplayer fasd;
+    yesSound = ./yes.wav;
+    noSound = ./no.wav;
+    popSound = ./pop.wav;
+  };
   myEmacsConfig = (runCommand "create-my-emacs-config" {} ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${./emacs-config.el} $out/share/emacs/site-lisp/default.el
+    cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
   '');
   emacsWithPackages = (emacsPackagesNgGen emacs).emacsWithPackages;
   quick-yes = let
@@ -30,15 +35,17 @@ let
 in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
     avy
+    beacon
     company
     dash
     dired-plus
     evil-numbers
     expand-region
     f
-    fasd
+    epkgs.melpaPackages.fasd
     find-temp-file
     flycheck
+    flycheck-yamllint
     fullframe
     git-commit
     git-link
@@ -48,27 +55,34 @@ in
     helm-flyspell
     helm-projectile
     helm-swoop
+    hydra
     iedit
     indent-guide
     iy-go-to-char
+    jq-mode
     liso-theme
     mvn
     magit
+    magithub
     move-text
     multiple-cursors
     nix-mode
     ox-jira
     projectile
     quick-yes
+    restclient
     s
     sbt-mode
     scala-mode
     persistent-scratch
+    pdf-tools
     smartparens
     solarized-theme
     undo-tree
     use-package
     wgrep-helm
+    which-key
+    yaml-mode
     yasnippet
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
