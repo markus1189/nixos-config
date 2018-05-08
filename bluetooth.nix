@@ -4,10 +4,10 @@
   hardware = {
     bluetooth = {
       enable = true;
-      # extraConfig = ''
-      #   [General]
-      #   ControllerMode = bredr
-      # '';
+      extraConfig = ''
+        [General]
+        ControllerMode = bredr
+      '';
     };
 
     pulseaudio = {

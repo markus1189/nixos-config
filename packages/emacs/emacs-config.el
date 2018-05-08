@@ -2,6 +2,13 @@
 (require 'quick-yes) ;; added via load path...
 (require 'dired+) ;; added via load path...
 
+(if window-system
+    (progn
+      (tool-bar-mode -1)
+      (menu-bar-mode -1)
+      (scroll-bar-mode -1)
+      (toggle-scroll-bar -1)))
+
 (desktop-save-mode 1)
 
 ;; (custom-set-faces
@@ -188,12 +195,26 @@
   (fullframe magit-status magit-mode-quit-window))
 
 (use-package flyspell
-  :ensure t)
+  :ensure t
+  :hook
+  (text-mode . flyspell-mode)
+  (prog-mode . flyspell-prog-mode))
 
 (use-package helm-flyspell
   :ensure t
-  :bind (:map flyspell-mode
-	      ("C-." . hel-flyspell-correct)))
+  :demand t
+  :config
+  (defun mh/switch-ispell-dictionary()
+    (interactive)
+    (let* ((dic ispell-current-dictionary)
+	   (change (if (string= dic "deutsch8") "english" "deutsch8")))
+      (ispell-change-dictionary change)
+      (message "Dictionary switched from %s to %s" dic change)))
+
+  :bind (("C-c s" . flyspell-buffer)
+	 ("C-c S" . mh/switch-ispell-dictionary)
+	 :map flyspell-mode-map
+	 ("C-." . helm-flyspell-correct)))
 
 (use-package magit
   :ensure t
@@ -201,6 +222,7 @@
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
 	 ("s-G" . magit-dispatch-popup)
+	 ("C-s-g" . magit-blame)
 	 :map magit-process-mode-map
 	 ("k" . magit-process-kill))
   :init
@@ -509,11 +531,11 @@ Position the cursor at its beginning, according to the current mode."
   (require 'dired-x)
 
   ;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
-  (setq version-control t   ;; Use version numbers for backups.
-      kept-new-versions 10  ;; Number of newest versions to keep.
-      kept-old-versions 0   ;; Number of oldest versions to keep.
-      delete-old-versions t ;; Don't ask to delete excess backup versions.
-      backup-by-copying t)  ;; Copy all files, don't rename them.
+  (setq version-control t  ;; Use version numbers for backups.
+	kept-new-versions 10 ;; Number of newest versions to keep.
+	kept-old-versions 0  ;; Number of oldest versions to keep.
+	delete-old-versions t ;; Don't ask to delete excess backup versions.
+	backup-by-copying t)  ;; Copy all files, don't rename them.
 
   (setq vc-make-backup-files t)
 
@@ -533,15 +555,7 @@ Position the cursor at its beginning, according to the current mode."
     (let ((buffer-backed-up nil))
       (backup-buffer)))
 
-(add-hook 'before-save-hook  'force-backup-of-buffer)
-
-  (if window-system
-      (progn
-	(tool-bar-mode -1)
-	(menu-bar-mode -1)
-	(scroll-bar-mode -1)
-	(toggle-scroll-bar -1)))
-
+  (add-hook 'before-save-hook  'force-backup-of-buffer)
   (add-hook 'focus-out-hook (lambda () (interactive) (save-some-buffers t))))
 
 (use-package quick-yes
@@ -971,9 +985,12 @@ string). It returns t if a new completion is found, nil otherwise."
 		  ("q" nil "cancel"))
   :bind (("C-x C-SPC" . hydra-goto-changes/body)))
 
-(use-package beacon
-  :demand t
-  :ensure t
-  :config
-  (beacon-mode 1))
+;; (use-package beacon
+;;   :demand t
+;;   :ensure t
+;;   :config
+;;   (beacon-mode 1))
+
+;; (use-package command-log-mode
+;;   :ensure t)
 ;;;

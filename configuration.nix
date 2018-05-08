@@ -88,7 +88,7 @@ rec {
 
   services = {
     tlp = {
-      enable = true;
+      enable = false;
     };
 
     x11vnc = {
@@ -104,7 +104,7 @@ rec {
 
     atd.enable = true;
 
-    arbtt.enable = true;
+    # arbtt.enable = true;
 
     cron = {
       enable = true;
@@ -140,7 +140,11 @@ rec {
 
     logkeyscustom = {
       enable = true;
-      device = "/dev/input/event15";
+      device = let
+        extKbd = "/dev/input/event15";
+        intKbd = "/dev/input/event0";
+      in
+        if builtins.pathExists extKbd then extKbd else intKbd;
     };
 
     sysstat = {
@@ -204,7 +208,7 @@ rec {
 
   users.extraGroups.vboxusers.members = [ "${userName}" ];
 
-  system.stateVersion = "17.03";
+  system.stateVersion = "18.03";
 
   programs = {
     bash = {

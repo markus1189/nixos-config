@@ -36,6 +36,7 @@ in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
     avy
     beacon
+    command-log-mode
     company
     dash
     dired-plus
@@ -86,5 +87,5 @@ in
     yasnippet
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
-    # auctex
+    auctex
   ]))

@@ -355,9 +355,9 @@ rec {
 
     emacsclient -a "" -c -e "(progn $ELISP)"
 
-    timeout 2s waitForClose
+    sleep 0.5
 
-    sleep 0.2
+    timeout 2s waitForClose
 
     notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
