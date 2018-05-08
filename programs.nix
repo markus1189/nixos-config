@@ -48,7 +48,6 @@ in
       chromium
       cloc
       coreutils
-      darktable
       docker_compose
       dmenu
       # dropbox-cli
@@ -93,7 +92,7 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      imv
+      # imv
       inkscape
       insomnia
       jo
@@ -130,7 +129,6 @@ in
       psmisc
       pv
       pythonFull
-      rawtherapee
       rlwrap
       rofi
       # (rWrapper.override {
@@ -149,7 +147,7 @@ in
       scala
       scalafmt
       scrot
-      spotify
+      # spotify
       sqlite
       stack
       sysdig
@@ -213,6 +211,10 @@ in
       xkill
     ]) ++ (with pkgs.nodePackages; [
       js-yaml
-    ]);
+    ]) ++ [ # photography related stuff
+      darktable
+      rawtherapee
+      hugin
+    ];
   };
 }
