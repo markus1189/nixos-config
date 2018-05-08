@@ -6,13 +6,17 @@ let
 in
 {
   boot = {
-    kernelParams = [ "acpi_backlight=vendor" "acpi_osi=Linux" ];
+    kernelParams = [
+      "acpi_backlight=vendor"
+      "acpi_osi=Linux"
+      "nouveau.modeset=0" # fix X11 freeze on start, archwiki
+    ];
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
 
-    kernelPackages = pkgs.linuxPackages;
+    kernelPackages = pkgs.linuxPackages_latest;
 
     initrd.luks.devices = [
       {
