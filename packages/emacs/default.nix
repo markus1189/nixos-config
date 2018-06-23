@@ -25,7 +25,7 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "1kj6f081f60sbgvy903hfhf2y4bb0g48xk5wl5m8yaibmi5vnyzi";
+      sha256 = "17h97n4yl18709b49pwcd2hc8f3wqimk2ibgw0w6rpflafaglczg";
     };
   in
     runCommand "install-dired-plus" {} ''
@@ -51,6 +51,8 @@ in
     git-commit
     git-link
     goto-chg
+    groovy-mode
+    graphviz-dot-mode
     haskell-mode
     helm
     helm-flyspell
@@ -79,7 +81,6 @@ in
     pdf-tools
     smartparens
     solarized-theme
-    undo-tree
     use-package
     wgrep-helm
     which-key
@@ -88,4 +89,6 @@ in
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
     auctex
+    pabbrev
+    undo-tree
   ]))

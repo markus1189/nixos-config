@@ -22,6 +22,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ediff-current-diff-C ((t (:background "RoyalBlue4"))))
+ '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
+ '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
+ '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
  '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#f6f3e8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Source Code Pro"))))
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
@@ -122,6 +126,9 @@
  '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
 
 (custom-set-variables
+ '(ediff-merge-split-window-function (quote split-window-horizontally))
+ '(ediff-split-window-function (quote split-window-horizontally))
+ '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(dired-auto-revert-buffer (quote dired-directory-changed-p))
  '(dired-dwim-target t)
  '(dired-filter-saved-filters (quote (("custom-filters" (omit)))))
@@ -221,8 +228,9 @@
   :defer
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
-	 ("s-G" . magit-dispatch-popup)
-	 ("C-s-g" . magit-blame)
+	 ("s-G" . magit-commit)
+	 ("C-s-g" . magit-log-buffer-file)
+	 ("C-S-s-g" . magit-blame)
 	 :map magit-process-mode-map
 	 ("k" . magit-process-kill))
   :init
@@ -527,6 +535,7 @@ Position the cursor at its beginning, according to the current mode."
 
   (global-auto-revert-mode 1)
   (delete-selection-mode)
+  (setq-default indent-tabs-mode nil)
 
   (require 'dired-x)
 
@@ -581,7 +590,11 @@ Position the cursor at its beginning, according to the current mode."
   (("C-k" . sp-kill-hybrid-sexp)
    ("M-D" . sp-unwrap-sexp)
    ("C-s-s" . sp-split-sexp)
-   ("C-s-d" . sp-splice-sexp-killing-around))
+   ("C-s-d" . sp-splice-sexp-killing-around)
+   ("C-M-u" . sp-up-sexp)
+   ("C-M-d" . sp-down-sexp)
+   ("C-M-SPC" . sp-mark-sexp)
+   ("C-s-j" . sp-join-sexp))
   :config
   (require 'smartparens-config)
   (show-smartparens-global-mode t)
@@ -738,7 +751,7 @@ Position the cursor at its beginning, according to the current mode."
 (use-package iedit
   :ensure t
   :demand t
-  :bind ("C-;" . iedit-mode))
+  :bind ("C-s-;" . iedit-mode))
 
 (use-package evil-numbers
   :ensure t
@@ -980,17 +993,26 @@ string). It returns t if a new completion is found, nil otherwise."
   (defhydra hydra-goto-changes ()
 		  "hydra-goto-changes"
 		  ("SPC" goto-last-change "goto-last-change")
+		  ("C-SPC" goto-last-change "goto-last-change")
 		  ("C-x C-SPC" goto-last-change "goto-last-change")
 		  ("DEL" goto-last-change-reverse "goto-last-change-reverse")
 		  ("q" nil "cancel"))
   :bind (("C-x C-SPC" . hydra-goto-changes/body)))
 
-;; (use-package beacon
-;;   :demand t
-;;   :ensure t
-;;   :config
-;;   (beacon-mode 1))
+(use-package beacon
+  :demand t
+  :ensure t
+  :config
+  (beacon-mode 1))
 
-;; (use-package command-log-mode
-;;   :ensure t)
+(use-package command-log-mode
+  :ensure t)
+
+(use-package pabbrev
+  :ensure t
+  :config
+  (global-pabbrev-mode))
+
+(use-package groovy-mode
+  :ensure t)
 ;;;

@@ -3,7 +3,7 @@
 {
   services = {
     emacs = {
-      enable = true;
+      enable = false;
     };
   };
 }

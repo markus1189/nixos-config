@@ -92,13 +92,13 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      # imv
+      (builtins.trace "[INFO] using pinned imv version" pkgsRelease17.imv)
       inkscape
       insomnia
       jo
       jq
       libnotify
-      libreoffice
+      # libreoffice
       libxml2
       lsb-release
       lsof
@@ -147,10 +147,10 @@ in
       scala
       scalafmt
       scrot
-      # spotify
+      spotify
       sqlite
       stack
-      sysdig
+      # sysdig
       system-config-printer
       tcpdump
       terminator
@@ -192,6 +192,7 @@ in
       zathura
       zip
       zlib
+      zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
       ipython
@@ -199,7 +200,7 @@ in
       pygments
     ]) ++ (with pkgs.haskellPackages; [
       cabal2nix
-      hasktags
+      # hasktags
       hindent
       hlint
       # idris
@@ -215,6 +216,10 @@ in
       darktable
       rawtherapee
       hugin
+    ] ++ [ # evaluation phase
+      bat
+      lnav
+      pdd
     ];
   };
 }

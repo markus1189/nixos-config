@@ -55,9 +55,9 @@ rec {
     useSandbox = true;
   };
 
-  boot = {
-    extraModulePackages = with config.boot.kernelPackages; [ sysdig ];
-  };
+  # boot = {
+  #   extraModulePackages = with config.boot.kernelPackages; [ sysdig ];
+  # };
 
   i18n = {
     consoleFont = "latarcyrheb-sun32";
@@ -81,6 +81,31 @@ rec {
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
+    overlays = [
+      (self: super: {
+        lensfun = super.lensfun.overrideAttrs (old: rec {
+          rev = "2a186cb";
+          name = "lensfun-${rev}";
+          src = pkgs.fetchgit {
+            inherit rev;
+            url = http://git.code.sf.net/p/lensfun/code;
+            sha256 = "1cr023r8kmp642ilaqnbc5vybx2gwn515z5i2x8563znyg1jkzr0";
+          };
+        });
+      })
+      (self: super: {
+        lastpass-cli = super.lastpass-cli.overrideAttrs (oldAttrs: rec {
+          version = "1.3.1";
+          src = super.fetchFromGitHub {
+            owner = "lastpass";
+            repo = "lastpass-cli";
+            rev = "v${version}";
+            sha256 = "11drzmfdvb8ydw1dxaz9zz8rk0jjqmfv076vydz05qqvgx59s38h";
+          };
+        });
+      })
+      ];
+
     config = {
       allowUnfree = true;
     };
@@ -138,17 +163,8 @@ rec {
       localuser = userName;
     };
 
-    logkeyscustom = {
-      enable = true;
-      device = let
-        extKbd = "/dev/input/event15";
-        intKbd = "/dev/input/event0";
-      in
-        if builtins.pathExists extKbd then extKbd else intKbd;
-    };
-
     sysstat = {
-      enable = true;
+      enable = false;
     };
 
     xserver = {
@@ -208,7 +224,7 @@ rec {
 
   users.extraGroups.vboxusers.members = [ "${userName}" ];
 
-  system.stateVersion = "18.03";
+  system.nixos.stateVersion = "18.03";
 
   programs = {
     bash = {
@@ -261,6 +277,8 @@ rec {
 
     opengl.driSupport32Bit = true;
   };
+
+  # i8n.consoleUseXkbConfig = true;
 
   sound = {
     enable = true;
@@ -370,7 +388,6 @@ rec {
         rofi.color-active: #393939, #f3843d, #393939, #f3843d, #000000
         rofi.color-urgent: #393939, #f3843d, #393939, #f3843d, #ffc39c
       '';
-
     };
   };
 }
