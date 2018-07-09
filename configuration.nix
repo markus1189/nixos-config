@@ -112,6 +112,8 @@ rec {
   };
 
   services = {
+    upower.enable = true;
+
     tlp = {
       enable = false;
     };
