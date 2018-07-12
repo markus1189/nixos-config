@@ -92,7 +92,7 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      (builtins.trace "[INFO] using pinned imv version" pkgsRelease17.imv)
+      imv
       inkscape
       insomnia
       jo
@@ -105,6 +105,7 @@ in
       mpc_cli
       mplayer
       mtools
+      mu
       netcat-openbsd
       nethogs
       nixUnstable
