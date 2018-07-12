@@ -112,6 +112,8 @@ rec {
   };
 
   services = {
+    offlineimap.enable = true;
+
     upower.enable = true;
 
     tlp = {
@@ -221,6 +223,7 @@ rec {
     symlinks = with pkgs.myConfigFiles; {
       ".xmonad/xmonad.hs" = xmonad;
       ".gitconfig" = gitconfig;
+      ".offlineimaprc" = offlineimap;
     };
   };
 

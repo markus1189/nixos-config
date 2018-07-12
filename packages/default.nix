@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 let
   wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
+  secrets = import ../secrets.nix;
 in
 {
   nixpkgs = {
@@ -29,6 +30,7 @@ in
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
           gitconfig = callPackage ./git { inherit mutate; };
+          offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
         };
         emacs = callPackage ./emacs { inherit mutate; };
       };

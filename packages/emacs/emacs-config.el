@@ -193,7 +193,7 @@
   :defer 2
   :config (global-flycheck-mode)
   :bind (("C-s-SPC" . flycheck-next-error)
-	 ("C-S-s-SPC" . flycheck-previous-error)))
+         ("C-S-s-SPC" . flycheck-previous-error)))
 
 (use-package fullframe
   :ensure t
@@ -214,25 +214,25 @@
   (defun mh/switch-ispell-dictionary()
     (interactive)
     (let* ((dic ispell-current-dictionary)
-	   (change (if (string= dic "deutsch8") "english" "deutsch8")))
+           (change (if (string= dic "deutsch8") "english" "deutsch8")))
       (ispell-change-dictionary change)
       (message "Dictionary switched from %s to %s" dic change)))
 
   :bind (("C-c s" . flyspell-buffer)
-	 ("C-c S" . mh/switch-ispell-dictionary)
-	 :map flyspell-mode-map
-	 ("C-." . helm-flyspell-correct)))
+         ("C-c S" . mh/switch-ispell-dictionary)
+         :map flyspell-mode-map
+         ("C-." . helm-flyspell-correct)))
 
 (use-package magit
   :ensure t
   :defer
   :if (executable-find "git")
   :bind (("s-g" . magit-status)
-	 ("s-G" . magit-commit)
-	 ("C-s-g" . magit-log-buffer-file)
-	 ("C-S-s-g" . magit-blame)
-	 :map magit-process-mode-map
-	 ("k" . magit-process-kill))
+         ("s-G" . magit-commit)
+         ("C-s-g" . magit-log-buffer-file)
+         ("C-S-s-g" . magit-blame)
+         :map magit-process-mode-map
+         ("k" . magit-process-kill))
   :init
   (defun mh/magit-log-edit-mode-hook ()
     (flyspell-mode)
@@ -251,7 +251,7 @@
   (use-package helm-projectile
     :demand t
     :bind (("C-s-p" . projectile-find-file)
-	   ("s-h" . helm-projectile-grep))
+           ("s-h" . helm-projectile-grep))
     :config
     (setq projectile-completion-system 'helm)
     (helm-projectile-on))
@@ -266,14 +266,14 @@
 (use-package helm
   :ensure t
   :bind (("s-;" . helm-for-files)
-	 ("s-'" . helm-M-x)
-	 ("s-f" . helm-find-files)
-	 ("M-y" . helm-show-kill-ring)
-	 ("s-RET" . 'helm-man-woman)
-	 :map helm-map
-	 ("C-w" . backward-kill-word)
-	 ("C-S-n" . mh/helm-next-line-fast)
-	 ("C-S-p" . mh/helm-previous-line-fast))
+         ("s-'" . helm-M-x)
+         ("s-f" . helm-find-files)
+         ("M-y" . helm-show-kill-ring)
+         ("s-RET" . 'helm-man-woman)
+         :map helm-map
+         ("C-w" . backward-kill-word)
+         ("C-S-n" . mh/helm-next-line-fast)
+         ("C-S-p" . mh/helm-previous-line-fast))
   :config
 
   (defun mh/helm-next-line-fast ()
@@ -289,7 +289,7 @@
     "Preconfigured helm to search using fasd."
     (interactive)
     (helm :sources '(helm-source-fasd)
-	  :buffer "*helm async fasd source*"))
+          :buffer "*helm async fasd source*"))
 
   (defvar helm-source-fasd
     (helm-build-sync-source "helm-source-fasd"
@@ -322,11 +322,11 @@
   (defun mh/avy-goto-word-or-subword-or-char (prefix)
     (interactive "P")
     (cond ((equal (list 4) prefix) (avy-goto-word-or-subword-1))
-	  (t (avy-goto-char-timer))))
+          (t (avy-goto-char-timer))))
   :bind (("s-l" . mh/avy-goto-word-or-subword-or-char)
-	 ("s-:" . avy-goto-line)
-	 :map isearch-mode-map
-	 ("C-'" . avy-isearch)))
+         ("s-:" . avy-goto-line)
+         :map isearch-mode-map
+         ("C-'" . avy-isearch)))
 
 (use-package fasd
   :ensure t
@@ -338,14 +338,14 @@
   :diminish undo-tree-mode
   :config (global-undo-tree-mode)
   :bind (("s-/" . undo-tree-visualize)
-	 ("C-/" . undo-tree-undo)
-	 ("C-?" . undo-tree-redo)))
+         ("C-/" . undo-tree-undo)
+         ("C-?" . undo-tree-redo)))
 
 (use-package goto-chg
   :ensure t
   :commands goto-last-change
   :bind (("C-." . goto-last-change)
-	 ("C-," . goto-last-change-reverse)))
+         ("C-," . goto-last-change-reverse)))
 
 (use-package yasnippet
   :ensure t
@@ -371,33 +371,33 @@
   :config
   (defun mh/git-link-aareal-gogs (hostname dirname filename branch commit start end)
     (format "http://%s/%s/src/%s/%s"
-	    hostname
-	    dirname
-	    commit
-	    (concat filename
-		    (when start
-		      (concat "#"
-			      (if end
-				  (format "L%s-L%s" start end)
-				(format "L%s" start)))))))
+            hostname
+            dirname
+            commit
+            (concat filename
+                    (when start
+                      (concat "#"
+                              (if end
+                                  (format "L%s-L%s" start end)
+                                (format "L%s" start)))))))
 
   (defun mh/git-link-github (hostname dirname filename branch commit start end)
     (format "https://%s/%s/blob/%s/%s"
-	    hostname
-	    dirname
-	    commit
-	    (concat filename
-		    (when start
-		      (concat "#"
-			      (if end
-				  (format "L%s-L%s" start end)
-				(format "L%s" start)))))))
+            hostname
+            dirname
+            commit
+            (concat filename
+                    (when start
+                      (concat "#"
+                              (if end
+                                  (format "L%s-L%s" start end)
+                                (format "L%s" start)))))))
   (setq git-link-remote-alist
-	'(("github.com" mh/git-link-github)
-	  ("bitbucket" git-link-bitbucket)
-	  ("gitorious" git-link-gitorious)
-	  ("gitlab" git-link-gitlab)
-	  ("gogs.default.dev.aareality.aareal.org" mh/git-link-aareal-gogs))))
+        '(("github.com" mh/git-link-github)
+          ("bitbucket" git-link-bitbucket)
+          ("gitorious" git-link-gitorious)
+          ("gitlab" git-link-gitlab)
+          ("gogs.default.dev.aareality.aareal.org" mh/git-link-aareal-gogs))))
 
 (use-package nix-mode
   :ensure t)
@@ -475,14 +475,14 @@ Position the cursor at its beginning, according to the current mode."
     "Comments or uncomments current current line or whole lines in region."
     (interactive "P")
     (cond ((equal (list 4) prefix) (kill-comment nil))
-	  (t (save-excursion
-	       (let (min max)
-		 (if (region-active-p)
-		     (setq min (region-beginning) max (region-end))
-		   (setq min (point) max (point)))
-		 (comment-or-uncomment-region
-		  (progn (goto-char min) (line-beginning-position))
-		  (progn (goto-char max) (line-end-position))))))))
+          (t (save-excursion
+               (let (min max)
+                 (if (region-active-p)
+                     (setq min (region-beginning) max (region-end))
+                   (setq min (point) max (point)))
+                 (comment-or-uncomment-region
+                  (progn (goto-char min) (line-beginning-position))
+                  (progn (goto-char max) (line-end-position))))))))
 
   (global-set-key (kbd "M-;") 'mh/comment-or-uncomment-current-line-or-region)
 
@@ -493,9 +493,9 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (save-excursion
       (let ((current-line (thing-at-point 'line)))
-	(when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
-	  (insert "\n"))
-	(insert current-line))))
+        (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
+          (insert "\n"))
+        (insert current-line))))
 
   (defun mh/duplicate-current-line-above ()
     "duplicate current line, position cursor at the bottom."
@@ -513,8 +513,8 @@ Position the cursor at its beginning, according to the current mode."
     "Without prefix, delete-window, with prefix, kill the buffer."
     (interactive "P")
     (cond ((equal (list 4) prefix) (kill-buffer (current-buffer)))
-	  ((equal (list 16) prefix) (let ((kill-buffer-query-functions nil)) (kill-buffer (current-buffer))))
-	  (t (delete-window))))
+          ((equal (list 16) prefix) (let ((kill-buffer-query-functions nil)) (kill-buffer (current-buffer))))
+          (t (delete-window))))
 
   (global-set-key (kbd "s-y") 'mh/delete-or-kill-window)
 
@@ -541,10 +541,10 @@ Position the cursor at its beginning, according to the current mode."
 
   ;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
   (setq version-control t  ;; Use version numbers for backups.
-	kept-new-versions 10 ;; Number of newest versions to keep.
-	kept-old-versions 0  ;; Number of oldest versions to keep.
-	delete-old-versions t ;; Don't ask to delete excess backup versions.
-	backup-by-copying t)  ;; Copy all files, don't rename them.
+        kept-new-versions 10 ;; Number of newest versions to keep.
+        kept-old-versions 0  ;; Number of oldest versions to keep.
+        delete-old-versions t ;; Don't ask to delete excess backup versions.
+        backup-by-copying t)  ;; Copy all files, don't rename them.
 
   (setq vc-make-backup-files t)
 
@@ -556,8 +556,8 @@ Position the cursor at its beginning, according to the current mode."
     (when (not buffer-backed-up)
       ;; Override the default parameters for per-session backups.
       (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-	    (kept-new-versions 3))
-	(backup-buffer)))
+            (kept-new-versions 3))
+        (backup-buffer)))
     ;; Make a "per save" backup on each save.  The first save results in
     ;; both a per-session and a per-save backup, to keep the numbering
     ;; of per-save backups consistent.
@@ -569,13 +569,13 @@ Position the cursor at its beginning, according to the current mode."
 
 (use-package quick-yes
   :bind (
-	 :map query-replace-map
-	 ("M-y" . act)
-	 ("M-n" . skip)))
+         :map query-replace-map
+         ("M-y" . act)
+         ("M-n" . skip)))
 
 (use-package expand-region
   :bind (("C-M-w" . er/expand-region)
-	 ("C-!" . er/contract-region)))
+         ("C-!" . er/contract-region)))
 
 (use-package scala-mode
   :ensure t)
@@ -612,31 +612,31 @@ Position the cursor at its beginning, according to the current mode."
   ("C-s-f" . find-temp-file)
   :config
   (setq find-temp-file-prefix (list "etf-alpha"
-				    "etf-bravo"
-				    "etf-charlie"
-				    "etf-delta"
-				    "etf-echo"
-				    "etf-foxtrot"
-				    "etf-golf"
-				    "etf-hotel"
-				    "etf-india"
-				    "etf-juliet"
-				    "etf-kilo"
-				    "etf-lima"
-				    "etf-mike"
-				    "etf-november"
-				    "etf-oscar"
-				    "etf-papa"
-				    "etf-quebec"
-				    "etf-romeo"
-				    "etf-sierra"
-				    "etf-tango"
-				    "etf-uniform"
-				    "etf-victor"
-				    "etf-whiskey"
-				    "etf-x-ray"
-				    "etf-yankee"
-				    "etf-zulu")))
+                                    "etf-bravo"
+                                    "etf-charlie"
+                                    "etf-delta"
+                                    "etf-echo"
+                                    "etf-foxtrot"
+                                    "etf-golf"
+                                    "etf-hotel"
+                                    "etf-india"
+                                    "etf-juliet"
+                                    "etf-kilo"
+                                    "etf-lima"
+                                    "etf-mike"
+                                    "etf-november"
+                                    "etf-oscar"
+                                    "etf-papa"
+                                    "etf-quebec"
+                                    "etf-romeo"
+                                    "etf-sierra"
+                                    "etf-tango"
+                                    "etf-uniform"
+                                    "etf-victor"
+                                    "etf-whiskey"
+                                    "etf-x-ray"
+                                    "etf-yankee"
+                                    "etf-zulu")))
 
 (use-package haskell-mode
   :demand t
@@ -662,31 +662,31 @@ Position the cursor at its beginning, according to the current mode."
   (defun mh/haskell-import-toggle-qualified ()
     (interactive)
     (if (not (mh/haskell-import-line-p))
-	(message "Not at import line.")
+        (message "Not at import line.")
       (cond ((mh/haskell-import-qualified-p)
-	     (beginning-of-line)
-	     (search-forward "qualified")
-	     (backward-kill-word 1)
-	     (just-one-space)
-	     (forward-sexp)
-	     (unless (equal (point) (line-end-position)) (kill-line)))
-	    (t
-	     (beginning-of-line)
-	     (search-forward "import" (line-end-position) t)
-	     (insert " qualified")
-	     (just-one-space)
-	     (forward-sexp)
-	     (unless (equal (point) (line-end-position)) (kill-line))
-	     (insert " as ")))))
+             (beginning-of-line)
+             (search-forward "qualified")
+             (backward-kill-word 1)
+             (just-one-space)
+             (forward-sexp)
+             (unless (equal (point) (line-end-position)) (kill-line)))
+            (t
+             (beginning-of-line)
+             (search-forward "import" (line-end-position) t)
+             (insert " qualified")
+             (just-one-space)
+             (forward-sexp)
+             (unless (equal (point) (line-end-position)) (kill-line))
+             (insert " as ")))))
 
   (defun mh/haskell-insert-undefined (prefix)
     (interactive "P")
     (cond ((equal (list 4) prefix) (insert "_undefined"))
-	  (t (insert "undefined"))))
+          (t (insert "undefined"))))
 
   :bind (("C-c C-a" . mh/haskell-mode-organize-imports)
-	 ("C-c C-q" . mh/haskell-import-toggle-qualified)
-	 ("C-c ?" . mh/haskell-insert-undefined))
+         ("C-c C-q" . mh/haskell-import-toggle-qualified)
+         ("C-c ?" . mh/haskell-insert-undefined))
   :ensure t
   :hook
   (haskell-mode . mh/haskell-set-compilation-command))
@@ -723,7 +723,7 @@ Position the cursor at its beginning, according to the current mode."
   (defun mh/compilation-play-sound-after-finish (buffer string)
     "Play a sound after compilation finished"
     (if (s-prefix? "finished" string)
-	(play-sound-file-async "@yesSound@")
+        (play-sound-file-async "@yesSound@")
       (play-sound-file-async "@noSound@")))
 
   (require 'ansi-color)
@@ -768,8 +768,8 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (insert
      (replace-regexp-in-string "^\\(bugfix\\|feature\\)/"
-			       ""
-			       (concat (magit-get-current-branch) ": "))))
+                               ""
+                               (concat (magit-get-current-branch) ": "))))
   :bind
   (("C-c b" . mh/commit-insert-branch)))
 
@@ -786,19 +786,19 @@ Position the cursor at its beginning, according to the current mode."
 (use-package iy-go-to-char
   :ensure t
   :bind (("M-m" . iy-go-up-to-char)
-	 ("M-M" . iy-go-up-to-char-backward)))
+         ("M-M" . iy-go-up-to-char-backward)))
 
 (use-package hydra
   :ensure t
   :config
   (defhydra hydra-goto-error ()
-		  "hydra-errors"
-		  ("DEL" kill-whole-line "delete-line")
-		  ("j" next-error "next")
-		  ("k" previous-error "prev")
-		  ("g" first-error "first")
-		  ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
-		  ("q" nil "cancel"))
+                  "hydra-errors"
+                  ("DEL" kill-whole-line "delete-line")
+                  ("j" next-error "next")
+                  ("k" previous-error "prev")
+                  ("g" first-error "first")
+                  ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
+                  ("q" nil "cancel"))
   :bind (("M-g" . hydra-goto-error/body)))
 
 (use-package jq-mode
@@ -826,7 +826,7 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :demand t
   :bind (("M-/" . hippie-expand)
-	 ("C-M-/" . hippie-expand-lines))
+         ("C-M-/" . hippie-expand-lines))
   :config
   (defvar he-search-loc-backward (make-marker))
   (defvar he-search-loc-forward (make-marker))
@@ -838,67 +838,67 @@ for subsequent calls (for further possible expansions of the same
 string). It returns t if a new expansion is found, nil otherwise."
     (let (expansion)
       (unless old
-	(he-init-string (he-dabbrev-beg) (point))
-	(set-marker he-search-loc-backward he-string-beg)
-	(set-marker he-search-loc-forward he-string-end))
+        (he-init-string (he-dabbrev-beg) (point))
+        (set-marker he-search-loc-backward he-string-beg)
+        (set-marker he-search-loc-forward he-string-end))
 
       (if (not (equal he-search-string ""))
-	  (save-excursion
-	    (save-restriction
-	      (if hippie-expand-no-restriction
-		  (widen))
+          (save-excursion
+            (save-restriction
+              (if hippie-expand-no-restriction
+                  (widen))
 
-	      (let (forward-point
-		    backward-point
-		    forward-distance
-		    backward-distance
-		    forward-expansion
-		    backward-expansion
-		    chosen)
+              (let (forward-point
+                    backward-point
+                    forward-distance
+                    backward-distance
+                    forward-expansion
+                    backward-expansion
+                    chosen)
 
-		;; search backward
-		(goto-char he-search-loc-backward)
-		(setq expansion (he-dabbrev-search he-search-string t))
+                ;; search backward
+                (goto-char he-search-loc-backward)
+                (setq expansion (he-dabbrev-search he-search-string t))
 
-		(when expansion
-		  (setq backward-expansion expansion)
-		  (setq backward-point (point))
-		  (setq backward-distance (- he-string-beg backward-point)))
+                (when expansion
+                  (setq backward-expansion expansion)
+                  (setq backward-point (point))
+                  (setq backward-distance (- he-string-beg backward-point)))
 
-		;; search forward
-		(goto-char he-search-loc-forward)
-		(setq expansion (he-dabbrev-search he-search-string nil))
+                ;; search forward
+                (goto-char he-search-loc-forward)
+                (setq expansion (he-dabbrev-search he-search-string nil))
 
-		(when expansion
-		  (setq forward-expansion expansion)
-		  (setq forward-point (point))
-		  (setq forward-distance (- forward-point he-string-beg)))
+                (when expansion
+                  (setq forward-expansion expansion)
+                  (setq forward-point (point))
+                  (setq forward-distance (- forward-point he-string-beg)))
 
-		;; choose depending on distance
-		(setq chosen (cond
-			      ((and forward-point backward-point)
-			       (if (< forward-distance backward-distance) :forward :backward))
+                ;; choose depending on distance
+                (setq chosen (cond
+                              ((and forward-point backward-point)
+                               (if (< forward-distance backward-distance) :forward :backward))
 
-			      (forward-point :forward)
-			      (backward-point :backward)))
+                              (forward-point :forward)
+                              (backward-point :backward)))
 
-		(when (equal chosen :forward)
-		  (setq expansion forward-expansion)
-		  (set-marker he-search-loc-forward forward-point))
+                (when (equal chosen :forward)
+                  (setq expansion forward-expansion)
+                  (set-marker he-search-loc-forward forward-point))
 
-		(when (equal chosen :backward)
-		  (setq expansion backward-expansion)
-		  (set-marker he-search-loc-backward backward-point))
+                (when (equal chosen :backward)
+                  (setq expansion backward-expansion)
+                  (set-marker he-search-loc-backward backward-point))
 
-		))))
+                ))))
 
       (if (not expansion)
-	  (progn
-	    (if old (he-reset-string))
-	    nil)
-	(progn
-	  (he-substitute-string expansion t)
-	  t))))
+          (progn
+            (if old (he-reset-string))
+            nil)
+        (progn
+          (he-substitute-string expansion t)
+          t))))
 
   (defun try-expand-line-closest-first (old)
     "Try to complete the current line to an entire line in the buffer.
@@ -906,80 +906,80 @@ The argument OLD has to be nil the first call of this function, and t
 for subsequent calls (for further possible completions of the same
 string). It returns t if a new completion is found, nil otherwise."
     (let ((expansion ())
-	  (strip-prompt (and (get-buffer-process (current-buffer))
-			     comint-use-prompt-regexp
-			     comint-prompt-regexp)))
+          (strip-prompt (and (get-buffer-process (current-buffer))
+                             comint-use-prompt-regexp
+                             comint-prompt-regexp)))
       (unless old
-	(he-init-string (he-line-beg strip-prompt) (point))
-	(set-marker he-search-loc-backward he-string-beg)
-	(set-marker he-search-loc-forward he-string-end))
+        (he-init-string (he-line-beg strip-prompt) (point))
+        (set-marker he-search-loc-backward he-string-beg)
+        (set-marker he-search-loc-forward he-string-end))
 
       (if (not (equal he-search-string ""))
-	  (save-excursion
-	    (save-restriction
-	      (if hippie-expand-no-restriction
-		  (widen))
+          (save-excursion
+            (save-restriction
+              (if hippie-expand-no-restriction
+                  (widen))
 
-	      (let (forward-point
-		    backward-point
-		    forward-distance
-		    backward-distance
-		    forward-expansion
-		    backward-expansion
-		    chosen)
+              (let (forward-point
+                    backward-point
+                    forward-distance
+                    backward-distance
+                    forward-expansion
+                    backward-expansion
+                    chosen)
 
-		;; search backward
-		(goto-char he-search-loc-backward)
-		(setq expansion (he-line-search he-search-string
-						strip-prompt t))
+                ;; search backward
+                (goto-char he-search-loc-backward)
+                (setq expansion (he-line-search he-search-string
+                                                strip-prompt t))
 
-		(when expansion
-		  (setq backward-expansion expansion)
-		  (setq backward-point (point))
-		  (setq backward-distance (- he-string-beg backward-point)))
+                (when expansion
+                  (setq backward-expansion expansion)
+                  (setq backward-point (point))
+                  (setq backward-distance (- he-string-beg backward-point)))
 
-		;; search forward
-		(goto-char he-search-loc-forward)
-		(setq expansion (he-line-search he-search-string
-						strip-prompt nil))
+                ;; search forward
+                (goto-char he-search-loc-forward)
+                (setq expansion (he-line-search he-search-string
+                                                strip-prompt nil))
 
-		(when expansion
-		  (setq forward-expansion expansion)
-		  (setq forward-point (point))
-		  (setq forward-distance (- forward-point he-string-beg)))
+                (when expansion
+                  (setq forward-expansion expansion)
+                  (setq forward-point (point))
+                  (setq forward-distance (- forward-point he-string-beg)))
 
-		;; choose depending on distance
-		(setq chosen (cond
-			      ((and forward-point backward-point)
-			       (if (< forward-distance backward-distance) :forward :backward))
+                ;; choose depending on distance
+                (setq chosen (cond
+                              ((and forward-point backward-point)
+                               (if (< forward-distance backward-distance) :forward :backward))
 
-			      (forward-point :forward)
-			      (backward-point :backward)))
+                              (forward-point :forward)
+                              (backward-point :backward)))
 
-		(when (equal chosen :forward)
-		  (setq expansion forward-expansion)
-		  (set-marker he-search-loc-forward forward-point))
+                (when (equal chosen :forward)
+                  (setq expansion forward-expansion)
+                  (set-marker he-search-loc-forward forward-point))
 
-		(when (equal chosen :backward)
-		  (setq expansion backward-expansion)
-		  (set-marker he-search-loc-backward backward-point))
+                (when (equal chosen :backward)
+                  (setq expansion backward-expansion)
+                  (set-marker he-search-loc-backward backward-point))
 
-		))))
+                ))))
 
       (if (not expansion)
-	  (progn
-	    (if old (he-reset-string))
-	    ())
-	(progn
-	  (he-substitute-string expansion t)
-	  t))))
+          (progn
+            (if old (he-reset-string))
+            ())
+        (progn
+          (he-substitute-string expansion t)
+          t))))
 
 
   ;; Create own function to expand lines (C-S-.)
   (defun hippie-expand-lines ()
     (interactive)
     (let ((hippie-expand-try-functions-list '(try-expand-line-closest-first
-					      try-expand-line-all-buffers)))
+                                              try-expand-line-all-buffers)))
       (end-of-line)
       (hippie-expand nil))))
 
@@ -991,12 +991,12 @@ string). It returns t if a new completion is found, nil otherwise."
   :demand t
   :config
   (defhydra hydra-goto-changes ()
-		  "hydra-goto-changes"
-		  ("SPC" goto-last-change "goto-last-change")
-		  ("C-SPC" goto-last-change "goto-last-change")
-		  ("C-x C-SPC" goto-last-change "goto-last-change")
-		  ("DEL" goto-last-change-reverse "goto-last-change-reverse")
-		  ("q" nil "cancel"))
+                  "hydra-goto-changes"
+                  ("SPC" goto-last-change "goto-last-change")
+                  ("C-SPC" goto-last-change "goto-last-change")
+                  ("C-x C-SPC" goto-last-change "goto-last-change")
+                  ("DEL" goto-last-change-reverse "goto-last-change-reverse")
+                  ("q" nil "cancel"))
   :bind (("C-x C-SPC" . hydra-goto-changes/body)))
 
 (use-package beacon
@@ -1015,4 +1015,17 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package groovy-mode
   :ensure t)
+
+(use-package mu4e
+  :init
+  (setq mu4e-sent-folder "/[Google Mail].All Mail"
+      mu4e-drafts-folder "/[Google Mail].Drafts"
+      mu4e-trash-folder "/[Google Mail].Trash"
+      mu4e-refile-folder "/[Google Mail].All Mail"
+      mu4e-maildir "~/Mail/personal")
+  (add-to-list 'mu4e-bookmarks
+       (make-mu4e-bookmark
+         :name  "Unread Inbox"
+         :query "flag:unread AND NOT flag:thrashed AND maildir:/INBOX"
+         :key ?b)))
 ;;;

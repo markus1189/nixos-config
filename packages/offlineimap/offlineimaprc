@@ -1,0 +1,26 @@
+[general]
+accounts = GmailPersonal
+maxsyncaccounts = 3
+
+[Account GmailPersonal]
+localrepository = LocalPersonal
+remoterepository = RemotePersonal
+
+[Repository LocalPersonal]
+type = Maildir
+localfolders = ~/Mail/personal
+
+[Repository RemotePersonal]
+realdelete = no
+type = IMAP
+remotehost = imap.gmail.com
+remoteuser = markus1189@gmail.com
+remotepass = @googlepw@
+ssl = yes
+maxconnections = 1
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+trashfolder = [Google Mail]/Trash
+folderfilter = lambda folder: (folder.startswith('[Google Mail]/') and \
+    folder[14:] in ['Drafts', 'Starred', 'Sent Email', 'INBOX']) or \
+    folder.startswith('mailinglist') or\
+    folder in ['INBOX']
