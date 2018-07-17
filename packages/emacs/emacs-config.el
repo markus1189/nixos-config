@@ -1016,16 +1016,20 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package groovy-mode
   :ensure t)
 
+(use-package plantuml-mode
+  :ensure t)
+
 (use-package mu4e
   :init
   (setq mu4e-sent-folder "/[Google Mail].All Mail"
       mu4e-drafts-folder "/[Google Mail].Drafts"
       mu4e-trash-folder "/[Google Mail].Trash"
       mu4e-refile-folder "/[Google Mail].All Mail"
-      mu4e-maildir "~/Mail/personal")
+      mu4e-maildir "~/Mail/personal"
+      mu4e-view-auto-mark-as-read nil)
   (add-to-list 'mu4e-bookmarks
        (make-mu4e-bookmark
-         :name  "Unread Inbox"
-         :query "flag:unread AND NOT flag:thrashed AND maildir:/INBOX"
+         :name  "Inbox"
+         :query "NOT flag:thrashed AND maildir:/INBOX"
          :key ?b)))
 ;;;

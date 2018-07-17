@@ -71,6 +71,7 @@ in
     multiple-cursors
     nix-mode
     ox-jira
+    plantuml-mode
     projectile
     quick-yes
     restclient
@@ -86,6 +87,7 @@ in
     which-key
     yaml-mode
     yasnippet
+
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
     auctex
