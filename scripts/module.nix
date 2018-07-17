@@ -14,7 +14,6 @@ in
       (chooseNetwork wirelessInterface)
       git-pretty-log
       gnuplot-quick
-      is-vpn-active
       lock-screen
       multihead-left
       multihead-right

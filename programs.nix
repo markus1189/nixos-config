@@ -221,6 +221,8 @@ in
       bat
       lnav
       pdd
-    ];
+    ] ++ (with pkgs.myScripts; [
+      isVpnActive
+    ]);
   };
 }

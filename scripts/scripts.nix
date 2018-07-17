@@ -84,16 +84,6 @@ rec {
     pretty_git_log $*
   '';
 
-  is-vpn-active = writeShellScriptBin {
-    name = "is-vpn-active";
-    deps = [ systemd ];
-    failFast = false;
-  } ''
-    OUTPUT="$(systemctl is-active openvpn-*.service)"
-    COLOR=$(if [[ "$OUTPUT" == active ]]; then echo lightgreen; else echo red; fi)
-    echo "<fc=$COLOR>VPN</fc>"
-  '';
-
   ts = writeShellScriptBin {
     name = "ts";
     deps = [ coreutils ];
