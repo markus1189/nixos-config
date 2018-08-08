@@ -1,10 +1,10 @@
 { config, pkgs, ... }:
 
 let
-  hostsCommit = "0d5fd167a8dc7b8e91475e07d831857a1d1602c1";
+  hostsCommit = "d0af61d0ef92117b35342c934a94812657517664";
   hostsFile = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/StevenBlack/hosts/${hostsCommit}/alternates/fakenews-gambling-porn/hosts";
-    sha256 = "1zpgmdwz5vrkxdab4xqi8na0298v164lll74307w3qr2z1disp6y";
+    sha256 = "19sn7mc4bg5h2km8yvpr3rx9nw90srxp8qxjgxvbj2db8rzd5l9v";
   };
 in
 {
