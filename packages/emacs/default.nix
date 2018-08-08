@@ -1,8 +1,8 @@
-{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd }:
+{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
-    inherit mplayer fasd;
+    inherit mplayer fasd plantuml pandoc;
     yesSound = ./yes.wav;
     noSound = ./no.wav;
     popSound = ./pop.wav;
@@ -25,7 +25,7 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "17h97n4yl18709b49pwcd2hc8f3wqimk2ibgw0w6rpflafaglczg";
+      sha256 = "17imjcw331wyachnwl1lcbpj85s5wziliy0fzcqncniywrzlvclk";
     };
   in
     runCommand "install-dired-plus" {} ''
@@ -66,7 +66,6 @@ in
     liso-theme
     mvn
     magit
-    magithub
     move-text
     multiple-cursors
     nix-mode

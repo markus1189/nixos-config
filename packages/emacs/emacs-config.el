@@ -471,6 +471,57 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "M-SPC") 'cycle-spacing)
   (global-set-key (kbd "C-h") 'backward-delete-char)
 
+  (global-set-key (kbd "<f5>") 'compile-dwim)
+
+  (defvar get-buffer-compile-command (lambda (file) (cons file 1)))
+  (make-variable-buffer-local 'get-buffer-compile-command)
+
+  (setq-default compile-command "")
+
+  (defun compile-dwim (&optional arg)
+    "Compile Do What I Mean.
+    Compile using `compile-command'.
+    When `compile-command' is empty prompt for its default value.
+    With prefix C-u always prompt for the default value of
+    `compile-command'.
+    With prefix C-u C-u prompt for buffer local compile command with
+    suggestion from `get-buffer-compile-command'.  An empty input removes
+    the local compile command for the current buffer."
+    (interactive "P")
+    (cond
+     ((and arg (> (car arg) 4))
+      (let ((cmd (read-from-minibuffer
+                  "Buffer local compile command: "
+                  (funcall get-buffer-compile-command
+                           (or (file-relative-name (buffer-file-name)) ""))
+                  nil nil 'compile-history)))
+        (cond ((equal cmd "")
+               (kill-local-variable 'compile-command)
+               (kill-local-variable 'compilation-directory))
+              (t
+               (set (make-local-variable 'compile-command) cmd)
+               (set (make-local-variable 'compilation-directory)
+                    default-directory))))
+      (when (not (equal compile-command ""))
+        ;; `compile' changes the default value of
+        ;; compilation-directory but this is a buffer local
+        ;; compilation
+        (let ((dirbak (default-value 'compilation-directory)))
+          (compile compile-command)
+          (setq-default compilation-directory dirbak))))
+     ((or (and arg (<= (car arg) 4))
+          (equal compile-command ""))
+      (setq-default compile-command (read-from-minibuffer
+                                     "Compile command: "
+                                     (if (equal compile-command "")
+                                         "make " compile-command)
+                                     nil nil 'compile-history))
+      (setq-default compilation-directory default-directory)
+      (when (not (equal (default-value 'compile-command) ""))
+        (compile (default-value 'compile-command))))
+     (t
+      (recompile))))
+
   (defun mh/comment-or-uncomment-current-line-or-region (prefix)
     "Comments or uncomments current current line or whole lines in region."
     (interactive "P")
@@ -540,7 +591,7 @@ Position the cursor at its beginning, according to the current mode."
   (require 'dired-x)
 
   ;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
-  (setq version-control t  ;; Use version numbers for backups.
+  (setq version-control t    ;; Use version numbers for backups.
         kept-new-versions 10 ;; Number of newest versions to keep.
         kept-old-versions 0  ;; Number of oldest versions to keep.
         delete-old-versions t ;; Don't ask to delete excess backup versions.
@@ -983,9 +1034,6 @@ string). It returns t if a new completion is found, nil otherwise."
       (end-of-line)
       (hippie-expand nil))))
 
-;; (use-package magithub
-;;   :ensure t)
-
 (use-package goto-chg
   :ensure t
   :demand t
@@ -1017,19 +1065,30 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package plantuml-mode
-  :ensure t)
+  :ensure t
+  :config
+  (setq plantuml-jar-path "@plantuml@/lib/plantuml.jar"))
 
 (use-package mu4e
-  :init
+  :config
+  (require 'mu4e-utils)
   (setq mu4e-sent-folder "/[Google Mail].All Mail"
       mu4e-drafts-folder "/[Google Mail].Drafts"
       mu4e-trash-folder "/[Google Mail].Trash"
       mu4e-refile-folder "/[Google Mail].All Mail"
       mu4e-maildir "~/Mail/personal"
+      mu4e-html2text-command "@pandoc/bin/pandoc@ -f html -t org"
       mu4e-view-auto-mark-as-read nil)
   (add-to-list 'mu4e-bookmarks
        (make-mu4e-bookmark
          :name  "Inbox"
          :query "NOT flag:thrashed AND maildir:/INBOX"
-         :key ?b)))
+         :key ?b))
+  (setq mu4e-bookmarks `(("\\\\Inbox" "Inbox" ?i)
+                         ("flag:flagged" "Flagged messages" ?f)
+                         (,(concat "flag:unread AND "
+                                   "NOT flag:trashed AND "
+                                   "NOT maildir:/[Google Mail].Spam AND "
+                                   "NOT maildir:/[Google Mail].Bin")
+                          "Unread messages" ?u))) )
 ;;;
