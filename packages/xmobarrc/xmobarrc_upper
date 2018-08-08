@@ -4,7 +4,7 @@ Config { font = "xft:Source Code Pro-9:bold"
        , position = TopW L 100
        , lowerOnStart = False
        , commands = [ Run Network "wlp2s0"
-                        [ "-t", "<rx>kB ↓<tx>kB ↑"
+                        [ "-t", "<rx>kB ↓ <tx>kB ↑"
                         , "-L" , "10"
                         , "-H" ,"40"
                         , "--normal","#42d3a5"
