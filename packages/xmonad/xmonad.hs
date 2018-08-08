@@ -7,6 +7,7 @@ import           Data.Functor (void)
 import           Data.List (isInfixOf, isPrefixOf, intercalate)
 import qualified Data.Map as M
 import           Data.Monoid ((<>), All(..))
+import           Data.Ratio ((%))
 import           System.IO (hPutStrLn)
 import           Text.Printf (printf)
 
@@ -21,6 +22,7 @@ import           XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import           XMonad.Hooks.ManageHelpers (isDialog)
 import           XMonad.Hooks.SetWMName (setWMName)
 import           XMonad.Hooks.UrgencyHook (focusUrgent, clearUrgents, withUrgencyHook, NoUrgencyHook(..))
+import           XMonad.Layout (Tall(..))
 import           XMonad.Layout.AutoMaster (autoMaster)
 import           XMonad.Layout.Grid (Grid(..))
 import           XMonad.Layout.IM (withIM, Property(Role))
@@ -96,9 +98,9 @@ myManageHook = composeAll . concat $
                          , "com-install4j-runtime-Launcher", "jetbrains-idea-ce"
                          , "Metasonic_Build.exe", "Scala IDE"]
         ws6            = [ "de-hackermuehle-pdfpresenter-PdfPresenter", "Hpdfp" ]
-        ws7            = [ "Thunderbird" ]
-        ws8            = [ "Pidgin" ]
-        ws9            = [ "Update-manager", "MPlayer", "mplayer2" ]
+        ws7            = [  ]
+        ws8            = [  ]
+        ws9            = [ "MPlayer", "mplayer2" ]
         miscellaneous  = [ title =? "vmail" --> doShift (workSpaceN 7)
                          , fmap ("libreoffice"  `isPrefixOf`) className --> doShift (workSpaceN 5)
                          ]
@@ -144,13 +146,15 @@ myXPConfig = defaultXPConfig
              , fgHLight          = "black"
              , borderColor       = "orange"
              , promptBorderWidth = 1
-             , height            = 14
+             , height            = 15
              , position          = Top
              , historySize       = 100
              , historyFilter     = deleteConsecutive
              , autoComplete      = Just 1
-             , searchPredicate   = isInfixOf `on` map toLower
+             , searchPredicate   = predicate
              }
+  where predicate term candidate = all (`isInfixOf` candidate) termWords
+          where termWords = words (map toLower term)
 
 myTab :: Theme
 myTab = defaultTheme
@@ -243,7 +247,8 @@ myLayoutHook = mkToggle (NOBORDERS ?? FULL ?? EOT)
              $ onWorkspace (workSpaceN 5) (standardLayouts ||| gimpLayout)
                standardLayouts
 
-standardLayouts = tabLayout ||| tiled ||| autoMasterLayout Grid ||| Grid ||| Full ||| simpleFloat
+standardLayouts = tabLayout ||| myTall ||| tiled ||| autoMasterLayout Grid ||| Grid ||| Full ||| simpleFloat
+  where myTall = Tall 1 (3%100) (1%2)
 
 autoMasterLayout = autoMaster 1 (1/50)
 
