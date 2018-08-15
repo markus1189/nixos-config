@@ -65,8 +65,8 @@ in
   programs = {
     zsh = {
       enable = true;
-      enableAutosuggestions = true;
       enableCompletion = true;
+      autosuggestions.enable = true;
       promptInit = ''
         autoload -U promptinit && promptinit
 
