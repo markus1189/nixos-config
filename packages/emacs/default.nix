@@ -81,6 +81,7 @@ in
     pdf-tools
     smartparens
     solarized-theme
+    terraform-mode
     use-package
     wgrep-helm
     which-key

@@ -1077,7 +1077,7 @@ string). It returns t if a new completion is found, nil otherwise."
       mu4e-trash-folder "/[Google Mail].Trash"
       mu4e-refile-folder "/[Google Mail].All Mail"
       mu4e-maildir "~/Mail/personal"
-      mu4e-html2text-command "@pandoc/bin/pandoc@ -f html -t org"
+      mu4e-html2text-command "@pandoc@/bin/pandoc -f html -t org"
       mu4e-view-auto-mark-as-read nil)
   (add-to-list 'mu4e-bookmarks
        (make-mu4e-bookmark
@@ -1091,4 +1091,7 @@ string). It returns t if a new completion is found, nil otherwise."
                                    "NOT maildir:/[Google Mail].Spam AND "
                                    "NOT maildir:/[Google Mail].Bin")
                           "Unread messages" ?u))) )
+
+(use-package terraform-mode
+  :ensure t)
 ;;;
