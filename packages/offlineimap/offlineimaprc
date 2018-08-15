@@ -20,6 +20,4 @@ ssl = yes
 maxconnections = 1
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
 trashfolder = [Google Mail]/Trash
-folderfilter = lambda folder: (folder.startswith('[Google Mail]/') and \
-    folder[14:] in ['Drafts', 'Starred', 'Sent Email', 'All Mail']) or \
-    folder in ['INBOX']
+folderfilter = lambda foldername: foldername[14:] not in ['All Mail', 'Important', 'Sent Mail', 'Spam', 'Trash', 'Drafts']
