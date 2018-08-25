@@ -221,6 +221,7 @@ in
       bat
       lnav
       pdd
+      dateutils
       cachix
     ] ++ (with pkgs.myScripts; [
       isVpnActive
