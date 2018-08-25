@@ -44,7 +44,10 @@ rec {
       ./hosts.nix
       ./restic.nix
       ./contextual/codecentric.nix
-    ] ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix;
+    ]
+    ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix
+    ++ custom.conditionalInclude "NIX_BREUNINGER" ./contextual/breuninger/default.nix
+    ;
 
   nix = {
     gc = {
