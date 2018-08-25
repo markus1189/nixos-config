@@ -4,7 +4,7 @@ Config { font = "xft:Source Code Pro-9:bold"
        , position = BottomW L 91
        , lowerOnStart = False
        , commands = [ Run StdinReader
-                    , Run Com "@currentSpotifySong@" [] "spotify" 30
+                    , Run Com "@currentSpotifySong@/bin/currentSpotifySong" [] "spotify" 30
                     ]
        , sepChar = "%"
        , alignSep = "}{"

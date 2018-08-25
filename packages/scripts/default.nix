@@ -21,7 +21,7 @@ systemd,
 tmux,
 wmctrl,
 wpa_supplicant,
-writeScript,
+writeScriptBin,
 xclip,
 xdotool,
 xorg,
@@ -42,7 +42,7 @@ rec {
     , deps ? [] # dependencies to include in PATH
     , failFast ? true
     }: text:
-    writeScript name ''
+    writeScriptBin name ''
       #!${stdenv.shell}
 
       ${lib.optionalString (failFast) ''
@@ -118,7 +118,8 @@ rec {
   } ''
     OUTPUT="$(systemctl is-active openvpn-*.service)"
     OPENCONNECT="$(pgrep openconnect)"
-    COLOR=$(if [[ "$OUTPUT" == active || ! -z "$OPENCONNECT" ]]; then echo lightgreen; else echo red; fi)
+    VPNC="$(pgrep vpnc)"
+    COLOR=$(if [[ "$OUTPUT" == active || ! -z "$OPENCONNECT" || ! -z "$VPNC" ]]; then echo lightgreen; else echo red; fi)
     echo "<fc=$COLOR>VPN</fc>"
   '';
 
@@ -128,18 +129,6 @@ rec {
   } ''
     FORMAT="''${1:-"%H:%M:%S"}"
     while read -r line ; do echo "$(date "+$FORMAT"): $line"; done
-  '';
-
-  multiheadDatawerks = writeXrandrScript {
-    name = "multiheadDatawerks";
-    deps = [ xorg.xrandr libnotify ];
-  } ''
-    xrandr --output VIRTUAL1 --off \
-           --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal \
-           --output DP1 --off \
-           --output HDMI2 --off \
-           --output HDMI1 --mode 1920x1080 --pos 0x0 --rotate normal \
-           --output DP2 --off
   '';
 
   multiheadLeft = writeXrandrScript {

@@ -146,14 +146,14 @@ myXPConfig = defaultXPConfig
              , fgHLight          = "black"
              , borderColor       = "orange"
              , promptBorderWidth = 1
-             , height            = 15
+             , height            = 20
              , position          = Top
-             , historySize       = 100
+             , historySize       = 500
              , historyFilter     = deleteConsecutive
              , autoComplete      = Just 1
              , searchPredicate   = predicate
              }
-  where predicate term candidate = all (`isInfixOf` candidate) termWords
+  where predicate term candidate = all (`isInfixOf` (map toLower candidate)) termWords
           where termWords = words (map toLower term)
 
 myTab :: Theme
@@ -171,7 +171,7 @@ myTab = defaultTheme
         , decoHeight          = 14}
 
 myFont :: String
-myFont = "xft:DejaVu Sans-7:bold"
+myFont = "xft:DejaVu Sans-10:bold"
 
 myMouseBindings _ = [ ((myModKey, button3), \w -> focus w >> Flex.mouseWindow Flex.linear w) ]
 myNewMouseBindings x = mouseBindings defaultConfig x `M.union` M.fromList (myMouseBindings x)
@@ -193,8 +193,8 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_minus)     , sendMessage Shrink)
          , ((myModKey   , xK_s)         , windowPromptGoto myXPConfig { autoComplete = Just 500000 })
          , ((myModKey   , xK_d)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run"))
-         , ((myModKey   , xK_a)         , spawn "@chooseNetwork@")
-         , ((myModKey   , xK_q)         , spawn "@xmonadReset@")
+         , ((myModKey   , xK_a)         , spawn "@chooseNetwork@/bin/chooseNetwork")
+         , ((myModKey   , xK_q)         , spawn "@xmonadReset@/bin/xmonadReset")
 
          , ((myModKey   , xK_e)         , swapNextScreen)
          , ((myModKey   , xK_w)         , nextScreen)
@@ -209,20 +209,19 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModShift , xK_t)         , withFocused $ windows . W.sink)
          , ((myModShift , xK_x)         , spawn "@xkill@/bin/xkill")
          , ((myModShift , xK_BackSpace) , clearUrgents)
+         , ((myModCtrl  , xK_BackSpace) , spawn "@centerMouse@/bin/centerMouse")
 
-         , ((myModKey   , xK_F1)        , spawn "@singlehead@")
-         , ((myModKey   , xK_F2)        , spawn "@multihead4k@")
-         , ((myModKey   , xK_F12)       , spawn "@takeScreenshot@")
-         , ((myModCtrl  , xK_l)         , spawn "@lockScreen@")
-         , ((myModCtrl  , xK_e)         , spawn "@emacsAnywhere@")
+         , ((myModKey   , xK_F1)        , spawn "@singlehead@/bin/singlehead")
+         , ((myModKey   , xK_F2)        , spawn "@multihead4k@/bin/multihead4k")
+         , ((myModKey   , xK_F12)       , spawn "@takeScreenshot@/bin/takeScreenshot")
+         , ((myModCtrl  , xK_l)         , spawn "@lockScreen@/bin/lockScreen")
+         , ((myModCtrl  , xK_e)         , spawn "@emacsAnywhere@/bin/emacsAnywhere")
 
          -- Spotify client
          , ((myModCtrl, xK_F4), spawn "@playerctl@/bin/playerctl previous")
          , ((myModCtrl, xK_F5), spawn "@playerctl@/bin/playerctl play-pause")
-         , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@")
+         , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
          , ((myModCtrl, xK_F6), spawn "@playerctl@/bin/playerctl next")
-
-         , ((myModCtrl , xK_backslash)  , spawn "@centerMouse@")
          ]
          where
             scratchTermUpper = namedScratchpadAction myScratchPads "upper"
