@@ -52,6 +52,7 @@ add-zsh-hook preexec zbell_begin
 add-zsh-hook precmd zbell_end
 '';
   customEraseWord = pkgs.writeText "custom-erase-word.zsh" ''
+    # TODO: unfortunately makes M-W etc not work for autosuggestions
     my-backward-delete-word() {
       local WORDCHARS=''${WORDCHARS/\//}
       local WORDCHARS=''${WORDCHARS/[.]/}
@@ -59,6 +60,30 @@ add-zsh-hook precmd zbell_end
     }
     zle -N my-backward-delete-word
     bindkey '^W' my-backward-delete-word
+
+    my-backward-word() {
+      local WORDCHARS=''${WORDCHARS/\//}
+      local WORDCHARS=''${WORDCHARS/[.]/}
+      zle backward-word
+    }
+    zle -N my-backward-word
+    bindkey '^[b' my-backward-word
+
+    my-delete-word() {
+      local WORDCHARS=''${WORDCHARS/\//}
+      local WORDCHARS=''${WORDCHARS/[.]/}
+      zle delete-word
+    }
+    zle -N my-delete-word
+    bindkey 'M-D' my-delete-word
+
+    my-forward-word() {
+      local WORDCHARS=''${WORDCHARS/\//}
+      local WORDCHARS=''${WORDCHARS/[.]/}
+      zle forward-word
+    }
+    zle -N my-forward-word
+    bindkey '^[f' my-forward-word
   '';
 in
 {
