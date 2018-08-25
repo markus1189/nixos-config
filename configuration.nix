@@ -297,7 +297,10 @@ rec {
     };
   };
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    extraOptions = "--bip='172.26.0.1/16'"; # Because of the DNS ip address in ICE trains...
+  };
 
   virtualisation.virtualbox.host.enable = true;
 
