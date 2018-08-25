@@ -229,8 +229,6 @@ rec {
 
   users.extraGroups.vboxusers.members = [ "${userName}" ];
 
-  system.nixos.stateVersion = "18.03";
-
   programs = {
     bash = {
       enableCompletion = true;
@@ -325,7 +323,6 @@ rec {
       ff = "${emacs}/bin/emacsclient -n -c";
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
-      nix-zshell = "nix-shell --command zsh";
       clone = "cd ~/repos/clones; git clone";
     });
 
