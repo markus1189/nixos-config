@@ -75,6 +75,7 @@ in
       gimp
       gitFull
       (gitAndTools.git-extras)
+      git-secret
       glxinfo
       gnumake
       gnupg
