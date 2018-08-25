@@ -2,3 +2,4 @@ contextual/
 /secrets.nix
 *undo-tree*
 result/
+.gitsecret/keys/random_seed

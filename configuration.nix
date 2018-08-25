@@ -42,6 +42,7 @@ rec {
       ./packages/services.nix
       ./containers
       ./hosts.nix
+      ./restic.nix
       ./contextual/codecentric.nix
     ] ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix;
 
