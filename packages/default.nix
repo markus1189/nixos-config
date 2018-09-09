@@ -25,6 +25,9 @@ in
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             inherit mutate;
+            greenclip = pkgs.haskellPackages.greenclip.overrideAttrs (old: rec {
+              buildInputs = old.buildInputs ++ (with pkgs.xorg; [ libXdmcp libX11 libXrandr libXext]);
+            });
             chooseNetwork = myScripts.chooseNetwork wirelessInterface;
           };
           xmobarLower = xmobars.lower;
