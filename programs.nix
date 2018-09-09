@@ -216,7 +216,7 @@ in
       js-yaml
     ]) ++ [ # photography related stuff
       darktable
-      rawtherapee
+      # rawtherapee
       hugin
     ] ++ [ # evaluation phase
       bat
