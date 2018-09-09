@@ -224,6 +224,12 @@ rec {
   users.extraGroups.vboxusers.members = [ "${userName}" ];
 
   programs = {
+    less = {
+      envVariables = {
+        LESS = "-X";
+      };
+    };
+
     bash = {
       enableCompletion = true;
     };
