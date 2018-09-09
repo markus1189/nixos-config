@@ -9,7 +9,7 @@
       (scroll-bar-mode -1)
       (toggle-scroll-bar -1)))
 
-(desktop-save-mode 1)
+;; (desktop-save-mode 1)
 
 ;; (custom-set-faces
 ;;  '(helm-selection ((t (:background "#eee8d5" :foreground "red" :weight bold))))
@@ -294,7 +294,7 @@
   (defvar helm-source-fasd
     (helm-build-sync-source "helm-source-fasd"
       :volatile 't
-      :candidates (lambda () (s-lines (shell-command-to-string "@fasd@ -lR")))
+      :candidates (lambda () (s-lines (shell-command-to-string "@fasd@/bin/fasd -lR")))
       :action 'helm-type-file-actions))
   (helm-mode 1))
 
@@ -765,7 +765,7 @@ Position the cursor at its beginning, according to the current mode."
 
   (defun play-sound-file-async (file)
     "Play FILE asynchronously"
-    (start-process-shell-command "appt-notify" nil "@mplayer@" "-really-quiet" file))
+    (start-process-shell-command "appt-notify" nil "@mplayer@/bin/mplayer" "-really-quiet" file))
 
   (defun mh/compilation-start-sound (proc)
     (interactive)
@@ -1053,9 +1053,6 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (beacon-mode 1))
 
-(use-package command-log-mode
-  :ensure t)
-
 (use-package pabbrev
   :ensure t
   :config
@@ -1093,5 +1090,12 @@ string). It returns t if a new completion is found, nil otherwise."
                           "Unread messages" ?u))) )
 
 (use-package terraform-mode
+  :ensure t)
+
+(use-package dired-filter
+  :ensure t)
+
+(use-package magit-todos
+  :config (magit-todos-mode)
   :ensure t)
 ;;;

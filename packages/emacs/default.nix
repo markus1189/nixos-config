@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc }:
+{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc, git }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
@@ -36,10 +36,10 @@ in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
     avy
     beacon
-    command-log-mode
     company
     dash
     dired-plus
+    dired-filter
     evil-numbers
     expand-region
     f
@@ -66,6 +66,7 @@ in
     liso-theme
     mvn
     magit
+    (magit-todos.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     move-text
     multiple-cursors
     nix-mode
