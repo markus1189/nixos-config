@@ -87,28 +87,17 @@ rec {
   nixpkgs = {
     overlays = [
       (self: super: {
-        lensfun = super.lensfun.overrideAttrs (old: rec {
-          rev = "2a186cb";
+        lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
+          rev = "61124c3";
           name = "lensfun-${rev}";
           src = pkgs.fetchgit {
             inherit rev;
             url = http://git.code.sf.net/p/lensfun/code;
-            sha256 = "1cr023r8kmp642ilaqnbc5vybx2gwn515z5i2x8563znyg1jkzr0";
+            sha256 = "00b1047ym1r7ca0652jkc7x504wv0lr9ih035z98l1idzanq9n4i";
           };
         });
       })
-      (self: super: {
-        lastpass-cli = super.lastpass-cli.overrideAttrs (oldAttrs: rec {
-          version = "1.3.1";
-          src = super.fetchFromGitHub {
-            owner = "lastpass";
-            repo = "lastpass-cli";
-            rev = "v${version}";
-            sha256 = "11drzmfdvb8ydw1dxaz9zz8rk0jjqmfv076vydz05qqvgx59s38h";
-          };
-        });
-      })
-      ];
+    ];
 
     config = {
       allowUnfree = true;
