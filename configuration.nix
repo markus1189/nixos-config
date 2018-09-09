@@ -217,6 +217,7 @@ rec {
       ".xmonad/xmonad.hs" = xmonad;
       ".gitconfig" = gitconfig;
       ".offlineimaprc" = offlineimap;
+      ".vimrc" = pkgs.writeText "vimrc" "set t_ti= t_te=";
     };
   };
 
