@@ -238,6 +238,12 @@ rec {
       enable = true;
       package = pkgs.oraclejdk;
     };
+
+    gnupg = {
+      agent = {
+        enable = true;
+      };
+    };
   };
 
   fonts = {
