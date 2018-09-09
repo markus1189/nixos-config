@@ -12,6 +12,15 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
                         ] 40
+                    , Run Network "enp62s0u1u4"
+                        [ "-t", "<rx>kB ↓ <tx>kB ↑"
+                        , "-L" , "10"
+                        , "-H" ,"40"
+                        , "--normal","#42d3a5"
+                        , "--high", "red"
+                        , "--minwidth", "2"
+                        , "--maxwidth", "8"
+                        ] 40
                     , Run Wireless "wlp2s0"
                         [ "-t", "<fc=orange><essid></fc> (<quality>%)"
                         , "-L", "40"
@@ -67,5 +76,5 @@ Config { font = "xft:Source Code Pro-9:bold"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %wlp2s0% %wlp2s0wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
+       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %enp62s0u1u4% %wlp2s0% %wlp2s0wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
        }

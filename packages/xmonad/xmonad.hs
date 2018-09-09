@@ -171,7 +171,7 @@ myTab = defaultTheme
         , decoHeight          = 14}
 
 myFont :: String
-myFont = "xft:DejaVu Sans-10:bold"
+myFont = "xft:DejaVu Sans-7:bold"
 
 myMouseBindings _ = [ ((myModKey, button3), \w -> focus w >> Flex.mouseWindow Flex.linear w) ]
 myNewMouseBindings x = mouseBindings defaultConfig x `M.union` M.fromList (myMouseBindings x)
@@ -191,7 +191,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_Return)    , sendMessage $ Toggle FULL)
          , ((myModKey   , xK_equal)     , sendMessage Expand)
          , ((myModKey   , xK_minus)     , sendMessage Shrink)
-         , ((myModKey   , xK_s)         , windowPromptGoto myXPConfig { autoComplete = Just 500000 })
+         , ((myModKey   , xK_s)         , spawn ("@rofi@/bin/rofi -i -monitory -4 -matching fuzzy -sort -show window"))
          , ((myModKey   , xK_d)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run"))
          , ((myModKey   , xK_a)         , spawn "@chooseNetwork@/bin/chooseNetwork")
          , ((myModKey   , xK_q)         , spawn "@xmonadReset@/bin/xmonadReset")
@@ -221,6 +221,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModCtrl, xK_F4), spawn "@playerctl@/bin/playerctl previous")
          , ((myModCtrl, xK_F5), spawn "@playerctl@/bin/playerctl play-pause")
          , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
+         , ((myModShiftCtrl, xK_h), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'clipboard:@greenclip@/bin/greenclip print' -show clipboard")
          , ((myModCtrl, xK_F6), spawn "@playerctl@/bin/playerctl next")
          ]
          where
