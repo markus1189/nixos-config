@@ -37,6 +37,7 @@ rec {
       ./scripts/module.nix
       ./ssh.nix
       ./xps.nix
+      ./ripgrep.nix
       ./zsh.nix
       ./packages
       ./packages/services.nix
