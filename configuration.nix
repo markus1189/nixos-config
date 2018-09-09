@@ -59,9 +59,9 @@ rec {
     useSandbox = true;
   };
 
-  # boot = {
-  #   extraModulePackages = with config.boot.kernelPackages; [ sysdig ];
-  # };
+  boot = {
+    extraModulePackages = with config.boot.kernelPackages; [ sysdig ];
+  };
 
   i18n = {
     consoleFont = "latarcyrheb-sun32";
