@@ -327,6 +327,7 @@ rec {
       clipout = "${xclip}/bin/xclip -o -selection clipboard";
       clip = "${xclip}/bin/xclip -i -selection clipboard";
       ff = "${emacs}/bin/emacsclient -n -c";
+      FF = "${emacs}/bin/emacsclient -n";
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
       clone = "cd ~/repos/clones; git clone";
