@@ -29,6 +29,7 @@ in
   systemd = {
     services = {
       restic-backup-photos = {
+        enable = true;
         description = "photos backup";
         environment = {
           RESTIC_REPOSITORY = "b2:${secrets.restic.b2bucket.name}:/photos";
@@ -45,6 +46,7 @@ in
 
     timers = {
       restic-backup-photos = {
+        enable = false;
         description = "photos backup timer";
         wantedBy = [ "timers.target" ];
         timerConfig = {
