@@ -204,6 +204,10 @@ rec {
     acpid = {
       enable = true;
     };
+
+    clipmenu = {
+      enable = true;
+    };
   };
 
   users.extraUsers.${userName} = {
