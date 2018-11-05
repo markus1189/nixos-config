@@ -43,7 +43,6 @@ in
 
   hardware = {
     bluetooth = {
-      enable = true;
       extraConfig = ''
         [General]
         ControllerMode = bredr
