@@ -40,6 +40,7 @@ in
     dash
     dired-plus
     dired-filter
+    dockerfile-mode
     evil-numbers
     expand-region
     f
@@ -63,6 +64,7 @@ in
     indent-guide
     iy-go-to-char
     jq-mode
+    (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     liso-theme
     mvn
     magit

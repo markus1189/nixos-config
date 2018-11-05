@@ -1098,4 +1098,11 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package magit-todos
   :config (magit-todos-mode)
   :ensure t)
+
+(use-package dockerfile-mode
+  :ensure t)
+
+(use-package kubernetes
+  :ensure t
+  :commands (kubernetes-overview))
 ;;;
