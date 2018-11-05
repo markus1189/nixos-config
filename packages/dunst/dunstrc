@@ -37,6 +37,8 @@ sticky_history = yes
 
 history_length = 15
 
+dmenu = "@rofi@/bin/rofi -dmenu"
+
 show_indicators = no
 
 line_height = 3
@@ -64,6 +66,7 @@ close = ctrl+space
 
 history = ctrl+grave
 
+context = ctrl+shift+space
 
 [urgency_low]
 frame_color = "#4BD700"
