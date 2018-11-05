@@ -152,7 +152,7 @@ in
       spotify
       sqlite
       stack
-      # sysdig
+      sysdig
       system-config-printer
       tcpdump
       terminator
@@ -218,12 +218,16 @@ in
       darktable
       # rawtherapee
       hugin
+      geeqie
     ] ++ [ # evaluation phase
       bat
       lnav
       pdd
       dateutils
       cachix
+      rclone
+      bind
+      pwgen
     ] ++ (with pkgs.myScripts; [
       isVpnActive
     ]);
