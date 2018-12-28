@@ -115,7 +115,6 @@ in
       nmap
       openssl
       openvpn
-      oraclejdk
       pandoc
       parallel
       parcellite
@@ -228,6 +227,7 @@ in
       rclone
       bind
       pwgen
+      keynav
     ] ++ (with pkgs.myScripts; [
       isVpnActive
     ]);

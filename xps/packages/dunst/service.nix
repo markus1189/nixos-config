@@ -1,7 +1,10 @@
 { config, pkgs, ... }:
 
 let
-  dunstrc = pkgs.mutate ./dunstrc { sourceCodePro = pkgs.source-code-pro; };
+  dunstrc = pkgs.mutate ./dunstrc {
+    inherit (pkgs) rofi;
+    sourceCodePro = pkgs.source-code-pro;
+  };
 in
 {
   services = {

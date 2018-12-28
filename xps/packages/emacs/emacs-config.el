@@ -558,7 +558,7 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
   (global-set-key (kbd "C-z") 'eshell)
 
-  (global-set-key (kbd "C-c j") 'mh/scala-open-in-intellij)
+  (global-set-key (kbd "C-c j") (Λ (mh/scala-open-in-intellij)))
 
   (defun mh/delete-or-kill-window (prefix)
     "Without prefix, delete-window, with prefix, kill the buffer."
@@ -1105,4 +1105,15 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package kubernetes
   :ensure t
   :commands (kubernetes-overview))
+
+(use-package string-inflection
+  :ensure t
+  :commands ()
+  :bind (("C-c C-u" . string-inflection-all-cycle)))
+
+(use-package lua-mode
+  :ensure t)
+
+(use-package dyalog-mode
+  :ensure t)
 ;;;

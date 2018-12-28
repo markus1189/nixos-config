@@ -41,6 +41,7 @@ in
     dired-plus
     dired-filter
     dockerfile-mode
+    dyalog-mode
     evil-numbers
     expand-region
     f
@@ -65,6 +66,7 @@ in
     iy-go-to-char
     jq-mode
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
+    lua-mode
     liso-theme
     mvn
     magit
@@ -80,6 +82,7 @@ in
     s
     sbt-mode
     scala-mode
+    string-inflection
     persistent-scratch
     pdf-tools
     smartparens

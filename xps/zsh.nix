@@ -56,6 +56,8 @@ add-zsh-hook precmd zbell_end
     my-backward-delete-word() {
       local WORDCHARS=''${WORDCHARS/\//}
       local WORDCHARS=''${WORDCHARS/[.]/}
+      local WORDCHARS=''${WORDCHARS/[-]/}
+      local WORDCHARS=''${WORDCHARS/[_]/}
       zle backward-delete-word
     }
     zle -N my-backward-delete-word

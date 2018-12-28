@@ -46,6 +46,11 @@ rec {
     ++ custom.conditionalInclude "NIX_BREUNINGER" ./contextual/breuninger/default.nix
     ;
 
+  documentation = {
+    enable = true;
+    dev.enable = true;
+  };
+
   nix = {
     gc = {
       automatic = false;
@@ -85,12 +90,12 @@ rec {
     overlays = [
       (self: super: {
         lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-          rev = "112d8dfbf6a13640af270b09e575bf3dc3d9c767";
+          rev = "728a8f4ea6e742171da55f48397b7e950e85ae3e";
           name = "lensfun-${rev}";
           src = pkgs.fetchgit {
             inherit rev;
             url = http://git.code.sf.net/p/lensfun/code;
-            sha256 = "12cs3w2hfr9d4aj8rycr3ikkxfr6j5zbbs6yc9fi19am9vd757ak";
+            sha256 = "0icds35kma3yp7167gw7d0j2csjzca07rq8r9h442hp18sfaf1s3";
           };
         });
       })
@@ -132,12 +137,6 @@ rec {
 
     dbus.enable = true;
 
-    nixosManual = {
-      enable = true;
-      showManual = true;
-      ttyNumber = 8;
-    };
-
     udisks2.enable = true;
 
     physlock = {
@@ -164,10 +163,9 @@ rec {
     xserver = {
       enable = true;
 
-      layout = "us";
-
-      xkbVariant = "altgr-intl";
-      xkbOptions = "eurosign:e,caps:ctrl_modifier";
+      layout = "us,apl";
+      xkbVariant = "altgr-intl,";
+      xkbOptions = "eurosign:e,caps:ctrl_modifier,grp:rctrl_switch";
 
       displayManager = {
         slim = {
@@ -237,7 +235,7 @@ rec {
 
     java = {
       enable = true;
-      package = pkgs.oraclejdk;
+      package = pkgs.adoptopenjdk-bin;
     };
 
     gnupg = {
