@@ -16,30 +16,29 @@ let
     };
   };
   userName = "markus";
-  usrPkgs = import ./scripts/scripts.nix { inherit pkgs; };
-  custom = import ./custom.nix;
-  secrets = import ./secrets.nix;
+  usrPkgs = import ../nixos-shared/scripts/scripts.nix { inherit pkgs; };
+  custom = import ../nixos-shared/custom.nix;
+  secrets = import ../nixos-shared/secrets.nix;
 in
 rec {
   imports =
     [
       ./bluetooth.nix
-      ./fasd.nix
-      ./fzf.nix
+      ../nixos-shared/fasd.nix
+      ../nixos-shared/fzf.nix
       ./hardware-configuration.nix
       ./keybase.nix
       ./lastpass.nix
       ./programs.nix
-      ./scripts/module.nix
-      ./ssh.nix
+      ../nixos-shared/ssh.nix
       ./xps.nix
-      ./ripgrep.nix
-      ./zsh.nix
-      ./packages
-      ./packages/services.nix
+      ../nixos-shared/ripgrep.nix
+      ../nixos-shared/zsh.nix
+      ../nixos-shared/packages
+      ../nixos-shared/packages/services.nix
       ./containers
       ./hosts.nix
-      ./restic.nix
+      ../nixos-shared/restic.nix
       ./contextual/codecentric.nix
     ]
     ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix

@@ -1,7 +1,7 @@
 { config, pkgs, ...}:
 
 let
-  usrPkgs = import ./scripts/scripts.nix { inherit pkgs; };
+  usrPkgs = import ../nixos-shared/scripts/scripts.nix { inherit pkgs; };
   wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
 in
 {

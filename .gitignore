@@ -3,4 +3,4 @@ contextual/
 *undo-tree*
 result/
 .gitsecret/keys/random_seed
-/xps/secrets.nix
+secrets.nix

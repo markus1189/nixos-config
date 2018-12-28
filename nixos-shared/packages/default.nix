@@ -19,9 +19,8 @@ in
         myScripts = pkgs.callPackage ./scripts { };
         xmobars = callPackage ./xmobarrc { inherit mutate; };
         mutate = callPackage ./mutate { };
-        insomnia = callPackage ./insomnia { };
     in rec {
-        inherit myScripts mutate insomnia;
+        inherit myScripts mutate;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             inherit mutate;

@@ -5,6 +5,9 @@ let
     --type-add
     scala:*.{scala,sbt}*
 
+    --type-add
+    nix:*.nix
+
     --smart-case
   '';
 in
