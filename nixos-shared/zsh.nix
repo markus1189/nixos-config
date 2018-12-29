@@ -40,9 +40,9 @@ zbell_end() {
 
   if (( ! $has_ignored_cmd )) && (( ran_long )); then
                 if [[ "$LAST_EC" == 0 ]]; then
-                  notify-send "Command finished [$LAST_EC]" "$zbell_lastcmd"
+                  ${pkgs.libnotify}/bin/notify-send "Command finished [$LAST_EC]" "$zbell_lastcmd"
                 else
-                  notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
+                  ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
                 fi
     print -n "\a"
   fi
