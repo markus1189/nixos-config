@@ -27,7 +27,7 @@ userName:
     xserver = {
       layout = "us";
       xkbVariant = "altgr-intl";
-      xkbOptions = "eurosign:e,caps:ctrl_modifier,grp:rctrl_switch";
+      xkbOptions = "eurosign:e,caps:ctrl_modifier";
     };
   };
 }

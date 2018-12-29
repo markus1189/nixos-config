@@ -22,6 +22,7 @@ in
       ../nixos-shared/zsh.nix
       ../nixos-shared/common-programs.nix
       ./fileSystems.nix
+      ./kodi.nix
       ./hardware-configuration.nix
     ];
 
