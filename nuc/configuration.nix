@@ -10,7 +10,7 @@ in
 {
   imports =
     [
-      (./ssh.nix userName)
+      (import ./ssh.nix userName)
       (import ../nixos-shared/common-services.nix userName)
       ../nixos-shared/fasd.nix
       ../nixos-shared/fzf.nix
@@ -20,7 +20,7 @@ in
       ../nixos-shared/ripgrep.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
-      ../nixos/shared/common-programs.nix
+      ../nixos-shared/common-programs.nix
       ./fileSystems.nix
       ./hardware-configuration.nix
     ];
