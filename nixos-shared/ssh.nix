@@ -47,6 +47,7 @@
        Host nuc
           HostName 192.168.178.46
           User mediacenter
+          Port 4241
           ServerAliveInterval 60
           ServerAliveCountMax 3
 

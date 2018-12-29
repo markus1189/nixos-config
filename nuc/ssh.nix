@@ -10,10 +10,7 @@ userName:
         PermitEmptyPasswords no
         AllowUsers ${userName}
       '';
+      ports = [ 4241 ];
     };
   };
-
-  networking.firewall.allowedTCPPorts = [
-    4225 # ssh from internet
-  ];
 }
