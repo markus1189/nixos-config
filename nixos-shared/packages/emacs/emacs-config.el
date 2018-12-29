@@ -1114,6 +1114,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package lua-mode
   :ensure t)
 
-(use-package dyalog-mode
-  :ensure t)
+;; (use-package dyalog-mode
+;;   :ensure t)
 ;;;
