@@ -2,7 +2,9 @@
 
 {
   services = {
-    openssh.enable = true;
+    openssh = {
+      enable = true;
+    };
   };
 
   programs = {
@@ -39,6 +41,19 @@
           RequestTTY no
           LocalForward 5900 localhost:5900
           Port 4224
+          ServerAliveInterval 60
+          ServerAliveCountMax 3
+
+       Host nuc
+          HostName 192.168.178.46
+          User mediacenter
+          ServerAliveInterval 60
+          ServerAliveCountMax 3
+
+       Host nuci
+          HostName markus1189.no-ip.org
+          User mediacenter
+          Port 4225
           ServerAliveInterval 60
           ServerAliveCountMax 3
 

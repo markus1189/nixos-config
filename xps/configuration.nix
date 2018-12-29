@@ -23,23 +23,25 @@ in
 rec {
   imports =
     [
-      ./bluetooth.nix
+      (import ../nixos-shared/common-services.nix userName)
+      ../nixos-shared/common-programs.nix
       ../nixos-shared/fasd.nix
       ../nixos-shared/fzf.nix
+      ../nixos-shared/packages
+      ../nixos-shared/packages/services.nix
+      ../nixos-shared/restic.nix
+      ../nixos-shared/ripgrep.nix
+      ../nixos-shared/ssh.nix
+      ../nixos-shared/zsh.nix
+      ./bluetooth.nix
+      ./containers
+      ./contextual/codecentric.nix
       ./hardware-configuration.nix
+      ./hosts.nix
       ./keybase.nix
       ./lastpass.nix
       ./programs.nix
-      ../nixos-shared/ssh.nix
       ./xps.nix
-      ../nixos-shared/ripgrep.nix
-      ../nixos-shared/zsh.nix
-      ../nixos-shared/packages
-      ../nixos-shared/packages/services.nix
-      ./containers
-      ./hosts.nix
-      ../nixos-shared/restic.nix
-      ./contextual/codecentric.nix
     ]
     ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix
     ++ custom.conditionalInclude "NIX_BREUNINGER" ./contextual/breuninger/default.nix
@@ -125,18 +127,7 @@ rec {
 
     avahi.enable = true;
 
-    atd.enable = true;
-
-    # arbtt.enable = true;
-
-    cron = {
-      enable = true;
-      mailto = userName;
-    };
-
     dbus.enable = true;
-
-    udisks2.enable = true;
 
     physlock = {
       enable = true;
@@ -147,24 +138,8 @@ rec {
       drivers = [ pkgs.gutenprint pkgs.foo2zjs ];
     };
 
-    unclutter.enable = true;
-
-    locate = {
-      enable = true;
-      interval = "hourly";
-      localuser = userName;
-    };
-
-    sysstat = {
-      enable = false;
-    };
-
     xserver = {
       enable = true;
-
-      layout = "us,apl";
-      xkbVariant = "altgr-intl,";
-      xkbOptions = "eurosign:e,caps:ctrl_modifier,grp:rctrl_switch";
 
       displayManager = {
         slim = {
@@ -221,29 +196,6 @@ rec {
 
   users.extraGroups.vboxusers.members = [ "${userName}" ];
 
-  programs = {
-    less = {
-      envVariables = {
-        LESS = "-X";
-      };
-    };
-
-    bash = {
-      enableCompletion = true;
-    };
-
-    java = {
-      enable = true;
-      package = pkgs.adoptopenjdk-bin;
-    };
-
-    gnupg = {
-      agent = {
-        enable = true;
-      };
-    };
-  };
-
   fonts = {
     enableFontDir = true;
     enableGhostscriptFonts = true;
@@ -284,8 +236,6 @@ rec {
 
     opengl.driSupport32Bit = true;
   };
-
-  # i8n.consoleUseXkbConfig = true;
 
   sound = {
     enable = true;

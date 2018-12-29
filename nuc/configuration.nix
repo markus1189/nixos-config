@@ -4,37 +4,45 @@
 
 { config, pkgs, ... }:
 
-let 
+let
   userName = "mediacenter";
 in
 {
   imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+    [
+      (./ssh.nix userName)
+      (import ../nixos-shared/common-services.nix userName)
+      ../nixos-shared/fasd.nix
+      ../nixos-shared/fzf.nix
       ../nixos-shared/packages
       ../nixos-shared/packages/services.nix
+      ../nixos-shared/restic.nix
+      ../nixos-shared/ripgrep.nix
+      ../nixos-shared/ssh.nix
+      ../nixos-shared/zsh.nix
+      ../nixos/shared/common-programs.nix
+      ./fileSystems.nix
+      ./hardware-configuration.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nuc"; # Define your hostname.
-  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.wireless.userControlled.enable = true;
+  networking = {
+    hostName = "nuc";
+    wireless = {
+      enable = true;
+      userControlled.enable = true;
+    };
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+    extraHosts = ''
+      127.0.0.1 ${config.networking.hostName}
+    '';
 
-  # Select internationalisation properties.
-  # i18n = {
-  #   consoleFont = "Lat2-Terminus16";
-  #   consoleKeyMap = "us";
-  #   defaultLocale = "en_US.UTF-8";
-  # };
+    timeServers = [ "0.nixos.pool.ntp.org" "1.nixos.pool.ntp.org" "2.nixos.pool.ntp.org" "3.nixos.pool.ntp.org" ];
+  };
 
-  # Set your time zone.
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
@@ -85,36 +93,14 @@ in
     gitFull
     (gitAndTools.git-extras)
     git-secret
-    kodi
     vim
-    wget 
+    wget
   ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    passwordAuthentication = false;
-    permitRootLogin = "prohibit-password";
-    extraConfig = ''
-      PermitEmptyPasswords no
-      AllowUsers ${userName}
-    '';
-  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ 
-    42424 # kodi mediacenter
-  ];
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -126,9 +112,6 @@ in
   # Enable the X11 windowing system.
   services.xserver = {
     enable = true;
-    layout = "us";
-    xkbVariant = "altgr-intl";
-    xkbOptions = "eurosign:e,caps:ctrl_modifier";
   };
 
   # Enable touchpad support.
@@ -175,32 +158,6 @@ in
     autoUpgrade = {
       enable = true;
       dates = "04:21";
-    };
-  };
-
-  fileSystems = {
-    "multimedia1" = {
-      mountPoint = "/media/multimedia";
-      neededForBoot = false;
-      device = "/dev/disk/by-uuid/C6B89CABB89C9B8D";
-      fsType = "ntfs-3g";
-      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
-    };
-
-    "multimedia2" = {
-      mountPoint = "/media/multimedia2";
-      neededForBoot = false;
-      device = "/dev/disk/by-uuid/9E167A141679EE21";
-      fsType = "ntfs-3g";
-      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
-    };
-
-    "backups" = {
-      mountPoint = "/media/backups";
-      neededForBoot = false;
-      device = "/dev/disk/by-uuid/AADEEA03DEE9C7A1";
-      fsType = "ntfs-3g";
-      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
     };
   };
 }
