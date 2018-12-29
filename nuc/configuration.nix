@@ -11,6 +11,8 @@ in
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ../nixos-shared/packages
+      ../nixos-shared/packages/services.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -41,9 +43,18 @@ in
     };
   };
 
+  nix = {
+    gc = {
+      automatic = true;
+      dates = "03:15";
+      options = "--delete-older-than 30d";
+    };
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    bashmount
     coreutils
     feh
     firefoxWrapper
@@ -98,17 +109,19 @@ in
   };
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [ 
+    42424 # kodi mediacenter
+  ];
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
   # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -131,6 +144,14 @@ in
     };
   };
   services.xserver.desktopManager.plasma5.enable = true;
+
+  services.x11vnc = {
+    enable = true;
+    auth = "/home/${userName}/.Xauthority";
+    password = "worldbuilding2";
+    shared = true;
+    autoStart = true;
+  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.${userName} = {
@@ -157,4 +178,29 @@ in
     };
   };
 
+  fileSystems = {
+    "multimedia1" = {
+      mountPoint = "/media/multimedia";
+      neededForBoot = false;
+      device = "/dev/disk/by-uuid/C6B89CABB89C9B8D";
+      fsType = "ntfs-3g";
+      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
+    };
+
+    "multimedia2" = {
+      mountPoint = "/media/multimedia2";
+      neededForBoot = false;
+      device = "/dev/disk/by-uuid/9E167A141679EE21";
+      fsType = "ntfs-3g";
+      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
+    };
+
+    "backups" = {
+      mountPoint = "/media/backups";
+      neededForBoot = false;
+      device = "/dev/disk/by-uuid/AADEEA03DEE9C7A1";
+      fsType = "ntfs-3g";
+      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
+    };
+  };
 }
