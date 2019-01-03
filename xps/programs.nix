@@ -73,13 +73,8 @@ in
       ghc
       # ghostscript
       gimp
-      gitFull
-      (gitAndTools.git-extras)
-      git-secret
       glxinfo
       gnumake
-      gnupg
-      gnupg1
       gnuplot
       go-pup
       gparted
