@@ -11,6 +11,7 @@ in
   imports =
     [
       (import ../nixos-shared/common-services.nix userName)
+      (import ./cron.nix userName)
       (import ./ssh.nix userName)
       ../nixos-shared/common-programs.nix
       ../nixos-shared/fasd.nix
@@ -21,7 +22,6 @@ in
       ../nixos-shared/ripgrep.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
-      ./cron.nix
       ./fileSystems.nix
       ./hardware-configuration.nix
       ./kodi.nix
