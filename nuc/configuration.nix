@@ -22,6 +22,7 @@ in
       ../nixos-shared/scripts/module.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
+      ./cron.nix
       ./fileSystems.nix
       ./hardware-configuration.nix
       ./kodi.nix
