@@ -10,20 +10,21 @@ in
 {
   imports =
     [
-      (import ./ssh.nix userName)
       (import ../nixos-shared/common-services.nix userName)
+      (import ./ssh.nix userName)
+      ../nixos-shared/common-programs.nix
       ../nixos-shared/fasd.nix
       ../nixos-shared/fzf.nix
       ../nixos-shared/packages
       ../nixos-shared/packages/services.nix
       ../nixos-shared/restic.nix
       ../nixos-shared/ripgrep.nix
+      ../nixos-shared/scripts/module.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
-      ../nixos-shared/common-programs.nix
       ./fileSystems.nix
-      ./kodi.nix
       ./hardware-configuration.nix
+      ./kodi.nix
     ];
 
   # Use the systemd-boot EFI boot loader.

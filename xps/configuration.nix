@@ -31,6 +31,7 @@ rec {
       ../nixos-shared/packages/services.nix
       ../nixos-shared/restic.nix
       ../nixos-shared/ripgrep.nix
+      ../nixos-shared/scripts/module.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
       ./bluetooth.nix
