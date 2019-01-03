@@ -19,7 +19,6 @@ in
       ../nixos-shared/packages/services.nix
       ../nixos-shared/restic.nix
       ../nixos-shared/ripgrep.nix
-      ../nixos-shared/scripts/module.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
       ./cron.nix
@@ -37,6 +36,7 @@ in
     wireless = {
       enable = true;
       userControlled.enable = true;
+      interfaces = [ "wlp58s0" ];
     };
 
     extraHosts = ''
