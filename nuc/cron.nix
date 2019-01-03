@@ -9,7 +9,7 @@ let
   in-or-out = import ./in-or-out.nix {
     inherit (userPkgs) writeShellScriptBin;
     inherit (pkgs) curl;
-    channel = "#jdlssjlsfrewiureovbkl";
+    channel = "#ffm";
     token = secrets.ffmBotToken;
   };
   userPkgs = import ../nixos-shared/scripts/scripts.nix { inherit pkgs; };
@@ -19,8 +19,7 @@ in
     cron = {
       enable = true;
       systemCronJobs = [
-        " 0  0 * * thu ${userName} ${in-or-out}/bin/in-or-out"
-        "30 15 * * thu ${userName} bash ~/in-or-out.sh"
+        "30 15 * * thu ${userName} ${in-or-out}/bin/in-or-out"
         " 0  3 * * * ${userName} ${killall} kodi 2>/dev/null"
         " 0  3 * * * ${userName} ${killall} kodi.bin 2>/dev/null"
         " 5  3 * * * ${userName} ${killall} -9 kodi 2>/dev/null"
