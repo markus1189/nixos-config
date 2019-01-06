@@ -81,7 +81,6 @@ in
       graphviz
       hicolor_icon_theme
       html2text
-      htop
       httpie
       http-prompt
       i3lock

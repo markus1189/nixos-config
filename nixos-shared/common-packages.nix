@@ -9,6 +9,7 @@
       gitFull
       (gitAndTools.git-extras)
       git-secret
+      htop
     ];
   };
 }
