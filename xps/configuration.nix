@@ -65,7 +65,9 @@ rec {
   };
 
   boot = {
-    extraModulePackages = with config.boot.kernelPackages; [ sysdig ];
+    extraModulePackages = with config.boot.kernelPackages; [
+      # sysdig
+    ];
   };
 
   i18n = {
