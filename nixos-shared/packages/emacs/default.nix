@@ -61,6 +61,8 @@ in
     helm-projectile
     helm-swoop
     hydra
+    ibuffer-vc
+    ibuffer-projectile
     iedit
     indent-guide
     iy-go-to-char

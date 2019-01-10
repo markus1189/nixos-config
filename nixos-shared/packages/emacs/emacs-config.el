@@ -1114,6 +1114,16 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package lua-mode
   :ensure t)
 
+(use-package ibuffer
+  :ensure t
+  :bind (("C-x C-b" . ibuffer)))
+
+(use-package ibuffer-vc
+  :ensure t)
+
+(use-package ibuffer-projectile
+  :ensure t)
+
 ;; (use-package dyalog-mode
 ;;   :ensure t)
 ;;;
