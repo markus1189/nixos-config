@@ -106,7 +106,7 @@ in
         RPROMPT+="%{$fg_bold[yellow]%}$SHLVL:$(ps --no-headers -o comm $PPID)%{$reset_color%} "
         RPROMPT+="%{$fg_bold[green]%}%h%{$reset_color%} "
         RPROMPT+="%{$fg_bold[magenta]%}%(?..[%?] )%{$reset_color%}"
-        if [ "$IN_NIX_SHELL" = 1 ] ; then
+        if [ ! -z "$IN_NIX_SHELL" ] ; then
           RPROMPT+="%{$fg_bold[red]%}NIX %{$reset_color%}"
         fi
         RPROMPT+="%{$fg_bold[yellow]%}%D{%H:%M:%S}%{$reset_color%}"
