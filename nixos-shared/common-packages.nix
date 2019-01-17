@@ -3,6 +3,7 @@
 {
   environment = {
     systemPackages = with pkgs; [
+      binutils
       gnupg
       gnupg1
       git
