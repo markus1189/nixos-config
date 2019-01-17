@@ -66,6 +66,7 @@ in
     iedit
     indent-guide
     iy-go-to-char
+    json-mode
     jq-mode
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     lua-mode

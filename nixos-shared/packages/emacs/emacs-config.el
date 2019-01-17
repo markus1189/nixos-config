@@ -1124,6 +1124,9 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package ibuffer-projectile
   :ensure t)
 
+(use-package json-mode
+  :ensure t)
+
 ;; (use-package dyalog-mode
 ;;   :ensure t)
 ;;;
