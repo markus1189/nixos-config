@@ -274,4 +274,21 @@ rec {
       echo -n "<fc=orange>''${TITLE}</fc> by <fc=orange>''${ARTIST}</fc> ''${ALBUM2}"
     fi
   '';
+
+  nix-frun = writeShellScriptBin {
+    name = "nix-frun";
+    deps = [ nix coreutils jq fzf zsh gnused ];
+    pure = false;
+  } ''
+    args="$(nix search --json | jq -r 'keys[]' | sed 's/nixpkgs[.]//' | fzf -m)"
+
+    packages=$(echo "''${args}" | while read i; do
+                   echo "nixpkgs.''${i}"
+               done | paste -s -d' '
+            )
+
+    echo "Running shell with: ''${args}"
+
+    nix run nixpkgs.zsh ''${packages} -c zsh
+  '';
 }

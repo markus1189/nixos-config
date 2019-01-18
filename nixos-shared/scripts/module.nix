@@ -15,6 +15,7 @@ in
       git-pretty-log
       gnuplot-quick
       lock-screen
+      nix-frun
       multihead-left
       multihead-right
       multihead-4k
