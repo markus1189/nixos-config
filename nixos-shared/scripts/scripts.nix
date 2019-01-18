@@ -289,6 +289,6 @@ rec {
 
     echo "Running shell with: ''${args}"
 
-    nix run nixpkgs.zsh ''${packages} -c zsh
+    env IN_NIX_SHELL=nixrun nix run nixpkgs.zsh ''${packages} -c zsh
   '';
 }
