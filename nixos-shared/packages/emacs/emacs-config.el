@@ -558,7 +558,17 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
   (global-set-key (kbd "C-z") 'eshell)
 
-  (global-set-key (kbd "C-c j") (Λ (mh/scala-open-in-intellij)))
+  (global-set-key (kbd "C-c j") (Λ (mh/open-in-intellij)))
+
+  (defun mh/open-in-intellij ()
+    (interactive)
+    (start-process-shell-command "jump-to-intellij"
+                                 nil
+                                 (s-join " " (list "idea-community"
+                                                   "--line"
+                                                   (format "%s" (line-number-at-pos))
+                                                   buffer-file-name)))
+    (message "Opened in IntelliJ IDEA."))
 
   (defun mh/delete-or-kill-window (prefix)
     "Without prefix, delete-window, with prefix, kill the buffer."
@@ -629,6 +639,14 @@ Position the cursor at its beginning, according to the current mode."
          ("C-!" . er/contract-region)))
 
 (use-package scala-mode
+  :config
+  (defun mh/scala-mode-sbt-previous-or-ask (ask-p)
+    (interactive "P")
+    (if ask-p
+        (call-interactively 'sbt-command)
+      (sbt-run-previous-command)))
+  :bind
+  (("C-s-r" . mh/scala-mode-sbt-previous-or-ask))
   :ensure t)
 
 (use-package sbt-mode
