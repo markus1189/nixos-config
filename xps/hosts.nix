@@ -1,14 +1,19 @@
 { config, pkgs, ... }:
 
 let
-  hostsCommit = "b6346cbf7a88e2607476048fe43a22d52a05bbee";
+  hostsCommit = "4d9b648";
   hostsFile = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/StevenBlack/hosts/${hostsCommit}/alternates/fakenews-gambling-porn/hosts";
-    sha256 = "0755vpzhy0wcgc0lpfcmbkmbdrm42x6w5znlyjbdfxr6lkbpqp0s";
+    sha256 = "19dqbiyhi76ri384qc7aymj7j0v2i92lkyqyplyyzzb1xpl4gbpc";
   };
+  filteredHosts = pkgs.runCommand "filtered-hosts" {} ''
+    # Accept this because of farnam street links...
+    echo "# Filtered version of ${hostsFile}" > $out
+    ${pkgs.gnugrep}/bin/grep -Fv "link.m.convertkit" ${hostsFile} >> $out
+  '';
 in
 {
   networking = {
-    extraHosts = builtins.readFile hostsFile;
+    extraHosts = builtins.readFile filteredHosts;
   };
 }
