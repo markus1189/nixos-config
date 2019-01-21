@@ -136,6 +136,14 @@ in
         zle -N edit-command-line
         bindkey "^X^E" edit-command-line
 
+        copy-current-command() {
+          zle kill-buffer
+          print -rn -- $CUTBUFFER | ${pkgs.xclip}/bin/xclip -i -selection clipboard
+        }
+
+        zle -N copy-current-command
+        bindkey '^X^A' copy-current-command
+
         source ${modifiedZbell}
         source ${customEraseWord}
       '';
