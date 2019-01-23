@@ -217,7 +217,7 @@ in
       lnav
       pdd
       dateutils
-      cachix
+      # cachix
       rclone
       bind
       pwgen
