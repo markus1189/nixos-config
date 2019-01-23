@@ -187,6 +187,27 @@ rec {
            --output DP2 --off
   '';
 
+  autoMonitorConfig = writeShellScript {
+    name = "autoMonitorConfig";
+    pure = false; # to get multiheadBreuninger
+    deps = [ wpa_supplicant gnugrep libnotify coreutils ];
+  } ''
+    CURRENT="$(wpa_cli -i wlp2s0 status | grep '^ssid' | cut -d'=' -f 2)"
+
+    if [[ -z "''${CURRENT}" ]]; then
+        notify-send wpa_cli "Could not find current SSID!"
+        exit 1
+    fi
+
+    case "''${CURRENT}" in
+        "EB-Mobile")
+            multiheadBreuninger
+            ;;
+        *)
+            echo "Unknown network: ''${CURRENT}" > /dev/stderr
+    esac
+  '';
+
   wpaSelectNetwork = { id , network ? id }: device:
     writeShellScript {
       name = "wpaCliSelectNetwork${network}";

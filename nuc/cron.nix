@@ -9,7 +9,6 @@ let
   find = "${pkgs.findutils}/bin/find";
   secrets = import ../nixos-shared/secrets.nix;
   rm = "${pkgs.coreutils}/bin/rm";
-  userPkgs = import ../nixos-shared/scripts/scripts.nix { inherit pkgs; };
 in
 {
   services = {

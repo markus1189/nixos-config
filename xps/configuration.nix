@@ -16,7 +16,7 @@ let
     };
   };
   userName = "markus";
-  usrPkgs = import ../nixos-shared/scripts/scripts.nix { inherit pkgs; };
+  usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
   custom = import ../nixos-shared/custom.nix;
   secrets = import ../nixos-shared/secrets.nix;
 in
@@ -32,7 +32,6 @@ rec {
       ../nixos-shared/packages/services.nix
       ../nixos-shared/restic.nix
       ../nixos-shared/ripgrep.nix
-      ../nixos-shared/scripts/module.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
       ./bluetooth.nix

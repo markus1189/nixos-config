@@ -212,7 +212,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModCtrl  , xK_BackSpace) , spawn "@centerMouse@/bin/centerMouse")
 
          , ((myModKey   , xK_F1)        , spawn "@singlehead@/bin/singlehead")
-         , ((myModKey   , xK_F2)        , spawn "@multihead4k@/bin/multihead4k")
+         , ((myModKey   , xK_F2)        , spawn "@autoMonitorConfig@/bin/autoMonitorConfig")
          , ((myModKey   , xK_F12)       , spawn "@takeScreenshot@/bin/takeScreenshot")
          , ((myModCtrl  , xK_l)         , spawn "@lockScreen@/bin/lockScreen")
          , ((myModCtrl  , xK_e)         , spawn "@emacsAnywhere@/bin/emacsAnywhere")

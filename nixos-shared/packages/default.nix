@@ -23,6 +23,7 @@ in
         inherit myScripts mutate;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
+            autoMonitorConfig = myScripts.autoMonitorConfig;
             inherit mutate;
             greenclip = pkgs.haskellPackages.greenclip.overrideAttrs (old: rec {
               buildInputs = old.buildInputs ++ (with pkgs.xorg; [ libXdmcp libX11 libXrandr libXext]);
