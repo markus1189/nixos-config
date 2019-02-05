@@ -111,7 +111,7 @@ rec {
   };
 
   services = {
-    offlineimap.enable = true;
+    offlineimap.enable = false;
 
     upower.enable = true;
 
