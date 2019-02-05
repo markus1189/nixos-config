@@ -38,6 +38,7 @@ in
     beacon
     company
     dash
+    deadgrep
     dired-plus
     dired-filter
     dockerfile-mode
@@ -52,6 +53,9 @@ in
     fullframe
     git-commit
     git-link
+    gitlab-ci-mode
+    gitlab-ci-mode-flycheck
+    go-mode
     goto-chg
     groovy-mode
     graphviz-dot-mode
@@ -69,8 +73,10 @@ in
     json-mode
     jq-mode
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
-    lua-mode
+    # lua-mode
     liso-theme
+    markdown-mode
+    markdown-preview-mode
     mvn
     magit
     (magit-todos.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))

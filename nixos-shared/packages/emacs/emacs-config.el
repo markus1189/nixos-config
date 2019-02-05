@@ -626,7 +626,40 @@ Position the cursor at its beginning, according to the current mode."
       (backup-buffer)))
 
   (add-hook 'before-save-hook  'force-backup-of-buffer)
-  (add-hook 'focus-out-hook (lambda () (interactive) (save-some-buffers t))))
+  (add-hook 'focus-out-hook (lambda () (interactive) (save-some-buffers t)))
+
+  (defun mh/restore-marker (marker)
+    (switch-to-buffer (marker-buffer marker))
+    (goto-char (marker-position marker)))
+
+
+  (defun mh/copy-marker-to-register ()
+    (interactive)
+    (set-register :mh/copy-and-paste-marker
+                  (point-marker))
+    (message "Copied buffer."))
+
+  (defun mh/restore-marker-from-register ()
+    (interactive)
+    (mh/restore-marker
+     (get-register :mh/copy-and-paste-marker)))
+
+  (defun mh/move-window-to-other-and-winner-undo ()
+    (interactive)
+    (mh/copy-marker-to-register)
+    (winner-undo)
+    (other-window 1)
+    (mh/restore-marker-from-register))
+
+  (defun mh/cut-window-to-register()
+    (interactive)
+    (mh/copy-marker-to-register)
+    (delete-window))
+
+  (global-set-key (kbd "s-©") 'mh/copy-marker-to-register)
+  (global-set-key (kbd "s-®") 'mh/restore-marker-from-register)
+  (global-set-key (kbd "s-ó") 'mh/move-window-to-other-and-winner-undo)
+  (global-set-key (kbd "s-œ") 'mh/cut-window-to-register))
 
 (use-package quick-yes
   :bind (
@@ -1129,8 +1162,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :commands ()
   :bind (("C-c C-u" . string-inflection-all-cycle)))
 
-(use-package lua-mode
-  :ensure t)
+;; (use-package lua-mode
+;;   :ensure t)
 
 (use-package ibuffer
   :ensure t
@@ -1144,6 +1177,28 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package json-mode
   :ensure t)
+
+(use-package deadgrep
+  :ensure t
+  :bind (:map dired-mode-map
+         ("C-c r" . deadgrep)))
+
+(use-package go-mode
+  :ensure t)
+
+(use-package markdown-mode
+  :ensure t)
+
+(use-package markdown-preview-mode
+  :ensure t)
+
+(use-package gitlab-ci-mode
+  :ensure t)
+
+(use-package gitlab-ci-mode-flycheck
+  :after flycheck gitlab-ci-mode
+  :init
+  (gitlab-ci-mode-flycheck-enable))
 
 ;; (use-package dyalog-mode
 ;;   :ensure t)
