@@ -30,7 +30,7 @@ rec {
       ../nixos-shared/fzf.nix
       ../nixos-shared/packages
       ../nixos-shared/packages/services.nix
-      ../nixos-shared/restic.nix
+      ../nixos-shared/restic/module.nix
       ../nixos-shared/ripgrep.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
@@ -258,7 +258,7 @@ rec {
     extraOptions = "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
   };
 
-  virtualisation.virtualbox.host.enable = true;
+  # virtualisation.virtualbox.host.enable = true;
 
   environment = {
     variables = {
