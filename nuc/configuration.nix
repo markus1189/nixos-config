@@ -11,6 +11,7 @@ in
   imports =
     [
       (import ../nixos-shared/common-services.nix userName)
+      (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
       (import ./cron.nix userName)
       (import ./ssh.nix userName)
       ../nixos-shared/common-packages.nix
