@@ -20,7 +20,7 @@ in
       ../nixos-shared/fzf.nix
       ../nixos-shared/packages
       ../nixos-shared/packages/services.nix
-      ../nixos-shared/restic.nix
+      ../nixos-shared/restic/module.nix
       ../nixos-shared/ripgrep.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
