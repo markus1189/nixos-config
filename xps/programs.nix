@@ -101,6 +101,7 @@ in
       mplayer
       mtools
       mu
+      myScripts.multihead4k
       netcat-openbsd
       nethogs
       nixUnstable

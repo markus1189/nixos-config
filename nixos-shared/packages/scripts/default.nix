@@ -212,6 +212,9 @@ rec {
     fi
 
     case "''${CURRENT}" in
+        "cc-wlan")
+            multihead4k
+            ;;
         "EB-Mobile")
             multiheadBreuninger
             ;;
