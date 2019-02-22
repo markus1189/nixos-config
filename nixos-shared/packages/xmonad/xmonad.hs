@@ -112,7 +112,7 @@ myScratchPads = [ NS "lower"  spawnSpLower  findLower  manageLower
                 ]
                 where
                     prefix = takeWhile (/= ':')
-                    spawnSpLower = runTerminal "sp_lower" "tmx sp_lower"
+                    spawnSpLower = runTerminal "sp_lower" "@tmx@/bin/tmx sp_lower"
                     findLower   = (prefix <$> title) =? "sp_lower"
                     manageLower = customFloating $ W.RationalRect l t w h
                         where
@@ -120,7 +120,7 @@ myScratchPads = [ NS "lower"  spawnSpLower  findLower  manageLower
                         w = 1
                         t = 1-h-0.02
                         l = (1 - w)/2
-                    spawnSpUpper = runTerminal "sp_upper" "tmx sp_upper"
+                    spawnSpUpper = runTerminal "sp_upper" "@tmx@/bin/tmx sp_upper"
                     findUpper   = (prefix <$> title) =? "sp_upper"
                     manageUpper = customFloating $ W.RationalRect l t w h
                         where
@@ -128,7 +128,7 @@ myScratchPads = [ NS "lower"  spawnSpLower  findLower  manageLower
                         w = 1
                         t = 0.02
                         l = 0
-                    spawnSpRight = runTerminal "sp_right" "tmx sp_right"
+                    spawnSpRight = runTerminal "sp_right" "@tmx@/bin/tmx sp_right"
                     findRight = (prefix <$> title) =? "sp_right"
                     manageRight = customFloating $ W.RationalRect l t w h
                         where
