@@ -197,7 +197,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_q)         , spawn "@xmonadReset@/bin/xmonadReset")
 
          , ((myModKey   , xK_e)         , swapNextScreen)
-         , ((myModKey   , xK_w)         , nextScreen)
+         , ((myModKey   , xK_w)         , nextScreen >> spawn "@centerMouse@/bin/centerMouse")
          , ((myModShift , xK_w)         , shiftNextScreen)
 
          , ((myModCtrl  , xK_Return)    , windows W.swapMaster)
