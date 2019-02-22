@@ -17,17 +17,16 @@ in
 {
   ###### interface
   options = {
-
     users.users = mkOption {
-      options = [{
-        symlinks = mkOption {
+      type = with types; loaOf (submodule {
+        options.symlinks = mkOption {
           default = {};
           description = ''
             An attrset of relative paths and targets to symlink in to
             the user's HOME.
           '';
         };
-      }];
+      });
     };
   };
 
