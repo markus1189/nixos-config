@@ -260,6 +260,13 @@ rec {
 
   # virtualisation.virtualbox.host.enable = true;
 
+  programs = {
+    wireshark = {
+      enable = true;
+      package = pkgs.wireshark;
+    };
+  };
+
   environment = {
     variables = {
       EDITOR = "${pkgs.vim}/bin/vim";
