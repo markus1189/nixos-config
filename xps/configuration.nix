@@ -95,12 +95,12 @@ rec {
     overlays = [
       (self: super: {
         lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-          rev = "728a8f4ea6e742171da55f48397b7e950e85ae3e";
+          rev = "df8acf219f1db135bb6058a8ad6e9c779a0226e4";
           name = "lensfun-${rev}";
           src = pkgs.fetchgit {
             inherit rev;
             url = http://git.code.sf.net/p/lensfun/code;
-            sha256 = "0icds35kma3yp7167gw7d0j2csjzca07rq8r9h442hp18sfaf1s3";
+            sha256 = "0w2cab3irkkg64lnw6yx2l5nzk6q5db71mqx4rfq8rfp4nayf7fb";
           };
         });
       })
@@ -138,7 +138,7 @@ rec {
     };
 
     printing = {
-      enable = false;
+      enable = true;
       drivers = [ pkgs.gutenprint pkgs.foo2zjs ];
     };
 
@@ -330,6 +330,8 @@ rec {
         URxvt*termName: rxvt
         URxvt*scrollBar_right: false
         URxvt*scrollBar: false
+
+        URxvt*iso14755: False
 
         URxvt.perl-ext-common: default,url-select,font-size,clipboard,color-themes
 

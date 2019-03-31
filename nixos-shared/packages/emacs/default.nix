@@ -25,7 +25,7 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "1zl6bsl5q88zy9j8hbawzp5gma59lw22sg8lr384d6r88szaxmk1";
+      sha256 = "1d67mmlfmph2brya0z0xbywx7hdrdc4xlfnzbcm5zhn6d7l99phi";
     };
   in
     runCommand "install-dired-plus" {} ''
@@ -64,6 +64,7 @@ in
     helm-flyspell
     helm-projectile
     helm-swoop
+    hindent
     hydra
     ibuffer-vc
     ibuffer-projectile

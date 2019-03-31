@@ -1,19 +1,21 @@
 { config, pkgs, ... }:
 
 let
-  hostsCommit = "4d9b648";
+  hostsCommit = "b7d496e9649df080f3bdb88b8c4afa3faf2c5237";
   hostsFile = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/StevenBlack/hosts/${hostsCommit}/alternates/fakenews-gambling-porn/hosts";
-    sha256 = "19dqbiyhi76ri384qc7aymj7j0v2i92lkyqyplyyzzb1xpl4gbpc";
+    sha256 = "1ni9hj9g0v3hssbfcgwavvb4za0rvvzp5cdjj10x2mxqcd6lnv6n";
   };
-  filteredHosts = pkgs.runCommand "filtered-hosts" {} ''
+  modifiedHosts = pkgs.runCommand "filtered-hosts" {} ''
+    echo "# Modifed version of ${hostsFile}" > $out
     # Accept this because of farnam street links...
-    echo "# Filtered version of ${hostsFile}" > $out
-    ${pkgs.gnugrep}/bin/grep -Fv "link.m.convertkit" ${hostsFile} >> $out
+    ${pkgs.gnused}/bin/sed -i '/link.m.convertkit/d' $out
+    # For breuninger development
+    ${pkgs.gnused}/bin/sed -i '/richrelevance.com/d' $out
   '';
 in
 {
   networking = {
-    extraHosts = builtins.readFile filteredHosts;
+    extraHosts = builtins.readFile modifiedHosts;
   };
 }
