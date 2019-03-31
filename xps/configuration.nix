@@ -26,6 +26,7 @@ rec {
       (import ../nixos-shared/common-services.nix userName)
       ../nixos-shared/common-packages.nix
       ../nixos-shared/common-programs.nix
+      ../nixos-shared/direnv.nix
       ../nixos-shared/fasd.nix
       ../nixos-shared/fzf.nix
       ../nixos-shared/packages
