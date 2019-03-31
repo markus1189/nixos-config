@@ -9,7 +9,6 @@ in
   nixpkgs = {
     config = {
       packageOverrides = pkgs: {
-        ncmpcpp = pkgs.ncmpcpp.override { clockSupport = true; };
         dwarf-fortress = pkgs.dwarf-fortress.override {
           theme = pkgs.dwarf-fortress-packages.phoebus-theme;
           enableDFHack = true;
@@ -64,7 +63,7 @@ in
       feh
       figlet
       file
-      filezilla
+      # filezilla
       firefoxWrapper
       foo2zjs
       fortune
@@ -101,12 +100,11 @@ in
       mplayer
       mtools
       mu
-      myScripts.multihead4k
       netcat-openbsd
       nethogs
       nixUnstable
       nix-index
-      nixops
+      # nixops
       nmap
       openssl
       openvpn
@@ -176,6 +174,7 @@ in
       unrar
       unzip
       usbutils
+      up
       update-resolv-conf
       vim
       w3m
@@ -224,7 +223,17 @@ in
       pwgen
       keynav
     ] ++ (with pkgs.myScripts; [
+      gnuplot-quick
       isVpnActive
-    ]);
+      multihead4k
+      tmx
+      ts
+    ]) ++ [
+      go
+      glide
+      go2nix
+      dep2nix
+      godef
+    ];
   };
 }
