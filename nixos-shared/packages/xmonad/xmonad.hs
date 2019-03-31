@@ -85,6 +85,7 @@ myManageHook = composeAll . concat $
                          , "Ubuntu-tweak", "de-tud-cs-se-flashcards-Main", "xv", "mplayer2"
                          , "Gxmessage", "gxmessage", "de-hackermuehle-pdfpresenter-PdfPresenter"
                          , "gtk-recordmydesktop", "Gtk-recordmydesktop", "nethack-qt", "zoom"
+                         , "sun-awt-X11-XWindowPeer"
                          ]
         titleFloats    = [ "Save As...", "Save File", "Options", "Document Print Status"
                          , "Terminator Preferences"]
