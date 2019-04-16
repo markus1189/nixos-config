@@ -41,6 +41,7 @@ in
     deadgrep
     dired-plus
     dired-filter
+    direnv
     dockerfile-mode
     dyalog-mode
     evil-numbers

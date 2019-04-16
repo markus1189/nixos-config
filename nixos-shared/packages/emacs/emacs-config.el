@@ -1202,4 +1202,9 @@ string). It returns t if a new completion is found, nil otherwise."
 
 ;; (use-package dyalog-mode
 ;;   :ensure t)
+
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode))
 ;;;
