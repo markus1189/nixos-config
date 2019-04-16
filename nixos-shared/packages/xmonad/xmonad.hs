@@ -13,7 +13,7 @@ import           Text.Printf (printf)
 
 import           XMonad
 import           XMonad.Actions.CopyWindow (kill1)
-import           XMonad.Actions.CycleWS (toggleWS', swapNextScreen, nextScreen, shiftNextScreen)
+import           XMonad.Actions.CycleWS (toggleWS', swapNextScreen, prevScreen, nextScreen, shiftNextScreen)
 import qualified XMonad.Actions.FlexibleManipulate as Flex
 import           XMonad.Config.Gnome (gnomeConfig)
 import           XMonad.Hooks.DynamicLog
@@ -195,10 +195,11 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_s)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"))
          , ((myModKey   , xK_d)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run"))
          , ((myModKey   , xK_a)         , spawn "@chooseNetwork@/bin/chooseNetwork")
-         , ((myModKey   , xK_q)         , spawn "@xmonadReset@/bin/xmonadReset")
+         , ((myModShiftCtrl, xK_q)      , spawn "@xmonadReset@/bin/xmonadReset")
 
          , ((myModKey   , xK_e)         , swapNextScreen)
          , ((myModKey   , xK_w)         , nextScreen >> spawn "@centerMouse@/bin/centerMouse")
+         , ((myModKey   , xK_q)         , prevScreen >> spawn "@centerMouse@/bin/centerMouse")
          , ((myModShift , xK_w)         , shiftNextScreen)
 
          , ((myModCtrl  , xK_Return)    , windows W.swapMaster)
