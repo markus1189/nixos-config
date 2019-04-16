@@ -95,12 +95,12 @@ rec {
     overlays = [
       (self: super: {
         lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-          rev = "df8acf219f1db135bb6058a8ad6e9c779a0226e4";
+          rev = "3fd5e15e8691be5b5df8c3b460fec213e820c707";
           name = "lensfun-${rev}";
           src = pkgs.fetchgit {
             inherit rev;
             url = http://git.code.sf.net/p/lensfun/code;
-            sha256 = "0w2cab3irkkg64lnw6yx2l5nzk6q5db71mqx4rfq8rfp4nayf7fb";
+            sha256 = "00ij3jhr4xpjz4rdcc0d1wigjb70brpyicvrkg69bpabbchg50aj";
           };
         });
       })
