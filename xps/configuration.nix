@@ -195,6 +195,7 @@ rec {
       ".gitconfig" = gitconfig;
       ".offlineimaprc" = offlineimap;
       ".vimrc" = pkgs.writeText "vimrc" "set t_ti= t_te=";
+      ".keynavrc" = keynavrc;
     };
   };
 

@@ -34,6 +34,7 @@ in
           xmobarUpper = xmobars.upper;
           gitconfig = callPackage ./git { inherit mutate; };
           offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
+          keynavrc = callPackage ./keynavrc { inherit mutate; };
         };
         emacs = callPackage ./emacs { inherit mutate; };
       };
