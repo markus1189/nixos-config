@@ -2,6 +2,7 @@ Config { font = "xft:Source Code Pro-9:bold"
        , bgColor = "black"
        , fgColor = "grey"
        , position = BottomW L 91
+       , pickBroadest = True
        , lowerOnStart = False
        , commands = [ Run StdinReader
                     , Run Com "@currentSpotifySong@/bin/currentSpotifySong" [] "spotify" 30

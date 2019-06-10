@@ -3,6 +3,7 @@ Config { font = "xft:Source Code Pro-9:bold"
        , fgColor = "grey"
        , position = TopW L 100
        , lowerOnStart = False
+       , pickBroadest = True
        , commands = [ Run Network "wlp2s0"
                         [ "-t", "<rx>kB ↓ <tx>kB ↑"
                         , "-L" , "10"
