@@ -3,7 +3,7 @@
 let
   pkgsMaster = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz) {};
   pkgsFork = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/master.tar.gz) {};
-  pkgsRelease17 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-17.09.tar.gz) {};
+  pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
 in
 {
   nixpkgs = {
@@ -20,10 +20,10 @@ in
         enableOfficialBranding = true;
       };
 
-      chromium = {
-        enableWideVine = false;
-        enablePepperFlash = true;
-      };
+      # chromium = {
+      #   enableWideVine = false;
+      #   enablePepperFlash = true;
+      # };
 
     };
   };
@@ -142,6 +142,7 @@ in
       scalafmt
       scrot
       spotify
+      sshfs
       sqlite
       stack
       sysdig
