@@ -198,6 +198,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModShiftCtrl, xK_q)      , spawn "@xmonadReset@/bin/xmonadReset")
 
          , ((myModKey   , xK_e)         , swapNextScreen)
+         , ((myModKey   , xK_u)         , spawn "@browserHistory@/bin/browserHistory")
          , ((myModKey   , xK_w)         , nextScreen >> spawn "@centerMouse@/bin/centerMouse")
          , ((myModKey   , xK_q)         , prevScreen >> spawn "@centerMouse@/bin/centerMouse")
          , ((myModShift , xK_w)         , shiftNextScreen)

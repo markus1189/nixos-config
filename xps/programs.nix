@@ -223,6 +223,7 @@ in
       pwgen
       keynav
     ] ++ (with pkgs.myScripts; [
+      browserHistory
       gnuplot-quick
       isVpnActive
       multihead4k
