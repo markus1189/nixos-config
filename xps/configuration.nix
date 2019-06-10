@@ -104,6 +104,16 @@ rec {
           };
         });
       })
+      (self: super: {
+        darktable = builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs (old: rec {
+          version = "master";
+          src = super.fetchgit {
+            url = "https://github.com/darktable-org/darktable";
+            sha256 = "0vf30383gsrdxyb8aid8h98ygfbg82l44d157ch7sb2bdpzq185f";
+            rev = "164cc3c19c95c2fbb4a28a17c6c9772e931aa2bf";
+          };
+        });
+      })
     ];
 
     config = {
