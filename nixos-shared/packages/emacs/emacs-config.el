@@ -440,6 +440,10 @@ Position the cursor at its beginning, according to the current mode."
       (message "Copied: %s" name)
       (kill-new name)))
 
+  (defun mh/insert-random-uuid ()
+    (interactive)
+    (insert (s-trim (shell-command-to-string "uuidgen"))))
+
   (global-set-key (kbd "M-i") 'back-to-indentation)
   (global-set-key (kbd "s-[") 'mh/other-window-backward)
   (global-set-key (kbd "s-]") 'mh/other-window-forward)
