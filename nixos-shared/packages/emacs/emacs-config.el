@@ -436,7 +436,7 @@ Position the cursor at its beginning, according to the current mode."
 
   (defun mh/copy-file-and-line ()
     (interactive)
-    (let ((name buffer-file-name))
+    (let ((name (or buffer-file-name default-directory)))
       (message "Copied: %s" name)
       (kill-new name)))
 
