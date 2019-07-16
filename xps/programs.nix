@@ -141,6 +141,7 @@ in
       scala
       scalafmt
       scrot
+      shellcheck
       spotify
       sshfs
       sqlite
@@ -180,7 +181,7 @@ in
       vim
       w3m
       wget
-      wine
+      # wine
       which
       xclip
       x11vnc
