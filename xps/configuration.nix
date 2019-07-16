@@ -45,8 +45,7 @@ rec {
       ./programs.nix
       ./xps.nix
     ]
-    ++ custom.conditionalInclude "NIX_AAREAL" ./contextual/aareal.nix
-    ++ custom.conditionalInclude "NIX_BREUNINGER" ./contextual/breuninger/default.nix
+    ++ custom.conditionalInclude "NIX_MOIA" ./contextual/moia
     ;
 
   documentation = {
@@ -93,24 +92,24 @@ rec {
 
   nixpkgs = {
     overlays = [
-      (self: super: {
+      (self: super:
+        let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
+        in {
         lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-          rev = "3fd5e15e8691be5b5df8c3b460fec213e820c707";
-          name = "lensfun-${rev}";
+          name = "lensfun-${pinnedVersion.rev}";
           src = pkgs.fetchgit {
-            inherit rev;
-            url = http://git.code.sf.net/p/lensfun/code;
-            sha256 = "00ij3jhr4xpjz4rdcc0d1wigjb70brpyicvrkg69bpabbchg50aj";
+            inherit (pinnedVersion) url rev sha256 fetchSubmodules;
           };
         });
       })
-      (self: super: {
+      (self: super:
+        let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/darktable-version.json;
+        in {
         darktable = builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs (old: rec {
-          version = "master";
+          name = "darktable-${pinnedVersion.rev}";
+          version = pinnedVersion.rev;
           src = super.fetchgit {
-            url = "https://github.com/darktable-org/darktable";
-            sha256 = "0vf30383gsrdxyb8aid8h98ygfbg82l44d157ch7sb2bdpzq185f";
-            rev = "164cc3c19c95c2fbb4a28a17c6c9772e931aa2bf";
+            inherit (pinnedVersion) url rev sha256 fetchSubmodules;
           };
         });
       })
