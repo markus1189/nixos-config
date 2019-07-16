@@ -25,7 +25,7 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "1d67mmlfmph2brya0z0xbywx7hdrdc4xlfnzbcm5zhn6d7l99phi";
+      sha256 = "1mj969kana8mh92dsp9y73prkxpvrigsss4gbhljp01b9hfnfnk4";
     };
   in
     runCommand "install-dired-plus" {} ''
@@ -110,4 +110,5 @@ in
     auctex
     pabbrev
     undo-tree
+    csv-mode
   ]))

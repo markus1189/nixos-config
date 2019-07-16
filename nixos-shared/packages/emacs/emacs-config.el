@@ -1199,6 +1199,9 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package gitlab-ci-mode
   :ensure t)
 
+(use-package csv-mode
+  :ensure t)
+
 (use-package gitlab-ci-mode-flycheck
   :after flycheck gitlab-ci-mode
   :init
