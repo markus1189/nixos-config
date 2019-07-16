@@ -201,10 +201,22 @@ rec {
            --output DP2 --off
   '';
 
+  multihead4khdmi = writeXrandrScript {
+    name = "multihead4khdmi";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
+    xrandr --output VIRTUAL1 --off \
+           --output eDP1 --primary --mode 1920x1080 --pos 0x0 --scale 1x1 --rotate normal \
+           --output HDMI1 --mode 3840x2160 --scale 0.5x0.5 --pos 1920x0 --rotate normal \
+           --output HDMI2 --off \
+           --output DP1 --off \
+           --output DP2 --off
+  '';
+
   autoMonitorConfig = writeShellScript {
     name = "autoMonitorConfig";
     pure = false; # to get multiheadBreuninger
-    deps = [ wpa_supplicant gnugrep libnotify coreutils ];
+    deps = [ wpa_supplicant gnugrep libnotify coreutils multihead4k multihead4khdmi ];
   } ''
     CURRENT="$(wpa_cli -i wlp2s0 status | grep '^ssid' | cut -d'=' -f 2)"
 
@@ -219,6 +231,9 @@ rec {
             ;;
         "EB-Mobile")
             multiheadBreuninger
+            ;;
+        "MOIA-guest")
+            multihead4khdmi
             ;;
         "Our FRITZ Box")
             ${asusRight}/bin/asusRight
