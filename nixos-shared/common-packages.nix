@@ -11,6 +11,9 @@
       (gitAndTools.git-extras)
       git-secret
       htop
+      nix-prefetch-docker
+      nix-prefetch-git
+      nix-prefetch-github
     ];
   };
 }
