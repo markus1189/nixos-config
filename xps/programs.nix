@@ -4,6 +4,7 @@ let
   pkgsMaster = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz) {};
   pkgsFork = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/master.tar.gz) {};
   pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
+  pkgsMy = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/staging.tar.gz) {};
 in
 {
   nixpkgs = {
@@ -86,7 +87,7 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      imv
+      pkgsMy.imv
       inkscape
       insomnia
       jo
