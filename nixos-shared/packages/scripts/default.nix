@@ -235,6 +235,9 @@ rec {
         "MOIA-guest")
             multihead4khdmi
             ;;
+        "MOIA-intern")
+            multihead4khdmi
+            ;;
         "Our FRITZ Box")
             ${asusRight}/bin/asusRight
             ;;
