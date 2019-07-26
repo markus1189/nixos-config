@@ -92,16 +92,16 @@ rec {
 
   nixpkgs = {
     overlays = [
-      (self: super:
-        let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
-        in {
-        lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-          name = "lensfun-${pinnedVersion.rev}";
-          src = pkgs.fetchgit {
-            inherit (pinnedVersion) url rev sha256 fetchSubmodules;
-          };
-        });
-      })
+      # (self: super:
+      #   let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
+      #   in {
+      #   lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
+      #     name = "lensfun-${pinnedVersion.rev}";
+      #     src = pkgs.fetchgit {
+      #       inherit (pinnedVersion) url rev sha256 fetchSubmodules;
+      #     };
+      #   });
+      # })
       (self: super:
         let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/darktable-version.json;
         in {
