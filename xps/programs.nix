@@ -147,10 +147,12 @@ in
       spotify
       sshfs
       sqlite
+      slack
       stack
       sysdig
       system-config-printer
       tcpdump
+      tdesktop
       terminator
       testdisk
       tigervnc
