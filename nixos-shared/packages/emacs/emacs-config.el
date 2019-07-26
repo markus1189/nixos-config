@@ -235,7 +235,7 @@
          ("k" . magit-process-kill))
   :init
   (defun mh/magit-log-edit-mode-hook ()
-    (flyspell-mode)
+    ;; (flyspell-mode)
     (set-fill-column 72))
   :hook
   ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)))
@@ -663,7 +663,10 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "s-©") 'mh/copy-marker-to-register)
   (global-set-key (kbd "s-®") 'mh/restore-marker-from-register)
   (global-set-key (kbd "s-ó") 'mh/move-window-to-other-and-winner-undo)
-  (global-set-key (kbd "s-œ") 'mh/cut-window-to-register))
+  (global-set-key (kbd "s-œ") 'mh/cut-window-to-register)
+
+  (setq gc-cons-threshold 100000000)
+  )
 
 (use-package quick-yes
   :bind (
@@ -1214,4 +1217,10 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :config
   (direnv-mode))
+
+(use-package protobuf-mode
+  :ensure t)
+
+(use-package rainbow-mode
+  :ensure t)
 ;;;

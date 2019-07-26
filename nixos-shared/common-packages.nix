@@ -9,6 +9,7 @@
       git
       gitFull
       (gitAndTools.git-extras)
+      (gitAndTools.git-open)
       git-secret
       htop
       nix-prefetch-docker

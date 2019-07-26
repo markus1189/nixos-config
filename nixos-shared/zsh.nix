@@ -12,7 +12,7 @@ autoload -Uz add-zsh-hook || return
 
 (( ''${+zbell_duration} )) || zbell_duration=15
 
-(( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER)
+(( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim emacs less)
 
 zbell_timestamp=$EPOCHSECONDS
 
@@ -40,7 +40,7 @@ zbell_end() {
 
   if (( ! $has_ignored_cmd )) && (( ran_long )); then
                 if [[ "$LAST_EC" == 0 ]]; then
-                  ${pkgs.libnotify}/bin/notify-send "Command finished [$LAST_EC]" "$zbell_lastcmd"
+                  ${pkgs.libnotify}/bin/notify-send -u low "Command finished [$LAST_EC]" "$zbell_lastcmd"
                 else
                   ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
                 fi

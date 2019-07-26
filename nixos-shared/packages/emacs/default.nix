@@ -88,6 +88,7 @@ in
     ox-jira
     plantuml-mode
     projectile
+    protobuf-mode
     quick-yes
     restclient
     s
@@ -111,4 +112,5 @@ in
     pabbrev
     undo-tree
     csv-mode
+    rainbow-mode
   ]))

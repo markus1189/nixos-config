@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/StevenBlack/hosts",
-  "rev": "e54e1d624ce335ba9611d7de5f108dd1f87b308d",
-  "date": "2019-07-15T23:10:35+02:00",
-  "sha256": "1h7cp1sg3ya4pi95zv3i4g3falnm0j5f3wq3rshz9bmhragxnsr3",
+  "rev": "5b0420f1038072d80a53ac5e74a087f2d7c1172f",
+  "date": "2019-07-21T21:26:29-04:00",
+  "sha256": "1bgzjp892pc2sbl61rymr5xyggn97rhjjwqsd2g456an0pi048c5",
   "fetchSubmodules": false
 }

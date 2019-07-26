@@ -98,6 +98,7 @@ in
       lsb-release
       lsof
       mpc_cli
+      mr
       mplayer
       mtools
       mu

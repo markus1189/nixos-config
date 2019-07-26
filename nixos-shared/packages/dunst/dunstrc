@@ -69,8 +69,8 @@ history = ctrl+grave
 context = ctrl+shift+space
 
 [urgency_low]
-frame_color = "#4BD700"
-foreground = "#4BD700"
+frame_color = "#3B9700"
+foreground = "#4B9700"
 background = "#191311"
 #background = "#2B313C"
 timeout = 4

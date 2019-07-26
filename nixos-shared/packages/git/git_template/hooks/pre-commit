@@ -8,6 +8,7 @@ checkMatch() {
         :
     else
         echo "Refusing to commit, because there where changes matching '$MATCH'" >&2
+        git diff --exit-code --staged -G"$MATCH" "$REF" | head -n 1
         exit 1
     fi
 }
