@@ -2,19 +2,21 @@
 let
   wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
   secrets = import ../secrets.nix;
+  pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
 in
 {
   nixpkgs = {
     config = rec {
       packageOverrides = pkgs:
       let
-        allPkgs = pkgs // myScripts // pkgs.xorg // {
+        allPkgs = nixpkgs: nixpkgs // myScripts // pkgs.xorg // {
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
           xmobar = pkgs.haskellPackages.xmobar;
           xkill = pkgs.xorg.xkill;
         };
-        callPackage = pkgs.lib.callPackageWith allPkgs;
+        callPackageWith = nixpkgs: nixpkgs.lib.callPackageWith (allPkgs nixpkgs);
+        callPackage = callPackageWith pkgs;
 
         myScripts = pkgs.callPackage ./scripts { };
         xmobars = callPackage ./xmobarrc { inherit mutate; };
@@ -36,7 +38,7 @@ in
           offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
           keynavrc = callPackage ./keynavrc { inherit mutate; };
         };
-        emacs = callPackage ./emacs { inherit mutate; };
+        emacs = callPackageWith pkgs ./emacs { inherit mutate; };
       };
     };
   };
