@@ -9,6 +9,8 @@ let
     nix:*.nix
 
     --smart-case
+
+    --hidden
   '';
 in
 {
