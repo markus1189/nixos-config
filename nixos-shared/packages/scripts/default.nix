@@ -349,6 +349,7 @@ rec {
     deps = [ i3lock ];
   } ''
     i3lock -p win -e -f -i ${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png
+
   '';
 
   selectSpotifyPlayer = writeShellScript {
