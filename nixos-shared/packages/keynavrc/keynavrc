@@ -22,7 +22,7 @@
 #clear
 
 # Use 'daemonize' to background ourselves.
-#daemonize
+daemonize
 
 ctrl+semicolon start
 Escape end
