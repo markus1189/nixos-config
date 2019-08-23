@@ -313,6 +313,15 @@ rec {
         --restrict-filenames
       '';
 
+      "X11/xorg.conf.d/20-intel.conf".text = ''
+        Section "OutputClass"
+          Identifier "Intel Graphics"
+          MatchDriver "i965"
+          Driver "intel"
+          Option "DRI" "2"
+        EndSection
+      '';
+
       "X11/Xresources".text = ''
         URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
         URxvt*cursorColor: #Ffe7ba
