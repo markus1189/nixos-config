@@ -53,6 +53,7 @@ in
       # dropbox-cli
       ddgr
       deluge
+      dragon-drop
       dstat
       emacs
       entr
@@ -77,6 +78,7 @@ in
       gnumake
       gnuplot
       go-pup
+      googleearth
       gparted
       graphviz
       hicolor_icon_theme
@@ -87,11 +89,12 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      pkgsMy.imv
+      imv
       inkscape
       insomnia
       jo
       jq
+      pkgsMaster.k9s
       libnotify
       # libreoffice
       libxml2
@@ -147,7 +150,7 @@ in
       spotify
       sshfs
       sqlite
-      slack
+      # slack
       stack
       sysdig
       system-config-printer
@@ -193,7 +196,7 @@ in
       zathura
       zip
       zlib
-      zoom-us
+      # zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
       ipython
