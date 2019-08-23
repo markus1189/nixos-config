@@ -25,7 +25,8 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "1mj969kana8mh92dsp9y73prkxpvrigsss4gbhljp01b9hfnfnk4";
+      # sha256 = "1mj969kana8mh92dsp9y73prkxpvrigsss4gbhljp01b9hfnfnk4";
+      sha256 = "08nm06x7k90hhsa7zs733nny6sd6r4k91qm1znbyvkci0da7i1is";
     };
   in
     runCommand "install-dired-plus" {} ''
@@ -73,8 +74,10 @@ in
     indent-guide
     iy-go-to-char
     json-mode
+    jsonnet-mode
     jq-mode
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
+    # kubel
     # lua-mode
     liso-theme
     markdown-mode

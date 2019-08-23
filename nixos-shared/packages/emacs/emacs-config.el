@@ -60,6 +60,7 @@
  '(diredp-dir-priv ((t (:foreground "#8ac6f2"))))
  '(diredp-exec-priv ((t (:foreground "yellow"))))
  '(diredp-file-name ((t (:foreground "white"))))
+ '(diredp-omit-file-name ((t (:inherit diredp-ignored-file-name))))
  '(diredp-file-suffix ((t (:foreground "light gray"))))
  '(diredp-flag-mark ((t (:foreground "DarkOrange1"))))
  '(diredp-flag-mark-line ((t (:background "gray20"))))
@@ -275,6 +276,8 @@
          ("C-S-n" . mh/helm-next-line-fast)
          ("C-S-p" . mh/helm-previous-line-fast))
   :config
+  (require 'helm-command)
+  (require 'helm-for-files)
 
   (defun mh/helm-next-line-fast ()
     (interactive)
@@ -295,8 +298,7 @@
     (helm-build-sync-source "helm-source-fasd"
       :volatile 't
       :candidates (lambda () (s-lines (shell-command-to-string "@fasd@/bin/fasd -lR")))
-      :action 'helm-type-file-actions))
-  (helm-mode 1))
+      :action 'helm-type-file-actions)))
 
 (use-package helm-swoop
   :ensure t
@@ -340,12 +342,6 @@
   :bind (("s-/" . undo-tree-visualize)
          ("C-/" . undo-tree-undo)
          ("C-?" . undo-tree-redo)))
-
-(use-package goto-chg
-  :ensure t
-  :commands goto-last-change
-  :bind (("C-." . goto-last-change)
-         ("C-," . goto-last-change-reverse)))
 
 (use-package yasnippet
   :ensure t
@@ -1092,18 +1088,18 @@ string). It returns t if a new completion is found, nil otherwise."
       (end-of-line)
       (hippie-expand nil))))
 
-(use-package goto-chg
-  :ensure t
-  :demand t
-  :config
-  (defhydra hydra-goto-changes ()
-                  "hydra-goto-changes"
-                  ("SPC" goto-last-change "goto-last-change")
-                  ("C-SPC" goto-last-change "goto-last-change")
-                  ("C-x C-SPC" goto-last-change "goto-last-change")
-                  ("DEL" goto-last-change-reverse "goto-last-change-reverse")
-                  ("q" nil "cancel"))
-  :bind (("C-x C-SPC" . hydra-goto-changes/body)))
+;; (use-package goto-chg
+;;   :ensure t
+;;   :demand t
+;;   :config
+;;   (defhydra hydra-goto-changes ()
+;;                   "hydra-goto-changes"
+;;                   ("SPC" goto-last-change "goto-last-change")
+;;                   ("C-SPC" goto-last-change "goto-last-change")
+;;                   ("C-x C-SPC" goto-last-change "goto-last-change")
+;;                   ("DEL" goto-last-change-reverse "goto-last-change-reverse")
+;;                   ("q" nil "cancel"))
+;;   :bind (("C-x C-SPC" . hydra-goto-changes/body)))
 
 (use-package beacon
   :demand t
@@ -1205,11 +1201,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package csv-mode
   :ensure t)
 
-(use-package gitlab-ci-mode-flycheck
-  :after flycheck gitlab-ci-mode
-  :init
-  (gitlab-ci-mode-flycheck-enable))
-
 ;; (use-package dyalog-mode
 ;;   :ensure t)
 
@@ -1223,4 +1214,10 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package rainbow-mode
   :ensure t)
+
+(use-package jsonnet-mode
+  :ensure t)
+
+;; (use-package kubel
+;; :ensure t)
 ;;;
