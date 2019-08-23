@@ -150,7 +150,7 @@ rec {
 
     printing = {
       enable = true;
-      drivers = [ pkgs.gutenprint pkgs.foo2zjs ];
+      drivers = [ pkgs.gutenprint pkgs.foo2zjs pkgs.hplipWithPlugin ];
     };
 
     xserver = {
