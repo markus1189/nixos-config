@@ -170,6 +170,7 @@ rec {
           ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${wallpapers.cc} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
           ${pkgs.parcellite}/bin/parcellite &
+
         '';
       };
 
@@ -217,6 +218,7 @@ rec {
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
       corefonts
+      emojione
       google-fonts
       inconsolata
       iosevka
