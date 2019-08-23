@@ -42,6 +42,7 @@ rec {
       ./hosts.nix
       ./keybase.nix
       ./lastpass.nix
+      ./low-battery.nix
       ./programs.nix
       ./xps.nix
     ]
