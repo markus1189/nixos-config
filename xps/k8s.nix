@@ -3,7 +3,7 @@
 {
   environment = {
     variables = {
-      KUBECONFIG = [ "~/.kube/config" ];
+      KUBECONFIG = [ "$HOME/.kube/config" ];
     };
   };
 }

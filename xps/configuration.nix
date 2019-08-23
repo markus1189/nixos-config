@@ -35,6 +35,7 @@ rec {
       ../nixos-shared/ripgrep.nix
       ../nixos-shared/ssh.nix
       ../nixos-shared/zsh.nix
+      ./k8s.nix
       ./bluetooth.nix
       ./containers
       ./contextual/codecentric.nix
