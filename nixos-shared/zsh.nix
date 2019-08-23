@@ -12,7 +12,7 @@ autoload -Uz add-zsh-hook || return
 
 (( ''${+zbell_duration} )) || zbell_duration=15
 
-(( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim emacs less)
+(( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim vi emacs less)
 
 zbell_timestamp=$EPOCHSECONDS
 
