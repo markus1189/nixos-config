@@ -1,35 +1,36 @@
-{
-coreutils,
-emacs,
-gnugrep,
-gnuplot,
-gnused,
-haskellPackages,
-i3lock,
-less,
-lib,  git,
-libnotify,
-nixos-artwork,
-oathToolkit,
-playerctl,
-psmisc,
-procps,
-pulseaudioFull,
-rofi,
-sqlite,
-scrot,
-stdenv,
-systemd,
-tmux,
-wmctrl,
-wpa_supplicant,
-writeScriptBin,
-xclip,
-xdotool,
-xorg,
-xsel,
-xsv,
-zsh
+{ curl
+, coreutils
+, emacs
+, gnugrep
+, gnuplot
+, gnused
+, haskellPackages
+, i3lock
+, jo
+, less
+, lib,  git
+, libnotify
+, nixos-artwork
+, oathToolkit
+, playerctl
+, psmisc
+, procps
+, pulseaudioFull
+, rofi
+, sqlite
+, scrot
+, stdenv
+, systemd
+, tmux
+, wmctrl
+, wpa_supplicant
+, writeScriptBin
+, xclip
+, xdotool
+, xorg
+, xsel
+, xsv
+, zsh
 }:
 
 rec {
@@ -413,7 +414,7 @@ rec {
     notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
 
-  "mfaHelper" = writeShellScript {
+  mfaHelper = writeShellScript {
     name = "mfaHelper";
     deps = [ xsel oathToolkit coreutils gnugrep ];
     failFast = true;
@@ -432,7 +433,7 @@ rec {
     fi
   '';
 
-  "rofiDefaults" = writeShellScript {
+  rofiDefaults = writeShellScript {
     name = "rofiDefaults";
     deps = [ rofi ];
     pure = false;
@@ -440,7 +441,7 @@ rec {
     rofi -i -monitor -4 -disable-history "$@"
   '';
 
-  "browserHistory" = writeShellScript {
+  browserHistory = writeShellScript {
     name = "browserHistory";
     deps = [ sqlite xsv coreutils rofi xclip ];
     pure = true;
@@ -456,4 +457,17 @@ rec {
       sqlite3 -csv /tmp/firefox-history "SELECT title, url, visit_count, 'firefox' FROM moz_places ORDER BY visit_count DESC"
     } | xsv sort -NRs3 | rofi -dmenu -disable-history -i -monitor -4 | xsv select 2 | xclip -sel clipboard -i
   '';
+
+  notifySendPb = pushBulletToken: writeShellScript {
+    name = "notifySendPb";
+    deps = [ curl jo ];
+    pure = true;
+  } ''
+    curl --silent --fail \
+     --header 'Access-Token: ${pushBulletToken}' \
+     --header 'Content-Type: application/json' \
+     --data-binary "$(jo -- -s type=note -s title="''${1:-no-title}" -s body="''${2:-no-body}")" \
+     --request POST \
+     https://api.pushbullet.com/v2/pushes > /dev/null
+    '';
 }

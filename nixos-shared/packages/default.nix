@@ -23,6 +23,7 @@ in
         mutate = callPackage ./mutate { };
     in rec {
         inherit myScripts mutate;
+        notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             autoMonitorConfig = myScripts.autoMonitorConfig;
