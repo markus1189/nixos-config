@@ -286,6 +286,7 @@ rec {
     variables = {
       EDITOR = "${pkgs.vim}/bin/vim";
       "_JAVA_AWT_WM_NONREPARENTING" = "1";
+      LIBGL_DRI3_DISABLE = "1";
     };
 
     interactiveShellInit = ''
@@ -311,15 +312,6 @@ rec {
       "youtube-dl.conf".text = ''
         -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
         --restrict-filenames
-      '';
-
-      "X11/xorg.conf.d/20-intel.conf".text = ''
-        Section "OutputClass"
-          Identifier "Intel Graphics"
-          MatchDriver "i965"
-          Driver "intel"
-          Option "DRI" "2"
-        EndSection
       '';
 
       "X11/Xresources".text = ''
