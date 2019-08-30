@@ -4,7 +4,7 @@ let
   gitignore-io = fetchurl {
     url = "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go";
     name = "gitignore-io";
-    sha256 = "16szhmar458m02ki9iv46rsxwkgbxff2dda3bc9gfl43frkh7y19";
+    sha256 = "sha256:1sh0j296df3aj131gv0az3lyz2yxb2ncjzhlbls010n0ya1n4a7k";
 };
 
   gitignoreGlobal = writeText "gitignore-global-file" ''
