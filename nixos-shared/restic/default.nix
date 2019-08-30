@@ -1,4 +1,4 @@
-{ writeText, lib, writeScriptBin, stdenv, restic }:
+{ writeText, lib, writeScriptBin, stdenv, restic, coreutils, myScripts }:
 let
   secrets = import ../secrets.nix;
   excludefile = writeText "restic-excludefile" (lib.strings.concatStringsSep "\n" [
@@ -17,6 +17,7 @@ let
     echo "[$(date)] Started restic command"
     ${restic}/bin/restic --verbose ${lib.strings.concatStringsSep " " args}
     echo "[$(date)] Finished restic command [$?]"
+    ${myScripts.notifySendPb secrets.pushBulletToken} "Restic finished" "Date: $(${coreutils}/bin/date) with args: ${toString args}"
   '';
 in
 {
