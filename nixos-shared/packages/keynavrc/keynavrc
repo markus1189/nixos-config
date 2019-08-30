@@ -43,7 +43,7 @@ shift+y move-left,move-up
 shift+u move-right,move-up
 shift+b move-left,move-down
 shift+n move-right,move-down
-space warp,click 1,end
+space warp,click 1
 r warp,click 3,end
 d warp,doubleclick,end
 semicolon warp,end
@@ -85,10 +85,10 @@ v sh "@xdotool@/bin/xdotool key shift+Insert"
 
 ### Drag examples
 # Start drag holding the left mouse button
-q drag 1
-ctrl+q drag 1 ctrl
-shift+q drag 1 shift
-shift+ctrl+q drag 1 shift+ctrl
+# q drag 1
+# ctrl+q drag 1 ctrl
+# shift+q drag 1 shift
+# shift+ctrl+q drag 1 shift+ctrl
 # Start drag holding middle mouse + control and shift
 #w drag 2 ctrl+shift
 
