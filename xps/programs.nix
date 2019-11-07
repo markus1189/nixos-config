@@ -202,7 +202,7 @@ in
       youtube-dl
       pygments
     ]) ++ (with pkgs.haskellPackages; [
-      cabal2nix
+      # cabal2nix
       # hasktags
       hindent
       hlint
