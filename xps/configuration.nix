@@ -66,7 +66,7 @@ rec {
 
   boot = {
     extraModulePackages = with config.boot.kernelPackages; [
-      # sysdig
+      sysdig
     ];
   };
 
