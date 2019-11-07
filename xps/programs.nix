@@ -53,7 +53,7 @@ in
       # dropbox-cli
       ddgr
       deluge
-      dragon-drop
+      pkgsRelease19.dragon-drop
       dstat
       emacs
       entr
