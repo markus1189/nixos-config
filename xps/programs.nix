@@ -84,7 +84,6 @@ in
       hicolor_icon_theme
       html2text
       httpie
-      http-prompt
       i3lock
       jetbrains.idea-community
       inetutils
