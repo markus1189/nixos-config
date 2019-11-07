@@ -58,6 +58,8 @@ in
     gitlab-ci-mode
     gitlab-ci-mode-flycheck
     go-mode
+    go-complete
+    go-autocomplete
     goto-chg
     groovy-mode
     graphviz-dot-mode
@@ -103,6 +105,7 @@ in
     smartparens
     solarized-theme
     terraform-mode
+    typescript-mode
     use-package
     wgrep-helm
     which-key

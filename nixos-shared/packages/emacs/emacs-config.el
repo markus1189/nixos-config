@@ -11,12 +11,6 @@
 
 ;; (desktop-save-mode 1)
 
-;; (custom-set-faces
-;;  '(helm-selection ((t (:background "#eee8d5" :foreground "red" :weight bold))))
-;;  '(default ((t (:inherit nil :stipple nil :background "#fdf6e3" :foreground "#657b83" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "ADBO" :family "Source Code Pro"))))
-;;  '(magit-hash ((t (:foreground "#268bd2"))))
-;;  '(sp-show-pair-match-face ((t (:background "#d33682" :foreground "black" :weight bold)))))
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -440,6 +434,7 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (insert (s-trim (shell-command-to-string "uuidgen"))))
 
+  (global-set-key (kbd "M-*") 'pop-tag-mark)
   (global-set-key (kbd "M-i") 'back-to-indentation)
   (global-set-key (kbd "s-[") 'mh/other-window-backward)
   (global-set-key (kbd "s-]") 'mh/other-window-forward)
@@ -1189,6 +1184,11 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package go-mode
   :ensure t)
 
+(use-package go-complete
+  :ensure t
+  :config
+  (add-hook 'completion-at-point-functions 'go-complete-at-point))
+
 (use-package markdown-mode
   :ensure t)
 
@@ -1217,6 +1217,12 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package jsonnet-mode
   :ensure t)
+
+(use-package typescript-mode
+  :ensure t)
+
+;; (use-package auctex
+;;   :ensure t)
 
 ;; (use-package kubel
 ;; :ensure t)
