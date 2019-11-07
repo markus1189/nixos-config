@@ -39,7 +39,7 @@ history_length = 42
 
 dmenu = "@rofi@/bin/rofi -dmenu"
 
-show_indicators = no
+show_indicators = yes
 
 line_height = 3
 
@@ -55,6 +55,12 @@ startup_notification = false
 
 icon_position = off
 max_icon_size = 80
+
+mouse_left = do_action
+
+mouse_middle = do_action
+
+mouse_right = close_current
 
 [frame]
 width = 3
