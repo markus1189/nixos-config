@@ -3,6 +3,7 @@
 {
   environment = {
     systemPackages = with pkgs; [
+      aws-vault
       binutils
       gnupg
       gnupg1
