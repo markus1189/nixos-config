@@ -134,7 +134,7 @@ rec {
       enable = true;
       auth = "/home/${userName}/.Xauthority";
       password = secrets.x11vnc.password;
-      viewonly = true;
+      viewonly = false;
       shared = true;
       autoStart = false;
     };
