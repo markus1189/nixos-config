@@ -79,21 +79,21 @@ frame_color = "#3B9700"
 foreground = "#4B9700"
 background = "#191311"
 #background = "#2B313C"
-timeout = 4
+timeout = 3
 
 [urgency_normal]
 frame_color = "#FF8500"
 foreground = "#FF8500"
 background = "#191311"
 #background = "#2B313C"
-timeout = 6
+timeout = 10
 
 [urgency_critical]
 frame_color = "#D40500"
 foreground = "#D40500"
 background = "#191311"
 #background = "#2B313C"
-timeout = 8
+timeout = 10
 
 [logging]
   summary = "*"
