@@ -2,7 +2,7 @@
 
 {
   services = {
-    keybase.enable = true;
+    keybase.enable = false;
   };
 
   environment = {
