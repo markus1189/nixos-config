@@ -86,7 +86,6 @@ in
     markdown-preview-mode
     mvn
     magit
-    (magit-todos.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     move-text
     multiple-cursors
     nix-mode
