@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/lensfun/lensfun",
-  "rev": "9e79aa406133a4166a31099d1d19b879c833956e",
-  "date": "2019-11-04T23:43:01-08:00",
-  "sha256": "16vgmmr4zp8k79fksmrpcxibwfcr4ah4m4yybznqjmwpggk492xh",
+  "rev": "d7dec3606de4141693668332d8a03d691c320169",
+  "date": "2019-11-17T17:20:36+01:00",
+  "sha256": "05kwp6xm74kq4h953wnxfqhlpxn6bf4zp3g64jhys96bip2k5yxj",
   "fetchSubmodules": false
 }
