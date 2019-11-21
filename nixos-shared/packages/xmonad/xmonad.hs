@@ -43,19 +43,7 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
-myWorkspaces = zipWith (printf " %d:%s ") [(1::Int)..] workSpaceNames
-
-workSpaceNames :: [String]
-workSpaceNames = [ "SHELL"
-                 , "WEB"
-                 , "PDF"
-                 , "EMACS"
-                 , "MISC"
-                 , "SPACE"
-                 , "MAIL"
-                 , "IM"
-                 , "VID"
-                 ]
+myWorkspaces = map show [(1::Int)..9]
 
 workSpaceN :: Int -> String
 workSpaceN i = myWorkspaces !! (i-1)
