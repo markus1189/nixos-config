@@ -363,10 +363,10 @@ rec {
     deps = [ playerctl ];
   } ''
     getTag() {
-      playerctl -p spotify metadata xesam:''${1} || echo
+      playerctl -p spotify metadata xesam:''${1} || true
     }
 
-    STATUS="$(playerctl -p spotify status)"
+    STATUS="$(playerctl -p spotify status || true)"
     TITLE="$(getTag title)"
     ARTIST="$(getTag artist)"
     ALBUM="$(getTag album)"
