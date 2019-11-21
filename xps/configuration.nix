@@ -163,6 +163,7 @@ rec {
         };
 
         sessionCommands = ''
+          ${pkgs.keynav}/bin/keynav &
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr
