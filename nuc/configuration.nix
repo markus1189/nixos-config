@@ -54,10 +54,6 @@ in
     config = {
       allowUnfree = true;
     };
-
-    chromium = {
-      enableWideVine = false;
-    };
   };
 
   nix = {
