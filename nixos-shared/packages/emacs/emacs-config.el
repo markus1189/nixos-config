@@ -1217,6 +1217,12 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package typescript-mode
   :ensure t)
 
+(use-package log4j-mode
+  :ensure t)
+
+(use-package docker
+  :ensure t)
+
 ;; (use-package auctex
 ;;   :ensure t)
 

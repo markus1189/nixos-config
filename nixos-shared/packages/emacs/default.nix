@@ -44,6 +44,7 @@ in
     dired-filter
     direnv
     dockerfile-mode
+    docker
     dyalog-mode
     evil-numbers
     expand-region
@@ -81,6 +82,7 @@ in
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     # kubel
     # lua-mode
+    log4j-mode
     liso-theme
     markdown-mode
     markdown-preview-mode
