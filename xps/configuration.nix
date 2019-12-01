@@ -305,7 +305,7 @@ rec {
       FF = "${emacs}/bin/emacsclient -n";
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
-      clone = ''(cd ~/repos/clones; git clone "$1")'';
+      clone = "cd ~/repos/clones; git clone";
     });
 
     etc = {
