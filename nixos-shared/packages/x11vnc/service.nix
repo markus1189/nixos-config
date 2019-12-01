@@ -10,14 +10,14 @@ in {
 
     auth = mkOption {
       description = "Path to .XAuthority file";
-      type = types.string;
+      type = types.str;
       default = "guess";
       example = "/home/me/.Xauthority";
     };
 
     password = mkOption {
       description = "X11vnc password";
-      type = types.string;
+      type = types.str;
     };
 
     autoStart = mkOption {
