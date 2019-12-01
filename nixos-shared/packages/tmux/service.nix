@@ -5,9 +5,9 @@
     xserver = {
       displayManager = {
         sessionCommands = ''
-          tmux new-session -d -s immortals || true &
-          tmux new-session -d -s default || true &
-          tmux new-session -d -s im || true &
+          ${pkgs.tmux}/bin/tmux new-session -d -s immortals || true &
+          ${pkgs.tmux}/bin/tmux new-session -d -s default || true &
+          ${pkgs.tmux}/bin/tmux new-session -d -s im || true &
         '';
       };
     };
