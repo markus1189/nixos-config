@@ -85,10 +85,10 @@ myManageHook = composeAll . concat $
         ws4            = [ {- emacs, but no rule so frames can be opened everywhere-} ]
         ws5            = [ "Gimp-2.6", "Vinagre", "Remmina", "Eclipse"
                          , "com-install4j-runtime-Launcher", "jetbrains-idea-ce"
-                         , "Metasonic_Build.exe", "Scala IDE"]
-        ws6            = [ "de-hackermuehle-pdfpresenter-PdfPresenter", "Hpdfp" ]
+                         , "Scala IDE"]
+        ws6            = [  ]
         ws7            = [  ]
-        ws8            = [  ]
+        ws8            = [ "TelegramDesktop" , "Spotify", "Slack"]
         ws9            = [ "MPlayer", "mplayer2" ]
         miscellaneous  = [ title =? "vmail" --> doShift (workSpaceN 7)
                          , fmap ("libreoffice"  `isPrefixOf`) className --> doShift (workSpaceN 5)
@@ -142,7 +142,7 @@ myXPConfig = defaultXPConfig
              , autoComplete      = Just 1
              , searchPredicate   = predicate
              }
-  where predicate term candidate = all (`isInfixOf` (map toLower candidate)) termWords
+  where predicate term candidate = all (`isInfixOf` map toLower candidate) termWords
           where termWords = words (map toLower term)
 
 myTab :: Theme
@@ -180,8 +180,8 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_Return)    , sendMessage $ Toggle FULL)
          , ((myModKey   , xK_equal)     , sendMessage Expand)
          , ((myModKey   , xK_minus)     , sendMessage Shrink)
-         , ((myModKey   , xK_s)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"))
-         , ((myModKey   , xK_d)         , spawn ("@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run"))
+         , ((myModKey   , xK_s)         , spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
+         , ((myModKey   , xK_d)         , spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run")
          , ((myModKey   , xK_a)         , spawn "@chooseNetwork@/bin/chooseNetwork")
          , ((myModShiftCtrl, xK_q)      , spawn "@xmonadReset@/bin/xmonadReset")
 
@@ -275,7 +275,7 @@ myTerminal = "urxvt"
 
 runTerminal :: String -> String -> String
 runTerminal title arg =
-  intercalate " " [myTerminal,"-title",title,"-e","bash", "-c", "'" ++ arg ++ "'"]
+  unwords [myTerminal,"-title",title,"-e","bash", "-c", "'" ++ arg ++ "'"]
 
 -- like the standard ewmh, but don't focus (damn it)
 ewmhSupport :: XConfig a -> XConfig a
