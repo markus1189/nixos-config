@@ -156,7 +156,7 @@ rec {
       enable = true;
 
       displayManager = {
-        slim = {
+        lightdm = {
           enable = true;
           defaultUser = userName;
           autoLogin = false;
