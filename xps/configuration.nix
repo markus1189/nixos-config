@@ -113,18 +113,7 @@ rec {
             inherit (pinnedVersion) url rev sha256 fetchSubmodules;
           };
         });
-        })
-      (self: super:
-        let
-          drv = self.fetchurl {
-            url = "https://raw.githubusercontent.com/NixOS/nixpkgs/9ac6fc4d69bfa7c12937c8466c5acb3d32245049/pkgs/applications/networking/instant-messengers/teamspeak/client.nix";
-            sha256 = "16hq87ma4ms86zicw31xi6n9kjp6mb5z4rqd8pw48zy0rnmlqkal";
-          };
-        in
-          {
-            newTeamspeakClient = self.libsForQt512.callPackage drv {};
-          }
-      )
+      })
     ];
 
     config = {

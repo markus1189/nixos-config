@@ -106,7 +106,6 @@ in
       mu
       netcat-openbsd
       nethogs
-      newTeamspeakClient
       nixUnstable
       nix-index
       # nixops
