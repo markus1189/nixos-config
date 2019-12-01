@@ -306,6 +306,7 @@ rec {
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
       clone = "cd ~/repos/clones; git clone";
+      cdt = "cd $(${coreutils}/bin/mktemp -d)";
     });
 
     etc = {
