@@ -70,11 +70,13 @@ in
     helm-projectile
     helm-swoop
     hindent
+    hl-anything
     hydra
     ibuffer-vc
     ibuffer-projectile
     iedit
     indent-guide
+    itail
     iy-go-to-char
     json-mode
     jsonnet-mode

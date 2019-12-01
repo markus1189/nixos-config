@@ -1223,6 +1223,15 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package docker
   :ensure t)
 
+;; https://writequit.org/articles/working-with-logs-in-emacs.html#dealing-with-large-files
+(use-package hl-anything
+  :ensure t
+  :diminish hl-highlight-mode
+  :commands hl-highlight-mode)
+
+(use-package itail
+  :ensure t)
+
 ;; (use-package auctex
 ;;   :ensure t)
 
