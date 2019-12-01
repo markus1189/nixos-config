@@ -17,6 +17,7 @@
       nix-prefetch-docker
       nix-prefetch-git
       nix-prefetch-github
+      niv
       notifySendPb
     ];
   };
