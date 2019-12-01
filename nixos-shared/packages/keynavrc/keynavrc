@@ -1,7 +1,3 @@
-# This is a keynavrc file. Yours should live in
-# $HOME/.config/keynav/keynavrc
-#
-# Lines beginning with '#' are comments.
 # Format is:
 #   keysequence cmd1,cmd2,cmd3...
 #
@@ -26,7 +22,6 @@ daemonize
 
 ctrl+semicolon start
 Escape end
-ctrl+bracketleft end
 h cut-left
 j cut-down
 k cut-up
@@ -62,15 +57,9 @@ z windowzoom
 c cursorzoom 200 200
 w warp
 
-# Handy for holding ctrl while using keynav:
-ctrl+h cut-left
-ctrl+j cut-down
-ctrl+k cut-up
-ctrl+l cut-right
-ctrl+y cut-left,cut-up
-ctrl+u cut-right,cut-up
-ctrl+b cut-left,cut-down
-ctrl+n cut-right,cut-down
+# Scrolling
+ctrl+j click 5
+ctrl+k click 4
 
 # Record keynav actions
 q record
@@ -96,35 +85,3 @@ v sh "@xdotool@/bin/xdotool key shift+Insert"
 
 ### History
 a history-back
-
-### Example of cut and move without the default values
-#h cut-left .75
-#j cut-down .75
-#k cut-up .75
-#l cut-right .75
-#shift+h move-left .50
-#shift+j move-down .50
-#shift+k move-up .50
-#shift+l move-right .50
-
-### Example using a 2-row, 3-column grid,
-# mapped to Insert/Home/PageUp/etc...
-#6 grid 2x3
-#Insert cell-select 1x1
-#Home cell-select 1x2
-#Prior cell-select 1x3   # PageUp
-#Delete cell-select 2x1
-#End cell-select 2x2
-#Next cell-select 2x3   # PageDown
-
-### Example using a 3x3 grid with nethack-vi keys
-#ctrl+semicolon start, grid 3x3
-#h cell-select 1x2      # left
-#j cell-select 2x3      # down
-#k cell-select 2x1      # up
-#l cell-select 3x2      # right
-#y cell-select 1x1      # up-left
-#u cell-select 3x1      # up-right
-#b cell-select 1x3      # down-left
-#n cell-select 3x3      # down-right
-#period cell-select 2x2 # center
