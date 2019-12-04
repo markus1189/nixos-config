@@ -158,8 +158,9 @@ rec {
       displayManager = {
         lightdm = {
           enable = true;
-          defaultUser = userName;
-          autoLogin = false;
+          autoLogin = {
+            enable = false;
+          };
         };
 
         sessionCommands = ''
