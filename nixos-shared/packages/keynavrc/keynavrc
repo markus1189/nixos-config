@@ -62,7 +62,7 @@ ctrl+j click 5
 ctrl+k click 4
 
 # Record keynav actions
-q record
+q record ~/.keynav_macros
 shift+at playback
 
 ### Example using the 'sh' command.
