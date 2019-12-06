@@ -1,5 +1,0 @@
-{
-  imports = [
-    # ./gitlab.nix
-  ];
-}

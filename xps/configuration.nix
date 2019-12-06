@@ -36,7 +36,6 @@ rec {
       ../nixos-shared/zsh.nix
       ./k8s.nix
       ./bluetooth.nix
-      ./containers
       ./contextual/codecentric.nix
       ./hardware-configuration.nix
       ./hosts.nix
