@@ -169,7 +169,7 @@
 ;; make unpure packages archives unavailable
 (setq package-archives nil)
 
-(package-initialize 'noactivate)
+(package-initialize)
 
 (eval-when-compile
   (require 'use-package))
