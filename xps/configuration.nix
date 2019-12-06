@@ -37,6 +37,7 @@ rec {
       ./k8s.nix
       ./bluetooth.nix
       ./contextual/codecentric.nix
+      ./earlyoom.nix
       ./hardware-configuration.nix
       ./hosts.nix
       ./keybase.nix
