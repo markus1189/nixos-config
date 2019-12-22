@@ -24,6 +24,7 @@ in
     in rec {
         inherit myScripts mutate;
         notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
+        notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             autoMonitorConfig = myScripts.autoMonitorConfig;

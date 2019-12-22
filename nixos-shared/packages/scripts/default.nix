@@ -470,4 +470,16 @@ rec {
      --request POST \
      https://api.pushbullet.com/v2/pushes > /dev/null
     '';
+
+  notifySendTelegram = botToken: writeShellScript {
+    name = "notifySendTelegram";
+    deps = [ curl jo ];
+    pure = true;
+  } ''
+    MESSAGE=''${1:?"Error: no message given!"}
+    curl --silent --fail -XPOST \
+      -H 'Content-Type: application/json' \
+      -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
+      --url "https://api.telegram.org/bot${botToken}/sendMessage"
+    '';
 }

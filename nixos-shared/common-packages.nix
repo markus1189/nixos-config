@@ -21,6 +21,7 @@
       nixfmt
       niv
       notifySendPb
+      notifySendTelegram
       pwgen
     ];
   };
