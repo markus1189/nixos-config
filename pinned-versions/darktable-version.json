@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/darktable-org/darktable",
-  "rev": "82725c7c000fe839a7009248b0640abce88976bb",
-  "date": "2019-11-30T22:19:12+01:00",
-  "sha256": "1h0b2adb2lqvhlh2al5bvjivqjx78x1c8isgh0i8z2sb3ndqih78",
+  "rev": "92e7d3d4a99229a47ca4beb061bc7d48bf7826e0",
+  "date": "2019-12-19T13:18:11+01:00",
+  "sha256": "15pj11p9zvhwvqsk4x6zm4fp7nbzkwg8hk0b2hiidcp7v62wrz1w",
   "fetchSubmodules": true
 }
