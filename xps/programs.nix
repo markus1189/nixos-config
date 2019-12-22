@@ -38,10 +38,9 @@ in
       coreutils
       docker_compose
       dmenu
-      # dropbox-cli
       ddgr
       deluge
-      pkgsRelease19.dragon-drop
+      dragon-drop
       dstat
       emacs
       entr
@@ -53,14 +52,12 @@ in
       feh
       figlet
       file
-      # filezilla
       firefoxWrapper
       foo2zjs
       fortune
       gcc
       gdb
       ghc
-      # ghostscript
       gimp
       glxinfo
       gnumake
@@ -81,6 +78,7 @@ in
       insomnia
       jo
       jq
+      keynav
       pkgsMaster.k9s
       libnotify
       # libreoffice
@@ -115,6 +113,7 @@ in
       psmisc
       pv
       pythonFull
+      rclone
       rlwrap
       rofi
       # (rWrapper.override {
@@ -190,7 +189,7 @@ in
       youtube-dl
       pygments
     ]) ++ (with pkgs.haskellPackages; [
-      # cabal2nix
+      cabal2nix
       # hasktags
       hindent
       hlint
@@ -205,19 +204,15 @@ in
       js-yaml
     ]) ++ [ # photography related stuff
       darktable
-      # rawtherapee
       hugin
       geeqie
     ] ++ [ # evaluation phase
       bat
-      lnav
+      lnav # log file viewer
       pdd
       dateutils
       # cachix
-      rclone
       bind
-      pwgen
-      keynav
     ] ++ (with pkgs.myScripts; [
       browserHistory
       gnuplot-quick
@@ -225,7 +220,7 @@ in
       multihead4k
       tmx
       ts
-    ]) ++ [
+    ]) ++ [ # Go related stuff
       go
       glide
       go2nix
