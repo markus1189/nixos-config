@@ -108,7 +108,7 @@ in
         enable = true;
         tapping = false;
         disableWhileTyping = true;
-        naturalScrolling = true;
+        naturalScrolling = false;
       };
     };
   };
