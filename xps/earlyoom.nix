@@ -3,7 +3,7 @@
 {
   services = {
     earlyoom = {
-      enable = true;
+      enable = false;
       enableDebugInfo = true;
       freeMemThreshold = 10;
       freeSwapThreshold = 50;
