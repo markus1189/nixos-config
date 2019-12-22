@@ -71,8 +71,10 @@ rec {
   };
 
   i18n = {
-    consoleFont = "latarcyrheb-sun32";
-    consoleKeyMap = "us";
+    console = {
+      font = "latarcyrheb-sun32";
+      keyMap = "us";
+    };
     defaultLocale = "en_US.UTF-8";
   };
 
@@ -156,6 +158,8 @@ rec {
       enable = true;
 
       displayManager = {
+        defaultSession = "none+xmonad";
+
         lightdm = {
           enable = true;
           autoLogin = {
@@ -175,10 +179,7 @@ rec {
         '';
       };
 
-      desktopManager.default = "none";
-
       windowManager = {
-        default = "xmonad";
         xmonad = {
           enable = true;
           enableContribAndExtras = true;
