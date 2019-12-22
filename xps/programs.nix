@@ -9,23 +9,10 @@ in
 {
   nixpkgs = {
     config = {
-      packageOverrides = pkgs: {
-        dwarf-fortress = pkgs.dwarf-fortress.override {
-          theme = pkgs.dwarf-fortress-packages.phoebus-theme;
-          enableDFHack = true;
-        };
-      };
-
       firefox = {
         enableGoogleTalkPlugin = true;
         enableOfficialBranding = true;
       };
-
-      # chromium = {
-      #   enableWideVine = false;
-      #   enablePepperFlash = true;
-      # };
-
     };
   };
 
