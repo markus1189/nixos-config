@@ -30,6 +30,7 @@ in
       at
       bc
       bashmount
+      buku
       cabal-install
       chromedriver
       chromium
