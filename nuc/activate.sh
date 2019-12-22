@@ -1,1 +1,1 @@
-sudo rm -r /etc/nixos/ /etc/nixos-shared ; sudo mkdir /etc/nixos && sudo mkdir /etc/nixos-shared && sudo cp -r ~/repos/nixos-config/nixos-shared /etc/ && sudo cp ~/repos/nixos-config/nuc/* /etc/nixos/ && sudo nixos-rebuild switch
+sudo nixos-rebuild -I nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix --upgrade switch
