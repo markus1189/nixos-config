@@ -25,8 +25,7 @@ let
   dired-plus = let
     src = fetchurl {
       url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      # sha256 = "1mj969kana8mh92dsp9y73prkxpvrigsss4gbhljp01b9hfnfnk4";
-      sha256 = "08nm06x7k90hhsa7zs733nny6sd6r4k91qm1znbyvkci0da7i1is";
+      sha256 = "sha256:15g6nbfkb0p4irgk3jjmbaayrvqp39jyhd2yg361hy4gjh9gl8ln";
     };
   in
     runCommand "install-dired-plus" {} ''
