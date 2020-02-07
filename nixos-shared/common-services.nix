@@ -12,7 +12,7 @@ userName:
 
     udisks2.enable = true;
 
-    unclutter.enable = true;
+    unclutter-xfixes.enable = true;
 
     locate = {
       enable = true;
