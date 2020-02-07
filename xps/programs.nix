@@ -5,6 +5,13 @@ let
   pkgsFork = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/master.tar.gz) {};
   pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
   pkgsMy = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/staging.tar.gz) {};
+  web2nix = { pkgs ? import <nixpkgs> {}, url, name ? url, ... }:
+    pkgs.writeScriptBin name ''
+      #!${pkgs.runtimeShell}
+      export LIBGL_DRI3_DISABLE=1
+      exec ${pkgs.chromium}/bin/chromium --app=${pkgs.lib.escapeShellArg url}
+    '';
+  daily = web2nix { name = "daily"; url = "https://meet.google.com/ewb-kgka-kdi"; };
 in
 {
   nixpkgs = {
@@ -226,6 +233,8 @@ in
       go2nix
       dep2nix
       godef
+    ] ++ [ # web2nix
+      daily
     ];
   };
 }
