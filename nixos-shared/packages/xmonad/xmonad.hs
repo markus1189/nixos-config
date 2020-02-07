@@ -183,6 +183,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModKey   , xK_s)         , spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
          , ((myModKey   , xK_d)         , spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show run")
          , ((myModKey   , xK_a)         , spawn "@chooseNetwork@/bin/chooseNetwork")
+         , ((myModKey   , xK_b)         , spawn "@bukuRun@/bin/bukuRun")
          , ((myModShiftCtrl, xK_q)      , spawn "@xmonadReset@/bin/xmonadReset")
 
          , ((myModKey   , xK_e)         , swapNextScreen)
@@ -214,7 +215,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
          , ((myModCtrl, xK_F6), spawn "@playerctl@/bin/playerctl next")
 
-         , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=15 @clipmenu@/bin/clipmenu")
+         , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=999 @clipmenu@/bin/clipmenu")
          , ((myModShiftCtrl, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'mfa:@mfaHelper@/bin/mfaHelper' -show mfa")
          ]
          where

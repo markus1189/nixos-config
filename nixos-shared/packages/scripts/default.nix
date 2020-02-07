@@ -1,6 +1,9 @@
-{ curl
+{ buku
+, curl
 , coreutils
 , emacs
+, firefox
+, gawk
 , gnugrep
 , gnuplot
 , gnused
@@ -22,6 +25,7 @@
 , stdenv
 , systemd
 , tmux
+, unixtools
 , wmctrl
 , wpa_supplicant
 , writeScriptBin
@@ -482,4 +486,107 @@ rec {
       -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
       --url "https://api.telegram.org/bot${botToken}/sendMessage"
     '';
+
+  bukuRun = writeShellScript {
+    name = "bukuRun";
+    deps = [ rofi buku gawk unixtools.column firefox ];
+    pure = true;
+  } ''
+    export BROWSER=firefox
+    _rofi () {
+        rofi -dmenu -i -no-levenshtein-sort -width 1000 "$@"
+    }
+
+    max_str_width=100
+
+    main () {
+        HELP="Buku Bookmarks"
+        content=$(parseBuku)
+        menu=$(echo "''${content}" | _rofi -p '> ' -mesg "''${HELP}")
+        id=$(getId "$content" "$menu")
+        for bm in ''${id}; do
+            buku -o "''${bm}"
+        done
+    }
+
+    parseBuku () {
+      echo "$(buku --nc -p | gawk -v max="$max_str_width" -v type="1" '
+    BEGIN {
+      RS=""
+      FS="\n"
+    }
+    {
+      if ($3 == "")
+        $3 = " # NOTAG"
+      id = gensub(/([0-9]+)\.(.*)/, "\\1", "g", $1)
+      url = substr(gensub(/\s+> (.*)/, "\\1", "g", $2),0,max)
+      tags = gensub(/\s+# (.*)/, "\\1", "g", $3)
+      title = substr(gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1),0,max)
+
+      if (type == 1)
+        print id "\t" url "\t" tags
+      else
+        print id "\t" title "\t" tags
+        if (type == 3)
+          print " \t" url "\t "
+      print ""
+    }
+    ' | column -t -s $'\t')"
+    }
+
+    getId () {
+      id=$(echo "''${2%% *}")
+      if [ -z "$id" ]; then
+        prev=""
+        IFS=$'\n'
+        for line in $1; do
+          if [ "$2" = "$line" ]; then
+            id=$(echo "''${prev%% *}")
+            break
+          else
+            prev="$line"
+          fi
+        done
+      fi
+      echo $id
+    }
+
+    getTitleFromId () {
+      echo "$(buku --nc -p $1 | gawk '
+      BEGIN {
+        RS=""
+        FS="\n"
+      }
+      {
+        print gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1)
+      }
+      ')"
+    }
+
+    getUrlFromId () {
+      echo "$(buku --nc -p $1 | gawk '
+      BEGIN {
+        RS=""
+        FS="\n"
+      }
+      {
+        print gensub(/\s+> (.*)/, "\\1", "g", $2)
+      }
+      ')"
+    }
+
+    getTagsFromId () {
+      echo "$(buku --nc -p $1 | gawk '
+      BEGIN {
+        RS=""
+        FS="\n"
+      }
+      {
+        print gensub(/\s+# (.*)/, "\\1", "g", $3)
+      }
+      ')"
+    }
+
+    main
+  '';
 }

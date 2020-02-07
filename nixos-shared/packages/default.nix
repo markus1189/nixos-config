@@ -27,8 +27,8 @@ in
         notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
-            autoMonitorConfig = myScripts.autoMonitorConfig;
             inherit mutate;
+            inherit (myScripts) autoMonitorConfig bukuRun;
             greenclip = pkgs.haskellPackages.greenclip.overrideAttrs (old: rec {
               buildInputs = old.buildInputs ++ (with pkgs.xorg; [ libXdmcp libX11 libXrandr libXext]);
             });
