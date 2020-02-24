@@ -152,7 +152,7 @@ in
       tdesktop
       terminator
       testdisk
-      tigervnc
+      #tigervnc
       (texlive.combine {
         inherit (texlive)
         scheme-medium
