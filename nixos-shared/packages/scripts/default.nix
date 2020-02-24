@@ -10,6 +10,7 @@
 , haskellPackages
 , i3lock
 , jo
+, jq
 , less
 , lib,  git
 , libnotify
@@ -588,5 +589,13 @@ rec {
     }
 
     main
+  '';
+
+
+  sendIpAddr = writeShellScript {
+    name = "sendIpAddr";
+    deps = [ curl notifySendTelegram jq ];
+  } ''
+   notifySendTelegram "IP: $(curl https://httpbin.org/ip | jq -r .origin)"
   '';
 }
