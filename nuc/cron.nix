@@ -9,6 +9,7 @@ let
   find = "${pkgs.findutils}/bin/find";
   secrets = import ../nixos-shared/secrets.nix;
   rm = "${pkgs.coreutils}/bin/rm";
+  sendIpAddr = "${pkgs.myScripts.sendIpAddr}/bin/sendIpAddr";
 in
 {
   services = {
@@ -17,6 +18,7 @@ in
       systemCronJobs = [
         " 5  4,10,16,22 * *   * ${userName} ${find} ${downloadDir} -mindepth 2 -type f \\( -iname \"*.mkv\" -or -iname \"*.avi\" \\) -exec mv -v {} ${downloadDir} ';'"
         "35           4 * *   * ${userName} ${find} ${downloadDir} -type d -empty -delete"
+        "0 5 * * * ${userName} ${sendIpAddr}"
       ];
     };
   };
