@@ -215,7 +215,7 @@ myKeys = [ ((myModKey   , xK_BackSpace) , focusUrgent)
          , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
          , ((myModCtrl, xK_F6), spawn "@playerctl@/bin/playerctl next")
 
-         , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=999 @clipmenu@/bin/clipmenu")
+         , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu")
          , ((myModShiftCtrl, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'mfa:@mfaHelper@/bin/mfaHelper' -show mfa")
          ]
          where
