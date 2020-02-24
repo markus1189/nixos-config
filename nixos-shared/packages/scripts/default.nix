@@ -592,9 +592,9 @@ rec {
   '';
 
 
-  sendIpAddr = writeShellScript {
+  sendIpAddr = botToken: writeShellScript {
     name = "sendIpAddr";
-    deps = [ curl notifySendTelegram jq ];
+    deps = [ curl (notifySendTelegram botToken) jq ];
   } ''
    notifySendTelegram "IP: $(curl https://httpbin.org/ip | jq -r .origin)"
   '';

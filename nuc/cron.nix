@@ -9,7 +9,7 @@ let
   find = "${pkgs.findutils}/bin/find";
   secrets = import ../nixos-shared/secrets.nix;
   rm = "${pkgs.coreutils}/bin/rm";
-  sendIpAddr = "${pkgs.myScripts.sendIpAddr}/bin/sendIpAddr";
+  sendIpAddr = "${pkgs.myScripts.sendIpAddr secrets.telegramBotToken}/bin/sendIpAddr";
 in
 {
   services = {
