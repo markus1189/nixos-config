@@ -12,6 +12,7 @@ let
       exec ${pkgs.chromium}/bin/chromium --app=${pkgs.lib.escapeShellArg url}
     '';
   daily = web2nix { name = "daily"; url = "https://meet.google.com/ewb-kgka-kdi"; };
+  gmail = account: web2nix { name = "gmail${toString account}"; url = "https://mail.google.com/mail/u/${toString account}/#inbox"; };
 in
 {
   nixpkgs = {
@@ -235,6 +236,9 @@ in
       godef
     ] ++ [ # web2nix
       daily
+      (gmail 0)
+      (gmail 1)
+      (gmail 2)
     ];
   };
 }
