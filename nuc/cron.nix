@@ -4,7 +4,6 @@ userName:
 let
   downloadDir = "$HOME/Downloads";
   killall = "${pkgs.psmisc}/bin/killall";
-  kodi = "${pkgs.kodi}/bin/kodi";
   pgrep = "${pkgs.procps}/bin/pgrep";
   find = "${pkgs.findutils}/bin/find";
   secrets = import ../nixos-shared/secrets.nix;
