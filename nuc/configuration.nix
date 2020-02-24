@@ -160,6 +160,7 @@ in
     autoUpgrade = {
       enable = true;
       dates = "04:21";
+      flags = [ "-I" "nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix" ];
     };
   };
 }
