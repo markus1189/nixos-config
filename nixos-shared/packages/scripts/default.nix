@@ -596,6 +596,6 @@ rec {
     name = "sendIpAddr";
     deps = [ curl (notifySendTelegram botToken) jq ];
   } ''
-   notifySendTelegram "IP: $(curl https://httpbin.org/ip | jq -r .origin)"
+   notifySendTelegram "IP from ''${USER}@''${HOST}: $(curl -s https://httpbin.org/ip | jq -r .origin)" > /dev/null
   '';
 }
