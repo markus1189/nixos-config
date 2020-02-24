@@ -26,7 +26,7 @@ in
       ../nixos-shared/zsh.nix
       ./fileSystems.nix
       ./hardware-configuration.nix
-      ./kodi.nix
+      # ./kodi.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
