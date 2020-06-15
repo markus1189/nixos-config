@@ -563,7 +563,7 @@ rec {
     }
 
     parseBuku () {
-      echo "$(buku --nc -p | gawk -v max="$max_str_width" -v type="1" '
+      echo "$(buku --nc -p | gawk -v max="$max_str_width" '
     BEGIN {
       RS=""
       FS="\n"
@@ -576,13 +576,7 @@ rec {
       tags = gensub(/\s+# (.*)/, "\\1", "g", $3)
       title = substr(gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1),0,max)
 
-      if (type == 1)
-        print id "\t" url "\t" tags
-      else
-        print id "\t" title "\t" tags
-        if (type == 3)
-          print " \t" url "\t "
-      print ""
+      print id " " title " " url " " tags
     }
     ' | column -t -s $'\t')"
     }
