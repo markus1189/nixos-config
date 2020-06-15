@@ -8,10 +8,10 @@
         "leaveDotGit": false,
         "owner": "darktable-org",
         "repo": "darktable",
-        "rev": "a64940338ac3365c42c635c80c3d152a86d349c1",
-        "sha256": "0b85rrp23j4is79nbyz8cd7gb0npscscgqnl4v6qjkydc11ns500",
+        "rev": "7ffecde96a2ae164fc5d60a4cd1c07456ad43f1f",
+        "sha256": "0sd2haa3fxnx0bn2hx7z9pam75jv05ycs6zq89wh3l67mqa1gpfl",
         "type": "tarball",
-        "url": "https://github.com/darktable-org/darktable/archive/a64940338ac3365c42c635c80c3d152a86d349c1.tar.gz",
+        "url": "https://github.com/darktable-org/darktable/archive/7ffecde96a2ae164fc5d60a4cd1c07456ad43f1f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "home-manager": {
