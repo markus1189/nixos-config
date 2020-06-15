@@ -9,7 +9,7 @@
         "owner": "darktable-org",
         "repo": "darktable",
         "rev": "7ffecde96a2ae164fc5d60a4cd1c07456ad43f1f",
-        "sha256": "0sd2haa3fxnx0bn2hx7z9pam75jv05ycs6zq89wh3l67mqa1gpfl",
+        "sha256": "1wxjkvxqn9w2a9ynpli0jvpdz68l7mapsp2a28a7hmzblkq49fzc",
         "type": "tarball",
         "url": "https://github.com/darktable-org/darktable/archive/7ffecde96a2ae164fc5d60a4cd1c07456ad43f1f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"

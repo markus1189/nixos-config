@@ -49,8 +49,6 @@ in
   };
 
   nix = {
-    package = pkgs.nixUnstable; # to support submodules in `builtins.fetchGit` for `niv`
-
     gc = {
       automatic = false;
       dates = "12:30";
@@ -58,10 +56,6 @@ in
     };
 
     useSandbox = true;
-
-    extraOptions = ''
-      experimental-features = nix-command
-    '';
   };
 
   boot = {
@@ -112,7 +106,8 @@ in
             name = "darktable-${pkgs.nivSources.darktable.rev}";
             version = nivSources.darktable.rev;
             src = super.fetchFromGitHub {
-              inherit (nivSources.darktable) owner repo rev fetchSubmodules sha256;
+              inherit (nivSources.darktable) owner repo rev fetchSubmodules;
+              sha256 = "0sd2haa3fxnx0bn2hx7z9pam75jv05ycs6zq89wh3l67mqa1gpfl";
             };
           });
       })
