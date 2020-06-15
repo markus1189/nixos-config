@@ -14,6 +14,18 @@
         "url": "https://github.com/darktable-org/darktable/archive/a64940338ac3365c42c635c80c3d152a86d349c1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "home-manager": {
+        "branch": "master",
+        "description": "Manage a user environment using Nix",
+        "homepage": "https://rycee.gitlab.io/home-manager/",
+        "owner": "rycee",
+        "repo": "home-manager",
+        "rev": "ecb93ab9aeeb718e238114243d951a82f20ebf3f",
+        "sha256": "01281pw960jf9bfllsds6ilh3d8qiw7hx9027fa4ljhl9spca4lz",
+        "type": "tarball",
+        "url": "https://github.com/rycee/home-manager/archive/ecb93ab9aeeb718e238114243d951a82f20ebf3f.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "hosts": {
         "sha256": "06l0j4pdmyfwzrdswq4mj7ca2i5b5k70s6vgzh6pmc1naf9kbs60",
         "type": "file",

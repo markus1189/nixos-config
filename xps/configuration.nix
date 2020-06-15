@@ -11,8 +11,10 @@ let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
   custom = import ../nixos-shared/custom.nix;
   secrets = import ../nixos-shared/secrets.nix;
+  nivSources = import ../niv/nix/sources.nix;
+  homeManager = "${nivSources.home-manager.outPath}/nixos/default.nix";
 in
-rec {
+  rec {
   imports =
     [
       (import ../nixos-shared/common-services.nix userName)
@@ -37,7 +39,7 @@ rec {
       ./low-battery.nix
       ./programs.nix
       ./xps.nix
-      <home-manager/nixos>
+      homeManager
       (import ./home-manager/module.nix userName)
     ];
 
@@ -195,8 +197,6 @@ rec {
     initialPassword = "markus"; # for qemu
     symlinks = with pkgs.myConfigFiles; {
       ".xmonad/xmonad.hs" = xmonad;
-      ".offlineimaprc" = offlineimap;
-      ".vimrc" = pkgs.writeText "vimrc" "set t_ti= t_te=";
     };
   };
 
