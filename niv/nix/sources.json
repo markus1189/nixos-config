@@ -27,11 +27,16 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "hosts": {
-        "sha256": "06l0j4pdmyfwzrdswq4mj7ca2i5b5k70s6vgzh6pmc1naf9kbs60",
-        "type": "file",
-        "url": "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts",
-        "url_template": "https://raw.githubusercontent.com/StevenBlack/hosts/<version>/alternates/fakenews-gambling-porn/hosts",
-        "version": "master"
+        "branch": "master",
+        "description": "Consolidating and Extending hosts files from several well-curated sources. You can optionally pick extensions to block Porn, Social Media, and other categories..",
+        "homepage": "",
+        "owner": "StevenBlack",
+        "repo": "hosts",
+        "rev": "71dbcebe52149227fa2203a5a96227f1391f5f35",
+        "sha256": "00ja2za89wiz14iwmw9kc9rfp41kgkx5ipp4y93i8jkwn63pv2ry",
+        "type": "tarball",
+        "url": "https://github.com/StevenBlack/hosts/archive/71dbcebe52149227fa2203a5a96227f1391f5f35.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "niv": {
         "branch": "master",
