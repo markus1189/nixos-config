@@ -110,8 +110,10 @@ in
         darktable = builtins.trace "INFO: Using latest darktable via overlay"
           super.darktable.overrideAttrs (old: rec {
             name = "darktable-${pkgs.nivSources.darktable.rev}";
-            version = pkgs.nivSources.darktable.rev;
-            src = pkgs.nivSources.darktable.outPath;
+            version = nivSources.darktable.rev;
+            src = super.fetchFromGitHub {
+              inherit (nivSources.darktable) owner repo rev fetchSubmodules sha256;
+            };
           });
       })
     ]);
