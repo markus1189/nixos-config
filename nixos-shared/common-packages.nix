@@ -5,6 +5,7 @@
     systemPackages = with pkgs; [
       aws-vault
       binutils
+      cachix
       gnupg
       gnupg1
       git
@@ -13,7 +14,11 @@
       (gitAndTools.git-open)
       (gitAndTools.hub)
       git-secret
+      gron
       htop
+      jo
+      jq
+      logArgs
       nix-prefetch-docker
       nix-prefetch-git
       nix-prefetch-github
@@ -22,6 +27,8 @@
       niv
       notifySendPb
       notifySendTelegram
+      telegramSendPhoto
+      telegramPhotosLastYear
       pwgen
     ];
   };

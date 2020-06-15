@@ -45,9 +45,9 @@ rec {
       ./low-battery.nix
       ./programs.nix
       ./xps.nix
-    ]
-    ++ custom.conditionalInclude "NIX_MOIA" ./contextual/moia
-    ;
+      <home-manager/nixos>
+      (import ./home-manager/module.nix userName)
+    ];
 
   documentation = {
     enable = true;
@@ -70,11 +70,12 @@ rec {
     ];
   };
 
+  console = {
+    font = "latarcyrheb-sun32";
+    keyMap = "us";
+  };
+
   i18n = {
-    console = {
-      font = "latarcyrheb-sun32";
-      keyMap = "us";
-    };
     defaultLocale = "en_US.UTF-8";
   };
 
@@ -94,7 +95,7 @@ rec {
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
-    overlays = [
+    overlays = (import ../nixos-shared/shared-overlays.nix ++ [
       # (self: super:
       #   let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
       #   in {
@@ -116,7 +117,7 @@ rec {
           };
         });
       })
-    ];
+    ]);
 
     config = {
       allowUnfree = true;
@@ -206,7 +207,6 @@ rec {
     initialPassword = "markus"; # for qemu
     symlinks = with pkgs.myConfigFiles; {
       ".xmonad/xmonad.hs" = xmonad;
-      ".gitconfig" = gitconfig;
       ".offlineimaprc" = offlineimap;
       ".vimrc" = pkgs.writeText "vimrc" "set t_ti= t_te=";
       ".keynavrc" = keynavrc;
@@ -266,7 +266,10 @@ rec {
   security = {
     sudo = {
       enable = true;
-      extraConfig = "\nDefaults: ${userName} timestamp_timeout=30\n";
+      extraConfig = ''
+        Defaults:${userName} timestamp_timeout=30
+        Defaults insults
+      '';
     };
   };
 
@@ -278,6 +281,10 @@ rec {
   # virtualisation.virtualbox.host.enable = true;
 
   programs = {
+    plotinus = {
+      enable = true;
+    };
+
     wireshark = {
       enable = true;
       package = pkgs.wireshark;

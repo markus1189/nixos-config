@@ -18,13 +18,12 @@ in
 
     kernelPackages = pkgs.linuxPackages_latest;
 
-    initrd.luks.devices = [
-      {
-        name = "root";
+    initrd.luks.devices = {
+      "root" = {
         device = "/dev/nvme0n1p4";
         preLVM = true;
-      }
-    ];
+      };
+    };
   };
 
   environment = {
@@ -42,21 +41,10 @@ in
   };
 
   hardware = {
-    bluetooth = {
-      extraConfig = ''
-        [General]
-        ControllerMode = bredr
-
-        [Policy]
-        AutoEnable = true
-      '';
-    };
-
     bumblebee = {
       enable = false;
       driver = "nouveau";
     };
-
   };
 
   services = {
@@ -106,7 +94,7 @@ in
 
       libinput = {
         enable = true;
-        tapping = false;
+        tapping = true;
         disableWhileTyping = true;
         naturalScrolling = false;
       };

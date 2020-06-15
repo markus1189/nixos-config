@@ -51,6 +51,7 @@ in
     epkgs.melpaPackages.fasd
     find-temp-file
     flycheck
+    flycheck-haskell
     flycheck-yamllint
     fullframe
     git-commit
@@ -68,7 +69,6 @@ in
     helm-flyspell
     helm-projectile
     helm-swoop
-    hindent
     hl-anything
     hydra
     ibuffer-vc
@@ -92,6 +92,7 @@ in
     move-text
     multiple-cursors
     nix-mode
+    ormolu
     ox-jira
     plantuml-mode
     projectile

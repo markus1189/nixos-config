@@ -24,7 +24,7 @@
         Host mci
           HostName markus1189.no-ip.org
           User mediacenter
-          Port 4224
+          Port 443
           ServerAliveInterval 60
           ServerAliveCountMax 3
 
@@ -32,7 +32,7 @@
           HostName markus1189.no-ip.org
           User mediacenter
           DynamicForward 12345
-          Port 4224
+          Port 443
           RequestTTY no
 
         Host mcivnc
@@ -40,7 +40,7 @@
           User mediacenter
           RequestTTY no
           LocalForward 5900 localhost:5900
-          Port 4224
+          Port 443
           ServerAliveInterval 60
           ServerAliveCountMax 3
 

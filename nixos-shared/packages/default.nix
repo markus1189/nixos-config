@@ -25,18 +25,17 @@ in
         inherit myScripts mutate;
         notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
         notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
+        telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
+        telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;
+        logArgs = myScripts.logArgs;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             inherit mutate;
             inherit (myScripts) autoMonitorConfig bukuRun;
-            greenclip = pkgs.haskellPackages.greenclip.overrideAttrs (old: rec {
-              buildInputs = old.buildInputs ++ (with pkgs.xorg; [ libXdmcp libX11 libXrandr libXext]);
-            });
             chooseNetwork = myScripts.chooseNetwork wirelessInterface;
           };
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
-          gitconfig = callPackage ./git { inherit mutate; };
           offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
           keynavrc = callPackage ./keynavrc { inherit mutate; };
         };

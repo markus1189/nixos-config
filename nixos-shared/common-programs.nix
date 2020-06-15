@@ -4,7 +4,7 @@
   programs = {
     less = {
       envVariables = {
-        LESS = "-X";
+        LESS = "-XI";
       };
     };
 

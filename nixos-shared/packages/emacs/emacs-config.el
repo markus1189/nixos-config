@@ -745,8 +745,6 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (haskell-sort-imports)
     (haskell-align-imports))
-  (defun mh/haskell-set-compilation-command ()
-    (set (make-local-variable 'compile-command) "stack --nix build "))
   (defun mh/haskell-import-qualified-p ()
     (interactive)
     (save-excursion
@@ -787,9 +785,7 @@ Position the cursor at its beginning, according to the current mode."
   :bind (("C-c C-a" . mh/haskell-mode-organize-imports)
          ("C-c C-q" . mh/haskell-import-toggle-qualified)
          ("C-c ?" . mh/haskell-insert-undefined))
-  :ensure t
-  :hook
-  (haskell-mode . mh/haskell-set-compilation-command))
+  :ensure t)
 
 (use-package ox-jira
   :ensure t)
@@ -1115,28 +1111,28 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (setq plantuml-jar-path "@plantuml@/lib/plantuml.jar"))
 
-(use-package mu4e
-  :config
-  (require 'mu4e-utils)
-  (setq mu4e-sent-folder "/[Google Mail].All Mail"
-      mu4e-drafts-folder "/[Google Mail].Drafts"
-      mu4e-trash-folder "/[Google Mail].Trash"
-      mu4e-refile-folder "/[Google Mail].All Mail"
-      mu4e-maildir "~/Mail/personal"
-      mu4e-html2text-command "@pandoc@/bin/pandoc -f html -t org"
-      mu4e-view-auto-mark-as-read nil)
-  (add-to-list 'mu4e-bookmarks
-       (make-mu4e-bookmark
-         :name  "Inbox"
-         :query "NOT flag:thrashed AND maildir:/INBOX"
-         :key ?b))
-  (setq mu4e-bookmarks `(("\\\\Inbox" "Inbox" ?i)
-                         ("flag:flagged" "Flagged messages" ?f)
-                         (,(concat "flag:unread AND "
-                                   "NOT flag:trashed AND "
-                                   "NOT maildir:/[Google Mail].Spam AND "
-                                   "NOT maildir:/[Google Mail].Bin")
-                          "Unread messages" ?u))) )
+;; (use-package mu4e
+;;   :config
+;;   (require 'mu4e-utils)
+;;   (setq mu4e-sent-folder "/[Google Mail].All Mail"
+;;       mu4e-drafts-folder "/[Google Mail].Drafts"
+;;       mu4e-trash-folder "/[Google Mail].Trash"
+;;       mu4e-refile-folder "/[Google Mail].All Mail"
+;;       mu4e-maildir "~/Mail/personal"
+;;       mu4e-html2text-command "@pandoc@/bin/pandoc -f html -t org"
+;;       mu4e-view-auto-mark-as-read nil)
+;;   (add-to-list 'mu4e-bookmarks
+;;        (make-mu4e-bookmark
+;;          :name  "Inbox"
+;;          :query "NOT flag:thrashed AND maildir:/INBOX"
+;;          :key ?b))
+;;   (setq mu4e-bookmarks `(("\\\\Inbox" "Inbox" ?i)
+;;                          ("flag:flagged" "Flagged messages" ?f)
+;;                          (,(concat "flag:unread AND "
+;;                                    "NOT flag:trashed AND "
+;;                                    "NOT maildir:/[Google Mail].Spam AND "
+;;                                    "NOT maildir:/[Google Mail].Bin")
+;;                           "Unread messages" ?u))) )
 
 (use-package terraform-mode
   :ensure t)
@@ -1237,4 +1233,15 @@ string). It returns t if a new completion is found, nil otherwise."
 
 ;; (use-package kubel
 ;; :ensure t)
+
+(use-package ormolu
+  :ensure t
+  :bind
+  (:map haskell-mode-map
+        ("C-c C-r" . ormolu-format-buffer)))
+
+(use-package flycheck-haskell
+  :ensure t
+  :hook (haskell-mode . flycheck-haskell-setup))
+
 ;;;

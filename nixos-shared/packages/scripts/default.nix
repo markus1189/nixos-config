@@ -1,7 +1,9 @@
 { buku
 , curl
 , coreutils
+, dragon-drop
 , emacs
+, findutils
 , firefox
 , gawk
 , gnugrep
@@ -282,11 +284,13 @@ rec {
 
   takeScreenshot = writeShellScript {
     name = "takeScreenshot";
-    deps = [ coreutils scrot libnotify xclip ];
+    deps = [ coreutils scrot libnotify xclip dragon-drop ];
   } ''
    sleep 0.5
    notify-send -t 1000 'Screenshot' 'Select area to capture'
-   scrot -q 100 -s -c -e 'mv -v $f /tmp/ && echo -n /tmp/$f | xclip -sel clipboard -i'
+   FILEPATH="$(scrot -q 100 -s -c -e 'mv $f /tmp/ && echo -n /tmp/$f')"
+   echo "''${FILEPATH}" | xclip -sel clipboard -i
+   dragon -x "''${FILEPATH}"
   '';
 
   gnuplot-quick = writeShellScript {
@@ -488,6 +492,54 @@ rec {
       --url "https://api.telegram.org/bot${botToken}/sendMessage"
     '';
 
+  telegramSendPhoto = botToken: writeShellScript {
+    name = "telegramSendPhoto";
+    deps = [ curl jo coreutils ];
+    pure = true;
+  } ''
+    LIMIT=10
+
+    buildArray() {
+        jo -a $(
+            for i in "$@"; do
+                NAME="$(basename "$i")"
+                jo type=photo media="attach://$NAME"
+            done | shuf -n $LIMIT
+        )
+    }
+
+    buildParams() {
+        for i in "$@"; do
+            echo "-F $(basename "$i")=@$i"
+        done | shuf -n $LIMIT
+    }
+
+    if [[ "$#" -gt "$LIMIT" ]]; then
+      echo Warning: using only $LIMIT randomly chosen out of $# given args > /dev/stderr
+    fi
+
+    if [[ "$#" -ge 1 ]]; then
+        echo "Uploading" > /dev/stderr
+
+        curl --silent --fail -XPOST \
+                --url "https://api.telegram.org/bot${botToken}/sendMediaGroup" \
+                -F chat_id=299952716 \
+                -F media="$(buildArray "$@")" \
+                $(buildParams "$@")
+    else
+        echo "USAGE: $0 FILE..." > /dev/stderr
+    fi
+    '';
+
+  telegramPhotosLastYear = botToken: writeShellScript {
+    name = "telegramPhotosLastYear";
+    deps = [ findutils (telegramSendPhoto botToken) ];
+    pure = true;
+  } ''
+    set -o pipefail
+    find ''${1:?No path to photos directory given} -name "*$(date -d '-1 year' +%Y%m%d)*" | head -1 | xargs telegramSendPhoto
+    '';
+
   bukuRun = writeShellScript {
     name = "bukuRun";
     deps = [ rofi buku gawk unixtools.column firefox ];
@@ -597,5 +649,13 @@ rec {
     deps = [ curl (notifySendTelegram botToken) jq ];
   } ''
    notifySendTelegram "IP from ''${USER}@''${HOST}: $(curl -s https://httpbin.org/ip | jq -r .origin)" > /dev/null
+  '';
+
+  logArgs = writeShellScript {
+    name = "log-args";
+    deps = [ systemd ];
+    pure = false;
+  } ''
+    systemd-cat -tlog-args -- bash -c 'echo $@'
   '';
 }

@@ -20,7 +20,7 @@
   programs = {
     tmux = {
       enable = true;
-      extraTmuxConf = ''
+      extraConfig = ''
         ${pkgs.lib.readFile ./tmux.conf}
         run-shell ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
         run-shell ${pkgs.tmuxPlugins.copycat}/share/tmux-plugins/copycat/copycat.tmux

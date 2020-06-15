@@ -70,7 +70,6 @@ in
     bashmount
     coreutils
     feh
-    firefoxWrapper
     jq
     lsof
     mplayer

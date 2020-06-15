@@ -3,22 +3,19 @@
 let
   pkgsMaster = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz) {};
   pkgsFork = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/master.tar.gz) {};
-  pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
-  pkgsMy = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/staging.tar.gz) {};
   web2nix = { pkgs ? import <nixpkgs> {}, url, name ? url, ... }:
     pkgs.writeScriptBin name ''
       #!${pkgs.runtimeShell}
       export LIBGL_DRI3_DISABLE=1
       exec ${pkgs.chromium}/bin/chromium --app=${pkgs.lib.escapeShellArg url}
     '';
-  daily = web2nix { name = "daily"; url = "https://meet.google.com/ewb-kgka-kdi"; };
+  teamboard-abschluss = web2nix { name = "teamboard-abschluss"; url = "https://miro.com/app/board/o9J_ks-8k-s=/?moveToWidget=3074457348190738188&cot=13"; };
   gmail = account: web2nix { name = "gmail${toString account}"; url = "https://mail.google.com/mail/u/${toString account}/#inbox"; };
 in
 {
   nixpkgs = {
     config = {
       firefox = {
-        enableGoogleTalkPlugin = true;
         enableOfficialBranding = true;
       };
     };
@@ -60,7 +57,6 @@ in
       feh
       figlet
       file
-      firefoxWrapper
       foo2zjs
       fortune
       gcc
@@ -72,6 +68,7 @@ in
       gnuplot
       go-pup
       googleearth
+      google-chrome
       gparted
       graphviz
       hicolor_icon_theme
@@ -84,8 +81,6 @@ in
       imv
       inkscape
       insomnia
-      jo
-      jq
       keynav
       pkgsMaster.k9s
       libnotify
@@ -145,11 +140,11 @@ in
       sshfs
       sqlite
       # slack
-      stack
       sysdig
       system-config-printer
       tcpdump
       tdesktop
+      teamspeak_client
       terminator
       testdisk
       #tigervnc
@@ -172,7 +167,7 @@ in
       })
       trayer
       tree
-      unetbootin
+      # unetbootin
       units
       unrar
       unzip
@@ -190,7 +185,7 @@ in
       zathura
       zip
       zlib
-      # zoom-us
+      zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
       ipython
@@ -199,10 +194,11 @@ in
     ]) ++ (with pkgs.haskellPackages; [
       cabal2nix
       # hasktags
-      hindent
       hlint
       # idris
+      # pkgs.stack
       structured-haskell-mode
+      (pkgs.ormolu)
       xmobar
     ]) ++ (with pkgs.xorg; [
       xbacklight
@@ -235,10 +231,9 @@ in
       dep2nix
       godef
     ] ++ [ # web2nix
-      daily
       (gmail 0)
       (gmail 1)
-      (gmail 2)
+      teamboard-abschluss
     ];
   };
 }
