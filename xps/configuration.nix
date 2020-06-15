@@ -106,16 +106,13 @@ rec {
       #     };
       #   });
       # })
-      (self: super:
-        let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/darktable-version.json;
-        in {
-        darktable = builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs (old: rec {
-          name = "darktable-${pinnedVersion.rev}";
-          version = pinnedVersion.rev;
-          src = super.fetchgit {
-            inherit (pinnedVersion) url rev sha256 fetchSubmodules;
-          };
-        });
+      (self: super: {
+        darktable = builtins.trace "INFO: Using latest darktable via overlay"
+          super.darktable.overrideAttrs (old: rec {
+            name = "darktable-${pkgs.nivSources.darktable.rev}";
+            version = pkgs.nivSources.darktable.rev;
+            src = pkgs.nivSources.darktable.outPath;
+          });
       })
     ]);
 

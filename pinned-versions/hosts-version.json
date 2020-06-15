@@ -1,9 +1,0 @@
-{
-  "url": "https://github.com/StevenBlack/hosts",
-  "rev": "f9657f924cc7448040bf411de980ff8ccfde8463",
-  "date": "2020-05-15T19:50:37-04:00",
-  "sha256": "029s94x0wzs9zmp3dg749pmrasbpmndrw7djcqpi97mmxjam8rik",
-  "fetchSubmodules": false,
-  "deepClone": false,
-  "leaveDotGit": false
-}

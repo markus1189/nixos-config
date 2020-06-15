@@ -1,0 +1,60 @@
+{
+    "darktable": {
+        "branch": "master",
+        "deepClone": false,
+        "description": "darktable is an open source photography workflow application and raw developer",
+        "fetchSubmodules": true,
+        "homepage": "https://www.darktable.org",
+        "leaveDotGit": false,
+        "owner": "darktable-org",
+        "repo": "darktable",
+        "rev": "a64940338ac3365c42c635c80c3d152a86d349c1",
+        "sha256": "0b85rrp23j4is79nbyz8cd7gb0npscscgqnl4v6qjkydc11ns500",
+        "type": "tarball",
+        "url": "https://github.com/darktable-org/darktable/archive/a64940338ac3365c42c635c80c3d152a86d349c1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "hosts": {
+        "sha256": "06l0j4pdmyfwzrdswq4mj7ca2i5b5k70s6vgzh6pmc1naf9kbs60",
+        "type": "file",
+        "url": "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts",
+        "url_template": "https://raw.githubusercontent.com/StevenBlack/hosts/<version>/alternates/fakenews-gambling-porn/hosts",
+        "version": "master"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "f73bf8d584148677b01859677a63191c31911eae",
+        "sha256": "0jlmrx633jvqrqlyhlzpvdrnim128gc81q5psz2lpp2af8p8q9qs",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/f73bf8d584148677b01859677a63191c31911eae.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "nixpkgs-unstable",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs-channels",
+        "rev": "9d0c3ffe6783d59b427d018e8341e0084737fde9",
+        "sha256": "1wlkw8jw63vg1xa5hx63kshag71kl81ncdzfaxi3g1mq376m4bb0",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/9d0c3ffe6783d59b427d018e8341e0084737fde9.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs-stable": {
+        "branch": "nixos-20.03",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "nixos",
+        "repo": "nixpkgs-channels",
+        "rev": "db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6",
+        "sha256": "1j5j7vbnq2i5zyl8498xrf490jca488iw6hylna3lfwji6rlcaqr",
+        "type": "tarball",
+        "url": "https://github.com/nixos/nixpkgs-channels/archive/db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
