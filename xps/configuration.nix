@@ -6,14 +6,6 @@ let
       url = "https://www.dropbox.com/s/hoy6xdgnudwy64g/codecentric.jpg?dl=1";
       sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
     };
-    ccItsSimple = pkgs.fetchurl {
-      url = "https://public.centerdevice.de/05e684ac-c97c-4b3d-a358-d1dc26b87808";
-      sha256 = "1z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
-    };
-    ccDontDrinkAndCode = pkgs.fetchurl {
-      url = "https://public.centerdevice.de/095e40b2-34e8-4ff3-be52-b7c7357f690d";
-      sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d3k";
-    };
   };
   userName = "markus";
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
