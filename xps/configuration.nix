@@ -49,6 +49,8 @@ in
   };
 
   nix = {
+    package = pkgs.nixUnstable; # to support submodules in `builtins.fetchGit` for `niv`
+
     gc = {
       automatic = false;
       dates = "12:30";
@@ -56,6 +58,10 @@ in
     };
 
     useSandbox = true;
+
+    extraOptions = ''
+      experimental-features = nix-command
+    '';
   };
 
   boot = {
