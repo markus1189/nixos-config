@@ -24,6 +24,8 @@
     firefox.enable = true;
 
     git = (pkgs.callPackage ./git/default.nix {}).value;
+
+    vim = (pkgs.callPackage ./vim/default.nix {}).value;
   };
 
   services = {

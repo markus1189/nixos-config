@@ -1,0 +1,9 @@
+{
+  vim
+}:
+
+{
+  value = {
+    enable = true;
+  };
+}
