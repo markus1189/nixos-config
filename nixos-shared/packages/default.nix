@@ -2,7 +2,6 @@
 let
   wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
   secrets = import ../secrets.nix;
-  pkgsRelease19 = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-19.03.tar.gz) {};
 in
 {
   nixpkgs = {

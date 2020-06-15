@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 let
-  pkgsMaster = import (fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz) {};
-  pkgsFork = import (fetchTarball https://github.com/markus1189/nixpkgs/archive/master.tar.gz) {};
   web2nix = { pkgs ? import <nixpkgs> {}, url, name ? url, ... }:
     pkgs.writeScriptBin name ''
       #!${pkgs.runtimeShell}
@@ -82,7 +80,7 @@ in
       inkscape
       insomnia
       keynav
-      pkgsMaster.k9s
+      k9s
       libnotify
       # libreoffice
       libxml2
