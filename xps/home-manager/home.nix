@@ -3,6 +3,7 @@
 {
   home = {
     packages = [
+      pkgs.source-code-pro
     ];
 
     file = {
@@ -26,7 +27,13 @@
   };
 
   services = {
-    keynav = {
+    keynav.enable = true;
+
+    dunst = (pkgs.callPackage ./dunst/default.nix {}).value;
+  };
+
+  fonts = {
+    fontconfig = {
       enable = true;
     };
   };
