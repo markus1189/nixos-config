@@ -37,7 +37,6 @@ in
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;
           offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
-          keynavrc = callPackage ./keynavrc { inherit mutate; };
         };
         emacs = callPackageWith pkgs ./emacs { inherit mutate; };
       };

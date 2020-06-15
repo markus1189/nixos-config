@@ -169,7 +169,6 @@ rec {
         };
 
         sessionCommands = ''
-          ${pkgs.keynav}/bin/keynav &
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr
@@ -209,7 +208,6 @@ rec {
       ".xmonad/xmonad.hs" = xmonad;
       ".offlineimaprc" = offlineimap;
       ".vimrc" = pkgs.writeText "vimrc" "set t_ti= t_te=";
-      ".keynavrc" = keynavrc;
     };
   };
 

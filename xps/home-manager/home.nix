@@ -4,6 +4,13 @@
   home = {
     packages = [
     ];
+
+    file = {
+      "keynavrc" = {
+        source = pkgs.callPackage ./keynav {};
+        target = ".keynavrc";
+      };
+    };
   };
 
   manual = {
@@ -16,5 +23,11 @@
     firefox.enable = true;
 
     git = (pkgs.callPackage ./git/default.nix {}).value;
+  };
+
+  services = {
+    keynav = {
+      enable = true;
+    };
   };
 }
