@@ -2,6 +2,7 @@
 , jo
 , systemd
 , source-code-pro
+, rofi
 }:
 
 let
@@ -32,7 +33,7 @@ in
         follow = "keyboard";
         sticky_history = "yes";
         history_length = 42;
-        dmenu = "@rofi@/bin/rofi -dmenu";
+        dmenu = "${rofi}/bin/rofi -dmenu";
         show_indicators = "yes";
         line_height = 3;
         separator_height = 2;
