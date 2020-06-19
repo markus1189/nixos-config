@@ -8,6 +8,9 @@ let
   nivOverlay = self: super: {
     nivSources = import ../niv/nix/sources.nix;
   };
+  dunst = self: super: {
+    dunst = super.dunst.override { dunstify = true; };
+  };
 in
 
 [
