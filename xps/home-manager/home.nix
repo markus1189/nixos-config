@@ -4,6 +4,7 @@
   home = {
     packages = [
       pkgs.source-code-pro
+      pkgs.dunst
     ];
 
     file = {
