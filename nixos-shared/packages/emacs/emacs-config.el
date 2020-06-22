@@ -1244,4 +1244,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :hook (haskell-mode . flycheck-haskell-setup))
 
+(use-package strace-mode
+  :ensure t)
+
 ;;;

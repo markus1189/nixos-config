@@ -103,6 +103,7 @@ in
     sbt-mode
     scala-mode
     string-inflection
+    strace-mode
     persistent-scratch
     pdf-tools
     smartparens
