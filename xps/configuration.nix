@@ -41,6 +41,7 @@ in
       ./xps.nix
       homeManager
       (import ./home-manager/module.nix userName)
+      (import ./syncthing.nix userName)
     ];
 
   documentation = {
