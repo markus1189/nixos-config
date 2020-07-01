@@ -563,7 +563,7 @@ rec {
     }
 
     parseBuku () {
-      echo "$(buku --nc -p | gawk -v max="$max_str_width" '
+      echo "$(buku --nc -p | gawk -v max="70" '
     BEGIN {
       RS=""
       FS="\n"
