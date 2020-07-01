@@ -12,9 +12,10 @@ let
   custom = import ../nixos-shared/custom.nix;
   secrets = import ../nixos-shared/secrets.nix;
   nivSources = import ../niv/nix/sources.nix;
-  homeManager = "${nivSources.home-manager.outPath}/nixos/default.nix";
+  ndtSources = import ../ndt/sources.nix {};
+  homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
-  rec {
+rec {
   imports =
     [
       (import ../nixos-shared/common-services.nix userName)
@@ -90,7 +91,7 @@ in
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
-    overlays = (import ../nixos-shared/shared-overlays.nix ++ [
+    overlays = ((import ../nixos-shared/shared-overlays.nix).overlays ++ [
       # (self: super:
       #   let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
       #   in {
@@ -104,12 +105,9 @@ in
       (self: super: {
         darktable = builtins.trace "INFO: Using latest darktable via overlay"
           super.darktable.overrideAttrs (old: rec {
-            name = "darktable-${pkgs.nivSources.darktable.rev}";
-            version = nivSources.darktable.rev;
-            src = super.fetchFromGitHub {
-              inherit (nivSources.darktable) owner repo rev fetchSubmodules;
-              sha256 = "0sd2haa3fxnx0bn2hx7z9pam75jv05ycs6zq89wh3l67mqa1gpfl";
-            };
+            name = "darktable-${self.ndtSources.darktable.rev}";
+            version = self.ndtSources.darktable.rev;
+            src = self.ndtSources.darktable.outPath;
           });
       })
     ]);

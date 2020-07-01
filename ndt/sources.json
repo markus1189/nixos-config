@@ -1,0 +1,47 @@
+{
+  "darktable": {
+    "deepClone": false,
+    "path": "/nix/store/d16bmpgd124xjrhx7bnkli7yx0i5imb6-darktable",
+    "url": "https://github.com/darktable-org/darktable",
+    "leaveDotGit": false,
+    "owner": "darktable-org",
+    "fetchSubmodules": true,
+    "date": "2020-06-29T07:58:31+02:00",
+    "repo": "darktable",
+    "type": "github",
+    "sha256": "1wxpfg5wlbgrrg0apsy28d9cakbzidcsb1jy7myyk2537xcp4nnx",
+    "rev": "f21a98b1257792f8f56d951f25f42ca7bf451fc9"
+  },
+  "hosts": {
+    "deepClone": false,
+    "path": "/nix/store/nxsgr9slcjxbq8zhkciqig4mjp3q30sh-hosts",
+    "url": "https://github.com/StevenBlack/hosts",
+    "leaveDotGit": false,
+    "owner": "StevenBlack",
+    "fetchSubmodules": false,
+    "date": "2020-06-27T12:55:37-04:00",
+    "repo": "hosts",
+    "type": "github",
+    "sha256": "17852vv9p8vwnlvm8w33j9wsiiiljkw64id4yl01f2b3zxh3k4y4",
+    "rev": "ddb8a6178866160f6592454f8ff73962268b6e87"
+  },
+  "gitignore-io": {
+    "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go",
+    "name": "gitignore-io",
+    "type": "url",
+    "sha256": "05qh93sidr8lwqdd7q600f44yfaxkd4ak739j2crifqg484yqpc3"
+  },
+  "home-manager": {
+    "deepClone": false,
+    "path": "/nix/store/p09b8w47bl45szw6ik5ha22l8p6dxmyi-home-manager",
+    "url": "https://github.com/rycee/home-manager",
+    "leaveDotGit": false,
+    "owner": "rycee",
+    "fetchSubmodules": false,
+    "date": "2020-06-29T10:21:17+02:00",
+    "repo": "home-manager",
+    "type": "github",
+    "sha256": "1s8j8h42k354xzwlqizbzxlqvsagx7yrxl20qfxgxmx522ajw63p",
+    "rev": "7f7348b47049e8d25fb5b98db1d6215f8f643f0d"
+  }
+}

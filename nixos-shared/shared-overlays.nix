@@ -1,4 +1,4 @@
-let
+rec {
   stableNixpkgsOverlay = self: super: {
     stableNixpkgs = import self.nivSources.nixpkgs-stable {};
   };
@@ -8,14 +8,18 @@ let
   nivOverlay = self: super: {
     nivSources = import ../niv/nix/sources.nix;
   };
+  ndtSourcesOverlay = self: super: {
+    ndtSources = import ../ndt/sources.nix {};
+  };
   dunstWithDunstify = self: super: {
     dunst = super.dunst.override { dunstify = true; };
   };
-in
 
-[
-  bukuOverlay
-  nivOverlay
-  stableNixpkgsOverlay
-  dunstWithDunstify
-]
+  overlays = [
+    bukuOverlay
+    nivOverlay
+    ndtSourcesOverlay
+    stableNixpkgsOverlay
+    dunstWithDunstify
+  ];
+}

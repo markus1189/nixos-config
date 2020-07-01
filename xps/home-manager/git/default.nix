@@ -4,18 +4,14 @@
 , lib
 , writeScript
 , stdenv
+, ndtSources
 }:
 
 let
   gitPackage = gitAndTools.gitFull;
-  gitignore-io = fetchurl {
-    url = "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go";
-    name = "gitignore-io";
-    sha256 = "sha256:05qh93sidr8lwqdd7q600f44yfaxkd4ak739j2crifqg484yqpc3";
-  };
 
   gitignoreGlobal = writeText "gitignore-global-file" ''
-    ${lib.readFile gitignore-io}
+    ${lib.readFile ndtSources.gitignore-io}
     *~undo-tree~
   '';
 
