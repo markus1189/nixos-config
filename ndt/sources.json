@@ -15,16 +15,17 @@
   },
   "darktable": {
     "deepClone": false,
-    "path": "/nix/store/d16bmpgd124xjrhx7bnkli7yx0i5imb6-darktable",
+    "path": "/nix/store/xi1zd8wyk7plccinzmyfjxmrx6bxigcd-darktable",
     "url": "https://github.com/darktable-org/darktable",
     "leaveDotGit": false,
     "owner": "darktable-org",
     "fetchSubmodules": true,
-    "date": "2020-06-29T07:58:31+02:00",
+    "date": "2020-07-01T12:04:08+02:00",
+    "branch": "master",
     "repo": "darktable",
     "type": "github",
-    "sha256": "1wxpfg5wlbgrrg0apsy28d9cakbzidcsb1jy7myyk2537xcp4nnx",
-    "rev": "f21a98b1257792f8f56d951f25f42ca7bf451fc9"
+    "sha256": "1n9p9kf2kpssa839nxm78r5hldhic3mjlhjbb7fp36807w2kqk7x",
+    "rev": "08c1dcd756079487df79b300893dda7963ebc1f6"
   },
   "hosts": {
     "deepClone": false,
@@ -34,6 +35,7 @@
     "owner": "StevenBlack",
     "fetchSubmodules": false,
     "date": "2020-06-27T12:55:37-04:00",
+    "branch": "master",
     "repo": "hosts",
     "type": "github",
     "sha256": "17852vv9p8vwnlvm8w33j9wsiiiljkw64id4yl01f2b3zxh3k4y4",
@@ -53,6 +55,7 @@
     "owner": "rycee",
     "fetchSubmodules": false,
     "date": "2020-06-29T10:21:17+02:00",
+    "branch": "master",
     "repo": "home-manager",
     "type": "github",
     "sha256": "1s8j8h42k354xzwlqizbzxlqvsagx7yrxl20qfxgxmx522ajw63p",
