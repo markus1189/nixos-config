@@ -1,4 +1,18 @@
 {
+  "nixpkgs-2003": {
+    "deepClone": false,
+    "path": "/nix/store/rk98z73pmbyismlr7dc8v1yw1s55236i-nixpkgs-channels",
+    "url": "https://github.com/nixos/nixpkgs-channels",
+    "leaveDotGit": false,
+    "owner": "nixos",
+    "fetchSubmodules": false,
+    "date": "2020-06-30T17:29:02-04:00",
+    "branch": "nixos-20.03",
+    "repo": "nixpkgs-channels",
+    "type": "github",
+    "sha256": "068jxdgd9b4va371q8pn1fipqjxs0hkr7ya3kn389qs81jn091jc",
+    "rev": "30fb4e1e206d2936fa03859f96d5c2fa3d1ae595"
+  },
   "darktable": {
     "deepClone": false,
     "path": "/nix/store/d16bmpgd124xjrhx7bnkli7yx0i5imb6-darktable",
