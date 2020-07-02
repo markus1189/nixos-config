@@ -48,6 +48,7 @@ in
     evil-numbers
     expand-region
     f
+    format-all
     epkgs.melpaPackages.fasd
     find-temp-file
     flycheck

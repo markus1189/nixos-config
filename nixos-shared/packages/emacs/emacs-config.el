@@ -1235,10 +1235,7 @@ string). It returns t if a new completion is found, nil otherwise."
 ;; :ensure t)
 
 (use-package ormolu
-  :ensure t
-  :bind
-  (:map haskell-mode-map
-        ("C-c C-r" . ormolu-format-buffer)))
+  :ensure t)
 
 (use-package flycheck-haskell
   :ensure t
@@ -1247,4 +1244,8 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package strace-mode
   :ensure t)
 
+(use-package format-all
+  :ensure t
+  :bind
+  ("C-c C-r" . format-all-buffer))
 ;;;
