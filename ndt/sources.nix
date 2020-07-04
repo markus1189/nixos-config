@@ -2,7 +2,9 @@
   overlays = [
     (
       self: super: {
-        ndt = import /home/markus/repos/projects/ndt/default.nix { nixpkgs = self; };
+        ndt = import (builtins.fetchTarball https://github.com/markus1189/ndt/archive/master.tar.gz) {
+          nixpkgs = self;
+        };
       }
     )
   ];
