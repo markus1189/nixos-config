@@ -5,6 +5,7 @@
     packages = [
       pkgs.source-code-pro
       pkgs.dunst
+      pkgs.ndt
     ];
 
     file = {

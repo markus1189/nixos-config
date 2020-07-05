@@ -5,6 +5,11 @@ rec {
   bukuOverlay = self: super: {
     buku = builtins.trace "INFO: using pinned buku version" self.stableNixpkgs.buku;
   };
+  ndtOverlay = self: super: {
+    ndt = import (builtins.fetchTarball https://github.com/markus1189/ndt/archive/master.tar.gz) {
+      nixpkgs = self;
+    };
+  };
   ndtSourcesOverlay = self: super: {
     ndtSources = import ../ndt/sources.nix {};
   };
@@ -14,6 +19,7 @@ rec {
 
   overlays = [
     bukuOverlay
+    ndtOverlay
     ndtSourcesOverlay
     stableNixpkgsOverlay
     dunstWithDunstify
