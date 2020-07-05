@@ -2,6 +2,7 @@
 let
   wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
   secrets = import ../secrets.nix;
+  ndtSources = import ../../ndt/sources.nix {};
 in
 {
   nixpkgs = {
@@ -37,7 +38,9 @@ in
           xmobarUpper = xmobars.upper;
           offlineimap = callPackage ./offlineimap { inherit mutate; googlepw = secrets.googlepw; };
         };
-        emacs = callPackageWith pkgs ./emacs { inherit mutate; };
+        emacs = callPackageWith pkgs ./emacs {
+          inherit mutate ndtSources;
+        };
       };
     };
   };

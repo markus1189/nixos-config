@@ -1,45 +1,55 @@
 {
   "nixpkgs-2003": {
     "deepClone": false,
-    "path": "/nix/store/rk98z73pmbyismlr7dc8v1yw1s55236i-nixpkgs-channels",
+    "path": "/nix/store/dynnxnyyzc2lxx5pzmvapbzrwkk0df0z-nixpkgs-channels",
     "url": "https://github.com/nixos/nixpkgs-channels",
     "leaveDotGit": false,
     "owner": "nixos",
     "fetchSubmodules": false,
-    "date": "2020-06-30T17:29:02-04:00",
+    "date": "2020-07-03T12:13:31+02:00",
     "branch": "nixos-20.03",
     "repo": "nixpkgs-channels",
     "type": "github",
-    "sha256": "068jxdgd9b4va371q8pn1fipqjxs0hkr7ya3kn389qs81jn091jc",
-    "rev": "30fb4e1e206d2936fa03859f96d5c2fa3d1ae595"
+    "sha256": "18ailgn3d8smjdg66di3mg1q1l86s2s5ch856ifzy5kc3a224ssf",
+    "rev": "d6260a33e43a500528b2be834d3ee4ad45441a6a"
   },
   "darktable": {
     "deepClone": false,
-    "path": "/nix/store/xi1zd8wyk7plccinzmyfjxmrx6bxigcd-darktable",
+    "path": "/nix/store/m0pna1wsjisph6mj9q328klzq8rv43x7-darktable",
     "url": "https://github.com/darktable-org/darktable",
     "leaveDotGit": false,
     "owner": "darktable-org",
     "fetchSubmodules": true,
-    "date": "2020-07-01T12:04:08+02:00",
+    "date": "2020-07-03T21:50:42+02:00",
     "branch": "master",
     "repo": "darktable",
     "type": "github",
-    "sha256": "1n9p9kf2kpssa839nxm78r5hldhic3mjlhjbb7fp36807w2kqk7x",
-    "rev": "08c1dcd756079487df79b300893dda7963ebc1f6"
+    "sha256": "06fp8v0x7ii9gnl31if98xpyg05sk8202fy01kifwdvf3c3ijk1i",
+    "rev": "fe371fc657573c507dc82d45b09d05fbc1560c6e"
+  },
+  "emacs-dired-plus": {
+    "url": "https://www.emacswiki.org/emacs/download/dired+.el",
+    "type": "url",
+    "sha256": "1dy6blay7pwsjw8sbsc18azn0zvd5062bkwy4h5bhsaqbwi0fx65"
+  },
+  "emacs-quick-yes": {
+    "url": "https://download.tuxfamily.org/user42/quick-yes.el",
+    "type": "url",
+    "sha256": "0xs2y0hyw947g0m42fnyw0b4rxi85wmd5d5w0xwh9ic0qbq1mq8r"
   },
   "hosts": {
     "deepClone": false,
-    "path": "/nix/store/nxsgr9slcjxbq8zhkciqig4mjp3q30sh-hosts",
+    "path": "/nix/store/nx1hyxp6a0hdis0dcyxmk85w4zw7vssi-hosts",
     "url": "https://github.com/StevenBlack/hosts",
     "leaveDotGit": false,
     "owner": "StevenBlack",
     "fetchSubmodules": false,
-    "date": "2020-06-27T12:55:37-04:00",
+    "date": "2020-07-02T20:35:42-04:00",
     "branch": "master",
     "repo": "hosts",
     "type": "github",
-    "sha256": "17852vv9p8vwnlvm8w33j9wsiiiljkw64id4yl01f2b3zxh3k4y4",
-    "rev": "ddb8a6178866160f6592454f8ff73962268b6e87"
+    "sha256": "1y3kdmwsxpqy53zxknm0wbg01skja6xdpfgk98a8bxzcp1r5qq2s",
+    "rev": "7fcfacf7d047bf427af79f0a93e53d5daa78b0e7"
   },
   "gitignore-io": {
     "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go",
@@ -49,16 +59,16 @@
   },
   "home-manager": {
     "deepClone": false,
-    "path": "/nix/store/p09b8w47bl45szw6ik5ha22l8p6dxmyi-home-manager",
+    "path": "/nix/store/7jjna4320sg5j887xmwym5z4kjy5c5w3-home-manager",
     "url": "https://github.com/rycee/home-manager",
     "leaveDotGit": false,
     "owner": "rycee",
     "fetchSubmodules": false,
-    "date": "2020-06-29T10:21:17+02:00",
+    "date": "2020-07-03T22:43:18+02:00",
     "branch": "master",
     "repo": "home-manager",
     "type": "github",
-    "sha256": "1s8j8h42k354xzwlqizbzxlqvsagx7yrxl20qfxgxmx522ajw63p",
-    "rev": "7f7348b47049e8d25fb5b98db1d6215f8f643f0d"
+    "sha256": "1rvckhczi3f285fl0f7bwq8icn08pizqn3408fg0gvv89cb1vqi8",
+    "rev": "7dc322c1ebe049dde356386ff46809c13bcfbff9"
   }
 }

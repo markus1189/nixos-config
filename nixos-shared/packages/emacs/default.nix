@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommand, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc, git }:
+{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc, git, ndtSources }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
@@ -7,30 +7,18 @@ let
     noSound = ./no.wav;
     popSound = ./pop.wav;
   };
-  myEmacsConfig = (runCommand "create-my-emacs-config" {} ''
+  myEmacsConfig = (runCommandLocal "create-my-emacs-config" {} ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
   '');
   emacsWithPackages = (emacsPackagesNgGen emacs).emacsWithPackages;
-  quick-yes = let
-    src = fetchurl {
-      url = "https://download.tuxfamily.org/user42/quick-yes.el";
-      sha256 = "0xs2y0hyw947g0m42fnyw0b4rxi85wmd5d5w0xwh9ic0qbq1mq8r";
-    };
-  in
-    runCommand "install-quick-yes" {} ''
-      mkdir -p $out/share/emacs/site-lisp
-      cp ${src} $out/share/emacs/site-lisp/quick-yes.el
+  quick-yes = runCommandLocal "install-quick-yes" {} ''
+    mkdir -p $out/share/emacs/site-lisp
+    cp ${ndtSources.emacs-quick-yes} $out/share/emacs/site-lisp/quick-yes.el
   '';
-  dired-plus = let
-    src = fetchurl {
-      url = "https://www.emacswiki.org/emacs/download/dired+.el";
-      sha256 = "sha256:15g6nbfkb0p4irgk3jjmbaayrvqp39jyhd2yg361hy4gjh9gl8ln";
-    };
-  in
-    runCommand "install-dired-plus" {} ''
+  dired-plus = runCommandLocal "install-dired-plus" {} ''
       mkdir -p $out/share/emacs/site-lisp
-      cp ${src} $out/share/emacs/site-lisp/dired+.el
+      cp ${ndtSources.emacs-dired-plus} $out/share/emacs/site-lisp/dired+.el
     '';
 in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
