@@ -1,4 +1,4 @@
-let builder = configuration: import <nixpkgs/nixos> { inherit configuration; }; in
+let builder = configuration: (import <nixpkgs/nixos> { inherit configuration; }).system; in
 
 map builder [
   ./xps/configuration.nix
