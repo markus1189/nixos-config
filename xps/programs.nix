@@ -76,7 +76,7 @@ in
       jetbrains.idea-community
       inetutils
       imagemagick
-      imv
+      (builtins.trace "using pinned imv version" nixpkgs1703.imv)
       inkscape
       insomnia
       keynav
