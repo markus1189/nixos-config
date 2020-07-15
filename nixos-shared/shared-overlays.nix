@@ -2,6 +2,9 @@ rec {
   stableNixpkgsOverlay = self: super: {
     stableNixpkgs = import self.ndtSources.nixpkgs-2003 {};
   };
+  nixpkgs1703Overlay = self: super: {
+    nixpkgs1703 = import self.ndtSources.nixpkgs-1703 {};
+  };
   bukuOverlay = self: super: {
     buku = builtins.trace "INFO: using pinned buku version" self.stableNixpkgs.buku;
   };
@@ -22,6 +25,7 @@ rec {
     ndtOverlay
     ndtSourcesOverlay
     stableNixpkgsOverlay
+    nixpkgs1703Overlay
     dunstWithDunstify
   ];
 }
