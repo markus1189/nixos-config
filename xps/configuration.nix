@@ -57,6 +57,11 @@ rec {
     };
 
     useSandbox = true;
+
+    nixPath = [ "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
+                "nixos-config=/home/${userName}/repos/nixos-config/xps/configuration.nix"
+                "/nix/var/nix/profiles/per-user/root/channels"
+              ];
   };
 
   boot = {
