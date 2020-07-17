@@ -10,6 +10,8 @@
 
     bash = {
       enableCompletion = true;
+      enableLsColors = true;
+
     };
 
     java = {
