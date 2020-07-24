@@ -19,7 +19,6 @@ in
       systemCronJobs = [
         " 5  4,10,16,22 * *   * ${userName} ${find} ${downloadDir} -mindepth 2 -type f \\( -iname \"*.mkv\" -or -iname \"*.avi\" \\) -exec mv -v {} ${downloadDir} ';'"
         "35           4 * *   * ${userName} ${find} ${downloadDir} -type d -empty -delete"
-        # "0 5 * * * ${userName} ${sendIpAddr}"
         "0 8 * * * ${userName} ${find} /media/backups/Photos/web -name \"*$(date -d '-1 year' +%Y%m%d)*\" | ${xargs} ${telegramSendPhoto}"
       ];
     };
