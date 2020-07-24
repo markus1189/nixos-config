@@ -1,88 +1,88 @@
 {
-  "nixpkgs-2003": {
-    "deepClone": false,
-    "path": "/nix/store/2bq17rkf60ym880d7yda0akw7x900mbd-nixpkgs-channels",
-    "url": "https://github.com/nixos/nixpkgs-channels",
-    "leaveDotGit": false,
-    "owner": "nixos",
-    "fetchSubmodules": false,
-    "date": "2020-07-14T14:44:54+02:00",
-    "branch": "nixos-20.03",
-    "repo": "nixpkgs-channels",
-    "type": "github",
-    "sha256": "1f9ypp9q7r5p1bzm119yfg202fbm83csmlzwv33p1kf76m2p7mwd",
-    "rev": "1a92d0abfcdbafc5c6e2fdc24abf2cc5e011ad5a"
-  },
   "darktable": {
+    "branch": "master",
+    "date": "2020-07-23T17:19:39+02:00",
     "deepClone": false,
-    "path": "/nix/store/ajc2c97paaj46m9yd3p4yjk998mdhbp7-darktable",
-    "url": "https://github.com/darktable-org/darktable",
+    "fetchSubmodules": true,
     "leaveDotGit": false,
     "owner": "darktable-org",
-    "fetchSubmodules": true,
-    "date": "2020-07-07T23:44:53+02:00",
-    "branch": "master",
+    "path": "/nix/store/s9axsrx49v6d5qk8az71056237b4ha3c-darktable",
     "repo": "darktable",
+    "rev": "d8c9e482ba0ec5823ecead4ace72637ae2484e7d",
+    "sha256": "101dh0m01g14csv8pjnirxlii0dgn6pds021bzay2wcga9q6ja96",
     "type": "github",
-    "sha256": "103qz3rhf4xd9rx94167dk732kvmbm7zh3rr3rs3kpz4zyilmy97",
-    "rev": "7a99be843103c933ca7e7f37a0459d9906402356"
+    "url": "https://github.com/darktable-org/darktable"
   },
   "emacs-dired-plus": {
-    "url": "https://www.emacswiki.org/emacs/download/dired+.el",
+    "sha256": "1dy6blay7pwsjw8sbsc18azn0zvd5062bkwy4h5bhsaqbwi0fx65",
     "type": "url",
-    "sha256": "1dy6blay7pwsjw8sbsc18azn0zvd5062bkwy4h5bhsaqbwi0fx65"
-  },
-  "nixpkgs-1703": {
-    "deepClone": false,
-    "path": "/nix/store/lhwzxaz7aax3sf2daqkvv9ljxn0sx6cg-nixpkgs-channels",
-    "url": "https://github.com/nixos/nixpkgs-channels",
-    "leaveDotGit": false,
-    "owner": "nixos",
-    "fetchSubmodules": false,
-    "date": "2018-01-06T11:26:51+00:00",
-    "branch": "nixos-17.03",
-    "repo": "nixpkgs-channels",
-    "type": "github",
-    "sha256": "09f50jaijvry9lrnx891qmcf92yb8qs64n1cvy0db2yjrmxsxyw8",
-    "rev": "78e9665b48ff45d3e29f45b3ebeb6fc6c6e19922"
+    "url": "https://www.emacswiki.org/emacs/download/dired+.el"
   },
   "emacs-quick-yes": {
-    "url": "https://download.tuxfamily.org/user42/quick-yes.el",
+    "sha256": "0xs2y0hyw947g0m42fnyw0b4rxi85wmd5d5w0xwh9ic0qbq1mq8r",
     "type": "url",
-    "sha256": "0xs2y0hyw947g0m42fnyw0b4rxi85wmd5d5w0xwh9ic0qbq1mq8r"
-  },
-  "hosts": {
-    "deepClone": false,
-    "path": "/nix/store/555srcjh5nn4kxmxh1yga9pwfisykhcg-hosts",
-    "url": "https://github.com/StevenBlack/hosts",
-    "leaveDotGit": false,
-    "owner": "StevenBlack",
-    "fetchSubmodules": false,
-    "date": "2020-07-13T22:37:36-04:00",
-    "branch": "master",
-    "repo": "hosts",
-    "type": "github",
-    "sha256": "1mz3axgwv4n8q9k37hr2ajgppnmw2ayg9z18lbybykhwdybimhhc",
-    "rev": "ca3a99a0499add858969ce8747049e681b85a2e2"
+    "url": "https://download.tuxfamily.org/user42/quick-yes.el"
   },
   "gitignore-io": {
-    "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go",
     "name": "gitignore-io",
+    "sha256": "05qh93sidr8lwqdd7q600f44yfaxkd4ak739j2crifqg484yqpc3",
     "type": "url",
-    "sha256": "05qh93sidr8lwqdd7q600f44yfaxkd4ak739j2crifqg484yqpc3"
+    "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go"
   },
   "home-manager": {
+    "branch": "master",
+    "date": "2020-07-21T01:10:54+02:00",
     "deepClone": false,
-    "path": "/nix/store/nkapcarrl3cm04wcka9kzkif14g78hjn-home-manager",
-    "url": "https://github.com/rycee/home-manager",
+    "fetchSubmodules": false,
     "leaveDotGit": false,
     "owner": "rycee",
-    "fetchSubmodules": false,
-    "date": "2020-07-14T23:31:20+02:00",
-    "branch": "master",
+    "path": "/nix/store/5bnd6vy8778zpmc4nbpri0p3898izdm6-home-manager",
     "repo": "home-manager",
+    "rev": "8ad55800216760291e253150a7ecc831c2956229",
+    "sha256": "0nif0a2pv5wgyjhfqd8jmlc055y0604xmqfnnr2hfrzz0blpl4ww",
     "type": "github",
-    "sha256": "1h9rmyg62ksn127fg0k4yzyifjy4ffvanhs18ibvhsfr9biadi0j",
-    "rev": "a49ce0e9edcd717ce6e66041aabd656c02903904"
+    "url": "https://github.com/rycee/home-manager"
+  },
+  "hosts": {
+    "branch": "master",
+    "date": "2020-07-23T10:05:43-04:00",
+    "deepClone": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "StevenBlack",
+    "path": "/nix/store/m51v0sqbwk81xq0rf7za4vqx6vacx1d9-hosts",
+    "repo": "hosts",
+    "rev": "58b36a7e018e94b4cbc7a98693b3ae6919846a9a",
+    "sha256": "1dsz3m8bvh31xmp4mmx29vgflmfwrja9nmmshhrpwh9wd2yp3avg",
+    "type": "github",
+    "url": "https://github.com/StevenBlack/hosts"
+  },
+  "nixpkgs-1703": {
+    "branch": "nixos-17.03",
+    "date": "2018-01-06T11:26:51+00:00",
+    "deepClone": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "nixos",
+    "path": "/nix/store/lhwzxaz7aax3sf2daqkvv9ljxn0sx6cg-nixpkgs-channels",
+    "repo": "nixpkgs-channels",
+    "rev": "78e9665b48ff45d3e29f45b3ebeb6fc6c6e19922",
+    "sha256": "09f50jaijvry9lrnx891qmcf92yb8qs64n1cvy0db2yjrmxsxyw8",
+    "type": "github",
+    "url": "https://github.com/nixos/nixpkgs-channels"
+  },
+  "nixpkgs-2003": {
+    "branch": "nixos-20.03",
+    "date": "2020-07-22T19:52:47-04:00",
+    "deepClone": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "nixos",
+    "path": "/nix/store/w9yxw5ywycyayg0dhqinj30fmi4wsin6-nixpkgs-channels",
+    "repo": "nixpkgs-channels",
+    "rev": "1975b8687474764c157e6a220fdcad2c5dc348a1",
+    "sha256": "10klbwcfn1x7qbbwajg5nji2d3hw65bjawza59w2cw8pb889bg5z",
+    "type": "github",
+    "url": "https://github.com/nixos/nixpkgs-channels"
   }
 }
