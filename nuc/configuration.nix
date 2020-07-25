@@ -66,37 +66,43 @@ in
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    bashmount
-    coreutils
-    feh
-    jq
-    lsof
-    mplayer
-    youtube-dl
-    nixUnstable
-    nix-index
-    parallel
-    pciutils
-    pmutils
-    psmisc
-    pv
-    rlwrap
-    rsync
-    stack
-    tigervnc
-    tree
-    unrar
-    unzip
-    which
-    xclip
-    zathura
-    zip
-    zsh
+  environment = {
+    variables = {
+      EDITOR = "${pkgs.vim}/bin/vim";
+    };
 
-    vim
-    wget
-  ];
+    systemPackages = with pkgs; [
+      bashmount
+      coreutils
+      feh
+      jq
+      lsof
+      mplayer
+      youtube-dl
+      nixUnstable
+      nix-index
+      parallel
+      pciutils
+      pmutils
+      psmisc
+      pv
+      rlwrap
+      rsync
+      stack
+      tigervnc
+      tree
+      unrar
+      unzip
+      which
+      xclip
+      zathura
+      zip
+      zsh
+
+      vim
+      wget
+    ];
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedUDPPorts = [ ... ];
