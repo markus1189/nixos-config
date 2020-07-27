@@ -34,6 +34,11 @@
     keynav.enable = true;
 
     dunst = (pkgs.callPackage ./dunst/default.nix {}).value;
+
+    remind = {
+      enable = true;
+      remindCommand = "${pkgs.notifySendTelegram}/bin/notifySendTelegram %s";
+    };
   };
 
   fonts = {

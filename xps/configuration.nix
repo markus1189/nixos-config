@@ -13,7 +13,7 @@ let
   secrets = import ../nixos-shared/secrets.nix;
   nivSources = import ../niv/nix/sources.nix;
   ndtSources = import ../ndt/sources.nix {};
-  homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
+  homeManager = /home/markus/repos/clones/home-manager/nixos/default.nix;
 in
 rec {
   imports =
