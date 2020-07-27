@@ -36,7 +36,7 @@
     dunst = (pkgs.callPackage ./dunst/default.nix {}).value;
 
     remind = {
-      enable = true;
+      enable = false;
       remindCommand = "${pkgs.notifySendTelegram}/bin/notifySendTelegram %s";
       remindFile = "${config.home.homeDirectory}/.reminders";
     };
