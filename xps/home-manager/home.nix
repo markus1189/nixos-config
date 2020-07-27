@@ -1,4 +1,4 @@
-{ pkgs, ...}:
+{ config, pkgs, ...}:
 
 {
   home = {
@@ -38,6 +38,7 @@
     remind = {
       enable = true;
       remindCommand = "${pkgs.notifySendTelegram}/bin/notifySendTelegram %s";
+      remindFile = "${config.home.homeDirectory}/.reminders";
     };
   };
 
