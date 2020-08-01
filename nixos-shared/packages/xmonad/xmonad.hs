@@ -217,7 +217,7 @@ myKeys =
     ((myModKey, xK_minus), sendMessage Shrink),
     ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
-    ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu)"),
+    ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     ((myModKey, xK_e), swapNextScreen),
