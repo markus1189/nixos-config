@@ -6,6 +6,7 @@
 
 let
   userName = "mediacenter";
+  wirelessInterface = "wlp58s0";
 in
 {
   imports =
@@ -35,14 +36,9 @@ in
 
   networking = {
     hostName = "nuc";
-    wireless = {
-      enable = true;
-      userControlled.enable = true;
-      interfaces = [ "wlp58s0" ];
-    };
 
     supplicant = {
-      "${pkgs.lib.concatStringsSep " " config.networking.wireless.interfaces}" = {
+      "${wirelessInterface}" = {
         configFile.path = "/etc/wpa_supplicant.conf";
       };
     };

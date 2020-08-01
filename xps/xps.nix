@@ -2,7 +2,7 @@
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-  wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
+  wirelessInterface = "wlp2s0";
 in
 {
   boot = {
@@ -34,10 +34,6 @@ in
 
   networking = rec {
     hostName = "nixos-xps";
-
-    wireless = {
-      interfaces = [ "wlp2s0" ];
-    };
 
     supplicant = {
       "${wirelessInterface}" = {
