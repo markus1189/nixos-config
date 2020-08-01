@@ -80,11 +80,6 @@ rec {
   };
 
   networking = {
-    wireless = {
-      enable = true;
-      userControlled.enable = true;
-    };
-
     extraHosts = ''
       127.0.0.1 ${config.networking.hostName}
     '';

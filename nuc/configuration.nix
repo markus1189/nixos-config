@@ -41,6 +41,12 @@ in
       interfaces = [ "wlp58s0" ];
     };
 
+    supplicant = {
+      "${pkgs.lib.concatStringsSep " " config.networking.wireless.interfaces}" = {
+        configFile.path = "/etc/wpa_supplicant.conf";
+      };
+    };
+
     extraHosts = ''
       127.0.0.1 ${config.networking.hostName}
     '';

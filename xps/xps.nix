@@ -38,6 +38,12 @@ in
     wireless = {
       interfaces = [ "wlp2s0" ];
     };
+
+    supplicant = {
+      "${wirelessInterface}" = {
+        configFile.path = "/etc/wpa_supplicant.conf";
+      };
+    };
   };
 
   hardware = {
