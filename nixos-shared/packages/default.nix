@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  wirelessInterface = pkgs.lib.head config.networking.wireless.interfaces;
   secrets = import ../secrets.nix;
   ndtSources = import ../../ndt/sources.nix {};
 in
@@ -32,7 +31,7 @@ in
           xmonad = callPackage ./xmonad {
             inherit mutate;
             inherit (myScripts) autoMonitorConfig bukuRun;
-            chooseNetwork = myScripts.chooseNetwork wirelessInterface;
+            chooseNetwork = myScripts.chooseNetwork config.lib._custom_.wirelessInterface;
           };
           xmobarLower = xmobars.lower;
           xmobarUpper = xmobars.upper;

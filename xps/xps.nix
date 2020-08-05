@@ -2,9 +2,14 @@
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-  wirelessInterface = "wlp2s0";
 in
 {
+  lib = {
+    _custom_ = {
+      wirelessInterface = "wlp2s0";
+    };
+  };
+
   boot = {
     kernelParams = [
       "acpi_backlight=vendor"
@@ -28,7 +33,7 @@ in
 
   environment = {
     shellAliases = (with pkgs; {
-      wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${wirelessInterface}";
+      wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
     });
   };
 
@@ -36,7 +41,7 @@ in
     hostName = "nixos-xps";
 
     supplicant = {
-      "${wirelessInterface}" = {
+      "${config.lib._custom_.wirelessInterface}" = {
         configFile.path = "/etc/wpa_supplicant.conf";
       };
     };
