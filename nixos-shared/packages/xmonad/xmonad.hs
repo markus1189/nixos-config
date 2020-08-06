@@ -237,7 +237,7 @@ myKeys =
     ((myModKey, xK_F1), spawn "@singlehead@/bin/singlehead"),
     ((myModKey, xK_F2), spawn "@autoMonitorConfig@/bin/autoMonitorConfig"),
     ((myModKey, xK_F11), spawn "~/bin/f11"),
-    ((myModKey, xK_F12), spawn "@takeScreenshot@/bin/takeScreenshot"),
+    ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
     ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
     -- Spotify client
