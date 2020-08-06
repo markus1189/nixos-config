@@ -23,6 +23,13 @@
   };
 
   programs = {
+    direnv = {
+      enable = true;
+      enableBashIntegration = true;
+      enableNixDirenvIntegration = true;
+      enableZshIntegration = true;
+    };
+
     firefox.enable = true;
 
     git = (pkgs.callPackage ./git/default.nix {}).value;
