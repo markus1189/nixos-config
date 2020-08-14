@@ -1,12 +1,6 @@
 { config, pkgs, ... }:
 
 let
-  wallpapers = {
-    cc = pkgs.fetchurl {
-      url = "https://www.dropbox.com/s/hoy6xdgnudwy64g/codecentric.jpg?dl=1";
-      sha256 = "0z8ia5gv1r3brr7a2cc3sv0ffi0vqdmwj85b404702v7sb7f2d1k";
-    };
-  };
   userName = "markus";
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
   custom = import ../nixos-shared/custom.nix;
@@ -163,7 +157,7 @@ rec {
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr
-          ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${wallpapers.cc} &
+          ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${pkgs.markus-wallpapers.cc} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
           ${pkgs.parcellite}/bin/parcellite &
           ${pkgs.xcape}/bin/xcape -t 200 -e 'Caps_Lock=Escape'

@@ -3,6 +3,7 @@
 , coreutils
 , dragon-drop
 , emacs
+, feh
 , findutils
 , firefox
 , gawk
@@ -16,6 +17,7 @@
 , less
 , lib,  git
 , libnotify
+, markus-wallpapers
 , nixos-artwork
 , oathToolkit
 , playerctl
@@ -221,9 +223,49 @@ rec {
            --output DP2 --off
   '';
 
+  widePbpRight = writeXrandrScript {
+    name = "widePbpRight";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
+    xrandr --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal \
+           --output DP1 --off \
+           --output DP2 --off \
+           --output HDMI1 --mode 1920x1600 --pos 0x0 --rotate normal \
+           --output HDMI2 --off \
+           --output VIRTUAL1 --off
+  '';
+
+  widePbpBoth = writeXrandrScript {
+    name = "widePbpBoth";
+    deps = [ xorg.xrandr libnotify feh ];
+  } ''
+    xrandr --output eDP1 --off \
+           --output DP1 --off \
+           --output DP2 --primary --mode 1920x1600 --pos 0x0 --rotate normal \
+           --output HDMI1 --mode 1920x1600 --pos 1920x0 --rotate normal \
+           --output HDMI2 --off \
+           --output VIRTUAL1 --off
+
+    feh --no-fehbg --bg-fill ${markus-wallpapers.shrike-rape-10x8-flipped} ${markus-wallpapers.shrike-rape-10x8} &
+  '';
+
+  wideUltra = writeXrandrScript {
+    name = "wideUltra";
+    deps = [ xorg.xrandr libnotify feh ];
+  } ''
+    xrandr --output eDP1 --off \
+           --output DP1 --off \
+           --output DP2 --primary --mode 3840x1600 --pos 0x0 --rotate normal \
+           --output HDMI1 --off \
+           --output HDMI2 --off \
+           --output VIRTUAL1 --off
+
+    feh --no-fehbg --bg-fill ${markus-wallpapers.shrike-rape-21x9} &
+  '';
+
   autoMonitorConfig = writeShellScript {
     name = "autoMonitorConfig";
-    pure = false; # to get multiheadBreuninger
+    pure = true;
     deps = [ wpa_supplicant gnugrep libnotify coreutils multihead4k multihead4khdmi ];
   } ''
     CURRENT="$(wpa_cli -i wlp2s0 status | grep '^ssid' | cut -d'=' -f 2)"
@@ -237,17 +279,8 @@ rec {
         "cc-wlan")
             multihead4k
             ;;
-        "EB-Mobile")
-            multiheadBreuninger
-            ;;
-        "MOIA-guest")
-            multihead4khdmi
-            ;;
-        "MOIA-intern")
-            multihead4khdmi
-            ;;
         "Our FRITZ Box")
-            ${asusRight}/bin/asusRight
+            ${widePbpBoth}/bin/widePbpBoth || ${widePbpRight}/bin/widePbpRight || ${wideUltra}/bin/wideUltra
             ;;
         *)
             echo "Unknown network: ''${CURRENT}" > /dev/stderr
