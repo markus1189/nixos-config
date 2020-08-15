@@ -175,7 +175,7 @@ rec {
 
   singlehead = writeXrandrScript {
     name = "singlehead";
-    deps = [ xorg.xrandr libnotify ];
+    deps = [ xorg.xrandr libnotify feh ];
   } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --mode 1920x1080 --pos 0x0 --rotate normal \
@@ -185,6 +185,8 @@ rec {
            --output HDMI1 --off \
            --output VGA2 --off \
            --output DP2 --off
+
+    feh --no-fehbg --bg-fill ${markus-wallpapers.cc} &
   '';
 
   asusRight = writeXrandrScript {
@@ -253,9 +255,9 @@ rec {
     name = "wideUltra";
     deps = [ xorg.xrandr libnotify feh ];
   } ''
-    xrandr --output eDP1 --off \
-           --output DP1 --off \
-           --output DP2 --primary --mode 3840x1600 --pos 0x0 --rotate normal \
+    xrandr --output eDP1 --mode 1920x1080 --pos 3840x0 --rotate normal \
+           --output DP1 --primary --mode 3840x1600 --pos 0x0 --rotate normal \
+           --output DP2 --off \
            --output HDMI1 --off \
            --output HDMI2 --off \
            --output VIRTUAL1 --off
