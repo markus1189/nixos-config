@@ -1,6 +1,5 @@
-let builder = configuration: (import <nixpkgs/nixos> { inherit configuration; }).system; in
+let
+  builder = configuration:
+    (import <nixpkgs/nixos> { inherit configuration; }).system;
 
-map builder [
-  ./xps/configuration.nix
-  ./nuc/configuration.nix
-]
+in map builder [ ./xps/configuration.nix ./nuc/configuration.nix ]
