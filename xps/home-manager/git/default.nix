@@ -107,6 +107,11 @@ in
         autocorrect = 1;
       };
 
+      pull = {
+        rebase = true;
+        ff = "only";
+      };
+
       push = {
         default = "tracking";
       };
