@@ -24,6 +24,10 @@ userName:
       enable = false;
     };
 
+    tailscale = {
+      enable = true;
+    };
+
     xserver = {
       layout = "us";
       xkbVariant = "altgr-intl";
