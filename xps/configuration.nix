@@ -110,6 +110,10 @@ rec {
   };
 
   services = {
+    tailscale = {
+      enable = true;
+    };
+
     offlineimap.enable = false;
 
     upower.enable = true;
