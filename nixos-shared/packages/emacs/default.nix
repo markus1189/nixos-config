@@ -32,6 +32,7 @@ in
     direnv
     dockerfile-mode
     docker
+    dumb-jump
     dyalog-mode
     evil-numbers
     expand-region

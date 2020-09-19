@@ -1249,4 +1249,10 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :bind
   ("C-c C-r" . format-all-buffer))
+
+(use-package dumb-jump
+  :config (setq dumb-jump-selector 'helm)
+  :init
+  (dumb-jump-mode)
+  :ensure t)
 ;;;
