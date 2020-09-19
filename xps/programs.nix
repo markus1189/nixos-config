@@ -137,12 +137,11 @@ in
       spotify
       sshfs
       sqlite
-      # slack
+      slack
       sysdig
       system-config-printer
       tcpdump
       tdesktop
-      teamspeak_client
       terminator
       testdisk
       #tigervnc
@@ -228,10 +227,6 @@ in
       go2nix
       dep2nix
       godef
-    ] ++ [ # web2nix
-      (gmail 0)
-      (gmail 1)
-      teamboard-abschluss
     ];
   };
 }
