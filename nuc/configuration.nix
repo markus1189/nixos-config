@@ -53,6 +53,7 @@ in
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
+    overlays = (import ../nixos-shared/shared-overlays.nix).overlays;
     config = {
       allowUnfree = true;
     };
