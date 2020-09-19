@@ -6,6 +6,7 @@
       pkgs.source-code-pro
       pkgs.dunst
       pkgs.ndt
+      pkgs.haskellPackages.brittany
     ];
 
     file = {
