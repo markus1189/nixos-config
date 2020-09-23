@@ -1,6 +1,7 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
-{
+let secrets = import ../../nixos-shared/secrets.nix;
+in {
   home = {
     packages = [
       pkgs.source-code-pro
@@ -11,7 +12,7 @@
 
     file = {
       "keynavrc" = {
-        source = pkgs.callPackage ./keynav {};
+        source = pkgs.callPackage ./keynav { };
         target = ".keynavrc";
       };
     };
@@ -35,16 +36,18 @@
 
     firefox.enable = true;
 
-    git = (pkgs.callPackage ./git/default.nix {}).value;
+    git = (pkgs.callPackage ./git/default.nix { }).value;
 
-    vim = (pkgs.callPackage ./vim/default.nix {}).value;
+    newsboat = (pkgs.callPackage ./newsboat/default.nix { inherit secrets; }).value;
+
+    vim = (pkgs.callPackage ./vim/default.nix { }).value;
   };
 
   services = {
     keynav.enable = true;
     flameshot.enable = true;
 
-    dunst = (pkgs.callPackage ./dunst/default.nix {}).value;
+    dunst = (pkgs.callPackage ./dunst/default.nix { }).value;
 
     # remind = {
     #   enable = false;
@@ -53,9 +56,5 @@
     # };
   };
 
-  fonts = {
-    fontconfig = {
-      enable = true;
-    };
-  };
+  fonts = { fontconfig = { enable = true; }; };
 }
