@@ -1,8 +1,6 @@
-let dummy = "just-a-dummy-value"; in
-  {
-  x11vnc = {
-    password = dummy;
-  };
+let dummy = "just-a-dummy-value";
+in {
+  x11vnc = { password = dummy; };
 
   googlepw = dummy;
 
@@ -18,4 +16,9 @@ let dummy = "just-a-dummy-value"; in
   pushBulletToken = dummy;
 
   telegramBotToken = dummy;
+
+  pocket = {
+    access_token = dummy;
+    consumer_key = dummy;
+  };
 }
