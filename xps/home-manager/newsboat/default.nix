@@ -13,7 +13,7 @@ let
         curl -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}")"
     }
 
-    main "$*"
+    main "$1"
   '';
 in {
   value = {
