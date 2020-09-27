@@ -73,7 +73,12 @@ EOF
     script_pocket_access_token=${secrets.pocket.access_token}
 
     main() {
-        ${curl}/bin/curl -s -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}")"
+      unset c
+      until ${curl}/bin/curl -s --fail -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}")"; do
+        ((c++)) && ((c==4)) && break
+        sleep 1
+      done
+      unset c
     }
 
     main "$1"
