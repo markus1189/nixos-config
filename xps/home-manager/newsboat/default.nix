@@ -2,47 +2,47 @@
 
 let
   jsonToRssScript = writeScript "json-to-rss" ''
-    # Expects the following format:
+        # Expects the following format:
 
-    # [
-    #   {
-    #     "pubDate": "",
-    #     "title": "",
-    #     "link": "",
-    #     "description": ""
-    #   }
-    # ]
+        # [
+        #   {
+        #     "pubDate": "",
+        #     "title": "",
+        #     "link": "",
+        #     "description": ""
+        #   }
+        # ]
 
-    TITLE="''${1:?no-title-given}"
-    DESCRIPTION="''${2:?no-description-given}"
-    LINK="''${3:?no-link-given}"
+        TITLE="''${1:?no-title-given}"
+        DESCRIPTION="''${2:?no-description-given}"
+        LINK="''${3:?no-link-given}"
 
-    cat <<EOF
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-<title>$TITLE</title>
-<description>$DESCRIPTION</description>
-<link>$LINK</link>
+        cat <<EOF
+    <?xml version="1.0" encoding="utf-8"?>
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+    <title>$TITLE</title>
+    <description>$DESCRIPTION</description>
+    <link>$LINK</link>
 
-$(
-  ${jq}/bin/jq -r 'map([
-    "<item>",
-    "<title>\(.title)</title>",
-    "<link>\(.link)</link>",
-    "<guid>\(.link)</guid>",
-    "<pubDate>\(.pubDate)</pubDate>",
-    "</item>"
-  ] | join("\n")) | join("\n")'
-)
+    $(
+      ${jq}/bin/jq -r 'map([
+        "<item>",
+        "<title>\(.title)</title>",
+        "<link>\(.link)</link>",
+        "<guid>\(.link)</guid>",
+        "<pubDate>\(.pubDate)</pubDate>",
+        "</item>"
+      ] | join("\n")) | join("\n")'
+    )
 
-</channel>
-</rss>
-EOF
-  '';
+    </channel>
+    </rss>
+    EOF
+      '';
   scrapeHgonScript = writeScript "scrape-hgon.sh" ''
     getItems() {
-        ${curl}/bin/curl -s --fail https://www.hgon.de/entdecken/ | ${pup}/bin/pup '.main__content .main__content article json{}'
+        ${pup}/bin/pup '.main__content .main__content article json{}'
     }
 
     buildItems() {
@@ -53,7 +53,7 @@ EOF
   '';
   scrapeErlebnisHessen = writeScript "scrape-erlebnis-hessen.sh" ''
     getItems() {
-        ${curl}/bin/curl -s --fail 'https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html' | ${pup}/bin/pup '.c-teaser__headlineLink json{}'
+        ${pup}/bin/pup '.c-teaser__headlineLink json{}'
     }
 
     buildItems() {
@@ -64,9 +64,10 @@ EOF
   '';
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
-  urlExecs = [
-    "exec:${scrapeHgonScript}"
-    "exec:${scrapeErlebnisHessen}"
+  urlExecs = [ ];
+  urlFilters = [
+    "filter:${scrapeHgonScript}:https://www.hgon.de/entdecken/"
+    "filter:${scrapeErlebnisHessen}:https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
   ];
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     script_pocket_consumer_key=${secrets.pocket.consumer_key}
@@ -88,7 +89,13 @@ in {
     enable = true;
     autoReload = true;
     reloadTime = 10;
-    urls = map (url: { inherit url; }) urlLines ++ map (url: { inherit url; tags = ["execurl"]; }) urlExecs;
+    urls = map (url: { inherit url; }) urlLines ++ map (url: {
+      inherit url;
+      tags = [ "execurl" ];
+    }) urlExecs ++ map (url: {
+      inherit url;
+      tags = [ "filter" ];
+    }) urlFilters;
     extraConfig = ''
       cleanup-on-quit no
       delete-read-articles-on-quit no
