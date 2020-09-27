@@ -51,10 +51,22 @@ EOF
 
     getItems | buildItems | ${jsonToRssScript} "HGON Entdecken (Manual Scrape)" "Manual scrape of HGON news" "https://www.hgon.de/entdecken"
   '';
+  scrapeErlebnisHessen = writeScript "scrape-erlebnis-hessen.sh" ''
+    getItems() {
+        ${curl}/bin/curl -s --fail 'https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html' | ${pup}/bin/pup '.c-teaser__headlineLink json{}'
+    }
+
+    buildItems() {
+        ${jq}/bin/jq 'map({link: .href, title: [.. | select(.tag? == "span" and (.class? | contains("c-teaser"))) | .. | .text?] | join(" - "), pubDate: .. | select(.datetime?) | .datetime | strptime("%Y-%m-%dT%H:%M+0200") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: ""})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript} "Erlebnis Hessen (Manual Scrape)" "Manual scrape of Erlebnis Hessen" "https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
+  '';
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlExecs = [
     "exec:${scrapeHgonScript}"
+    "exec:${scrapeErlebnisHessen}"
   ];
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     script_pocket_consumer_key=${secrets.pocket.consumer_key}
@@ -71,7 +83,7 @@ in {
     enable = true;
     autoReload = true;
     reloadTime = 10;
-    urls = map (url: { inherit url; }) (urlLines ++ urlExecs);
+    urls = map (url: { inherit url; }) urlLines ++ map (url: { inherit url; tags = ["execurl"]; }) urlExecs;
     extraConfig = ''
       cleanup-on-quit no
       delete-read-articles-on-quit no
