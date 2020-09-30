@@ -33,7 +33,7 @@ rec {
       ./programs.nix
       ./xps.nix
       homeManager
-      (import ./home-manager/module.nix userName)
+      (import ../nixos-shared/home-manager/module.nix {inherit userName; homeNixFile = ./home.nix; })
       (import ./syncthing.nix userName)
     ];
 

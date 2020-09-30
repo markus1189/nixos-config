@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 
-let secrets = import ../../nixos-shared/secrets.nix;
+let secrets = import ../nixos-shared/secrets.nix;
 in {
   home = {
     packages = [
@@ -12,7 +12,7 @@ in {
 
     file = {
       "keynavrc" = {
-        source = pkgs.callPackage ./keynav { };
+        source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
         target = ".keynavrc";
       };
     };
@@ -36,24 +36,19 @@ in {
 
     firefox.enable = true;
 
-    git = (pkgs.callPackage ./git/default.nix { }).value;
+    git = (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
 
-    newsboat = (pkgs.callPackage ./newsboat/default.nix { inherit secrets; }).value;
+    newsboat = (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix { inherit secrets; }).value;
 
-    vim = (pkgs.callPackage ./vim/default.nix { }).value;
+    vim = (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
   };
 
   services = {
     keynav.enable = true;
     flameshot.enable = true;
 
-    dunst = (pkgs.callPackage ./dunst/default.nix { }).value;
+    dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix { }).value;
 
-    # remind = {
-    #   enable = false;
-    #   remindCommand = "${pkgs.notifySendTelegram}/bin/notifySendTelegram %s";
-    #   remindFile = "${config.home.homeDirectory}/.reminders";
-    # };
   };
 
   fonts = { fontconfig = { enable = true; }; };
