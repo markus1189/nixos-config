@@ -40,6 +40,17 @@ let
     </rss>
     EOF
       '';
+  scrapeTaunusNachrichtenUmwelt = writeScript "scrape-taunus-nachrichten-umwelt.sh" ''
+    getItems() {
+        ${pup}/bin/pup '.views-row json{}'
+    }
+
+    buildItems() {
+        ${jq}/bin/jq 'map({title: .. | select(try .class == "title") | .children[0].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "title") | .children[0] | .href)", pubDate: .. | select(try .class == "timestamp") | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class == "teaser") | .children | map(.text) | join(" ")})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
+  '';
   scrapeHgonScript = writeScript "scrape-hgon.sh" ''
     getItems() {
         ${pup}/bin/pup '.main__content .main__content article json{}'
@@ -68,6 +79,7 @@ let
   urlFilters = [
     "filter:${scrapeHgonScript}:https://www.hgon.de/entdecken/"
     "filter:${scrapeErlebnisHessen}:https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
+    "filter:${scrapeTaunusNachrichtenUmwelt}:https://www.taunus-nachrichten.de/nachrichten/umwelt"
   ];
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     script_pocket_consumer_key=${secrets.pocket.consumer_key}
