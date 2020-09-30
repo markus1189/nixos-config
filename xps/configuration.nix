@@ -5,7 +5,6 @@ let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
   custom = import ../nixos-shared/custom.nix;
   secrets = import ../nixos-shared/secrets.nix;
-  nivSources = import ../niv/nix/sources.nix;
   ndtSources = import ../ndt/sources.nix {};
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
