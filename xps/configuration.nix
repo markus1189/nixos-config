@@ -230,10 +230,12 @@ rec {
   hardware = {
     pulseaudio = {
       enable = true;
+      package = pkgs.pulseaudioFull;
       support32Bit = true;
       extraConfig = ''
         load-module module-switch-on-connect
       '';
+      extraModules = [ pkgs.pulseaudio-modules-bt ];
     };
 
     opengl.driSupport32Bit = true;
