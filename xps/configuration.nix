@@ -29,6 +29,7 @@ rec {
       ./keybase.nix
       ./lastpass.nix
       ./low-battery.nix
+      ./mopidy.nix
       ./programs.nix
       ./xps.nix
       homeManager
