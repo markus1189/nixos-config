@@ -210,49 +210,61 @@ myRemovedKeys =
 
 myKeys :: [((ButtonMask, KeySym), X ())]
 myKeys =
-  [ ((myModKey, xK_BackSpace), focusUrgent),
-    ((myModKey, xK_Tab), toggleWS' ["NSP"]),
-    ((myModKey, xK_Return), sendMessage $ Toggle FULL),
-    ((myModKey, xK_equal), sendMessage Expand),
-    ((myModKey, xK_minus), sendMessage Shrink),
-    ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
-    ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
-    ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
-    ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
-    ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
-    ((myModKey, xK_e), swapNextScreen),
-    ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory"),
-    ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse"),
-    ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse"),
-    ((myModShift, xK_w), shiftNextScreen),
-    ((myModCtrl, xK_Return), windows W.swapMaster),
-    ((myModShift, xK_l), scratchTermLower),
-    ((myModShift, xK_o), scratchTermRight),
-    ((myModShift, xK_u), scratchTermUpper),
-    ((myModShift, xK_q), kill1),
-    ((myModShift, xK_t), withFocused $ windows . W.sink),
-    ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
-    ((myModShift, xK_BackSpace), clearUrgents),
-    ((myModCtrl, xK_BackSpace), spawn "@centerMouse@/bin/centerMouse"),
-    ((myModKey, xK_F1), spawn "@singlehead@/bin/singlehead"),
-    ((myModKey, xK_F2), spawn "@autoMonitorConfig@/bin/autoMonitorConfig"),
-    ((myModKey, xK_F11), spawn "~/bin/f11"),
-    ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
-    ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
-    ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
-    -- Spotify client
-    ((myModCtrl, xK_F4), spawn "@playerctl@/bin/playerctl previous"),
-    ((myModCtrl, xK_F5), spawn "@playerctl@/bin/playerctl play-pause"),
-    ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer"),
-    ((myModCtrl, xK_F6), spawn "@playerctl@/bin/playerctl next"),
-    ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu"),
-    ((myModShiftCtrl, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'mfa:@mfaHelper@/bin/mfaHelper' -show mfa")
+  [ ((myModKey, xK_BackSpace), focusUrgent)
+  , ((myModKey, xK_Tab), toggleWS' ["NSP"])
+  , ((myModKey, xK_Return), sendMessage $ Toggle FULL)
+  , ((myModKey, xK_equal), sendMessage Expand)
+  , ((myModKey, xK_minus), sendMessage Shrink)
+  , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
+  , ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run")
+  , ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)")
+  , ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun")
+  , ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset")
+  , ((myModKey, xK_e), swapNextScreen)
+  , ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory")
+  , ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse")
+  , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
+  , ((myModShift, xK_w), shiftNextScreen)
+  , ((myModCtrl, xK_Return), windows W.swapMaster)
+  , ((myModShift, xK_l), scratchTermLower)
+  , ((myModShift, xK_o), scratchTermRight)
+  , ((myModShift, xK_u), scratchTermUpper)
+  , ((myModShift, xK_q), kill1)
+  , ((myModShift, xK_t), withFocused $ windows . W.sink)
+  , ((myModShift, xK_x), spawn "@xkill@/bin/xkill")
+  , ((myModShift, xK_BackSpace), clearUrgents)
+  , ((myModCtrl, xK_BackSpace), spawn "@centerMouse@/bin/centerMouse")
+  , ((myModKey, xK_F1), spawn "@singlehead@/bin/singlehead")
+  , ((myModKey, xK_F2), spawn "@autoMonitorConfig@/bin/autoMonitorConfig")
+  , ((myModKey, xK_F11), spawn "~/bin/f11")
+  , ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui") -- NOTE: requires flameshot service to be active (nixos or home-manager)
+  , ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen")
+  , ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere")
+  , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
+  , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu")
+  , ((myModShiftCtrl, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'mfa:@mfaHelper@/bin/mfaHelper' -show mfa")
+    -- Multimedia via Bose
+  ,  ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause")
+  ,  ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous")
+  ,  ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
+  ,  ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
+  ,  ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
+  ,  ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2")
+  ,  ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
   ]
   where
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
     scratchTermRight = namedScratchpadAction myScratchPads "right"
-    scratchTermVolume = namedScratchpadAction myScratchPads "volume"
+    xF86AudioLowerVolume = 0x1008ff11
+    xF86AudioMute = 0x1008ff12
+    xF86AudioRaiseVolume = 0x1008ff13
+    xF86AudioPlay = 0x1008ff14
+    xF86AudioStop = 0x1008ff15
+    xF86AudioPrev = 0x1008ff16
+    xF86AudioNext = 0x1008ff17
+    xF86AudioForward = 0x1008ff97
+    xF86AudioRewind = 0x1008ff3e
 
 myModKey :: ButtonMask
 myModKey = mod4Mask

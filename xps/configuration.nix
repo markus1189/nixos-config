@@ -239,6 +239,8 @@ rec {
     };
 
     opengl.driSupport32Bit = true;
+
+    uinput.enable = true; # For Multimedia buttons on QuietComfort
   };
 
   sound = {
