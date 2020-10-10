@@ -1,4 +1,5 @@
 { buku
+, cacert
 , curl
 , coreutils
 , dragon-drop
@@ -508,6 +509,7 @@ rec {
     pure = true;
   } ''
     curl --silent --fail \
+     --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
      --header 'Access-Token: ${pushBulletToken}' \
      --header 'Content-Type: application/json' \
      --data-binary "$(jo -- -s type=note -s title="''${1:-no-title}" -s body="''${2:-no-body}")" \
@@ -517,11 +519,12 @@ rec {
 
   notifySendTelegram = botToken: writeShellScript {
     name = "notifySendTelegram";
-    deps = [ curl jo ];
+    deps = [ curl jo cacert ];
     pure = true;
   } ''
     MESSAGE=''${1:?"Error: no message given!"}
     curl --silent --fail -XPOST \
+     --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
       -H 'Content-Type: application/json' \
       -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
       --url "https://api.telegram.org/bot${botToken}/sendMessage"
@@ -557,6 +560,7 @@ rec {
         echo "Uploading" > /dev/stderr
 
         curl --silent --fail -XPOST \
+                --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
                 --url "https://api.telegram.org/bot${botToken}/sendMediaGroup" \
                 -F chat_id=299952716 \
                 -F media="$(buildArray "$@")" \
@@ -672,13 +676,6 @@ rec {
     main
   '';
 
-
-  sendIpAddr = botToken: writeShellScript {
-    name = "sendIpAddr";
-    deps = [ curl (notifySendTelegram botToken) jq ];
-  } ''
-   notifySendTelegram "IP from ''${USER}@''${HOST}: $(curl -s https://httpbin.org/ip | jq -r .origin)" > /dev/null
-  '';
 
   logArgs = writeShellScript {
     name = "log-args";
