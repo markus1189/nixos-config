@@ -40,17 +40,18 @@ let
     </rss>
     EOF
       '';
-  scrapeTaunusNachrichtenUmwelt = writeScript "scrape-taunus-nachrichten-umwelt.sh" ''
-    getItems() {
-        ${pup}/bin/pup '.views-row json{}'
-    }
+  scrapeTaunusNachrichtenUmwelt =
+    writeScript "scrape-taunus-nachrichten-umwelt.sh" ''
+      getItems() {
+          ${pup}/bin/pup '.views-row json{}'
+      }
 
-    buildItems() {
-        ${jq}/bin/jq 'map({title: .. | select(try .class == "title") | .children[0].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "title") | .children[0] | .href)", pubDate: .. | select(try .class == "timestamp") | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class == "teaser") | .children | map(.text) | join(" ")})'
-    }
+      buildItems() {
+          ${jq}/bin/jq 'map({title: .. | select(try .class == "title") | .children[0].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "title") | .children[0] | .href)", pubDate: .. | select(try .class == "timestamp") | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class == "teaser") | .children | map(.text) | join(" ")})'
+      }
 
-    getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
-  '';
+      getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
+    '';
   scrapeHgonScript = writeScript "scrape-hgon.sh" ''
     getItems() {
         ${pup}/bin/pup '.main__content .main__content article json{}'
@@ -96,12 +97,19 @@ let
 
     main "$1"
   '';
+  tagFromInfix = infix: tags: url: lib.optionals (lib.strings.hasInfix infix url) tags;
+  tagYoutube = tagFromInfix "youtube.com" [ "youtube" "!hide" ];
+  tagReddit = tagFromInfix "reddit.com" [ "reddit" ];
+  tagify = url: tagYoutube url ++ tagReddit url;
 in {
   value = {
     enable = true;
     autoReload = true;
     reloadTime = 10;
-    urls = map (url: { inherit url; }) urlLines ++ map (url: {
+    urls = map (url: {
+      inherit url;
+      tags = tagify url;
+    }) urlLines ++ map (url: {
       inherit url;
       tags = [ "execurl" ];
     }) urlExecs ++ map (url: {
