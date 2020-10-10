@@ -287,6 +287,10 @@ rec {
       mkcd() {
         mkdir -p $1 && cd $1
       }
+
+      clone() {
+          cd ~/repos/clones && git clone "$1" && cd "$(basename "$1" .git)"
+      }
     '';
 
     shellAliases = (with pkgs; {
@@ -299,7 +303,6 @@ rec {
       FF = "${emacs}/bin/emacsclient -n";
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
-      clone = "cd ~/repos/clones; git clone";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
     });
 
