@@ -1,3 +1,4 @@
+"query:Youtube Videos:tags # \"youtube\""
 https://www.youtube.com/feeds/videos.xml?channel_id=UCl_5s2WDFi38LiXUQA7CTWQ
 https://rssbox.herokuapp.com/twitter/155969573/HGON_eV?exclude_replies=1&with_media=1
 https://blog.poisson.chat/rss.xml
@@ -10,7 +11,6 @@ http://www.bird-lens.com/rss
 http://www.thecramped.com/feed/
 https://blog.sudo.ws/index.xml
 https://fliek.com/blog/rss
-https://circleci.com/gh/moia-dev/partner-api-tests/1689
 https://www.mountainofink.com/?format=rss
 https://blog.stephsmith.io/rss/
 https://fountainpenlove.com/rss
@@ -127,3 +127,16 @@ http://us2.campaign-archive1.com/feed?u=ba834c562d82d9aba5eaf90ba&id=32cef9ab4e
 http://lethalman.blogspot.com/feeds/posts/default/-/nixpills
 https://begriffs.com/atom.xml
 https://journal-lokal.de/category/hessen/rss
+https://www.augenblicke-eingefangen.de/blog/?sRss=1
+https://www.youtube.com/feeds/videos.xml?channel_id=UCMYHM19nuv892Qo8ZlLvUaw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCYzMdQa5aD6dnKHLdBxDMkw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCzbbkYQUqeGNKSRwoyWB9IA
+https://www.youtube.com/feeds/videos.xml?channel_id=UCKq3tXnvXnA0feJYmOx9MPw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCDIr0UgrBJ3lGfs0eeKV6Tw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCJV7ONWjegVFOlHpAGgjGMQ
+https://www.youtube.com/feeds/videos.xml?channel_id=UCI1aF4MNqSzKIS2t0KHS1gw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCimiUgDLbi6P17BdaCZpVbg
+https://www.youtube.com/feeds/videos.xml?channel_id=UCyGYUrC2IvaHWoX6dwEsrMA
+https://www.youtube.com/feeds/videos.xml?channel_id=UCcGPU4A6xJ1OYOkvfMoo25w
+https://www.youtube.com/feeds/videos.xml?channel_id=UCa51ED7iENUjtadDnqPuoWw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCkJQqECiHJ3UmTeztifoFpg
