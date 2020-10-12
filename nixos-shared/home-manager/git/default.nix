@@ -113,7 +113,7 @@ in
       };
 
       push = {
-        default = "tracking";
+        default = "current";
       };
 
       rerere = {
