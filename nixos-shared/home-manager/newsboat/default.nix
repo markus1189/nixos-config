@@ -93,12 +93,23 @@ let
         TAGS="$TAGS,youtube,video"
     fi
 
+    if echo "''${URL}" | grep 'hr-fernsehen.de/sendungen'; then
+        TAGS="$TAGS,hr,video"
+    fi
+
     if echo "''${URL}" | grep 'reddit.com'; then
         TAGS="$TAGS,reddit"
+        if echo "''${URL}" | grep -o 'r/[^/]*'; then
+          TAGS="$TAGS,$(echo "''${URL}" | grep -o 'r/[^/]*')"
+        fi
     fi
 
     if echo "''${URL}" | grep 'news.ycombinator.com'; then
         TAGS="$TAGS,hackernews"
+    fi
+
+    if echo "''${URL}" | grep -e 'xkcd.com' -e 'monkeyuser.com'; then
+        TAGS="$TAGS,comic"
     fi
 
     main() {
