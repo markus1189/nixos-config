@@ -83,12 +83,27 @@ let
     "filter:${scrapeTaunusNachrichtenUmwelt}:https://www.taunus-nachrichten.de/nachrichten/umwelt"
   ];
   addToPocketScript = writeScript "add-to-pocket.sh" ''
+    TAGS="newsboat"
+    URL="''${1}"
+
     script_pocket_consumer_key=${secrets.pocket.consumer_key}
     script_pocket_access_token=${secrets.pocket.access_token}
 
+    if echo "''${URL}" | grep 'youtube.com/watch'; then
+        TAGS="$TAGS,youtube,video"
+    fi
+
+    if echo "''${URL}" | grep 'reddit.com'; then
+        TAGS="$TAGS,reddit"
+    fi
+
+    if echo "''${URL}" | grep 'news.ycombinator.com'; then
+        TAGS="$TAGS,hackernews"
+    fi
+
     main() {
       unset c
-      until ${curl}/bin/curl -s --fail -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}")"; do
+      until ${curl}/bin/curl -s --fail -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}" tags="''${TAGS}")"; do
         ((c++)) && ((c==4)) && break
         sleep 1
       done
