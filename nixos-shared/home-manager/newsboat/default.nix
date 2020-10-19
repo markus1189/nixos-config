@@ -135,6 +135,7 @@ in {
       cleanup-on-quit no
       delete-read-articles-on-quit no
       show-read-feeds no
+      show-read-articles no
       confirm-exit yes
       download-full-page yes
       history-limit 9999
