@@ -9,10 +9,11 @@ let
   configuredRestic = args: ''
     #!${stdenv.shell}
 
-    export RESTIC_REPOSITORY="b2:${secrets.restic.b2bucket.name}:/photos";
-    export RESTIC_PASSWORD_FILE=${restic-pw-file};
-    export B2_ACCOUNT_ID=${secrets.restic.b2bucket.account-id};
-    export B2_ACCOUNT_KEY=${secrets.restic.b2bucket.account-key};
+    export RESTIC_CACHE_DIR="/tmp/restic-cache-dir"
+    export RESTIC_REPOSITORY="b2:${secrets.restic.b2bucket.name}:/photos"
+    export RESTIC_PASSWORD_FILE="${restic-pw-file}"
+    export B2_ACCOUNT_ID="${secrets.restic.b2bucket.account-id}"
+    export B2_ACCOUNT_KEY="${secrets.restic.b2bucket.account-key}"
 
     echo "[$(date)] Started restic command"
     ${restic}/bin/restic --verbose ${lib.strings.concatStringsSep " " args}
