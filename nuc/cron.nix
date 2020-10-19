@@ -10,7 +10,7 @@ let
   secrets = import ../nixos-shared/secrets.nix;
   rm = "${pkgs.coreutils}/bin/rm";
   sendIpAddr = "${pkgs.myScripts.sendIpAddr secrets.telegramBotToken}/bin/sendIpAddr";
-  telegramSendPhoto = "${pkgs.myScripts.telegramSendPhoto secrets.telegramBotToken}/bin/telegramSendPhoto}";
+  telegramSendPhoto = "${pkgs.myScripts.telegramSendPhoto secrets.telegramBotToken}/bin/telegramSendPhoto";
 in
 {
   services = {
