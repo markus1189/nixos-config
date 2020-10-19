@@ -18,7 +18,7 @@ let
     echo "[$(date)] Started restic command"
     ${restic}/bin/restic --verbose ${lib.strings.concatStringsSep " " args}
     echo "[$(date)] Finished restic command [$?]"
-    ${myScripts.notifySendTelegram secrets.pushBulletToken}/bin/notifySendTelegram "Restic finished! Date: $(${coreutils}/bin/date) with args: ${toString args}"
+    ${myScripts.notifySendTelegram secrets.telegramBotToken}/bin/notifySendTelegram "Restic finished! Date: $(${coreutils}/bin/date) with args: ${toString args}"
   '';
 in
 {
