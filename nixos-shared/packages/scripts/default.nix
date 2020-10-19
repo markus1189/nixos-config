@@ -535,7 +535,7 @@ rec {
     deps = [ curl jo coreutils ];
     pure = true;
   } ''
-    LIMIT=6
+    LIMIT=5
 
     buildArray() {
         jo -a $(
