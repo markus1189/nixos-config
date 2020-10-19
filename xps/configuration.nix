@@ -304,6 +304,7 @@ rec {
       magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
       ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
+      pwdc = "pwd | clip";
     });
 
     etc = {
