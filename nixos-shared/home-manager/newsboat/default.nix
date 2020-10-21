@@ -77,7 +77,6 @@ let
 
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
-  urlExecs = [ ];
   urlFilters = [
     "filter:${scrapeHgonScript}:https://www.hgon.de/entdecken/"
     "filter:${scrapeErlebnisHessen}:https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
@@ -124,8 +123,6 @@ let
 
     main "$1"
   '';
-  tagFromInfix = infix: tags: url:
-    lib.optionals (lib.strings.hasInfix infix url) tags;
 
   taggingRules = {
     "youtube.com" = [ "youtube" "!hide" ];
@@ -136,6 +133,7 @@ let
   tagify = url:
     lib.lists.flatten (lib.attrValues
       (lib.filterAttrs (n: v: lib.strings.hasInfix n url) taggingRules));
+
   subredditToRss = subreddit:
     "https://reddit-top-rss.herokuapp.com/?subreddit=${subreddit}&threshold=20&view=rss";
   subreddits = [
@@ -151,9 +149,7 @@ let
     "functionalprogramming"
     "scala"
     "dailyprogrammer"
-
   ];
-  subredditUrls = map subredditToRss subreddits;
 in {
   value = {
     enable = true;
@@ -166,9 +162,6 @@ in {
       inherit url;
       tags = tagify url;
     }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
-      inherit url;
-      tags = [ "execurl" ];
-    }) urlExecs ++ map (url: {
       inherit url;
       tags = [ "filter" ];
     }) urlFilters;
