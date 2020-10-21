@@ -137,18 +137,25 @@ let
   subredditToRss = subreddit:
     "https://reddit-top-rss.herokuapp.com/?subreddit=${subreddit}&threshold=20&view=rss";
   subreddits = [
-    "nixos"
-    "haskell"
-    "emacs"
+    "books"
     "commandline"
-    "geocaching"
     "compsci"
-    "geb"
-    "notebooks"
-    "journalingisart"
-    "functionalprogramming"
-    "scala"
     "dailyprogrammer"
+    "emacs"
+    "fantasy"
+    "fountainpens"
+    "functionalprogramming"
+    "geb"
+    "geocaching"
+    "haskell"
+    "journalingisart"
+    "luciddreaming"
+    "malazan"
+    "nixos"
+    "notebooks"
+    "programmerhumor"
+    "scala"
+    "ultrarunning"
   ];
 in {
   value = {
