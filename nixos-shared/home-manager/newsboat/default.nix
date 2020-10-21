@@ -1,4 +1,4 @@
-{ lib, writeScript, writeScriptBin, secrets, curl, jq, pup }:
+{ lib, writeScript, writeScriptBin, secrets, curl, jq, pup, yq }:
 
 let
   jsonToRssScript = writeScript "json-to-rss" ''
@@ -74,6 +74,7 @@ let
 
     getItems | buildItems | ${jsonToRssScript} "Erlebnis Hessen (Manual Scrape)" "Manual scrape of Erlebnis Hessen" "https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
   '';
+
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlExecs = [ ];
@@ -123,25 +124,57 @@ let
 
     main "$1"
   '';
-  tagFromInfix = infix: tags: url: lib.optionals (lib.strings.hasInfix infix url) tags;
-  tagYoutube = tagFromInfix "youtube.com" [ "youtube" "!hide" ];
-  tagReddit = tagFromInfix "reddit.com" [ "reddit" ];
-  tagify = url: tagYoutube url ++ tagReddit url;
+  tagFromInfix = infix: tags: url:
+    lib.optionals (lib.strings.hasInfix infix url) tags;
+
+  taggingRules = {
+    "youtube.com" = [ "youtube" "!hide" ];
+    "rssbox.herokuapp.com/twitter" = [ "twitter" ];
+    "reddit.com" = [ "reddit" ];
+    "reddit-top-rss" = [ "reddit" ];
+  };
+  tagify = url:
+    lib.lists.flatten (lib.attrValues
+      (lib.filterAttrs (n: v: lib.strings.hasInfix n url) taggingRules));
+  subredditToRss = subreddit:
+    "https://reddit-top-rss.herokuapp.com/?subreddit=${subreddit}&threshold=20&view=rss";
+  subreddits = [
+    "nixos"
+    "haskell"
+    "emacs"
+    "commandline"
+    "geocaching"
+    "compsci"
+    "geb"
+    "notebooks"
+    "journalingisart"
+    "functionalprogramming"
+    "scala"
+    "dailyprogrammer"
+
+  ];
+  subredditUrls = map subredditToRss subreddits;
 in {
   value = {
     enable = true;
+
     autoReload = true;
+
     reloadTime = 10;
+
     urls = map (url: {
       inherit url;
       tags = tagify url;
-    }) urlLines ++ map (url: {
+    }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
       inherit url;
       tags = [ "execurl" ];
     }) urlExecs ++ map (url: {
       inherit url;
       tags = [ "filter" ];
     }) urlFilters;
+
+    queries = { "Youtube Videos" = ''tags # "youtube"''; };
+
     extraConfig = ''
       cleanup-on-quit no
       delete-read-articles-on-quit no
