@@ -134,28 +134,24 @@ let
     lib.lists.flatten (lib.attrValues
       (lib.filterAttrs (n: v: lib.strings.hasInfix n url) taggingRules));
 
-  subredditToRss = subreddit:
-    "https://reddit-top-rss.herokuapp.com/?subreddit=${subreddit}&threshold=20&view=rss";
+  subredditToRss = args:
+    "https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${toString (args.threshold or 20)}&view=rss";
   subreddits = [
-    "books"
-    "commandline"
-    "compsci"
-    "dailyprogrammer"
-    "emacs"
-    "fantasy"
-    "fountainpens"
-    "functionalprogramming"
-    "geb"
-    "geocaching"
-    "haskell"
-    "journalingisart"
-    "luciddreaming"
-    "malazan"
-    "nixos"
-    "notebooks"
-    "programmerhumor"
-    "scala"
-    "ultrarunning"
+    { name = "books"; }
+    { name = "commandline"; }
+    { name = "compsci"; }
+    { name = "dailyprogrammer"; }
+    { name = "emacs"; }
+    { name = "fantasy"; }
+    { name = "functionalprogramming"; }
+    { name = "geb"; }
+    { name = "haskell"; }
+    { name = "luciddreaming"; }
+    { name = "malazan"; }
+    { name = "nixos"; }
+    { name = "notebooks"; }
+    { name = "scala"; }
+    { name = "ultrarunning"; }
   ];
 in {
   value = {
