@@ -10,6 +10,7 @@
       gnupg1
       git
       gitFull
+      (gitAndTools.gh)
       (gitAndTools.git-extras)
       (gitAndTools.git-open)
       (gitAndTools.hub)
