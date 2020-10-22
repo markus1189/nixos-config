@@ -1,16 +1,3 @@
-https://reddit-top-rss.herokuapp.com/?subreddit=nixos&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=haskell&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=emacs&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=commandline&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=geocaching&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=compsci&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=geb&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=notebooks&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=journalingisart&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=functionalprogramming&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=scala&threshold=20&view=rss
-https://reddit-top-rss.herokuapp.com/?subreddit=dailyprogrammer&threshold=20&view=rss
-
 https://rssbox.herokuapp.com/twitter/155969573/HGON_eV?exclude_replies=1&with_media=1
 
 https://blog.poisson.chat/rss.xml
