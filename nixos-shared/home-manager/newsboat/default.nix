@@ -63,7 +63,7 @@ in {
 
     autoReload = true;
 
-    reloadTime = 10;
+    reloadTime = 15;
 
     urls = map (url: {
       inherit url;
