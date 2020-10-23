@@ -1,67 +1,30 @@
-{ buku
-, cacert
-, curl
-, coreutils
-, dragon-drop
-, emacs
-, feh
-, findutils
-, firefox
-, gawk
-, gnugrep
-, gnuplot
-, gnused
-, haskellPackages
-, i3lock
-, jo
-, jq
-, less
-, lib,  git
-, libnotify
-, markus-wallpapers
-, nixos-artwork
-, oathToolkit
-, playerctl
-, psmisc
-, procps
-, pulseaudioFull
-, rofi
-, sqlite
-, scrot
-, stdenv
-, systemd
-, tmux
-, unixtools
-, wmctrl
-, wpa_supplicant
-, writeScriptBin
-, xclip
-, xdotool
-, xorg
-, xsel
-, xsv
-, zsh
-}:
+{ buku, cacert, curl, coreutils, dragon-drop, emacs, feh, findutils, firefox
+, gawk, gnugrep, gnuplot, gnused, haskellPackages, i3lock, jo, jq, less, lib
+, git, libnotify, markus-wallpapers, nixos-artwork, oathToolkit, playerctl
+, psmisc, procps, pulseaudioFull, rofi, sqlite, scrot, stdenv, systemd, tmux
+, unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
+, xsv, rsstail, zsh }:
 
 rec {
-  writeXrandrScript = args: text: writeShellScript args ''
-    ${text}
+  writeXrandrScript = args: text:
+    writeShellScript args ''
+      ${text}
 
-    notify-send xrandr "${args.name}"
-  '';
+      notify-send xrandr "${args.name}"
+    '';
 
   # Create a shell script from the given text.
-  writeShellScript =
-    { name # the filename
-    , pure ? true # if pure is true, only include the specified dependencies in PATH
-    , deps ? [] # dependencies to include in PATH
-    , failFast ? true
-    }: text:
+  writeShellScript = { name # the filename
+    , pure ?
+      true # if pure is true, only include the specified dependencies in PATH
+    , deps ? [ ] # dependencies to include in PATH
+    , failFast ? true }:
+    text:
     writeScriptBin name ''
       #!${stdenv.shell}
 
       ${lib.optionalString (failFast) ''
-      set -e
+        set -e
 
       ''}
       export PATH=${lib.makeBinPath deps}${lib.optionalString (!pure) ":$PATH"}
@@ -69,7 +32,11 @@ rec {
       ${text}
     '';
 
-  tmx = writeShellScript { name = "tmx"; pure = false; deps = [ tmux zsh ]; } ''
+  tmx = writeShellScript {
+    name = "tmx";
+    pure = false;
+    deps = [ tmux zsh ];
+  } ''
     set -e
 
     function main() {
@@ -269,7 +236,14 @@ rec {
   autoMonitorConfig = writeShellScript {
     name = "autoMonitorConfig";
     pure = true;
-    deps = [ wpa_supplicant gnugrep libnotify coreutils multihead4k multihead4khdmi ];
+    deps = [
+      wpa_supplicant
+      gnugrep
+      libnotify
+      coreutils
+      multihead4k
+      multihead4khdmi
+    ];
   } ''
     CURRENT="$(wpa_cli -i wlp2s0 status | grep '^ssid' | cut -d'=' -f 2)"
 
@@ -290,7 +264,8 @@ rec {
     esac
   '';
 
-  wpaSelectNetwork = { id , network ? id }: device:
+  wpaSelectNetwork = { id, network ? id }:
+    device:
     writeShellScript {
       name = "wpaCliSelectNetwork${network}";
       deps = [ wpa_supplicant gnugrep libnotify ];
@@ -302,19 +277,21 @@ rec {
       notify-send wpa_cli "Switched network: ${network}"
     '';
 
-  wpaOurFritzBox = wpaSelectNetwork { id = "4"; network = "our-fritzbox"; };
+  wpaOurFritzBox = wpaSelectNetwork {
+    id = "4";
+    network = "our-fritzbox";
+  };
 
-  wpaWannaCry = wpaSelectNetwork { id = "43"; network = "wanna-cry"; };
+  wpaWannaCry = wpaSelectNetwork {
+    id = "43";
+    network = "wanna-cry";
+  };
 
-  sysdig-trace-in = writeShellScript {
-    name = "sysdig-trace-in";
-  } ''
+  sysdig-trace-in = writeShellScript { name = "sysdig-trace-in"; } ''
     echo ">:''${2:-pp}:''${1:-$0}::" > /dev/null
   '';
 
-  sysdig-trace-out = writeShellScript {
-    name = "sysdig-trace-out";
-  } ''
+  sysdig-trace-out = writeShellScript { name = "sysdig-trace-out"; } ''
     echo "<:''${2:-pp}:''${1:-$0}::" > /dev/null
   '';
 
@@ -322,11 +299,11 @@ rec {
     name = "takeScreenshot";
     deps = [ coreutils scrot libnotify xclip dragon-drop ];
   } ''
-   sleep 0.5
-   notify-send -t 1000 'Screenshot' 'Select area to capture'
-   FILEPATH="$(scrot -q 100 -s -c -e 'mv $f /tmp/ && echo -n /tmp/$f')"
-   echo "''${FILEPATH}" | xclip -sel clipboard -i
-   dragon -x "''${FILEPATH}"
+    sleep 0.5
+    notify-send -t 1000 'Screenshot' 'Select area to capture'
+    FILEPATH="$(scrot -q 100 -s -c -e 'mv $f /tmp/ && echo -n /tmp/$f')"
+    echo "''${FILEPATH}" | xclip -sel clipboard -i
+    dragon -x "''${FILEPATH}"
   '';
 
   gnuplot-quick = writeShellScript {
@@ -342,7 +319,10 @@ rec {
     gnuplot -persist -e "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5; set autoscale; set grid; plot '$FILE' with linespoints ls 1"
   '';
 
-  acConnected = writeShellScript { name = "acConnected"; deps = [ coreutils ]; } ''
+  acConnected = writeShellScript {
+    name = "acConnected";
+    deps = [ coreutils ];
+  } ''
     cat /sys/class/backlight/intel_backlight/max_brightness > \
       /sys/class/backlight/intel_backlight/brightness
 
@@ -354,12 +334,18 @@ rec {
     echo -n 0 > /sys/class/leds/dell::kbd_backlight/brightness
   '';
 
-  xmonadReset = writeShellScript { name = "xmonadReset"; deps = [ haskellPackages.xmonad psmisc ]; } ''
+  xmonadReset = writeShellScript {
+    name = "xmonadReset";
+    deps = [ haskellPackages.xmonad psmisc ];
+  } ''
     killall xmobar
     xmonad --restart
   '';
 
-  centerMouse = writeShellScript { name = "centerMouse"; deps = [ xdotool ]; } ''
+  centerMouse = writeShellScript {
+    name = "centerMouse";
+    deps = [ xdotool ];
+  } ''
     xdotool mousemove --window $(xdotool getwindowfocus) --polar 0 0
   '';
 
@@ -370,25 +356,30 @@ rec {
     pactl set-sink-mute '@DEFAULT_SINK@' toggle
   '';
 
-  chooseNetwork = device: writeShellScript { name = "chooseNetwork"; deps = [ libnotify gnugrep coreutils wpa_supplicant gnused rofi ]; pure = true; } ''
-    NETWORK_NAME="$(wpa_cli list_networks |
-      sed -e  's/^[[:digit:]]\+[[:space:]]*\(.*\)any.*/\1/' |
-        sed -e 's/[[:space:]]*$//' |
-          grep -v 'network id' |
-            tail -n +2 |
-              rofi -matching fuzzy -monitor -4 -sort -dmenu -i -p ssid:)"
+  chooseNetwork = device:
+    writeShellScript {
+      name = "chooseNetwork";
+      deps = [ libnotify gnugrep coreutils wpa_supplicant gnused rofi ];
+      pure = true;
+    } ''
+      NETWORK_NAME="$(wpa_cli list_networks |
+        sed -e  's/^[[:digit:]]\+[[:space:]]*\(.*\)any.*/\1/' |
+          sed -e 's/[[:space:]]*$//' |
+            grep -v 'network id' |
+              tail -n +2 |
+                rofi -matching fuzzy -monitor -4 -sort -dmenu -i -p ssid:)"
 
-    NETWORK_ID=$(wpa_cli -i ${device} list_networks | grep -wF "''${NETWORK_NAME}" | grep -o '^[[:digit:]]\+')
+      NETWORK_ID=$(wpa_cli -i ${device} list_networks | grep -wF "''${NETWORK_NAME}" | grep -o '^[[:digit:]]\+')
 
-    echo "Selecting network $NETWORK_NAME with id $NETWORK_ID"
-    echo "Using command: wpa_cli -i ${device} select_network $NETWORK_ID"
+      echo "Selecting network $NETWORK_NAME with id $NETWORK_ID"
+      echo "Using command: wpa_cli -i ${device} select_network $NETWORK_ID"
 
-    if wpa_cli -i ${device} select_network $NETWORK_ID ; then
-      notify-send wpa_cli "Switched network: ''${NETWORK_NAME}"
-    else
-      notify-send -u critical select_network "Failed with code $?"
-    fi
-  '';
+      if wpa_cli -i ${device} select_network $NETWORK_ID ; then
+        notify-send wpa_cli "Switched network: ''${NETWORK_NAME}"
+      else
+        notify-send -u critical select_network "Failed with code $?"
+      fi
+    '';
 
   lockScreen = writeShellScript {
     name = "lockScreen";
@@ -503,80 +494,84 @@ rec {
     } | xsv sort -NRs3 | rofi -dmenu -disable-history -i -monitor -4 | xsv select 2 | xclip -sel clipboard -i
   '';
 
-  notifySendPb = pushBulletToken: writeShellScript {
-    name = "notifySendPb";
-    deps = [ curl jo ];
-    pure = true;
-  } ''
-    curl --silent --fail \
-     --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-     --header 'Access-Token: ${pushBulletToken}' \
-     --header 'Content-Type: application/json' \
-     --data-binary "$(jo -- -s type=note -s title="''${1:-no-title}" -s body="''${2:-no-body}")" \
-     --request POST \
-     https://api.pushbullet.com/v2/pushes > /dev/null
+  notifySendPb = pushBulletToken:
+    writeShellScript {
+      name = "notifySendPb";
+      deps = [ curl jo ];
+      pure = true;
+    } ''
+      curl --silent --fail \
+       --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
+       --header 'Access-Token: ${pushBulletToken}' \
+       --header 'Content-Type: application/json' \
+       --data-binary "$(jo -- -s type=note -s title="''${1:-no-title}" -s body="''${2:-no-body}")" \
+       --request POST \
+       https://api.pushbullet.com/v2/pushes > /dev/null
     '';
 
-  notifySendTelegram = botToken: writeShellScript {
-    name = "notifySendTelegram";
-    deps = [ curl jo cacert ];
-    pure = true;
-  } ''
-    MESSAGE=''${1:?"Error: no message given!"}
-    curl --silent --fail -XPOST \
-     --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-      -H 'Content-Type: application/json' \
-      -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
-      --url "https://api.telegram.org/bot${botToken}/sendMessage"
+  notifySendTelegram = botToken:
+    writeShellScript {
+      name = "notifySendTelegram";
+      deps = [ curl jo cacert ];
+      pure = true;
+    } ''
+      MESSAGE=''${1:?"Error: no message given!"}
+      curl --silent --fail -XPOST \
+       --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
+        -H 'Content-Type: application/json' \
+        -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
+        --url "https://api.telegram.org/bot${botToken}/sendMessage"
     '';
 
-  telegramSendPhoto = botToken: writeShellScript {
-    name = "telegramSendPhoto";
-    deps = [ curl jo coreutils ];
-    pure = true;
-  } ''
-    LIMIT=5
+  telegramSendPhoto = botToken:
+    writeShellScript {
+      name = "telegramSendPhoto";
+      deps = [ curl jo coreutils ];
+      pure = true;
+    } ''
+      LIMIT=5
 
-    buildArray() {
-        jo -a $(
-            for i in "$@"; do
-                NAME="$(basename "$i")"
-                jo type=photo media="attach://$NAME"
-            done | shuf -n $LIMIT
-        )
-    }
+      buildArray() {
+          jo -a $(
+              for i in "$@"; do
+                  NAME="$(basename "$i")"
+                  jo type=photo media="attach://$NAME"
+              done | shuf -n $LIMIT
+          )
+      }
 
-    buildParams() {
-        for i in "$@"; do
-            echo "-F $(basename "$i")=@$i"
-        done | shuf -n $LIMIT
-    }
+      buildParams() {
+          for i in "$@"; do
+              echo "-F $(basename "$i")=@$i"
+          done | shuf -n $LIMIT
+      }
 
-    if [[ "$#" -gt "$LIMIT" ]]; then
-      echo Warning: using only $LIMIT randomly chosen out of $# given args > /dev/stderr
-    fi
+      if [[ "$#" -gt "$LIMIT" ]]; then
+        echo Warning: using only $LIMIT randomly chosen out of $# given args > /dev/stderr
+      fi
 
-    if [[ "$#" -ge 1 ]]; then
-        echo "Uploading" > /dev/stderr
+      if [[ "$#" -ge 1 ]]; then
+          echo "Uploading" > /dev/stderr
 
-        curl --silent --fail -XPOST \
-                --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-                --url "https://api.telegram.org/bot${botToken}/sendMediaGroup" \
-                -F chat_id=299952716 \
-                -F media="$(buildArray "$@")" \
-                $(buildParams "$@")
-    else
-        echo "USAGE: $0 FILE..." > /dev/stderr
-    fi
+          curl --silent --fail -XPOST \
+                  --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
+                  --url "https://api.telegram.org/bot${botToken}/sendMediaGroup" \
+                  -F chat_id=299952716 \
+                  -F media="$(buildArray "$@")" \
+                  $(buildParams "$@")
+      else
+          echo "USAGE: $0 FILE..." > /dev/stderr
+      fi
     '';
 
-  telegramPhotosLastYear = botToken: writeShellScript {
-    name = "telegramPhotosLastYear";
-    deps = [ findutils (telegramSendPhoto botToken) ];
-    pure = true;
-  } ''
-    set -o pipefail
-    find ''${1:?No path to photos directory given} -name "*$(date -d '-1 year' +%Y%m%d)*" | head -1 | xargs telegramSendPhoto
+  telegramPhotosLastYear = botToken:
+    writeShellScript {
+      name = "telegramPhotosLastYear";
+      deps = [ findutils (telegramSendPhoto botToken) ];
+      pure = true;
+    } ''
+      set -o pipefail
+      find ''${1:?No path to photos directory given} -name "*$(date -d '-1 year' +%Y%m%d)*" | head -1 | xargs telegramSendPhoto
     '';
 
   bukuRun = writeShellScript {
@@ -676,7 +671,6 @@ rec {
     main
   '';
 
-
   logArgs = writeShellScript {
     name = "log-args";
     deps = [ systemd ];
@@ -684,4 +678,90 @@ rec {
   } ''
     systemd-cat -tlog-args -- bash -c 'echo $@'
   '';
+
+  addToPocketScript = { consumer_key, access_token }:
+    writeShellScript {
+      name = "add-to-pocket";
+      deps = [ curl gnugrep jo ];
+      pure = true;
+    } ''
+      URL="''${1}"
+      GIVEN_TAGS="''${2}"
+      TAGS="''${GIVEN_TAGS},newsboat"
+
+      script_pocket_consumer_key=${consumer_key}
+      script_pocket_access_token=${access_token}
+
+      if echo "''${URL}" | grep 'youtube.com/watch'; then
+          TAGS="$TAGS,youtube,video"
+      fi
+
+      if echo "''${URL}" | grep 'hr-fernsehen.de/sendungen'; then
+          TAGS="$TAGS,hr,video"
+      fi
+
+      if echo "''${URL}" | grep -e 'fs.blog/' -e 'raptitude.com'; then
+          TAGS="$TAGS,deep"
+      fi
+
+      if echo "''${URL}" | grep 'reddit.com'; then
+          TAGS="$TAGS,reddit"
+          if echo "''${URL}" | grep -o 'r/[^/]*'; then
+            TAGS="$TAGS,$(echo "''${URL}" | grep -o 'r/[^/]*')"
+          fi
+      fi
+
+      if echo "''${URL}" | grep 'news.ycombinator.com'; then
+          TAGS="$TAGS,hackernews"
+      fi
+
+      if echo "''${URL}" | grep -e 'xkcd.com' -e 'monkeyuser.com'; then
+          TAGS="$TAGS,comic"
+      fi
+
+      main() {
+        unset c
+        until curl --cacert "${cacert}/etc/ssl/certs/ca-bundle.crt" -s --fail -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}" tags="''${TAGS}")"; do
+          ((c++)) && ((c==6)) && break
+          sleep 1
+        done
+        unset c
+        exit "$?"
+      }
+
+      main "$1"
+    '';
+
+  mkRsstailToPocketUnit = { consumer_key, access_token }:
+    {key, url, intervalSeconds ? 300 }:
+    let
+      name = "rsstail-${key}-script";
+      script = writeShellScript {
+        inherit name;
+        pure = true;
+        deps = [ ];
+      } ''
+        ${rsstail}/bin/rsstail -n0 -i ${toString intervalSeconds} -r -l -u '${url}' \
+          | ${gnugrep}/bin/grep --line-buffered '^Link: ' \
+          | ${gawk}/bin/awk '{print $2; system("")}' \
+          | while read i; do
+              echo [rsstail-${key}]: Adding to pocket: "$i"
+              ${
+                addToPocketScript { inherit consumer_key access_token; }
+              }/bin/add-to-pocket "$i" "rsstail"
+            done
+      '';
+    in {
+      "rsstail-${key}" = {
+        Unit = { Description = "rsstail for ${key}"; };
+
+        Service = {
+          ExecStart = "${script}/bin/${name}";
+          RestartSec = 10;
+          Restart = "always";
+        };
+
+        Install = { WantedBy = [ "default.target" ]; };
+      };
+    };
 }

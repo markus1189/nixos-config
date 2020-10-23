@@ -26,6 +26,7 @@ in
         notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
         telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
         telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;
+        mkRsstailToPocketUnitWithSecrets = myScripts.mkRsstailToPocketUnit secrets.pocket;
         logArgs = myScripts.logArgs;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {

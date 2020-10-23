@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
-let secrets = import ../nixos-shared/secrets.nix;
+let
+  secrets = import ../nixos-shared/secrets.nix;
+  mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 in {
   home = {
     packages = [
@@ -36,20 +38,49 @@ in {
 
     firefox.enable = true;
 
-    git = (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
+    git =
+      (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
 
-    newsboat = (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix { inherit secrets; }).value;
+    newsboat =
+      (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix {
+        inherit secrets;
+      }).value;
 
-    vim = (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
+    vim =
+      (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
   };
 
   services = {
     keynav.enable = true;
     flameshot.enable = true;
 
-    dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix { }).value;
+    dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix
+      { }).value;
 
   };
 
   fonts = { fontconfig = { enable = true; }; };
+
+  systemd.user = {
+    startServices = true;
+    services = let rsstail = pkgs.mkRsstailToPocketUnitWithSecrets;
+    in mergeAttrList (map rsstail [
+      {
+        key = "xkcd";
+        url = "http://www.xkcd.com/rss.xml";
+      }
+      {
+        key = "commitstrip";
+        url = "http://www.commitstrip.com/en/feed/";
+      }
+      {
+        key = "raptitude";
+        url = "https://www.raptitude.com/feed/";
+      }
+      {
+        key = "farnamstreet";
+        url = "fs.blog/feed";
+      }
+    ]);
+  };
 }
