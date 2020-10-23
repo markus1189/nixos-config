@@ -1,7 +1,7 @@
 { lib, cacert, writeScript, secrets, curl, jq, pup, newScope }@args:
 
 let
-  scripts = (lib.makeScope newScope (self: args)).callPackage ./scripts.nix {};
+  scripts = (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix { };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}")

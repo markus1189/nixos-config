@@ -73,7 +73,7 @@
     getItems | buildItems | ${jsonToRssScript} "Erlebnis Hessen (Manual Scrape)" "Manual scrape of Erlebnis Hessen" "https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
   '';
 
-    addToPocketScript = writeScript "add-to-pocket.sh" ''
+  addToPocketScript = writeScript "add-to-pocket.sh" ''
     TAGS="newsboat"
     URL="''${1}"
 
