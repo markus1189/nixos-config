@@ -50,6 +50,12 @@ let
     { name = "notebooks"; }
     { name = "scala"; }
     { name = "ultrarunning"; }
+    {
+      name = "dataisbeautiful";
+      threshold = 20;
+    }
+    { name = "internetisbeautiful"; }
+    { name = "writingprompts"; }
   ];
 in {
   value = {
