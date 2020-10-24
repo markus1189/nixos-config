@@ -1,7 +1,9 @@
 { lib, cacert, writeScript, secrets, curl, jq, pup, newScope }@args:
 
 let
-  scripts = (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix { };
+  scripts =
+    (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix
+    { };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}")
@@ -31,7 +33,7 @@ let
       (lib.filterAttrs (n: v: lib.strings.hasInfix n url) taggingRules));
 
   subredditToRss = args:
-    "https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
+    "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
       toString (args.threshold or 20)
     }&view=rss";
   subreddits = [
@@ -39,22 +41,20 @@ let
     { name = "commandline"; }
     { name = "compsci"; }
     { name = "dailyprogrammer"; }
+    { name = "dataisbeautiful"; }
     { name = "emacs"; }
     { name = "fantasy"; }
+    { name = "fountainpens"; }
     { name = "functionalprogramming"; }
     { name = "geb"; }
     { name = "haskell"; }
+    { name = "internetisbeautiful"; }
     { name = "luciddreaming"; }
     { name = "malazan"; }
     { name = "nixos"; }
     { name = "notebooks"; }
     { name = "scala"; }
     { name = "ultrarunning"; }
-    {
-      name = "dataisbeautiful";
-      threshold = 20;
-    }
-    { name = "internetisbeautiful"; }
     { name = "writingprompts"; }
   ];
 in {

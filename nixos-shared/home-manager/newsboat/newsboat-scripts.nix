@@ -1,4 +1,4 @@
-{ writeScript, jq, pup, secrets, curl, cacert, ... }: rec {
+{ writeScript, jq, pup, secrets, curl, cacert, yq, ... }: rec {
   jsonToRssScript = writeScript "json-to-rss" ''
         # Expects the following format:
 
@@ -114,5 +114,9 @@
     }
 
     main "$1"
+  '';
+
+  redditUseCommentsAsLink = writeScript "reddit-comments-link" ''
+    ${yq}/bin/xq --xml-dtd -x '.rss.channel.item |= map(.link = try .comments catch .link)'
   '';
 }
