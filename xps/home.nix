@@ -41,11 +41,6 @@ in {
     git =
       (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
 
-    newsboat =
-      (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix {
-        inherit secrets;
-      }).value;
-
     vim =
       (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
   };
@@ -60,27 +55,4 @@ in {
   };
 
   fonts = { fontconfig = { enable = true; }; };
-
-  systemd.user = {
-    startServices = true;
-    services = let rsstail = pkgs.mkRsstailToPocketUnitWithSecrets;
-    in mergeAttrList (map rsstail [
-      {
-        key = "xkcd";
-        url = "http://www.xkcd.com/rss.xml";
-      }
-      {
-        key = "commitstrip";
-        url = "http://www.commitstrip.com/en/feed/";
-      }
-      {
-        key = "raptitude";
-        url = "https://www.raptitude.com/feed/";
-      }
-      {
-        key = "farnamstreet";
-        url = "fs.blog/feed";
-      }
-    ]);
-  };
 }
