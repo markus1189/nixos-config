@@ -7,6 +7,8 @@
 let
   userName = "mediacenter";
   wirelessInterface = "wlp58s0";
+  ndtSources = import ../ndt/sources.nix {};
+  homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
 {
   imports =
@@ -27,6 +29,8 @@ in
       ../nixos-shared/zsh.nix
       ./fileSystems.nix
       ./hardware-configuration.nix
+      homeManager
+      (import ../nixos-shared/home-manager/module.nix {inherit userName; homeNixFile = ./home.nix; })
       # ./kodi.nix
     ];
 
