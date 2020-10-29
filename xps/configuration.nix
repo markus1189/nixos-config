@@ -2,40 +2,41 @@
 
 let
   userName = "markus";
-  usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts {};
+  usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
   custom = import ../nixos-shared/custom.nix;
   secrets = import ../nixos-shared/secrets.nix;
-  ndtSources = import ../ndt/sources.nix {};
+  ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
-in
-rec {
-  imports =
-    [
-      (import ../nixos-shared/common-services.nix userName)
-      ../nixos-shared/common-packages.nix
-      ../nixos-shared/common-programs.nix
-      ../nixos-shared/fasd.nix
-      ../nixos-shared/fzf.nix
-      ../nixos-shared/packages
-      ../nixos-shared/packages/services.nix
-      ../nixos-shared/ripgrep.nix
-      ../nixos-shared/ssh.nix
-      ../nixos-shared/zsh.nix
-      ./k8s.nix
-      ./bluetooth.nix
-      ./earlyoom.nix
-      ./hardware-configuration.nix
-      ./hosts.nix
-      ./keybase.nix
-      ./lastpass.nix
-      ./low-battery.nix
-      ./mopidy.nix
-      ./programs.nix
-      ./xps.nix
-      homeManager
-      (import ../nixos-shared/home-manager/module.nix {inherit userName; homeNixFile = ./home.nix; })
-      (import ./syncthing.nix userName)
-    ];
+in rec {
+  imports = [
+    (import ../nixos-shared/common-services.nix userName)
+    ../nixos-shared/common-packages.nix
+    ../nixos-shared/common-programs.nix
+    ../nixos-shared/fasd.nix
+    ../nixos-shared/fzf.nix
+    ../nixos-shared/packages
+    ../nixos-shared/packages/services.nix
+    ../nixos-shared/ripgrep.nix
+    ../nixos-shared/ssh.nix
+    ../nixos-shared/zsh.nix
+    ./k8s.nix
+    ./bluetooth.nix
+    ./earlyoom.nix
+    ./hardware-configuration.nix
+    ./hosts.nix
+    ./keybase.nix
+    ./lastpass.nix
+    ./low-battery.nix
+    ./mopidy.nix
+    ./programs.nix
+    ./xps.nix
+    homeManager
+    (import ../nixos-shared/home-manager/module.nix {
+      inherit userName;
+      homeNixFile = ./home.nix;
+    })
+    (import ./syncthing.nix userName)
+  ];
 
   documentation = {
     enable = true;
@@ -51,37 +52,38 @@ rec {
 
     useSandbox = true;
 
-    nixPath = [ "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-                "nixos-config=/home/${userName}/repos/nixos-config/xps/configuration.nix"
-                "/nix/var/nix/profiles/per-user/root/channels"
-              ];
-  };
-
-  boot = {
-    extraModulePackages = with config.boot.kernelPackages; [
-      sysdig
+    nixPath = [
+      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
+      "nixos-config=/home/${userName}/repos/nixos-config/xps/configuration.nix"
+      "/nix/var/nix/profiles/per-user/root/channels"
     ];
   };
+
+  boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
 
   console = {
     font = "latarcyrheb-sun32";
     keyMap = "us";
   };
 
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-  };
+  i18n = { defaultLocale = "en_US.UTF-8"; };
 
   networking = {
     extraHosts = ''
       127.0.0.1 ${config.networking.hostName}
     '';
 
-    firewall.allowedTCPPorts = with { openedPort = 8883; }; [
-      (builtins.trace "WARN: Opening port ${toString openedPort}" openedPort)
-    ];
+    firewall.allowedTCPPorts = with { openedPort = 8883; };
+      [
+        (builtins.trace "WARN: Opening port ${toString openedPort}" openedPort)
+      ];
 
-    timeServers = [ "0.nixos.pool.ntp.org" "1.nixos.pool.ntp.org" "2.nixos.pool.ntp.org" "3.nixos.pool.ntp.org" ];
+    timeServers = [
+      "0.nixos.pool.ntp.org"
+      "1.nixos.pool.ntp.org"
+      "2.nixos.pool.ntp.org"
+      "3.nixos.pool.ntp.org"
+    ];
   };
 
   time.timeZone = "Europe/Berlin";
@@ -108,9 +110,7 @@ rec {
       })
     ]);
 
-    config = {
-      allowUnfree = true;
-    };
+    config = { allowUnfree = true; };
   };
 
   services = {
@@ -118,9 +118,7 @@ rec {
 
     upower.enable = true;
 
-    tlp = {
-      enable = false;
-    };
+    tlp = { enable = false; };
 
     x11vnc = {
       enable = true;
@@ -135,14 +133,14 @@ rec {
 
     dbus.enable = true;
 
-    physlock = {
-      enable = true;
-    };
+    physlock = { enable = true; };
 
     printing = {
       enable = true;
       drivers = [ pkgs.gutenprint pkgs.foo2zjs pkgs.hplipWithPlugin ];
     };
+
+    tuptime = { enable = true; };
 
     xserver = {
       enable = true;
@@ -152,9 +150,7 @@ rec {
 
         lightdm = {
           enable = true;
-          autoLogin = {
-            enable = false;
-          };
+          autoLogin = { enable = false; };
         };
 
         sessionCommands = ''
@@ -176,13 +172,9 @@ rec {
       };
     };
 
-    acpid = {
-      enable = true;
-    };
+    acpid = { enable = true; };
 
-    clipmenu = {
-      enable = true;
-    };
+    clipmenu = { enable = true; };
   };
 
   users.extraUsers.${userName} = {
@@ -193,9 +185,7 @@ rec {
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${userName}";
     initialPassword = "markus"; # for qemu
-    symlinks = with pkgs.myConfigFiles; {
-      ".xmonad/xmonad.hs" = xmonad;
-    };
+    symlinks = with pkgs.myConfigFiles; { ".xmonad/xmonad.hs" = xmonad; };
   };
 
   users.extraGroups.vboxusers.members = [ "${userName}" ];
@@ -232,6 +222,8 @@ rec {
   };
 
   hardware = {
+    video = { hidpi.enable = true; };
+
     pulseaudio = {
       enable = true;
       package = pkgs.pulseaudioFull;
@@ -264,15 +256,14 @@ rec {
 
   virtualisation.docker = {
     enable = true;
-    extraOptions = "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
+    extraOptions =
+      "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
   };
 
   # virtualisation.virtualbox.host.enable = true;
 
   programs = {
-    plotinus = {
-      enable = true;
-    };
+    plotinus = { enable = true; };
 
     wireshark = {
       enable = true;
@@ -300,12 +291,13 @@ rec {
     shellAliases = (with pkgs; {
       "..." = "cd ../..";
       ".." = "cd ..";
-      cdpr = "if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo \"Not a git repository\"; fi";
+      cdpr = ''
+        if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo "Not a git repository"; fi'';
       clipout = "${xclip}/bin/xclip -o -selection clipboard";
       clip = "${xclip}/bin/xclip -i -selection clipboard";
       ff = "${emacs}/bin/emacsclient -n -c";
       FF = "${emacs}/bin/emacsclient -n";
-      magit = "${emacs}/bin/emacsclient -n -c -e \"(magit-status)\"";
+      magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
       ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
       pwdc = "pwd | clip";
