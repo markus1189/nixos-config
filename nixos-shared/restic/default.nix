@@ -29,7 +29,6 @@ in
   ]);
   resticPhotoForget = writeScriptBin "restic-photo-forget" (configuredRestic [
     "forget"
-    "--dry-run"
     "--keep-last=3"
     "--prune"
   ]);
