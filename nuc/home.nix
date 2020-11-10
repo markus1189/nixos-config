@@ -31,11 +31,11 @@ in {
     in mergeAttrList (map rsstail [
       {
         key = "xkcd";
-        url = "http://www.xkcd.com/rss.xml";
+        url = "https://www.xkcd.com/rss.xml";
       }
       {
         key = "commitstrip";
-        url = "http://www.commitstrip.com/en/feed/";
+        url = "https://www.commitstrip.com/en/feed/";
       }
       {
         key = "raptitude";
@@ -43,7 +43,11 @@ in {
       }
       {
         key = "farnamstreet";
-        url = "fs.blog/feed";
+        url = "https://fs.blog/feed";
+      }
+      {
+        key = "monkeyuser";
+        url = "https://www.monkeyuser.com/feed";
       }
     ]);
   };
