@@ -263,8 +263,6 @@ in rec {
   # virtualisation.virtualbox.host.enable = true;
 
   programs = {
-    plotinus = { enable = true; };
-
     wireshark = {
       enable = true;
       package = pkgs.wireshark;
