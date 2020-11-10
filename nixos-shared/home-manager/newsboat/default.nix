@@ -53,9 +53,16 @@ let
     { name = "malazan"; }
     { name = "nixos"; }
     { name = "notebooks"; }
-    { name = "scala"; }
+    {
+      name = "scala";
+      threshold = 100;
+    }
     { name = "ultrarunning"; }
     { name = "writingprompts"; }
+    {
+      name = "reverseengineering";
+      threshold = 30;
+    }
   ];
 in {
   value = {
