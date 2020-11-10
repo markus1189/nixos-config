@@ -86,6 +86,7 @@ in
       libxml2
       lsb-release
       lsof
+      mitmproxy
       mpc_cli
       mr
       mplayer
