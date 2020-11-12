@@ -23,7 +23,7 @@ rec {
   };
 
   addRevHexPackage = self: super: {
-    revhex = builtins.trace "INFO: Adding custom revhex package" (let
+    rehex = builtins.trace "INFO: Adding custom rehex package" (let
       drv = { stdenv, fetchFromGitHub, wxGTK30, jansson, capstone }:
 
         stdenv.mkDerivation rec {

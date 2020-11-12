@@ -116,6 +116,7 @@ in
       pv
       pythonFull
       rclone
+      rehex
       rlwrap
       rofi
       # (rWrapper.override {
