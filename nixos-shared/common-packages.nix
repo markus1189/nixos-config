@@ -28,7 +28,7 @@
       niv
       notifySendPb
       notifySendTelegram
-      telegramSendPhoto
+      sendCurrentTemperature
       telegramPhotosLastYear
       pwgen
     ];

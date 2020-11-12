@@ -3,7 +3,7 @@
 , git, libnotify, markus-wallpapers, nixos-artwork, oathToolkit, playerctl
 , psmisc, procps, pulseaudioFull, rofi, sqlite, scrot, stdenv, systemd, tmux
 , unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
-, xsv, rsstail, zsh }:
+, xsv, rsstail, zsh, python38, python38Packages }:
 
 rec {
   writeXrandrScript = args: text:
@@ -509,9 +509,9 @@ rec {
        https://api.pushbullet.com/v2/pushes > /dev/null
     '';
 
-  notifySendTelegram = botToken:
+  sendTelegram = chatid: name: botToken:
     writeShellScript {
-      name = "notifySendTelegram";
+      inherit name;
       deps = [ curl jo cacert ];
       pure = true;
     } ''
@@ -519,9 +519,13 @@ rec {
       curl --silent --fail -XPOST \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
         -H 'Content-Type: application/json' \
-        -d "$(jo chat_id=299952716 text="''${MESSAGE}")" \
+        -d "$(jo chat_id=${chatid} text="''${MESSAGE}")" \
         --url "https://api.telegram.org/bot${botToken}/sendMessage"
     '';
+
+  notifySendTelegram = sendTelegram "299952716" "notifySendTelegram";
+
+  notifySendHome = sendTelegram "-1001328938887" "notifySendHome";
 
   telegramSendPhoto = botToken:
     writeShellScript {
@@ -764,4 +768,39 @@ rec {
         Install = { WantedBy = [ "default.target" ]; };
       };
     };
+  pyvicare = let
+    mypython = with python38Packages;
+      let
+        pyvicare = buildPythonPackage rec {
+          pname = "PyViCare";
+          version = "0.2.4";
+
+          src = fetchPypi {
+            inherit pname version;
+            sha256 =
+              "sha256:1i64iazl5m0h2c862sgd5p73bnizbp2f0jq6i8k3c5x6494vklav";
+          };
+
+          propagatedBuildInputs = [ simplejson requests_oauthlib ];
+          doCheck = false;
+        };
+      in python38.withPackages (ps: [ pyvicare ]);
+  in { username, password }:
+    writeScriptBin "pyvicare" ''
+      #!${mypython}/bin/python
+
+      import os
+      from PyViCare.PyViCareGazBoiler import GazBoiler
+
+      t=GazBoiler('${username}','${password}',"token.save")
+
+      print(t.getOutsideTemperature())
+    '';
+  sendCurrentTemperature = { pyvicareSecret, botToken }: writeShellScript {
+    name = "sendCurrentTemperature";
+    deps = [ (notifySendHome botToken) (pyvicare pyvicareSecret) ];
+    pure = true;
+  } ''
+    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "$(pyvicare)")"
+  '';
 }

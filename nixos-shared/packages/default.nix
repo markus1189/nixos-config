@@ -27,8 +27,11 @@ in
         telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
         telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;
         mkRsstailToPocketUnitWithSecrets = myScripts.mkRsstailToPocketUnit secrets.pocket;
+        sendCurrentTemperature = myScripts.sendCurrentTemperature {
+          botToken = secrets.telegramBotToken;
+          pyvicareSecret = secrets.gasboiler;
+        };
         logArgs = myScripts.logArgs;
-        pyvicare = (callPackage ./pyvicare-temperature.nix {}) secrets.gasboiler;
         myConfigFiles = {
           xmonad = callPackage ./xmonad {
             inherit mutate;
