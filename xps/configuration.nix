@@ -73,10 +73,7 @@ in rec {
       127.0.0.1 ${config.networking.hostName}
     '';
 
-    firewall.allowedTCPPorts = with { openedPort = 8883; };
-      [
-        (builtins.trace "WARN: Opening port ${toString openedPort}" openedPort)
-      ];
+    firewall.allowedTCPPorts = [ ];
 
     timeServers = [
       "0.nixos.pool.ntp.org"
