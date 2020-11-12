@@ -801,6 +801,13 @@ rec {
     deps = [ (notifySendHome botToken) (pyvicare pyvicareSecret) ];
     pure = true;
   } ''
-    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "$(pyvicare)")"
+    unset c
+    until TEMP="$(pyvicare)"; do
+      ((c++)) && ((c==6)) && break
+      sleep 1
+    done
+    unset c
+
+    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
   '';
 }
