@@ -7,11 +7,6 @@ rec {
     nixpkgs1703 = import self.ndtSources.nixpkgs-1703 { };
   };
 
-  bukuOverlay = self: super: {
-    buku =
-      builtins.trace "INFO: using pinned buku version" self.stableNixpkgs.buku;
-  };
-
   ndtOverlay = self: super: {
     ndt = import (builtins.fetchTarball
       "https://github.com/markus1189/ndt/archive/master.tar.gz") {
@@ -27,12 +22,34 @@ rec {
     dunst = super.dunst.override { dunstify = true; };
   };
 
-  temporaryDdgrFix = self: super: {
-    ddgr = builtins.trace
-      "INFO: using overlay for ddgr until https://github.com/NixOS/nixpkgs/pull/93928"
-      (self.callPackage (builtins.fetchurl
-        "https://raw.githubusercontent.com/markus1189/nixpkgs/ddgr-1-9/pkgs/applications/misc/ddgr/default.nix")
-        { });
+  addRevHexPackage = self: super: {
+    revhex = builtins.trace "INFO: Adding custom revhex package" (let
+      drv = { stdenv, fetchFromGitHub, wxGTK30, jansson, capstone }:
+
+        stdenv.mkDerivation rec {
+          pname = "rehex";
+          version = "0.3.0";
+
+          buildInputs = [ capstone jansson wxGTK30 ];
+
+          src = fetchFromGitHub {
+            owner = "solemnwarning";
+            repo = pname;
+            rev = "${version}";
+            sha256 = "1wdn1bwjssd9w6jas6qwi8w7l8hi1g8kz5clxsi98hn2q85ddr7w";
+          };
+
+          makeFlags = [ "prefix=$(out)" ];
+
+          meta = with stdenv.lib; {
+            description = "Reverse Engineers' Hex Editor";
+            homepage = "https://github.com/solemnwarning/rehex";
+            license = licenses.gpl2;
+            maintainers = with maintainers; [ markus1189 ];
+            platforms = platforms.all;
+          };
+        };
+    in self.callPackage drv { });
   };
 
   wallpapersOverlay = self: super: {
@@ -43,7 +60,8 @@ rec {
       };
 
       shrike-rape-10x8 = super.fetchurl {
-        url = "https://lh3.googleusercontent.com/otenqGE9piNoIxqFESloBFaLYROVugEwhUEVKgTDAoBzNX-ximHZuuclY3_85Yhl1VMdr2oItMis8Qgo6F4LKWHmRt3VhxUWeut3E-XS63Z_twtsMIrqXk1VxA9nuyBsZ7mj-lcfMuJn5hYFGYWsHW4-x3qxXArG?authuser=0";
+        url =
+          "https://lh3.googleusercontent.com/otenqGE9piNoIxqFESloBFaLYROVugEwhUEVKgTDAoBzNX-ximHZuuclY3_85Yhl1VMdr2oItMis8Qgo6F4LKWHmRt3VhxUWeut3E-XS63Z_twtsMIrqXk1VxA9nuyBsZ7mj-lcfMuJn5hYFGYWsHW4-x3qxXArG?authuser=0";
         sha256 = "1xm3c46zx1n5y5rkfbclrpj77x2qzdc0jj5sbbgnlkm5nm5f7y42";
       };
 
@@ -53,7 +71,8 @@ rec {
         '';
 
       shrike-rape-21x9 = super.fetchurl {
-        url = "https://lh3.googleusercontent.com/e256LaGHjyBewkL4lKov5FGUT3wgdumtM7n0RSp_2yPc7MlP8iNV19Wcuv1ZThYjV_39u5Cfpi2RFaYGLQ7ODMYH4BLjZwiCiNeb6m1vuCs4sIbgdoqeXl1WZEfDPMq_OsMSLC779E_whTURrTXl_vB3ofPupDYT?authuser=0";
+        url =
+          "https://lh3.googleusercontent.com/e256LaGHjyBewkL4lKov5FGUT3wgdumtM7n0RSp_2yPc7MlP8iNV19Wcuv1ZThYjV_39u5Cfpi2RFaYGLQ7ODMYH4BLjZwiCiNeb6m1vuCs4sIbgdoqeXl1WZEfDPMq_OsMSLC779E_whTURrTXl_vB3ofPupDYT?authuser=0";
         name = "shrike-rape-21x9.jpg";
         sha256 = "0560f6bl7lzfi39xz63iads88cavpmxpgyidyxnljhz2r937k9fs";
       };
@@ -61,13 +80,12 @@ rec {
   };
 
   overlays = [
-    bukuOverlay
+    addRevHexPackage
     ndtOverlay
     ndtSourcesOverlay
     stableNixpkgsOverlay
     nixpkgs1703Overlay
     dunstWithDunstify
-    temporaryDdgrFix
     wallpapersOverlay
   ];
 }
