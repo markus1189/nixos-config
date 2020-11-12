@@ -21,4 +21,9 @@ in {
     access_token = dummy;
     consumer_key = dummy;
   };
+
+  gasboiler = {
+    username = dummy;
+    password = dummy;
+  };
 }
