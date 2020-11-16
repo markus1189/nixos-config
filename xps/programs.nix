@@ -116,7 +116,6 @@ in
       pv
       pythonFull
       rclone
-      rehex
       rlwrap
       rofi
       # (rWrapper.override {
@@ -210,11 +209,9 @@ in
       hugin
       geeqie
     ] ++ [ # evaluation phase
-      bat
       lnav # log file viewer
       pdd
       dateutils
-      # cachix
       bind
     ] ++ (with pkgs.myScripts; [
       browserHistory
