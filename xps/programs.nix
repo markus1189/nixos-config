@@ -213,6 +213,7 @@ in
       pdd
       dateutils
       bind
+      wxhexeditor
     ] ++ (with pkgs.myScripts; [
       browserHistory
       gnuplot-quick
