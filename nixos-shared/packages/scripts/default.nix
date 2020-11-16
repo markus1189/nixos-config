@@ -523,6 +523,21 @@ rec {
         --url "https://api.telegram.org/bot${botToken}/sendMessage"
     '';
 
+  sendTelegramPoll = botToken:
+    writeShellScript {
+      name = "sendTelegramPoll";
+      deps = [ curl jo cacert ];
+      pure = true;
+    } ''
+      QUESTION=''${1:?"Error: no message given!"}
+      shift
+      curl --silent --fail -XPOST \
+       --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
+        -H 'Content-Type: application/json' \
+        -d "$(jo allows_multiple_answers=true chat_id=299952716 question="''${QUESTION}" options="$(jo -a $*)")" \
+        --url "https://api.telegram.org/bot${botToken}/sendPoll"
+    '';
+
   notifySendTelegram = sendTelegram "299952716" "notifySendTelegram";
 
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome";

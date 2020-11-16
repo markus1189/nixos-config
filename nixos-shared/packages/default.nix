@@ -24,6 +24,7 @@ in
         inherit myScripts mutate;
         notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
         notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
+        sendTelegramPoll = myScripts.sendTelegramPoll secrets.telegramBotToken;
         telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
         telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;
         mkRsstailToPocketUnitWithSecrets = myScripts.mkRsstailToPocketUnit secrets.pocket;
