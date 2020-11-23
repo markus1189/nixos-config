@@ -22,36 +22,6 @@ rec {
     dunst = super.dunst.override { dunstify = true; };
   };
 
-  addRevHexPackage = self: super: {
-    rehex = builtins.trace "INFO: Adding custom rehex package" (let
-      drv = { stdenv, fetchFromGitHub, wxGTK30, jansson, capstone }:
-
-        stdenv.mkDerivation rec {
-          pname = "rehex";
-          version = "0.3.0";
-
-          buildInputs = [ capstone jansson wxGTK30 ];
-
-          src = fetchFromGitHub {
-            owner = "solemnwarning";
-            repo = pname;
-            rev = "${version}";
-            sha256 = "1wdn1bwjssd9w6jas6qwi8w7l8hi1g8kz5clxsi98hn2q85ddr7w";
-          };
-
-          makeFlags = [ "prefix=$(out)" ];
-
-          meta = with stdenv.lib; {
-            description = "Reverse Engineers' Hex Editor";
-            homepage = "https://github.com/solemnwarning/rehex";
-            license = licenses.gpl2;
-            maintainers = with maintainers; [ markus1189 ];
-            platforms = platforms.all;
-          };
-        };
-    in self.callPackage drv { });
-  };
-
   wallpapersOverlay = self: super: {
     markus-wallpapers = rec {
       cc = super.fetchurl {
@@ -80,7 +50,6 @@ rec {
   };
 
   overlays = [
-    addRevHexPackage
     ndtOverlay
     ndtSourcesOverlay
     stableNixpkgsOverlay
