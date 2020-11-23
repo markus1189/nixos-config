@@ -70,6 +70,7 @@ let
     { name = "howtohack"; }
     { name = "liveoverflow"; }
     { name = "netsec"; }
+    { name = "exploitdev"; }
   ];
 in {
   value = {
