@@ -50,6 +50,18 @@
 
       getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
     '';
+  scrapeTaunusNachrichtenSuche =
+    writeScript "scrape-taunus-nachrichten-suche.sh" ''
+      getItems() {
+        ${pup}/bin/pup 'div .buildmode-3 json{}'
+      }
+
+      buildItems() {
+          ${jq}/bin/jq 'map({title: .. | select(try .class | contains("field-title")) | .children[].children[].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "field field-title") | .children[].children[].href)",pubDate: .. | select(try .class | contains("field-post-date")) | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class | contains("-teaser")) | .text})'
+      }
+
+      getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Search Scrape)" "Manual scrape of a search on Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
+    '';
   scrapeHgonScript = writeScript "scrape-hgon.sh" ''
     getItems() {
         ${pup}/bin/pup '.main__content .main__content article json{}'

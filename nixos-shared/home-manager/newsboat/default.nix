@@ -3,7 +3,11 @@
 let
   scripts =
     (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix
-    { };
+      { };
+  taunusNachrichtenSearch = search: {
+    url = "https://www.taunus-nachrichten.de/search/content/${search}?solrsort=ds_created%20desc";
+    filter = scripts.scrapeTaunusNachrichtenSuche;
+  };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}")
@@ -21,7 +25,7 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
-    ]);
+    ] ++ (map taunusNachrichtenSearch [ "waldkauz" "eisvogel" "schleiereule" ]));
   taggingRules = {
     "youtube.com" = [ "youtube" "!hide" ];
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
