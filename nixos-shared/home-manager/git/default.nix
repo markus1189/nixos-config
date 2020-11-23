@@ -5,6 +5,7 @@
 , writeScript
 , stdenv
 , ndtSources
+, xxd
 }:
 
 let
@@ -56,6 +57,10 @@ in
       lg = "!${gitPrettyLog}";
     };
 
+    attributes = [
+      "*.bin diff=binary"
+    ];
+
     extraConfig = {
       user = {
         useConfigOnly = true;
@@ -93,6 +98,10 @@ in
 
       diff = {
         mnemonicprefix = true;
+      };
+
+      "diff \"binary\"" = {
+        textconv = "${xxd}/bin/xxd";
       };
 
       difftool = {
