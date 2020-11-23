@@ -6,7 +6,7 @@ let
       { };
   taunusNachrichtenSearch = search: {
     url = "https://www.taunus-nachrichten.de/search/content/${search}?solrsort=ds_created%20desc";
-    filter = scripts.scrapeTaunusNachrichtenSuche;
+    filter = scripts.scrapeTaunusNachrichtenSuche search;
   };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
@@ -25,7 +25,7 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
-    ] ++ (map taunusNachrichtenSearch [ "waldkauz" "eisvogel" "schleiereule" ]));
+    ] ++ (map taunusNachrichtenSearch [ "waldkauz" "eisvogel" "schleiereule" "wildkatze" ]));
   taggingRules = {
     "youtube.com" = [ "youtube" "!hide" ];
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
