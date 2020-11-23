@@ -63,6 +63,9 @@ let
       name = "reverseengineering";
       threshold = 30;
     }
+    { name = "howtohack"; }
+    { name = "liveoverflow"; }
+    { name = "netsec"; }
   ];
 in {
   value = {
