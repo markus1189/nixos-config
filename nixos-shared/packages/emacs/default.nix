@@ -23,6 +23,7 @@ let
 in
   emacsWithPackages (epkgs: (with epkgs.melpaPackages; [
     avy
+    annotate
     beacon
     company
     dash
@@ -67,6 +68,8 @@ in
     indent-guide
     itail
     iy-go-to-char
+    js2-refactor
+    js2-mode
     json-mode
     jsonnet-mode
     jq-mode
@@ -75,6 +78,15 @@ in
     # lua-mode
     log4j-mode
     liso-theme
+    ##########
+    # LSP mode
+    lsp-mode
+    lsp-haskell
+    which-key
+    lsp-ui
+    helm-lsp
+    dap-mode
+    ##########
     markdown-mode
     markdown-preview-mode
     mvn

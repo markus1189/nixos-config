@@ -16,6 +16,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(annotate-highlight-secondary ((t (:underline "dim gray"))))
  '(ediff-current-diff-C ((t (:background "RoyalBlue4"))))
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
@@ -352,7 +353,7 @@
   :init
   (setq indent-guide-char "┋")
   :config
-  (indent-guide-global-mode 1))
+  (indent-guide-global-mode 0))
 
 (use-package git-link
   :ensure t
@@ -1250,9 +1251,35 @@ string). It returns t if a new completion is found, nil otherwise."
   :bind
   ("C-c C-r" . format-all-buffer))
 
-(use-package dumb-jump
-  :config (setq dumb-jump-selector 'helm)
-  :init
-  (dumb-jump-mode)
+;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+(setq lsp-keymap-prefix "s-\\")
+
+(use-package lsp-mode
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+            ;; (XXX-mode . lsp)
+            ;; if you want which-key integration
+            (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+
+(use-package lsp-haskell
   :ensure t)
+
+;; optional if you want which-key integration
+(use-package which-key
+    :config
+    (which-key-mode))
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+(use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
+(use-package js2-mode
+  :ensure t)
+
+(use-package js2-refactor
+  :ensure t)
+
+(use-package annotate
+  :ensure t)
+
 ;;;
