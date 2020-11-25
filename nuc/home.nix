@@ -49,6 +49,10 @@ in {
         key = "monkeyuser";
         url = "https://www.monkeyuser.com/feed";
       }
+      {
+        key = "inCode";
+        url = "https://feeds.feedburner.com/incodeblog";
+      }
     ]);
   };
 }
