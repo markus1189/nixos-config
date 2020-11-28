@@ -71,6 +71,7 @@ let
     { name = "liveoverflow"; }
     { name = "netsec"; }
     { name = "exploitdev"; }
+    { name = "rpg"; }
   ];
 in {
   value = {
