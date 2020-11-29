@@ -45,12 +45,10 @@ let
     { name = "commandline"; }
     { name = "compsci"; }
     { name = "dailyprogrammer"; }
-    { name = "dataisbeautiful"; }
     { name = "emacs"; }
     { name = "fantasy"; }
     { name = "fountainpens"; }
     { name = "functionalprogramming"; }
-    { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
     { name = "luciddreaming"; }
@@ -59,19 +57,12 @@ let
     { name = "notebooks"; }
     {
       name = "scala";
-      threshold = 100;
+      threshold = 40;
     }
     { name = "ultrarunning"; }
     { name = "writingprompts"; }
-    {
-      name = "reverseengineering";
-      threshold = 30;
-    }
-    { name = "howtohack"; }
-    { name = "liveoverflow"; }
-    { name = "netsec"; }
-    { name = "exploitdev"; }
-    { name = "rpg"; }
+    { name = "reverseengineering+howtohack+liveoverflow+netsec+exploitdev"; }
+    { name = "rpg+worldbuilding+musicforrpg+papertowns+maps+roll20+mrvalor+penandpaper"; }
   ];
 in {
   value = {
