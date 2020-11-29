@@ -26,6 +26,10 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
+      {
+        url = "https://www.reddit.com/top/.rss?sort=top&t=week";
+        filter = redditUseCommentsAsLink;
+      }
     ] ++ (map taunusNachrichtenSearch [
       "waldkauz"
       "eisvogel"
