@@ -3,15 +3,16 @@
 let
   scripts =
     (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix
-      { };
+    { };
   taunusNachrichtenSearch = search: {
-    url = "https://www.taunus-nachrichten.de/search/content/${search}?solrsort=ds_created%20desc";
+    url =
+      "https://www.taunus-nachrichten.de/search/content/${search}?solrsort=ds_created%20desc";
     filter = scripts.scrapeTaunusNachrichtenSuche search;
   };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
-  urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}")
-    (with scripts; [
+  urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}") (with scripts;
+    [
       {
         url = "https://www.hgon.de/entdecken/";
         filter = scrapeHgonScript;
@@ -25,7 +26,12 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
-    ] ++ (map taunusNachrichtenSearch [ "waldkauz" "eisvogel" "schleiereule" "wildkatze" ]));
+    ] ++ (map taunusNachrichtenSearch [
+      "waldkauz"
+      "eisvogel"
+      "schleiereule"
+      "wildkatze"
+    ]));
   taggingRules = {
     "youtube.com" = [ "youtube" "!hide" ];
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
@@ -45,10 +51,12 @@ let
     { name = "commandline"; }
     { name = "compsci"; }
     { name = "dailyprogrammer"; }
+    { name = "dataisbeautiful"; }
     { name = "emacs"; }
     { name = "fantasy"; }
     { name = "fountainpens"; }
     { name = "functionalprogramming"; }
+    { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
     { name = "luciddreaming"; }
@@ -57,12 +65,27 @@ let
     { name = "notebooks"; }
     {
       name = "scala";
-      threshold = 40;
+      threshold = 100;
     }
     { name = "ultrarunning"; }
     { name = "writingprompts"; }
-    { name = "reverseengineering+howtohack+liveoverflow+netsec+exploitdev"; }
-    { name = "rpg+worldbuilding+musicforrpg+papertowns+maps+roll20+mrvalor+penandpaper"; }
+    {
+      name = "reverseengineering";
+      threshold = 30;
+    }
+    { name = "howtohack"; }
+    { name = "liveoverflow"; }
+    { name = "netsec"; }
+    { name = "exploitdev"; }
+
+    { name = "rpg"; }
+    { name = "worldbuilding"; }
+    { name = "musicforrpg"; }
+    { name = "papertowns"; }
+    { name = "maps"; }
+    { name = "roll20"; }
+    { name = "mrvalor"; }
+    { name = "penandpaper"; }
   ];
 in {
   value = {
