@@ -27,10 +27,6 @@ let
         filter = scrapeTaunusNachrichtenUmwelt;
       }
       {
-        url = "https://www.reddit.com/top/.rss?sort=top&t=week";
-        filter = redditUseCommentsAsLink;
-      }
-      {
         url = "https://api.rocketbeans.tv/v1/blog/feed/rss2";
         filter = filterItems "morriton";
       }
