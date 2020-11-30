@@ -131,4 +131,8 @@
   redditUseCommentsAsLink = writeScript "reddit-comments-link" ''
     ${yq}/bin/xq --xml-dtd -x '.rss.channel.item |= map(.link = try .comments catch .link)'
   '';
+
+  filterItems = term: writeScript "newsboat-filter-items" ''
+    ${yq}/bin/xq --xml-dtd -x '.rss.channel.item |= map(select(.title | test("${term}"; "i")))'
+  '';
 }
