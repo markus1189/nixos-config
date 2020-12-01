@@ -1282,4 +1282,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package annotate
   :ensure t)
 
+(use-package counsel-jq
+  :ensure t)
+
 ;;;

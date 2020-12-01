@@ -25,6 +25,7 @@ in
     avy
     annotate
     beacon
+    counsel-jq
     company
     dash
     deadgrep
