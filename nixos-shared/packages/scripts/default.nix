@@ -517,6 +517,7 @@ rec {
     } ''
       MESSAGE=''${1:?"Error: no message given!"}
       curl --silent --fail -XPOST \
+       --retry-all-errors --retry 3 \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
         -H 'Content-Type: application/json' \
         -d "$(jo chat_id=${chatid} text="''${MESSAGE}")" \
@@ -532,6 +533,7 @@ rec {
       QUESTION=''${1:?"Error: no message given!"}
       shift
       curl --silent --fail -XPOST \
+       --retry-all-errors --retry 3 \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
         -H 'Content-Type: application/json' \
         -d "$(jo allows_multiple_answers=true chat_id=299952716 question="''${QUESTION}" options="$(jo -a $*)")" \
