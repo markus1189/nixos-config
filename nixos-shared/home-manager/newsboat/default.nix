@@ -90,6 +90,7 @@ let
     { name = "roll20"; }
     { name = "mrvalor"; }
     { name = "penandpaper"; }
+    { name = "podcasts"; }
   ];
 in {
   value = {
