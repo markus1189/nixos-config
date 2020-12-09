@@ -33,20 +33,8 @@ in
     };
   };
 
-  environment = {
-    shellAliases = (with pkgs; {
-      wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
-    });
-  };
-
-  networking = rec {
+  networking = {
     hostName = "nixos-xps";
-
-    supplicant = {
-      "${config.lib._custom_.wirelessInterface}" = {
-        configFile.path = "/etc/wpa_supplicant.conf";
-      };
-    };
   };
 
   hardware = {
@@ -93,20 +81,8 @@ in
       };
     };
 
-
     xserver = {
       videoDrivers = [ "intel" "vesa" ];
-
-      synaptics = {
-        enable = false;
-      };
-
-      libinput = {
-        enable = true;
-        tapping = true;
-        disableWhileTyping = true;
-        naturalScrolling = false;
-      };
     };
   };
 

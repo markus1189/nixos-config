@@ -84,6 +84,12 @@ in rec {
       "2.nixos.pool.ntp.org"
       "3.nixos.pool.ntp.org"
     ];
+
+    supplicant = {
+      "${config.lib._custom_.wirelessInterface}" = {
+        configFile.path = "/etc/wpa_supplicant.conf";
+      };
+    };
   };
 
   time.timeZone = "Europe/Berlin";
@@ -169,6 +175,17 @@ in rec {
           enable = true;
           enableContribAndExtras = true;
         };
+      };
+
+      synaptics = {
+        enable = false;
+      };
+
+      libinput = {
+        enable = true;
+        tapping = true;
+        disableWhileTyping = true;
+        naturalScrolling = false;
       };
     };
 
@@ -299,6 +316,7 @@ in rec {
       ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
       pwdc = "pwd | clip";
+      wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
     });
 
     etc = {
