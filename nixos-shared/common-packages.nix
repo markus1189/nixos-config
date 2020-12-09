@@ -8,7 +8,6 @@
       cachix
       gnupg
       gnupg1
-      git
       gitFull
       (gitAndTools.gh)
       (gitAndTools.git-extras)
