@@ -121,7 +121,7 @@ in
 
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
-    auctex
+    # auctex
     pabbrev
     undo-tree
     csv-mode
