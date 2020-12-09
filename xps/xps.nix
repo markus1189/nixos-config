@@ -24,6 +24,7 @@ in
     kernelPackages = pkgs.linuxPackages_latest;
 
     initrd.luks.devices = {
+      # Name of the luks device (from cryptsetup luksOpen)
       "root" = {
         device = "/dev/nvme0n1p4";
         preLVM = true;
