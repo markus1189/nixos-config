@@ -19,7 +19,7 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--high", "#42d3a5"
                         ] 40
                     , Run MultiCpu
-                        [ "-t", "<autototal>"
+                        [ "-t", "<total> <bar>"
                         , "-L","10"
                         , "-H","40"
                         , "--normal","#42d3a5"
