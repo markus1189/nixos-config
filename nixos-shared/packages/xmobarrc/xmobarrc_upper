@@ -4,25 +4,14 @@ Config { font = "xft:Source Code Pro-9:bold"
        , position = TopW L 100
        , lowerOnStart = False
        , pickBroadest = False
-       , commands = [ Run Network "wlp2s0"
-                        [ "-t", "<rx>kB ↓ <tx>kB ↑"
-                        , "-L" , "10"
-                        , "-H" ,"40"
+       , commands = [ Run Network "@wirelessInterface@"
+                        [ "-t", "<rx> ↓ <tx> ↑"
                         , "--normal","#42d3a5"
-                        , "--high", "red"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
+                        , "-S", "True"
                         ] 40
-                    , Run Network "enp62s0u1u4"
-                        [ "-t", "<rx>kB ↓ <tx>kB ↑"
-                        , "-L" , "10"
-                        , "-H" ,"40"
-                        , "--normal","#42d3a5"
-                        , "--high", "red"
-                        , "--minwidth", "2"
-                        , "--maxwidth", "8"
-                        ] 40
-                    , Run Wireless "wlp2s0"
+                    , Run Wireless "@wirelessInterface@"
                         [ "-t", "<fc=orange><essid></fc> (<quality>%)"
                         , "-L", "40"
                         , "-H", "70"
@@ -71,11 +60,11 @@ Config { font = "xft:Source Code Pro-9:bold"
                         [("/","<usedp>% <used>/<size>")]
                         ["-L", "20", "-H", "50", "-m", "1", "-p", "2"]
                         100
-                    , Run Date "%T" "date" 1
+                    , Run Date "%F %T" "date" 1
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %enp62s0u1u4% %wlp2s0% %wlp2s0wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
+       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
        }
