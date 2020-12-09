@@ -7,6 +7,7 @@ in
   lib = {
     _custom_ = {
       wirelessInterface = "wlp2s0";
+      name = "xps";
     };
   };
 
