@@ -19,13 +19,14 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--high", "#42d3a5"
                         ] 40
                     , Run MultiCpu
-                        [ "-t", "<total> <bar>"
+                        [ "-t", "<bar> (<total>)"
                         , "-L","10"
                         , "-H","40"
                         , "--normal","#42d3a5"
                         , "--high","red"
-                        , "-p", "4"
-                        , "-W", "10"
+                        , "-p", "3"
+                        , "-W", "20"
+                        , "-S", "True"
                         ] 40
                     , Run Memory
                         [ "-t", "<usedratio>% <used> MiB"
@@ -66,5 +67,5 @@ Config { font = "xft:Source Code Pro-9:bold"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "}{ %top% | %multicpu% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
        }
