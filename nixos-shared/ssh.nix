@@ -11,6 +11,10 @@
     ssh = {
       startAgent = true;
       extraConfig = ''
+        Host p1
+          HostName 192.168.178.69
+          User markus
+
         Host yellow
           HostName 192.168.178.118
           User yellow
