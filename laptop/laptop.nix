@@ -183,7 +183,7 @@ in rec {
 
       libinput = {
         enable = true;
-        tapping = true;
+        tapping = false;
         disableWhileTyping = true;
         naturalScrolling = false;
       };
