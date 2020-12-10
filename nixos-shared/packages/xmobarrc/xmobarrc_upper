@@ -38,9 +38,9 @@ Config { font = "xft:Source Code Pro-9:bold"
                         ["-t", "<temp>°C"
                         ] 300
                     , Run TopProc
-                        [ "-t", "<both1> | <both2> | <both3> | <both4> | <mboth1> | <mboth2>"
-                        , "-L","25"
-                        , "-H","60"
+                        [ "-t", "<both1> | <both2> | <both3> | <mboth1> | <mboth2>"
+                        , "-L", "25"
+                        , "-H", "60"
                         , "--normal","#42d3a5"
                         , "--high","red"
                         ] 40
