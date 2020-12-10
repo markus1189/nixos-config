@@ -17,6 +17,17 @@ in {
         source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
         target = ".keynavrc";
       };
+
+      "mrconfig" = {
+        target = ".mrconfig";
+        text = ''
+          [repos/clones/nixpkgs]
+          checkout = git clone 'https://github.com/NixOS/nixpkgs' 'nixpkgs'
+
+          [repos/nixos-config]
+          checkout = git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'
+        '';
+      };
     };
   };
 
