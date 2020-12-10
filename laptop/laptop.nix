@@ -152,11 +152,15 @@ in rec {
       enable = true;
 
       displayManager = {
+        autoLogin = {
+          enable = true;
+          user = config.lib._custom_.userName;
+        };
+
         defaultSession = "none+xmonad";
 
         lightdm = {
           enable = true;
-          autoLogin = { enable = false; };
         };
 
         sessionCommands = ''
