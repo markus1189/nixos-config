@@ -2,6 +2,8 @@
 
 {
   programs = {
+    command-not-found.enable = true;
+
     less = {
       envVariables = {
         LESS = "-XI";
