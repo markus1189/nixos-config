@@ -233,7 +233,7 @@ rec {
     feh --no-fehbg --bg-fill ${markus-wallpapers.shrike-rape-21x9} &
   '';
 
-  autoMonitorConfig = writeShellScript {
+  autoMonitorConfig = wirelessInterface: writeShellScript {
     name = "autoMonitorConfig";
     pure = true;
     deps = [
@@ -245,7 +245,7 @@ rec {
       multihead4khdmi
     ];
   } ''
-    CURRENT="$(wpa_cli -i wlp2s0 status | grep '^ssid' | cut -d'=' -f 2)"
+    CURRENT="$(wpa_cli -i ${wirelessInterface} status | grep '^ssid' | cut -d'=' -f 2)"
 
     if [[ -z "''${CURRENT}" ]]; then
         notify-send wpa_cli "Could not find current SSID!"

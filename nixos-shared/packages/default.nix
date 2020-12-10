@@ -45,7 +45,8 @@ in {
           myConfigFiles = {
             xmonad = callPackage ./xmonad {
               inherit mutate;
-              inherit (myScripts) autoMonitorConfig bukuRun;
+              inherit (myScripts) bukuRun;
+              autoMonitorConfig = myScripts.autoMonitorConfig config.lib._custom_.wirelessInterface;
               chooseNetwork =
                 myScripts.chooseNetwork config.lib._custom_.wirelessInterface;
             };
