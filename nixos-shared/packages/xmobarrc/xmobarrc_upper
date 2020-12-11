@@ -9,8 +9,12 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--normal","#42d3a5"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
-                        , "-S", "True"
+                        , "-L" , "20"
+                        , "-H" ,"100"
+                        , "--normal","#42d3a5"
+                        , "--high", "red"
                         ] 40
+
                     , Run Wireless "@wirelessInterface@"
                         [ "-t", "<fc=orange><essid></fc> (<quality>%)"
                         , "-L", "40"
