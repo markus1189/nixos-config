@@ -31,5 +31,10 @@
   networking.interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
 
   system.stateVersion = "20.09"; # Did you read the comment?
-}
 
+  hardware.opengl.extraPackages = with pkgs; [
+    intel-ocl
+  ];
+
+  programs.steam.enable = true;
+}
