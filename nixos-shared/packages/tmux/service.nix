@@ -20,6 +20,10 @@
   programs = {
     tmux = {
       enable = true;
+      baseIndex = 1;
+      clock24 = true;
+      keyMode = "vi";
+
       extraConfig = ''
         ${pkgs.lib.readFile ./tmux.conf}
         run-shell ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
