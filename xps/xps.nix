@@ -38,6 +38,12 @@ in
   };
 
   hardware = {
+    opengl = {
+      extraPackages = [
+        pkgs.intel-ocl
+      ];
+    };
+
     bumblebee = {
       enable = false;
       driver = "nouveau";
