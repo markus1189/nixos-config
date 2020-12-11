@@ -5,17 +5,15 @@
 { config, pkgs, ... }:
 
 let
-  userName = "mediacenter";
-  wirelessInterface = "wlp58s0";
   ndtSources = import ../ndt/sources.nix {};
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
 {
   imports =
     [
-      (import ../nixos-shared/common-services.nix userName)
+      (import ../nixos-shared/common-services.nix)
       (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
-      (import ./cron.nix userName)
+      (import ./cron.nix)
       ../nixos-shared/common-packages.nix
       ../nixos-shared/common-programs.nix
       ../nixos-shared/fasd.nix
@@ -29,9 +27,17 @@ in
       ./fileSystems.nix
       ./hardware-configuration.nix
       homeManager
-      (import ../nixos-shared/home-manager/module.nix {inherit userName; homeNixFile = ./home.nix; })
+      (import ../nixos-shared/home-manager/module.nix { homeNixFile = ./home.nix; })
       # ./kodi.nix
     ];
+
+  lib = {
+    _custom_ = {
+      wirelessInterface = "wlp58s0";
+      name = "nuc";
+      userName = "mediacenter";
+    };
+  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -41,7 +47,7 @@ in
     hostName = "nuc";
 
     supplicant = {
-      "${wirelessInterface}" = {
+      "${config.lib._custom_.wirelessInterface}" = {
         configFile.path = "/etc/wpa_supplicant.conf";
       };
     };
@@ -135,7 +141,7 @@ in
     enable = true;
     autoLogin = {
       enable = true;
-      user = "${userName}";
+      user = "${config.lib._custom_.userName}";
       relogin = true;
     };
   };
@@ -143,26 +149,26 @@ in
 
   services.x11vnc = {
     enable = true;
-    auth = "/home/${userName}/.Xauthority";
+    auth = "/home/${config.lib._custom_.userName}/.Xauthority";
     password = "worldbuilding2";
     shared = true;
     autoStart = true;
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.extraUsers.${userName} = {
+  users.extraUsers.${config.lib._custom_.userName} = {
     isNormalUser = true;
     group = "users";
     extraGroups = [ "wheel" "audio" "docker" "lp" ];
     shell = "${pkgs.zsh}/bin/zsh";
-    home = "/home/${userName}";
+    home = "/home/${config.lib._custom_.userName}";
     uid = 1000;
   };
 
   security = {
     sudo = {
       enable = true;
-      extraConfig = "\Defaults: ${userName} timestamp_timeout=30\n";
+      extraConfig = "\Defaults: ${config.lib._custom_.userName} timestamp_timeout=30\n";
     };
   };
 

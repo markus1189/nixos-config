@@ -1,4 +1,3 @@
-userName:
 { config, pkgs, ...}:
 
 let
@@ -11,6 +10,7 @@ let
   rm = "${pkgs.coreutils}/bin/rm";
   sendIpAddr = "${pkgs.myScripts.sendIpAddr secrets.telegramBotToken}/bin/sendIpAddr";
   telegramSendPhoto = "${pkgs.myScripts.telegramSendPhoto secrets.telegramBotToken}/bin/telegramSendPhoto}";
+  userName = config.lib._custom_.userName;
 in
 {
   services = {

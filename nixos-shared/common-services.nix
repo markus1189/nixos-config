@@ -1,4 +1,3 @@
-userName:
 { config, pkgs, ...}:
 
 {
@@ -7,7 +6,7 @@ userName:
 
     cron = {
       enable = true;
-      mailto = userName;
+      mailto = config.lib._custom_.userName;
     };
 
     udisks2.enable = true;
@@ -17,7 +16,7 @@ userName:
     locate = {
       enable = true;
       interval = "hourly";
-      localuser = userName;
+      localuser = config.lib._custom_.userName;
     };
 
     sysstat = {
