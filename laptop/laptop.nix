@@ -14,7 +14,7 @@ in rec {
   };
 
   imports = [
-    (import ../nixos-shared/common-services.nix config.lib._custom_.userName)
+    (import ../nixos-shared/common-services.nix)
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix
