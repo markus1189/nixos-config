@@ -120,6 +120,8 @@ in rec {
   };
 
   services = {
+    thermald.enable = true;
+
     offlineimap.enable = false;
 
     upower.enable = true;
