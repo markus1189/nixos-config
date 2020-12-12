@@ -31,6 +31,7 @@
       sendCurrentTemperature
       telegramPhotosLastYear
       pwgen
+      yq
     ];
   };
 }
