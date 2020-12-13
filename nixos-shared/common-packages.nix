@@ -19,6 +19,7 @@
       jo
       jq
       logArgs
+      mpv
       nix-prefetch-docker
       nix-prefetch-git
       nix-prefetch-github
