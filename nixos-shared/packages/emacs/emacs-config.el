@@ -273,6 +273,7 @@
   :config
   (require 'helm-command)
   (require 'helm-for-files)
+  (helm-mode)
 
   (defun mh/helm-next-line-fast ()
     (interactive)
