@@ -54,6 +54,8 @@ in {
 
     vim =
       (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
+
+    mpv = { enable = true; };
   };
 
   services = {
