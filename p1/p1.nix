@@ -37,4 +37,42 @@
   ];
 
   programs.steam.enable = true;
+
+  services = {
+    acpid = {
+      enable = true;
+      handlers = let step = "250"; in {
+        videoBrightnessUp = {
+          event = "video/brightnessup" ;
+          action = ''
+            echo -n "$(($(cat /sys/class/backlight/intel_backlight/brightness) + ${step}))" > \
+              /sys/class/backlight/intel_backlight/brightness
+          '';
+        };
+
+        videoBrightnessDown = {
+          event = "video/brightnessdown" ;
+          action = ''
+            echo -n "$(($(cat /sys/class/backlight/intel_backlight/brightness) - ${step}))" > \
+              /sys/class/backlight/intel_backlight/brightness
+          '';
+        };
+
+        acDisconnect = {
+          event = "ac_adapter ACPI0003:00 00000080 00000000";
+          action = "${pkgs.myScripts.acDisconnected}/bin/acDisconnected";
+        };
+
+        acConnect = {
+          event = "ac_adapter ACPI0003:00 00000080 00000001";
+          action = "${pkgs.myScripts.acConnected}/bin/acConnected";
+        };
+
+        toggleSound = {
+          event = "button/mute";
+          action = "${pkgs.myScripts.toggleSoundMute}/bin/toggleSoundMute";
+        };
+      };
+    };
+  };
 }
