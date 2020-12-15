@@ -35,7 +35,6 @@ in rec {
     ./programs.nix
     homeManager
     (import ../nixos-shared/home-manager/module.nix {
-      userName = config.lib._custom_.userName;
       homeNixFile = ./home.nix;
     })
     (import ./syncthing.nix config.lib._custom_.userName)
