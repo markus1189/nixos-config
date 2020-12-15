@@ -39,6 +39,8 @@
   programs.steam.enable = true;
 
   services = {
+    fprintd.enable = true;
+
     acpid = {
       enable = true;
       handlers = let step = "250"; in {
