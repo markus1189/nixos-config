@@ -450,25 +450,6 @@ rec {
     notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
 
-  mfaHelper = writeShellScript {
-    name = "mfaHelper";
-    deps = [ xsel oathToolkit coreutils gnugrep ];
-    failFast = true;
-  } ''
-    if [[ -z "''${1}" ]]; then
-        cat ~/.2fa | cut -d= -f 1
-    else
-        SECRET="$(grep -F "''${1}=" ~/.2fa | head -n 1 | cut -d= -f 2)"
-        if [[ -z "''${SECRET}" ]]; then
-            rofi -e "Could not find a secret for \"''${1}\"!"
-        else
-            TOTP="$(oathtool --totp -b "''${SECRET}")"
-            echo -n "''${TOTP}" | xsel --clipboard > /dev/null
-            exit 0
-        fi
-    fi
-  '';
-
   rofiDefaults = writeShellScript {
     name = "rofiDefaults";
     deps = [ rofi ];

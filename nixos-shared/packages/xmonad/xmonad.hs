@@ -242,7 +242,6 @@ myKeys =
   , ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere")
   , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
   , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu")
-  , ((myModShiftCtrl, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -disable-history -modi 'mfa:@mfaHelper@/bin/mfaHelper' -show mfa")
     -- Multimedia via Bose
   ,  ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause")
   ,  ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous")
