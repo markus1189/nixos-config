@@ -146,23 +146,23 @@ in
       terminator
       testdisk
       #tigervnc
-      (texlive.combine {
-        inherit (texlive)
-        scheme-medium
-        beamer
-        listings
-        minted
-        cleveref
-        microtype
-        babel
-        todonotes
-        chngcntr
-        excludeonly
-        upquote
-        ifplatform
-        xstring
-        enumitem;
-      })
+      # (texlive.combine {
+      #   inherit (texlive)
+      #   scheme-medium
+      #   beamer
+      #   listings
+      #   minted
+      #   cleveref
+      #   microtype
+      #   babel
+      #   todonotes
+      #   chngcntr
+      #   excludeonly
+      #   upquote
+      #   ifplatform
+      #   xstring
+      #   enumitem;
+      # })
       trayer
       tree
       # unetbootin
@@ -186,7 +186,6 @@ in
       zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
-      ipython
       youtube-dl
       pygments
     ]) ++ (with pkgs.haskellPackages; [
