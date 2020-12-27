@@ -23,6 +23,10 @@
     };
   };
 
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+  };
+
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking = {
     hostName = "nixos-p1";
