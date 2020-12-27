@@ -201,7 +201,7 @@ in rec {
     isNormalUser = true;
     uid = 1000;
     group = "users";
-    extraGroups = [ "wheel" "audio" "docker" "lp" "wireshark" ];
+    extraGroups = [ "wheel" "audio" "docker" "lp" "wireshark" "video" ];
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${config.lib._custom_.userName}";
     initialPassword = "markus"; # for qemu
