@@ -5,14 +5,26 @@ let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 in {
   home = {
-    packages = [
-      pkgs.source-code-pro
-      pkgs.dunst
-      pkgs.ndt
-      pkgs.haskellPackages.brittany
+    packages = with pkgs; [
+      source-code-pro
+      dunst
+      ndt
+      haskellPackages.brittany
+      jrnl
     ];
 
     file = {
+      "gtk-bookmarks" = {
+        text = ''
+          file:///home/markus/Downloads
+          file:///home/markus/Dropbox
+          file:///home/markus/repos
+          file:///home/markus/Photos/web
+          file:///home/markus/Photos/developed
+          file:///home/markus/repos/nixos-config
+        '';
+        target = ".gtk-bookmarks";
+      };
       "keynavrc" = {
         source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
         target = ".keynavrc";
