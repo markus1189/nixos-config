@@ -1,45 +1,45 @@
 {-# OPTIONS -fno-warn-missing-signatures #-}
 
-import Control.Monad (unless)
-import Data.Char (toLower)
-import Data.Function (on)
-import Data.Functor (void)
-import Data.List (intercalate, isInfixOf, isPrefixOf)
+import           Control.Monad (unless)
+import           Data.Char (toLower)
+import           Data.Function (on)
+import           Data.Functor (void)
+import           Data.List (intercalate, isInfixOf, isPrefixOf)
 import qualified Data.Map as M
-import Data.Monoid ((<>), All (..))
-import Data.Ratio ((%))
-import System.IO (hPutStrLn)
-import Text.Printf (printf)
-import XMonad
-import XMonad.Actions.CopyWindow (kill1)
-import XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, swapNextScreen, toggleWS')
+import           Data.Monoid ((<>), All (..))
+import           Data.Ratio ((%))
+import           System.IO (hPutStrLn)
+import           Text.Printf (printf)
+import           XMonad
+import           XMonad.Actions.CopyWindow (kill1)
+import           XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
-import XMonad.Config.Gnome (gnomeConfig)
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
-import XMonad.Hooks.ManageDocks (avoidStruts, docks)
-import XMonad.Hooks.ManageHelpers (isDialog)
-import XMonad.Hooks.SetWMName (setWMName)
-import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
-import XMonad.Layout (Tall (..))
-import XMonad.Layout.AutoMaster (autoMaster)
-import XMonad.Layout.Grid (Grid (..))
-import XMonad.Layout.IM (Property (Role), withIM)
-import XMonad.Layout.MultiToggle ((??), EOT (..), Toggle (..), mkToggle)
-import XMonad.Layout.MultiToggle.Instances
-import XMonad.Layout.NoBorders (smartBorders)
-import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.Reflect (reflectHoriz)
-import XMonad.Layout.ResizableTile (ResizableTall (..))
-import XMonad.Layout.SimpleFloat (simpleFloat)
-import XMonad.Layout.Tabbed
-import XMonad.Prompt
-import XMonad.Prompt.Input
-import XMonad.Prompt.Window (windowPromptGoto)
+import           XMonad.Config.Gnome (gnomeConfig)
+import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
+import           XMonad.Hooks.ManageDocks (avoidStruts, docks)
+import           XMonad.Hooks.ManageHelpers (isDialog)
+import           XMonad.Hooks.SetWMName (setWMName)
+import           XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
+import           XMonad.Layout (Tall (..))
+import           XMonad.Layout.AutoMaster (autoMaster)
+import           XMonad.Layout.Grid (Grid (..))
+import           XMonad.Layout.IM (Property (Role), withIM)
+import           XMonad.Layout.MultiToggle ((??), EOT (..), Toggle (..), mkToggle)
+import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.NoBorders (smartBorders)
+import           XMonad.Layout.PerWorkspace (onWorkspace)
+import           XMonad.Layout.Reflect (reflectHoriz)
+import           XMonad.Layout.ResizableTile (ResizableTall (..))
+import           XMonad.Layout.SimpleFloat (simpleFloat)
+import           XMonad.Layout.Tabbed
+import           XMonad.Prompt
+import           XMonad.Prompt.Input
+import           XMonad.Prompt.Window (windowPromptGoto)
 import qualified XMonad.StackSet as W
-import XMonad.Util.EZConfig (additionalKeys, removeKeys)
-import XMonad.Util.NamedScratchpad
-import XMonad.Util.Run (spawnPipe)
+import           XMonad.Util.EZConfig (additionalKeys, removeKeys)
+import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
 myWorkspaces = map show [(1 :: Int) .. 9]
