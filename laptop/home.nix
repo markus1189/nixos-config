@@ -40,6 +40,23 @@ in {
           checkout = git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'
         '';
       };
+
+      "jrnl_config" = {
+        target = ".jrnl_config";
+        text = builtins.toJSON {
+          journals = {
+            default = "/home/markus/Dropbox/journal.txt";
+          };
+          editor = "${pkgs.vim}/bin/vim";
+          encrypt = false;
+          default_hour = 9;
+          default_minute = 0;
+          timeformat = "%Y-%m-%dT%H:%M:%S";
+          tagsymbols = "@";
+          highlight = true;
+          linewrap = 79;
+        };
+      };
     };
   };
 
