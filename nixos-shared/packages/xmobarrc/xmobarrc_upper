@@ -29,7 +29,7 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--normal","#42d3a5"
                         , "--high","red"
                         , "-p", "3"
-                        , "-W", "20"
+                        , "-W", "30"
                         , "-S", "True"
                         ] 40
                     , Run Memory
