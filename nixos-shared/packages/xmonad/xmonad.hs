@@ -228,7 +228,10 @@ myKeys =
   , ((myModKey, xK_e), swapNextScreen)
   , ((myModKey, xK_equal), sendMessage Expand)
   , ((myModKey, xK_minus), sendMessage Shrink)
-  , ((myModKey, xK_p), submap . M.fromList $ [ ((0, xK_p), spawn "@playerctl@/bin/playerctl next")
+  , ((myModKey, xK_p), submap . M.fromList $ [ ((0, xK_p), spawn "@playerctl@/bin/playerctl previous")
+                                             , ((0, xK_n), spawn "@playerctl@/bin/playerctl next")
+                                             , ((0, xK_space), spawn "@playerctl@/bin/playerctl play-pause")
+                                             , ((0, xK_f), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
                                              ])
   , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
   , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
@@ -244,7 +247,6 @@ myKeys =
   , ((myModShift, xK_w), shiftNextScreen)
   , ((myModShift, xK_x), spawn "@xkill@/bin/xkill")
 
-  , ((myModShiftCtrl, xK_F5), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
   , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu")
   , ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset")
 
@@ -375,5 +377,5 @@ main = do
         modMask = myModKey,
         mouseBindings = myNewMouseBindings
       }
-      `additionalKeys` myKeys
       `removeKeys` myRemovedKeys
+      `additionalKeys` myKeys
