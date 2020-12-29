@@ -123,7 +123,12 @@ in rec {
 
     upower.enable = true;
 
-    tlp = { enable = false; };
+    tlp = {
+      enable = true;
+      settings = {
+        USB_BLACKLIST = "046d:c52b";
+      };
+    };
 
     x11vnc = {
       enable = true;
