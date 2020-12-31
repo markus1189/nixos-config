@@ -7,11 +7,7 @@ let
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in rec {
-  lib = {
-    _custom_ = {
-      userName = "markus";
-    };
-  };
+  lib = { _custom_ = { userName = "markus"; }; };
 
   imports = [
     (import ../nixos-shared/common-services.nix)
@@ -125,9 +121,7 @@ in rec {
 
     tlp = {
       enable = true;
-      settings = {
-        USB_BLACKLIST = "046d:c52b";
-      };
+      settings = { USB_BLACKLIST = "046d:c52b"; };
     };
 
     x11vnc = {
@@ -163,9 +157,7 @@ in rec {
 
         defaultSession = "none+xmonad";
 
-        lightdm = {
-          enable = true;
-        };
+        lightdm = { enable = true; };
 
         sessionCommands = ''
           ${usrPkgs.singlehead}/bin/singlehead
@@ -185,9 +177,7 @@ in rec {
         };
       };
 
-      synaptics = {
-        enable = false;
-      };
+      synaptics = { enable = false; };
 
       libinput = {
         enable = true;
@@ -216,7 +206,7 @@ in rec {
   users.extraGroups.vboxusers.members = [ "${config.lib._custom_.userName}" ];
 
   fonts = {
-    enableFontDir = true;
+    fontDir.enable = true;
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
       corefonts
@@ -324,7 +314,8 @@ in rec {
       ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
       pwdc = "pwd | clip";
-      wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
+      wpa_cli =
+        "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
     });
 
     etc = {

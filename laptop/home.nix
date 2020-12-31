@@ -44,9 +44,7 @@ in {
       "jrnl_config" = {
         target = ".jrnl_config";
         text = builtins.toJSON {
-          journals = {
-            default = "/home/markus/Dropbox/journal.txt";
-          };
+          journals = { default = "/home/markus/Dropbox/journal.txt"; };
           editor = "${pkgs.vim}/bin/vim";
           encrypt = false;
           default_hour = 9;
@@ -205,4 +203,30 @@ in {
   };
 
   fonts = { fontconfig = { enable = true; }; };
+
+  systemd.user.services.arbtt = let
+    arbttPackage = with pkgs.haskell.lib;
+      overrideSrc (doJailbreak (pkgs.haskellPackages.arbtt.overrideAttrs
+        (old: rec { meta.broken = false; }))) {
+          src = pkgs.fetchFromGitHub {
+            owner = "nomeata";
+            repo = "arbtt";
+            rev = "f4b192b22e7ab7f1b3ebd5fefe51b012754f0ef8";
+            sha256 = "1l1f36m5xnp07xgjjnr1v13zsbdlgfmsiv6c95jchgw1zh57gkcf";
+          };
+        };
+  in {
+    Unit = { Description = "arbtt statistics capture service"; };
+
+    Install = { WantedBy = [ "graphical-session.target" ]; };
+
+    Service = {
+      Type = "simple";
+      ExecStart =
+        "${arbttPackage}/bin/arbtt-capture --logfile=%h/.arbtt/capture.log --sample-rate=${
+          toString 60
+        }";
+      Restart = "always";
+    };
+  };
 }
