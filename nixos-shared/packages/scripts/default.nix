@@ -321,17 +321,17 @@ rec {
 
   acConnected = writeShellScript {
     name = "acConnected";
-    deps = [ coreutils ];
+    deps = [ coreutils findutils ];
   } ''
     cat /sys/class/backlight/intel_backlight/max_brightness > \
       /sys/class/backlight/intel_backlight/brightness
 
-    echo -n 2 > /sys/class/leds/dell::kbd_backlight/brightness
+    echo -n 2 > $(find /sys/class/leds -name '*::kbd_backlight')/brightness
   '';
 
   acDisconnected = writeShellScript { name = "acDisconnected"; } ''
     echo -n 700 > /sys/class/backlight/intel_backlight/brightness
-    echo -n 0 > /sys/class/leds/dell::kbd_backlight/brightness
+    echo -n 0 > $(find /sys/class/leds -name '*::kbd_backlight')/brightness
   '';
 
   xmonadReset = writeShellScript {
