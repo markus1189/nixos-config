@@ -1,4 +1,5 @@
-{ mutate
+{ bash
+, mutate
 , jo
 , systemd
 , source-code-pro
@@ -6,7 +7,7 @@
 }:
 
 let
-  dunstLogger = mutate ./dunst-logger.sh { inherit jo systemd; };
+  dunstLogger = mutate ./dunst-logger.sh { inherit jo systemd bash; };
 in
 {
   value = {

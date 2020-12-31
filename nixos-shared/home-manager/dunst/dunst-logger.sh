@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!@bash@/bin/bash
 
 APPNAME="${1}"
 SUMMARY="${2}"
