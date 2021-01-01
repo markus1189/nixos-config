@@ -43,7 +43,7 @@
   programs.steam.enable = true;
 
   services = {
-    fprintd.enable = true;
+    fprintd.enable = false;
 
     acpid = {
       enable = true;
