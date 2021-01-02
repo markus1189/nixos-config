@@ -881,11 +881,6 @@ Position the cursor at its beginning, according to the current mode."
 (use-package flycheck-yamllint
   :ensure t)
 
-(use-package iy-go-to-char
-  :ensure t
-  :bind (("M-m" . iy-go-up-to-char)
-         ("M-M" . iy-go-up-to-char-backward)))
-
 (use-package hydra
   :ensure t
   :config

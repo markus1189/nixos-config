@@ -68,7 +68,6 @@ in
     iedit
     indent-guide
     itail
-    iy-go-to-char
     js2-refactor
     js2-mode
     json-mode
