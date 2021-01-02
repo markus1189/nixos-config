@@ -858,6 +858,9 @@ Position the cursor at its beginning, according to the current mode."
    ("C-s-=" . evil-numbers/inc-at-pt)
    ("C-s--" . evil-numbers/dec-at-pt)))
 
+(use-package evil
+  :ensure t)
+
 (use-package git-commit
   :ensure t
   :init
