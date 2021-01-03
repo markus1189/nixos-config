@@ -389,11 +389,6 @@ rec {
 
   '';
 
-  selectSpotifyPlayer = writeShellScript {
-    name = "selectSpotifyPlayer";
-    deps = [ wmctrl ];
-  } "wmctrl -x -a spotify";
-
   currentSpotifySong = writeShellScript {
     name = "currentSpotifySong";
     deps = [ playerctl ];

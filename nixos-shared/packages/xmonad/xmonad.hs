@@ -239,7 +239,6 @@ myKeys =
                                              , ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
                                              ])
   , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
-  , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
   , ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory")
   , ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse")
 
