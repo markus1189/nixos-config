@@ -15,6 +15,7 @@ import           XMonad.Actions.CopyWindow (kill1)
 import           XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
 import           XMonad.Actions.Submap
+import           XMonad.Actions.WindowGo (raise)
 import           XMonad.Config.Gnome (gnomeConfig)
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
@@ -228,10 +229,11 @@ myKeys =
   , ((myModKey, xK_e), swapNextScreen)
   , ((myModKey, xK_equal), sendMessage Expand)
   , ((myModKey, xK_minus), sendMessage Shrink)
-  , ((myModKey, xK_p), submap . M.fromList $ [ ((0, xK_p), spawn "@playerctl@/bin/playerctl previous")
-                                             , ((0, xK_n), spawn "@playerctl@/bin/playerctl next")
-                                             , ((0, xK_space), spawn "@playerctl@/bin/playerctl play-pause")
-                                             , ((0, xK_f), spawn "@selectSpotifyPlayer@/bin/selectSpotifyPlayer")
+  , ((myModKey, xK_o), submap . M.fromList $ [ ((0, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
+                                             , ((0, xK_t), raise (className =? "TelegramDesktop"))
+                                             , ((0, xK_s), raise (className =? "Slack"))
+                                             , ((0, xK_p), raise (className =? "Spotify"))
+                                             ])
                                              ])
   , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
   , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
