@@ -24,7 +24,7 @@
     };
 
     tailscale = {
-      enable = true;
+      enable = false;
     };
 
     xserver = {
