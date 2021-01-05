@@ -1,2 +1,2 @@
 language: nix
-script: cp -v nixos-shared/secrets.{dummy.,}nix && travis_wait nix-build --quiet --no-out-link default.nix
+script: cp -v nixos-shared/secrets.{dummy.,}nix && travis_wait nix-build --no-out-link default.nix
