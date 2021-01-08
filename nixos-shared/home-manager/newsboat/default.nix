@@ -40,7 +40,7 @@ let
     "youtube.com" = [ "youtube" "!hide" ];
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
     "reddit.com" = [ "reddit" ];
-    "reddit-top-rss" = [ "reddit" ];
+    "reddit-top-rss" = [ "reddit" "reddit-top" ];
   };
   tagify = url:
     lib.lists.flatten (lib.attrValues
@@ -48,7 +48,7 @@ let
 
   subredditToRss = args:
     "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
-      toString (args.threshold or 20)
+      toString (args.threshold or 25)
     }&view=rss";
   subreddits = [
     { name = "books"; }
@@ -72,6 +72,7 @@ let
       threshold = 100;
     }
     { name = "ultrarunning"; }
+    { name = "trailrunning"; }
     { name = "writingprompts"; }
     {
       name = "reverseengineering";
@@ -108,7 +109,7 @@ in {
       tags = [ "filter" ];
     }) urlFilters;
 
-    queries = { "Youtube Videos" = ''tags # "youtube"''; };
+    queries = { "Youtube Videos" = ''tags # "youtube"''; "Top Posts From Subreddits" = ''tags # "reddit-top"''; };
 
     extraConfig = ''
       cleanup-on-quit no
