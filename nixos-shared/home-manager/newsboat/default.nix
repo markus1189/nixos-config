@@ -26,10 +26,6 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
-      {
-        url = "https://api.rocketbeans.tv/v1/blog/feed/rss2";
-        filter = filterItems "morriton";
-      }
     ] ++ (map taunusNachrichtenSearch [
       "waldkauz"
       "eisvogel"
@@ -39,8 +35,8 @@ let
   taggingRules = {
     "youtube.com" = [ "youtube" "!hide" ];
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
-    "reddit.com" = [ "reddit" ];
-    "reddit-top-rss" = [ "reddit" "reddit-top" ];
+    "reddit.com" = [ "reddit" "!hide" ];
+    "reddit-top-rss" = [ "reddit" "reddit-top" "!hide" ];
   };
   tagify = url:
     lib.lists.flatten (lib.attrValues
@@ -109,7 +105,10 @@ in {
       tags = [ "filter" ];
     }) urlFilters;
 
-    queries = { "Youtube Videos" = ''tags # "youtube"''; "Top Posts From Subreddits" = ''tags # "reddit-top"''; };
+    queries = {
+      "Youtube Videos" = ''tags # "youtube"'';
+      "Top Posts From Subreddits" = ''tags # "reddit-top"'';
+    };
 
     extraConfig = ''
       cleanup-on-quit no
