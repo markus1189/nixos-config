@@ -121,7 +121,9 @@ in rec {
 
     tlp = {
       enable = true;
-      settings = { USB_BLACKLIST = "046d:c52b"; };
+      settings = {
+        USB_AUTOSUSPEND=0;
+      };
     };
 
     x11vnc = {
