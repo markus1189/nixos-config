@@ -787,7 +787,8 @@ Position the cursor at its beginning, according to the current mode."
   :bind (("C-c C-a" . mh/haskell-mode-organize-imports)
          ("C-c C-q" . mh/haskell-import-toggle-qualified)
          ("C-c ?" . mh/haskell-insert-undefined))
-  :ensure t)
+  :ensure t
+  :hook ((haskell-mode . interactive-haskell-mode)))
 
 (use-package ox-jira
   :ensure t)
