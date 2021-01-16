@@ -55,6 +55,13 @@ in {
           linewrap = 79;
         };
       };
+
+      "mpv_config" = {
+        target = ".config/mpv/mpv.conf";
+        text = ''
+          save-position-on-quit=yes
+        '';
+      };
     };
   };
 
