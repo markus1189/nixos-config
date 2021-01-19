@@ -88,6 +88,10 @@ let
     { name = "mrvalor"; }
     { name = "penandpaper"; }
     { name = "podcasts"; }
+    {
+      name = "worldnews";
+      threshold = 70;
+    }
   ];
 in {
   value = {
