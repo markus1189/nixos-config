@@ -62,6 +62,16 @@ in {
           save-position-on-quit=yes
         '';
       };
+
+      "global-sbt-aliases" = {
+        target = ".sbt/1.0/global-aliases.sbt";
+        text = ''
+          addCommandAlias("r", "reload")
+          addCommandAlias("c", "compile")
+          addCommandAlias("t", "test")
+          addCommandAlias("to", "testOnly")
+        '';
+      };
     };
   };
 
