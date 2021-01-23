@@ -229,7 +229,9 @@ myKeys =
   , ((myModKey, xK_e), swapNextScreen)
   , ((myModKey, xK_equal), sendMessage Expand)
   , ((myModKey, xK_minus), sendMessage Shrink)
-  , ((myModKey, xK_o), submap . M.fromList $ [ ((0, xK_f), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
+  , ((myModKey, xK_o), submap . M.fromList $ [ ((0, xK_c), raise (className =? "Chromium-browser"))
+                                             , ((0, xK_f), raise (className =? "Firefox"))
+                                             , ((0, xK_i), raise (className =? "jetbrains-idea-ce"))
                                              , ((0, xK_t), raise (className =? "TelegramDesktop"))
                                              , ((0, xK_s), raise (className =? "Slack"))
                                              , ((0, xK_p), raise (className =? "Spotify"))
@@ -239,6 +241,7 @@ myKeys =
                                              , ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
                                              ])
   , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
+  , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
   , ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory")
   , ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse")
 
