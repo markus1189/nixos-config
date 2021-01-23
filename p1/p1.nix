@@ -24,7 +24,8 @@
   };
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_5_9;
+    # kernelPackages = pkgs.linuxPackages_latest;
   };
 
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
