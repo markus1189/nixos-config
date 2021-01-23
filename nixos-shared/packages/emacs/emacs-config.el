@@ -71,7 +71,6 @@
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
  '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
- '(ensime-implicit-highlight ((t (:underline (:color "dim gray" :style wave)))))
  '(eshell-prompt ((t (:foreground "light sky blue" :weight bold))))
  '(flyspell-duplicate ((t (:underline "red"))))
  '(flyspell-incorrect ((t (:foreground "red" :underline "red"))))
@@ -1255,13 +1254,27 @@ string). It returns t if a new completion is found, nil otherwise."
 (setq lsp-keymap-prefix "s-\\")
 
 (use-package lsp-mode
-    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-            ;; (XXX-mode . lsp)
-            ;; if you want which-key integration
-            (lsp-mode . lsp-enable-which-key-integration))
-    :commands lsp)
+  :ensure t
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         ;; (XXX-mode . lsp)
+         ;; if you want which-key integration
+         (scala-mode . lsp)
+         (lsp-mode . lsp-enable-which-key-integration)
+         (lsp-mode . lsp-lens-mode))
+  :commands
+  lsp
+  :config
+  (setq lsp-prefer-flymake nil))
 
 (use-package lsp-haskell
+  :ensure t)
+
+(use-package lsp-metals
+  :ensure t
+  :config
+  (setq lsp-metals-treeview-show-when-views-received t))
+
+(use-package lsp-treemacs
   :ensure t)
 
 ;; optional if you want which-key integration
@@ -1270,7 +1283,11 @@ string). It returns t if a new completion is found, nil otherwise."
     (which-key-mode))
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-(use-package dap-mode)
+(use-package dap-mode
+  :hook
+  (lsp-mode . dap-mode)
+  (lsp-mode . dap-ui-mode))
+
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
 (use-package js2-mode

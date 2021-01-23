@@ -83,6 +83,8 @@ in
     # LSP mode
     lsp-mode
     lsp-haskell
+    lsp-metals
+    lsp-treemacs
     which-key
     lsp-ui
     helm-lsp
