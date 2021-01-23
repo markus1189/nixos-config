@@ -55,6 +55,12 @@ in rec {
       "nixos-config=/home/${userName}/repos/nixos-config/${name}/configuration.nix"
       "/nix/var/nix/profiles/per-user/root/channels"
     ];
+
+    package = pkgs.nixFlakes;
+
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
   };
 
   boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
@@ -186,8 +192,6 @@ in rec {
         naturalScrolling = false;
       };
     };
-
-    acpid = { enable = true; };
 
     clipmenu = { enable = true; };
   };
