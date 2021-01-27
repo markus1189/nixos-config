@@ -39,7 +39,6 @@ shift+u move-right,move-up,warp
 shift+b move-left,move-down,warp
 shift+n move-right,move-down,warp
 space warp,click 1
-shift+space warp,doubleclick
 ctrl+space warp,click 3
 r warp,click 3,end
 d warp,doubleclick,end
@@ -58,8 +57,8 @@ c cursorzoom 200 200
 w warp
 
 # Scrolling
-ctrl+j click 5
-ctrl+k click 4
+i click 4
+o click 5
 
 # Record keynav actions
 q record ~/.keynav_macros
@@ -82,6 +81,8 @@ v sh "@xdotool@/bin/xdotool key shift+Insert"
 # shift+ctrl+q drag 1 shift+ctrl
 # Start drag holding middle mouse + control and shift
 #w drag 2 ctrl+shift
+
+shift+space warp,drag 1 ctrl+shift
 
 ### History
 a history-back
