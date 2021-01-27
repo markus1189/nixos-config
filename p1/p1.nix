@@ -45,6 +45,10 @@
   services = {
     fprintd.enable = false;
 
+    fwupd = {
+      enable = true;
+    };
+
     acpid = {
       enable = true;
       handlers =  {
