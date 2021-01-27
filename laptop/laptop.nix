@@ -187,9 +187,11 @@ in rec {
 
       libinput = {
         enable = true;
-        tapping = false;
-        disableWhileTyping = true;
-        naturalScrolling = false;
+        touchpad = {
+          tapping = false;
+          disableWhileTyping = true;
+          naturalScrolling = false;
+        };
       };
     };
 
