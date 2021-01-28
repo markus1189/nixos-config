@@ -293,7 +293,6 @@ in {
   };
 
   services = {
-    keynav.enable = true;
     flameshot.enable = true;
 
     dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix
