@@ -6,6 +6,7 @@ let
   secrets = import ../nixos-shared/secrets.nix;
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
+  myWallpaper = "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/wallpapers/nineish-dark-gray-2020-07-02/contents/images/nix-wallpaper-nineish-dark-gray.png";
 in rec {
   lib = { _custom_ = { userName = "markus"; }; };
 
@@ -169,7 +170,7 @@ in rec {
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr
-          ${pkgs.feh}/bin/feh --no-fehbg --bg-tile ${pkgs.markus-wallpapers.cc} &
+          ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${myWallpaper} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
           ${pkgs.parcellite}/bin/parcellite &
           ${pkgs.xcape}/bin/xcape -t 200 -e 'Caps_Lock=Escape'
