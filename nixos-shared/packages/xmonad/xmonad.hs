@@ -1,15 +1,8 @@
-{-# OPTIONS -fno-warn-missing-signatures #-}
-
-import           Control.Monad (unless)
-import           Data.Char (toLower)
-import           Data.Function (on)
 import           Data.Functor (void)
-import           Data.List (intercalate, isInfixOf, isPrefixOf)
+import           Data.List (isPrefixOf)
 import qualified Data.Map as M
-import           Data.Monoid ((<>), All (..))
 import           Data.Ratio ((%))
 import           System.IO (hPutStrLn)
-import           Text.Printf (printf)
 import           XMonad
 import           XMonad.Actions.CopyWindow (kill1)
 import           XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, swapNextScreen, toggleWS')
@@ -23,7 +16,6 @@ import           XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import           XMonad.Hooks.ManageHelpers (isDialog)
 import           XMonad.Hooks.SetWMName (setWMName)
 import           XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
-import           XMonad.Layout (Tall (..))
 import           XMonad.Layout.AutoMaster (autoMaster)
 import           XMonad.Layout.Grid (Grid (..))
 import           XMonad.Layout.IM (Property (Role), withIM)
@@ -35,9 +27,6 @@ import           XMonad.Layout.Reflect (reflectHoriz)
 import           XMonad.Layout.ResizableTile (ResizableTall (..))
 import           XMonad.Layout.SimpleFloat (simpleFloat)
 import           XMonad.Layout.Tabbed
-import           XMonad.Prompt
-import           XMonad.Prompt.Input
-import           XMonad.Prompt.Window (windowPromptGoto)
 import qualified XMonad.StackSet as W
 import           XMonad.Util.EZConfig (additionalKeys, removeKeys)
 import           XMonad.Util.NamedScratchpad
@@ -115,7 +104,7 @@ myManageHook =
       ]
     ws6 = []
     ws7 = []
-    ws8 = ["TelegramDesktop", "Spotify", "Slack"]
+    ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack"]
     ws9 = ["MPlayer", "mplayer2"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
@@ -155,31 +144,9 @@ myScratchPads =
         t = 0.02
         l = 0.6
 
-myXPConfig :: XPConfig
-myXPConfig =
-  defaultXPConfig
-    { font = myFont,
-      bgColor = "black",
-      fgColor = "gray",
-      bgHLight = "orange",
-      fgHLight = "black",
-      borderColor = "orange",
-      promptBorderWidth = 1,
-      height = 20,
-      position = Top,
-      historySize = 500,
-      historyFilter = deleteConsecutive,
-      autoComplete = Just 1,
-      searchPredicate = predicate
-    }
-  where
-    predicate term candidate = all (`isInfixOf` map toLower candidate) termWords
-      where
-        termWords = words (map toLower term)
-
 myTab :: Theme
 myTab =
-  defaultTheme
+  def
     { activeColor = "black",
       activeTextColor = "orange",
       activeBorderColor = "orange",
@@ -196,9 +163,11 @@ myTab =
 myFont :: String
 myFont = "xft:DejaVu Sans-7:bold"
 
+myMouseBindings :: p -> [((ButtonMask, Button), Window -> X ())]
 myMouseBindings _ = [((myModKey, button3), \w -> focus w >> Flex.mouseWindow Flex.linear w)]
 
-myNewMouseBindings x = mouseBindings defaultConfig x `M.union` M.fromList (myMouseBindings x)
+myNewMouseBindings :: XConfig Layout -> M.Map (ButtonMask, Button) (Window -> X ())
+myNewMouseBindings x = mouseBindings def x `M.union` M.fromList (myMouseBindings x)
 
 myRemovedKeys :: [(ButtonMask, KeySym)]
 myRemovedKeys =
@@ -258,12 +227,16 @@ myKeys =
   , ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset")
 
   -- Multimedia via Bose
-  ,  ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause")
-  ,  ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous")
-  ,  ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
-  ,  ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2")
-  ,  ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
-  ]
+  , ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause")
+  , ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous")
+  , ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
+  , ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2")
+  , ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
+
+  -- Non-greedy workspace switching
+  ] ++ [((m .|. myModKey, k), windows $ f i)
+         | (i, k) <- zip myWorkspaces [xK_1 .. xK_9]
+         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
   where
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
@@ -304,6 +277,7 @@ standardLayouts = tabLayout ||| myTall ||| tiled ||| autoMasterLayout Grid ||| G
 
 autoMasterLayout = autoMaster 1 (1 / 50)
 
+tiled :: ResizableTall t
 tiled = ResizableTall 1 (1 / 50) (3 / 4) []
 
 tabLayout = tabbed shrinkText myTab
@@ -334,8 +308,8 @@ myTerminal :: String
 myTerminal = "urxvt"
 
 runTerminal :: String -> String -> String
-runTerminal title arg =
-  unwords [myTerminal, "-title", title, "-e", "bash", "-c", "'" ++ arg ++ "'"]
+runTerminal termTitle arg =
+  unwords [myTerminal, "-title", termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
 
 -- like the standard ewmh, but don't focus (damn it)
 ewmhSupport :: XConfig a -> XConfig a
@@ -346,21 +320,15 @@ ewmhSupport c =
       logHook = logHook c <> ewmhDesktopsLogHook
     }
 
--- TODO: make it not focus the window on events
-customEwmhDesktopsEventHook :: Event -> X All
-customEwmhDesktopsEventHook e = do
-  a_aw <- getAtom "_NET_ACTIVE_WINDOW"
-  ewmhDesktopsEventHook e
-
 main :: IO ()
 main = do
   xmobarBottom <- spawnPipe "@xmobar@/bin/xmobar @xmobarLower@"
   void $ spawnPipe "@xmobar@/bin/xmobar @xmobarUpper@"
   xmonad $ ewmhSupport $ docks $ withUrgencyHook NoUrgencyHook $
-    defaultConfig
+    def
       { workspaces = myWorkspaces,
         manageHook =
-          manageHook defaultConfig
+          manageHook def
             <+> myManageHook
             <+> namedScratchpadManageHook myScratchPads,
         borderWidth = 2,
