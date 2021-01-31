@@ -267,6 +267,14 @@ in rec {
   };
 
   security = {
+    doas = {
+      enable = false;
+      extraRules = [{
+        persist = true;
+        groups = [ "wheel" ];
+        setEnv = [ "-SSH_AUTH_SOCK" "NIX_PATH" ];
+      }];
+    };
     sudo = {
       enable = true;
       extraConfig = ''
