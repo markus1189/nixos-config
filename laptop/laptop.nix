@@ -268,11 +268,11 @@ in rec {
 
   security = {
     doas = {
-      enable = false;
+      enable = true;
       extraRules = [{
         persist = true;
-        groups = [ "wheel" ];
-        setEnv = [ "-SSH_AUTH_SOCK" "NIX_PATH" ];
+        users = [ config.lib._custom_.userName ];
+        setEnv = [ "NIX_PATH" ];
       }];
     };
     sudo = {
