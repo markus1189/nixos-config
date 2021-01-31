@@ -658,6 +658,11 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "s-œ") 'mh/cut-window-to-register)
 
   (setq gc-cons-threshold 100000000)
+
+  (setq erc-autojoin-channels-alist
+        '(("irchighway.net" "#ebooks")))
+
+  (global-subword-mode)
   )
 
 (use-package quick-yes
