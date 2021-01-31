@@ -269,11 +269,10 @@ in rec {
   security = {
     doas = {
       enable = true;
-      extraRules = [{
-        persist = true;
-        users = [ config.lib._custom_.userName ];
-        setEnv = [ "NIX_PATH" ];
-      }];
+      extraConfig = ''
+        deny :wheel
+        permit persist setenv { NIX_PATH } ${config.lib._custom_.userName}
+      '';
     };
     sudo = {
       enable = true;
