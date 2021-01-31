@@ -272,7 +272,7 @@ in rec {
       enable = true;
       extraConfig = ''
         deny :wheel
-        permit persist setenv { NIX_PATH } ${config.lib._custom_.userName}
+        permit persist setenv { SSH_AUTH_SOCK NIX_PATH } ${config.lib._custom_.userName}
       '';
     };
     sudo = {
