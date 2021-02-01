@@ -104,7 +104,7 @@ myManageHook =
       ]
     ws6 = []
     ws7 = []
-    ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack"]
+    ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
     ws9 = ["MPlayer", "mplayer2"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
