@@ -60,6 +60,8 @@ in {
         target = ".config/mpv/mpv.conf";
         text = ''
           save-position-on-quit=yes
+          osd-msg3="''${time-pos} / ''${duration} [''${playtime-remaining} @ ''${speed}]"
+          osd-duration=5000
         '';
       };
 
