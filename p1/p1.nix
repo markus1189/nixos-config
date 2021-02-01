@@ -34,6 +34,7 @@
 
   hardware = {
     opengl.extraPackages = with pkgs; [ intel-ocl ];
+    cpu.intel.updateMicrocode = true;
     trackpoint = {
       device = "TPPS/2 Elan TrackPoint";
       emulateWheel = true;
