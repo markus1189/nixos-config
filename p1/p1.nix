@@ -39,6 +39,8 @@
   programs.steam.enable = true;
 
   services = {
+    throttled.enable = true;
+
     fprintd.enable = false;
 
     fwupd = { enable = true; };
