@@ -105,7 +105,7 @@ myManageHook =
     ws6 = []
     ws7 = []
     ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
-    ws9 = ["MPlayer", "mplayer2"]
+    ws9 = ["MPlayer", "mplayer2", "mpv"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
         fmap ("libreoffice" `isPrefixOf`) className --> doShift (workSpaceN 5)
