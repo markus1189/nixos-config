@@ -32,9 +32,16 @@
 
   system.stateVersion = "20.09";
 
-  hardware.opengl.extraPackages = with pkgs; [
-    intel-ocl
-  ];
+  hardware = {
+    opengl.extraPackages = with pkgs; [ intel-ocl ];
+    trackpoint = {
+      device = "TPPS/2 Elan TrackPoint";
+      emulateWheel = true;
+      enable = true;
+      sensitivity = 112;
+      speed = 97;
+    };
+  };
 
   programs.steam.enable = true;
 
