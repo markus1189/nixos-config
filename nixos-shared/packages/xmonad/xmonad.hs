@@ -33,7 +33,7 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
-myWorkspaces = map show [(1 :: Int) .. 9]
+myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
 
 workSpaceN :: Int -> String
 workSpaceN i = myWorkspaces !! (i -1)
@@ -225,10 +225,12 @@ myKeys =
   , ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2")
   , ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
 
-  -- Non-greedy workspace switching
-  ] ++ [((m .|. myModKey, k), windows $ f i)
-         | (i, k) <- zip myWorkspaces [xK_1 .. xK_9]
-         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
+  -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
+  ] ++
+  [ ((m .|. myModKey, k), windows $ f i)
+  | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0])
+  , (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
+  ]
   where
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
