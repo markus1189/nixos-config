@@ -1,36 +1,36 @@
-import           Data.Functor ((<&>), void)
-import           Data.List (isPrefixOf, isInfixOf)
+import Data.Functor (void, (<&>))
+import Data.List (isInfixOf, isPrefixOf)
 import qualified Data.Map as M
-import           Data.Ratio ((%))
-import           System.IO (hPutStrLn)
-import           XMonad
-import           XMonad.Actions.CopyWindow (kill1)
-import           XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
+import Data.Ratio ((%))
+import System.IO (hPutStrLn)
+import XMonad
+import XMonad.Actions.CopyWindow (kill1)
+import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
-import           XMonad.Actions.Submap
-import           XMonad.Actions.WindowGo (raise)
-import           XMonad.Config.Gnome (gnomeConfig)
-import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
-import           XMonad.Hooks.ManageDocks (avoidStruts, docks)
-import           XMonad.Hooks.ManageHelpers (isDialog)
-import           XMonad.Hooks.SetWMName (setWMName)
-import           XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
-import           XMonad.Layout.AutoMaster (autoMaster)
-import           XMonad.Layout.Grid (Grid (..))
-import           XMonad.Layout.IM (Property (Role), withIM)
-import           XMonad.Layout.MultiToggle ((??), EOT (..), Toggle (..), mkToggle)
-import           XMonad.Layout.MultiToggle.Instances
-import           XMonad.Layout.NoBorders (smartBorders)
-import           XMonad.Layout.PerWorkspace (onWorkspace)
-import           XMonad.Layout.Reflect (reflectHoriz)
-import           XMonad.Layout.ResizableTile (ResizableTall (..))
-import           XMonad.Layout.SimpleFloat (simpleFloat)
-import           XMonad.Layout.Tabbed
+import XMonad.Actions.Submap
+import XMonad.Actions.WindowGo (raise)
+import XMonad.Config.Gnome (gnomeConfig)
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
+import XMonad.Hooks.ManageDocks (avoidStruts, docks)
+import XMonad.Hooks.ManageHelpers (isDialog)
+import XMonad.Hooks.SetWMName (setWMName)
+import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
+import XMonad.Layout.AutoMaster (autoMaster)
+import XMonad.Layout.Grid (Grid (..))
+import XMonad.Layout.IM (Property (Role), withIM)
+import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
+import XMonad.Layout.MultiToggle.Instances
+import XMonad.Layout.NoBorders (smartBorders)
+import XMonad.Layout.PerWorkspace (onWorkspace)
+import XMonad.Layout.Reflect (reflectHoriz)
+import XMonad.Layout.ResizableTile (ResizableTall (..))
+import XMonad.Layout.SimpleFloat (simpleFloat)
+import XMonad.Layout.Tabbed
 import qualified XMonad.StackSet as W
-import           XMonad.Util.EZConfig (additionalKeys, removeKeys, additionalKeysP)
-import           XMonad.Util.NamedScratchpad
-import           XMonad.Util.Run (spawnPipe)
+import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
+import XMonad.Util.NamedScratchpad
+import XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -181,56 +181,54 @@ myRemovedKeys =
 
 myKeys :: [((ButtonMask, KeySym), X ())]
 myKeys =
-  [ ((myModCtrl, xK_Return), windows W.swapMaster)
-  , ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere")
-  , ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen")
-
-  , ((myModKey, xK_BackSpace), focusUrgent)
-  , ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile")
-  , ((myModKey, xK_F11), spawn "~/bin/f11")
-  , ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui") -- NOTE: requires flameshot service to be active (nixos or home-manager)
-  , ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change")
-  , ((myModKey, xK_Return), sendMessage $ Toggle FULL)
-  , ((myModKey, xK_Tab), toggleWS' ["NSP"])
-  , ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)")
-  , ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun")
-  , ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run")
-  , ((myModKey, xK_e), swapNextScreen)
-  , ((myModKey, xK_equal), sendMessage Expand)
-  , ((myModKey, xK_minus), sendMessage Shrink)
-  , ((myModKey, xK_p), submap . M.fromList $ [ ((0, xK_p), spawn "@playerctl@/bin/playerctl -p spotify previous")
-                                             , ((0, xK_n), spawn "@playerctl@/bin/playerctl -p spotify next")
-                                             , ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
-                                             ])
-  , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
-  , ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory")
-  , ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse")
-
-  , ((myModShift, xK_BackSpace), clearUrgents)
-  , ((myModShift, xK_l), scratchTermLower)
-  , ((myModShift, xK_o), scratchTermRight)
-  , ((myModShift, xK_q), kill1)
-  , ((myModShift, xK_t), withFocused $ windows . W.sink)
-  , ((myModShift, xK_u), scratchTermUpper)
-  , ((myModShift, xK_w), shiftNextScreen)
-  , ((myModShift, xK_x), spawn "@xkill@/bin/xkill")
-
-  , ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu")
-  , ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset")
-
-  -- Multimedia via Bose
-  , ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause")
-  , ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous")
-  , ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next")
-  , ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2")
-  , ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
-
-  -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
-  ] ++
-  [ ((m .|. myModKey, k), windows $ f i)
-  | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0])
-  , (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
+  [ ((myModCtrl, xK_Return), windows W.swapMaster),
+    ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
+    ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
+    ((myModKey, xK_BackSpace), focusUrgent),
+    ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
+    ((myModKey, xK_F11), spawn "~/bin/f11"),
+    ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
+    ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
+    ((myModKey, xK_Return), sendMessage $ Toggle FULL),
+    ((myModKey, xK_Tab), toggleWS' ["NSP"]),
+    ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
+    ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
+    ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
+    ((myModKey, xK_e), swapNextScreen),
+    ((myModKey, xK_equal), sendMessage Expand),
+    ((myModKey, xK_minus), sendMessage Shrink),
+    ( (myModKey, xK_p),
+      submap . M.fromList $
+        [ ((0, xK_p), spawn "@playerctl@/bin/playerctl -p spotify previous"),
+          ((0, xK_n), spawn "@playerctl@/bin/playerctl -p spotify next"),
+          ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
+        ]
+    ),
+    ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
+    ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory"),
+    ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse"),
+    ((myModShift, xK_BackSpace), clearUrgents),
+    ((myModShift, xK_l), scratchTermLower),
+    ((myModShift, xK_o), scratchTermRight),
+    ((myModShift, xK_q), kill1),
+    ((myModShift, xK_t), withFocused $ windows . W.sink),
+    ((myModShift, xK_u), scratchTermUpper),
+    ((myModShift, xK_w), shiftNextScreen),
+    ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
+    ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu"),
+    ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
+    -- Multimedia via Bose
+    ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause"),
+    ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous"),
+    ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next"),
+    ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2"),
+    ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
+    -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
   ]
+    ++ [ ((m .|. myModKey, k), windows $ f i)
+         | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0]),
+           (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
+       ]
   where
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
@@ -246,17 +244,18 @@ myKeys =
     xF86AudioRewind = 0x1008ff3e
 
 myKeysP :: [(String, X ())]
-myKeysP = [ (myModKeyP "o c h", raise (className <&> ("Chromium-browser" ==)))
-          , (myModKeyP "o e m", raise (className <&> ("emacs" ==)))
-          , (myModKeyP "o f i", raise (className <&> ("Firefox" ==)))
-          , (myModKeyP "o i n", raise (className <&> ("jetbrains-idea-ce" ==)))
-          , (myModKeyP "o i m", raise (title <&> ("im:ssh:" `isInfixOf`)))
-          , (myModKeyP "o t e", raise (className <&> ("TelegramDesktop" ==)))
-          , (myModKeyP "o s i", raise (className <&> ("Signal" ==)))
-          , (myModKeyP "o s l", raise (className <&> ("Slack" ==)))
-          , (myModKeyP "o s p", raise (className <&> ("Spotify" ==)))
-          , (myModKeyP "o m p", raise (className <&> ("mpv" ==)))
-          ]
+myKeysP =
+  [ (myModKeyP "o c h", raise (className <&> ("Chromium-browser" ==))),
+    (myModKeyP "o e m", raise (className <&> ("emacs" ==))),
+    (myModKeyP "o f i", raise (className <&> ("Firefox" ==))),
+    (myModKeyP "o i n", raise (className <&> ("jetbrains-idea-ce" ==))),
+    (myModKeyP "o i m", raise (title <&> ("im:ssh:" `isInfixOf`))),
+    (myModKeyP "o t e", raise (className <&> ("TelegramDesktop" ==))),
+    (myModKeyP "o s i", raise (className <&> ("Signal" ==))),
+    (myModKeyP "o s l", raise (className <&> ("Slack" ==))),
+    (myModKeyP "o s p", raise (className <&> ("Spotify" ==))),
+    (myModKeyP "o m p", raise (className <&> ("mpv" ==)))
+  ]
 
 myModKey :: ButtonMask
 myModKey = mod4Mask
@@ -274,12 +273,12 @@ myModShiftCtrl :: ButtonMask
 myModShiftCtrl = myModKey .|. controlMask .|. shiftMask
 
 myLayoutHook =
-  mkToggle (NOBORDERS ?? FULL ?? EOT)
-    $ avoidStruts . smartBorders
-    $ onWorkspace
-      (workSpaceN 5)
-      (standardLayouts ||| gimpLayout)
-      standardLayouts
+  mkToggle (NOBORDERS ?? FULL ?? EOT) $
+    avoidStruts . smartBorders $
+      onWorkspace
+        (workSpaceN 5)
+        (standardLayouts ||| gimpLayout)
+        standardLayouts
 
 standardLayouts = tabLayout ||| myTall ||| tiled ||| autoMasterLayout Grid ||| Grid ||| Full ||| simpleFloat
   where
@@ -293,9 +292,9 @@ tiled = ResizableTall 1 (1 / 50) (3 / 4) []
 tabLayout = tabbed shrinkText myTab
 
 gimpLayout =
-  withIM 0.11 (Role "gimp-toolbox")
-    $ reflectHoriz
-    $ withIM 0.15 (Role "gimp-dock") Full
+  withIM 0.11 (Role "gimp-toolbox") $
+    reflectHoriz $
+      withIM 0.15 (Role "gimp-dock") Full
 
 workspaceRenamer :: String -> String
 workspaceRenamer x = case x of
@@ -334,34 +333,37 @@ main :: IO ()
 main = do
   xmobarBottom <- spawnPipe "@xmobar@/bin/xmobar @xmobarLower@"
   void $ spawnPipe "@xmobar@/bin/xmobar @xmobarUpper@"
-  xmonad $ ewmhSupport $ docks $ withUrgencyHook NoUrgencyHook $
-    def
-      { workspaces = myWorkspaces,
-        manageHook =
-          manageHook def
-            <+> myManageHook
-            <+> namedScratchpadManageHook myScratchPads,
-        borderWidth = 2,
-        focusFollowsMouse = False,
-        terminal = myTerminal,
-        focusedBorderColor = "orange",
-        layoutHook = avoidStruts myLayoutHook,
-        startupHook = setWMName "LG3D",
-        logHook =
-          dynamicLogWithPP
-            xmobarPP
-              { ppOutput = hPutStrLn xmobarBottom,
-                ppTitle = xmobarColor "orange" "",
-                ppUrgent = xmobarColor "black" "orange" . xmobarStrip,
-                ppVisible = xmobarColor "red" "black",
-                ppCurrent = xmobarColor "orange" "black",
-                ppWsSep = " | ",
-                ppSep = " | ",
-                ppLayout = xmobarColor "gray" "black" . workspaceRenamer
-              },
-        modMask = myModKey,
-        mouseBindings = myNewMouseBindings
-      }
-      `removeKeys` myRemovedKeys
-      `additionalKeys` myKeys
-      `additionalKeysP` myKeysP
+  xmonad $
+    ewmhSupport $
+      docks $
+        withUrgencyHook NoUrgencyHook $
+          def
+            { workspaces = myWorkspaces,
+              manageHook =
+                manageHook def
+                  <+> myManageHook
+                  <+> namedScratchpadManageHook myScratchPads,
+              borderWidth = 2,
+              focusFollowsMouse = False,
+              terminal = myTerminal,
+              focusedBorderColor = "orange",
+              layoutHook = avoidStruts myLayoutHook,
+              startupHook = setWMName "LG3D",
+              logHook =
+                dynamicLogWithPP
+                  xmobarPP
+                    { ppOutput = hPutStrLn xmobarBottom,
+                      ppTitle = xmobarColor "orange" "",
+                      ppUrgent = xmobarColor "black" "orange" . xmobarStrip,
+                      ppVisible = xmobarColor "red" "black",
+                      ppCurrent = xmobarColor "orange" "black",
+                      ppWsSep = " | ",
+                      ppSep = " | ",
+                      ppLayout = xmobarColor "gray" "black" . workspaceRenamer
+                    },
+              modMask = myModKey,
+              mouseBindings = myNewMouseBindings
+            }
+            `removeKeys` myRemovedKeys
+            `additionalKeys` myKeys
+            `additionalKeysP` myKeysP
