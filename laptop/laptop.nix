@@ -314,6 +314,10 @@ in rec {
       clone() {
           cd ~/repos/clones && git clone "$1" && cd "$(basename "$1" .git)"
       }
+
+      callPackage() {
+        nix-shell -p "with import <nixpkgs> {}; (callPackage ( import $1 ) {})";
+      }
     '';
 
     shellAliases = (with pkgs; {
@@ -325,9 +329,6 @@ in rec {
       clip = "${xclip}/bin/xclip -i -selection clipboard";
       ff = "${emacs}/bin/emacsclient -n -c";
       FF = "${emacs}/bin/emacsclient -n";
-      callPackage = '''
-        nix-shell -p "with import <nixpkgs> {}; (callPackage ( import \"$1\" ) {})"
-      ''';
       magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
       ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
