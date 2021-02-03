@@ -28,7 +28,7 @@ import           XMonad.Layout.ResizableTile (ResizableTall (..))
 import           XMonad.Layout.SimpleFloat (simpleFloat)
 import           XMonad.Layout.Tabbed
 import qualified XMonad.StackSet as W
-import           XMonad.Util.EZConfig (additionalKeys, removeKeys)
+import           XMonad.Util.EZConfig (additionalKeys, removeKeys, additionalKeysP)
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run (spawnPipe)
 
@@ -198,21 +198,10 @@ myKeys =
   , ((myModKey, xK_e), swapNextScreen)
   , ((myModKey, xK_equal), sendMessage Expand)
   , ((myModKey, xK_minus), sendMessage Shrink)
-  , ((myModKey, xK_o), submap . M.fromList $ [ ((0, xK_c), raise (className =? "Chromium-browser"))
-                                             , ((0, xK_f), raise (className =? "Firefox"))
-                                             , ((0, xK_i), raise (className =? "jetbrains-idea-ce"))
-                                             , ((0, xK_t), raise (className =? "TelegramDesktop"))
-                                             , ((0, xK_s), submap . M.fromList $ [ ((0, xK_i), raise (className =? "Signal"))
-                                                                                 , ((0, xK_l), raise (className =? "Slack"))
-                                                                                 , ((0, xK_p), raise (className =? "Spotify"))
-                                                                                 ])
-                                             , ((0, xK_m), raise (className =? "mpv"))
-                                             ])
   , ((myModKey, xK_p), submap . M.fromList $ [ ((0, xK_p), spawn "@playerctl@/bin/playerctl -p spotify previous")
                                              , ((0, xK_n), spawn "@playerctl@/bin/playerctl -p spotify next")
                                              , ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
                                              ])
-  , ((myModKey, xK_q), prevScreen >> spawn "@centerMouse@/bin/centerMouse")
   , ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window")
   , ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory")
   , ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse")
@@ -254,8 +243,23 @@ myKeys =
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
 
+myKeysP :: [(String, X ())]
+myKeysP = [ (myModKeyP "o c", raise (className =? "Chromium-browser"))
+          , (myModKeyP "o e", raise (className =? "emacs"))
+          , (myModKeyP "o f", raise (className =? "Firefox"))
+          , (myModKeyP "o i", raise (className =? "jetbrains-idea-ce"))
+          , (myModKeyP "o t", raise (className =? "TelegramDesktop"))
+          , (myModKeyP "o s i", raise (className =? "Signal"))
+          , (myModKeyP "o s l", raise (className =? "Slack"))
+          , (myModKeyP "o s p", raise (className =? "Spotify"))
+          , (myModKeyP "o m", raise (className =? "mpv"))
+          ]
+
 myModKey :: ButtonMask
 myModKey = mod4Mask
+
+myModKeyP :: String -> String
+myModKeyP = ("M4-" <>)
 
 myModShift :: ButtonMask
 myModShift = myModKey .|. shiftMask
@@ -357,3 +361,4 @@ main = do
       }
       `removeKeys` myRemovedKeys
       `additionalKeys` myKeys
+      `additionalKeysP` myKeysP
