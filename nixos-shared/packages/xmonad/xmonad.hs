@@ -1,11 +1,11 @@
-import           Data.Functor (void)
-import           Data.List (isPrefixOf)
+import           Data.Functor ((<&>), void)
+import           Data.List (isPrefixOf, isInfixOf)
 import qualified Data.Map as M
 import           Data.Ratio ((%))
 import           System.IO (hPutStrLn)
 import           XMonad
 import           XMonad.Actions.CopyWindow (kill1)
-import           XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, swapNextScreen, toggleWS')
+import           XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
 import           XMonad.Actions.Submap
 import           XMonad.Actions.WindowGo (raise)
@@ -246,15 +246,16 @@ myKeys =
     xF86AudioRewind = 0x1008ff3e
 
 myKeysP :: [(String, X ())]
-myKeysP = [ (myModKeyP "o c", raise (className =? "Chromium-browser"))
-          , (myModKeyP "o e", raise (className =? "emacs"))
-          , (myModKeyP "o f", raise (className =? "Firefox"))
-          , (myModKeyP "o i", raise (className =? "jetbrains-idea-ce"))
-          , (myModKeyP "o t", raise (className =? "TelegramDesktop"))
-          , (myModKeyP "o s i", raise (className =? "Signal"))
-          , (myModKeyP "o s l", raise (className =? "Slack"))
-          , (myModKeyP "o s p", raise (className =? "Spotify"))
-          , (myModKeyP "o m", raise (className =? "mpv"))
+myKeysP = [ (myModKeyP "o c h", raise (className <&> ("Chromium-browser" ==)))
+          , (myModKeyP "o e m", raise (className <&> ("emacs" ==)))
+          , (myModKeyP "o f i", raise (className <&> ("Firefox" ==)))
+          , (myModKeyP "o i n", raise (className <&> ("jetbrains-idea-ce" ==)))
+          , (myModKeyP "o i m", raise (title <&> ("im:ssh:" `isInfixOf`)))
+          , (myModKeyP "o t e", raise (className <&> ("TelegramDesktop" ==)))
+          , (myModKeyP "o s i", raise (className <&> ("Signal" ==)))
+          , (myModKeyP "o s l", raise (className <&> ("Slack" ==)))
+          , (myModKeyP "o s p", raise (className <&> ("Spotify" ==)))
+          , (myModKeyP "o m p", raise (className <&> ("mpv" ==)))
           ]
 
 myModKey :: ButtonMask
