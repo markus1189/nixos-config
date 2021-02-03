@@ -3,7 +3,7 @@
 {
   services = {
     monit = {
-      enable = true;
+      enable = false;
       config = ''
         set httpd
              port 2812
