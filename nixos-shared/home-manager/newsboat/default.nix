@@ -144,7 +144,6 @@ in {
       confirm-exit yes
       download-full-page yes
       history-limit 9999
-      keep-articles-days 15
 
       color background white default bold
       color listnormal white default
