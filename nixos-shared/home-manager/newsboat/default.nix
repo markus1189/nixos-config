@@ -121,6 +121,7 @@ in {
     autoReload = true;
 
     reloadTime = 15;
+    reloadThreads = 10;
 
     urls = map (url: {
       inherit url;
