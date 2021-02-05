@@ -42,10 +42,21 @@ let
     lib.lists.flatten (lib.attrValues
       (lib.filterAttrs (n: v: lib.strings.hasInfix n url) taggingRules));
 
+  fromGitHubRelease = { owner, repo }: {
+    url = "https://github.com/${owner}/${repo}/releases.atom";
+    tags = [ "github-releases" "!hide" ];
+  };
+
   subredditToRss = args:
     "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
       toString (args.threshold or 25)
     }&view=rss";
+
+  githubReleases = [{
+    owner = "CMB";
+    repo = "edbrowse";
+  }];
+
   subreddits = [
     { name = "books"; }
     { name = "commandline"; }
@@ -107,7 +118,7 @@ in {
     }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
       inherit url;
       tags = [ "filter" ];
-    }) urlFilters;
+    }) urlFilters ++ map fromGitHubRelease githubReleases;
 
     queries = {
       "Youtube Videos" = ''tags # "youtube"'';
