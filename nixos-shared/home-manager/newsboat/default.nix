@@ -44,7 +44,7 @@ let
 
   fromGitHubRelease = { owner, repo }: {
     url = "https://github.com/${owner}/${repo}/releases.atom";
-    tags = [ "github-release" ];
+    tags = [ "github-release" "!hide" ];
   };
 
   subredditToRss = args:
@@ -52,10 +52,20 @@ let
       toString (args.threshold or 25)
     }&view=rss";
 
-  githubReleases = [{
-    owner = "CMB";
-    repo = "edbrowse";
-  }];
+  githubReleases = [
+    {
+      owner = "CMB";
+      repo = "edbrowse";
+    }
+    {
+      owner = "pwmt";
+      repo = "zathura";
+    }
+    {
+      owner = "mpv-player";
+      repo = "mpv";
+    }
+  ];
 
   subreddits = [
     { name = "books"; }
