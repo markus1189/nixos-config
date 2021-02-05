@@ -44,7 +44,7 @@ let
 
   fromGitHubRelease = { owner, repo }: {
     url = "https://github.com/${owner}/${repo}/releases.atom";
-    tags = [ "github-release" "!hide" ];
+    tags = [ "github-release" ];
   };
 
   subredditToRss = args:
