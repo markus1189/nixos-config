@@ -6,6 +6,7 @@
       aws-vault
       binutils
       cachix
+      edbrowse
       gnupg
       gnupg1
       gitFull
