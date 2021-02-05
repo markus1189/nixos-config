@@ -44,7 +44,7 @@ let
 
   fromGitHubRelease = { owner, repo }: {
     url = "https://github.com/${owner}/${repo}/releases.atom";
-    tags = [ "github-releases" "!hide" ];
+    tags = [ "github-release" "!hide" ];
   };
 
   subredditToRss = args:
@@ -123,6 +123,7 @@ in {
     queries = {
       "Youtube Videos" = ''tags # "youtube"'';
       "Top Posts From Subreddits" = ''tags # "reddit-top"'';
+      "Github Releases" = ''tags # "github-release"'';
     };
 
     extraConfig = ''
