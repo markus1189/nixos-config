@@ -31,6 +31,7 @@ import qualified XMonad.StackSet as W
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (spawnPipe)
+import Data.Char (toLower)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -108,7 +109,7 @@ myManageHook =
     ws9 = ["MPlayer", "mplayer2", "mpv"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
-        fmap ("libreoffice" `isPrefixOf`) className --> doShift (workSpaceN 5)
+        className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
       ]
 
 myScratchPads :: [NamedScratchpad]
@@ -245,17 +246,18 @@ myKeys =
 
 myKeysP :: [(String, X ())]
 myKeysP =
-  [ (myModKeyP "o c h", raise (className <&> ("Chromium-browser" ==))),
-    (myModKeyP "o e m", raise (className <&> ("emacs" ==))),
-    (myModKeyP "o f i", raise (className <&> ("Firefox" ==))),
-    (myModKeyP "o i n", raise (className <&> ("jetbrains-idea-ce" ==))),
-    (myModKeyP "o i m", raise (title <&> ("im:ssh:" `isInfixOf`))),
-    (myModKeyP "o t e", raise (className <&> ("TelegramDesktop" ==))),
-    (myModKeyP "o s i", raise (className <&> ("Signal" ==))),
-    (myModKeyP "o s l", raise (className <&> ("Slack" ==))),
-    (myModKeyP "o s p", raise (className <&> ("Spotify" ==))),
-    (myModKeyP "o m p", raise (className <&> ("mpv" ==)))
+  [ (myModKeyP "o c h", raise (iclassName "chromium-browser")),
+    (myModKeyP "o e m", raise (iclassName "emacs")),
+    (myModKeyP "o f i", raise (iclassName "firefox")),
+    (myModKeyP "o i n", raise (iclassName "jetbrains-idea-ce")),
+    (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (title <&> ("im:" `isPrefixOf`)))),
+    (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
+    (myModKeyP "o s i", raise (iclassName "signal")),
+    (myModKeyP "o s l", raise (iclassName "slack")),
+    (myModKeyP "o s p", raise (iclassName "spotify")),
+    (myModKeyP "o m p", raise (iclassName "mpv"))
   ]
+  where iclassName cls = className <&> (cls ==) . map toLower
 
 myModKey :: ButtonMask
 myModKey = mod4Mask
