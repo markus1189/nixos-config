@@ -18,6 +18,7 @@
       git-secret
       gron
       htop
+      iotop
       jo
       jq
       logArgs

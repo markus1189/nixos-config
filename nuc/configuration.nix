@@ -90,14 +90,14 @@ in
       jq
       lsof
       mplayer
-      youtube-dl
-      nixUnstable
       nix-index
+      nixUnstable
       parallel
       pciutils
       pmutils
       psmisc
       pv
+      remind
       rlwrap
       rsync
       stack
@@ -105,14 +105,15 @@ in
       tree
       unrar
       unzip
+      vim
+      wget
       which
+      wyrd
       xclip
+      youtube-dl
       zathura
       zip
       zsh
-
-      vim
-      wget
     ];
   };
 
