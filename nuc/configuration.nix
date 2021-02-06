@@ -173,7 +173,7 @@ in
   };
 
   system = {
-    stateVersion = "19.03";
+    stateVersion = "20.09";
     autoUpgrade = {
       enable = true;
       dates = "04:21";
