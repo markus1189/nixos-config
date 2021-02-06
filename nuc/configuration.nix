@@ -28,7 +28,7 @@ in
       ./hardware-configuration.nix
       homeManager
       (import ../nixos-shared/home-manager/module.nix { homeNixFile = ./home.nix; })
-      ./jellyfin
+      ./jellyfin.nix
     ];
 
   lib = {
