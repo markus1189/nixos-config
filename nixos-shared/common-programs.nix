@@ -8,6 +8,8 @@
   programs = {
     command-not-found.enable = false;
 
+    firejail.enable = true;
+
     less = {
       envVariables = {
         LESS = "-XI";
