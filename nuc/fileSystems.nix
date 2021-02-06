@@ -6,7 +6,7 @@ let
       inherit neededForBoot fsType;
       mountPoint = "/media/${name}";
       device = "/dev/disk/by-uuid/${uuid}";
-      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ];
+      options = [ "defaults" "nls=utf8" "umask=000" "dmask=027" "uid=1000" "gid=100" "windows_names" ] ++ pkgs.lib.optionals (fsType == "ntfs-3g") ["big_writes"];
     };
 in
 {
