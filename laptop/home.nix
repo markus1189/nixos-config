@@ -14,6 +14,29 @@ in {
     ];
 
     file = {
+      "edbrowse-config" = {
+        target = ".ebrc";
+        text = ''
+          #  The cookie jar-where we store the http cookies.
+          #jar=/home/mylogin/outside/cookies
+
+          webtimer=60
+          mailtimer=180
+
+          agent=Lynx/2.8.4rel.1 libwww-FM/2.14
+          agent=Mozilla/4.0(compatible;MSIE 7.0;Windows NT 6.1;WOW64;Trident/5.0;SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729;Media Center PC 6.0; .NET4.0C; .NET4.0E)
+
+          function:init{
+          # Display the size of each file in a directory listing
+          ls=s
+
+          # character limit when displaying a line
+          ll 700
+          # enable readline
+          rl+
+          }
+        '';
+      };
       "gtk-bookmarks" = {
         text = ''
           file:///home/markus/Downloads
