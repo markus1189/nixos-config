@@ -3,6 +3,8 @@
 {
   services.jellyfin = {
     enable = true;
+    user = "mediacenter";
+    group = "users";
   };
 
   networking.firewall.allowedTCPPorts = [
