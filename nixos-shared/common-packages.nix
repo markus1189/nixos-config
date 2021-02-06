@@ -6,6 +6,7 @@
       aws-vault
       binutils
       cachix
+      ed
       edbrowse
       gnupg
       gnupg1
