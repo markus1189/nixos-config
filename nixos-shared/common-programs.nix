@@ -1,8 +1,12 @@
 { config, pkgs, ...}:
 
 {
+  environment.interactiveShellInit = ''
+      source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
+  '';
+
   programs = {
-    command-not-found.enable = true;
+    command-not-found.enable = false;
 
     less = {
       envVariables = {
