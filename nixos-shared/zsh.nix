@@ -64,7 +64,7 @@ in
         highlighters = [ "main" "brackets" ];
       };
 
-      interactiveShellInit = ''
+      interactiveShellInit = pkgs.lib.mkAfter ''
         autoload -U colors && colors
         autoload -z edit-command-line
 
@@ -91,7 +91,6 @@ in
         zle -N copy-current-command
         bindkey '^X^A' copy-current-command
 
-        source ${modifiedZbell}
         source ${customEraseWord}
       '';
     };
