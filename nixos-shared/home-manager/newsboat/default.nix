@@ -65,6 +65,26 @@ let
       owner = "mpv-player";
       repo = "mpv";
     }
+    {
+      owner = "mwh";
+      repo = "dragon";
+    }
+    {
+      owner = "jarun";
+      repo = "ddgr";
+    }
+    {
+      owner = "solemnwarning";
+      repo = "rehex";
+    }
+    {
+      owner = "eXeC64";
+      repo = "imv";
+    }
+    {
+      owner = "BestImageViewer";
+      repo = "geeqie";
+    }
   ];
 
   subreddits = [
