@@ -64,7 +64,7 @@ in
         highlighters = [ "main" "brackets" ];
       };
 
-      interactiveShellInit = pkgs.lib.mkAfter ''
+      interactiveShellInit = ''
         autoload -U colors && colors
         autoload -z edit-command-line
 
