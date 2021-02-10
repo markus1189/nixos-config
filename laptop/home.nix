@@ -116,7 +116,8 @@ in {
       enableZshIntegration = true;
     };
 
-    firefox.enable = true;
+    firefox = (pkgs.callPackage ../nixos-shared/home-manager/firefox/default.nix
+      { }).value;
 
     git =
       (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
