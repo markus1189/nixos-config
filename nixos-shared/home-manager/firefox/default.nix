@@ -15,7 +15,7 @@
         userChrome = "";
         userContent = ''
           @-moz-document domain("news.ycombinator.com") {
-              .hnuser { font-size: 15px }
+              .hnuser { font-size: 20px; color: black !important }
               .score { font-size: 15px }
           }
         '';
