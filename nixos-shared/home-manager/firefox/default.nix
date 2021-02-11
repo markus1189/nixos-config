@@ -18,6 +18,9 @@
               .hnuser { font-size: 20px; color: black !important }
               .score { font-size: 15px }
           }
+          @-moz-document domain("google.com"), domain("google.de") {
+              span > .f { color: darkorange !important; font-weight: bold !important }
+          }
         '';
         path = "managed";
       };
