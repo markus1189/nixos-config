@@ -14,6 +14,18 @@ in {
     ];
 
     file = {
+      "flameshot-config" = {
+        target = ".config/flameshot/flameshot.ini";
+        text = ''
+          [General]
+          disabledTrayIcon=false
+          drawColor=#ff0000
+          drawThickness=0
+          saveAfterCopyPath=/home/markus/Downloads
+          savePath=/home/markus/Downloads
+          uiColor=#ee8903
+        '';
+      };
       "edbrowse-config" = {
         target = ".ebrc";
         text = ''
