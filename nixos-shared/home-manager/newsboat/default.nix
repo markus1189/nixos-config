@@ -85,6 +85,10 @@ let
       owner = "BestImageViewer";
       repo = "geeqie";
     }
+    {
+      owner = "Duncaen";
+      repo = "OpenDoas";
+    }
   ];
 
   subreddits = [
