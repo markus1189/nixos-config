@@ -42,7 +42,12 @@ in
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot = { kernelPackages = pkgs.linuxPackages_latest; };
+
+  boot.kernelParams = [
+    # https://bugzilla.redhat.com/show_bug.cgi?id=805285
+    # fix for 'Queue <x> is active on fifo 1 and stuck for 10000 ms'
+    "iwlwifi.wd_disable=1"
+  ];
 
   networking = {
     hostName = "nuc";
