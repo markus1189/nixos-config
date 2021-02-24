@@ -13,6 +13,7 @@ in rec {
 
   imports = [
     (import ../nixos-shared/common-services.nix)
+    ../nixos-shared/aws.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix

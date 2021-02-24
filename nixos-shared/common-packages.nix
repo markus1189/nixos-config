@@ -3,7 +3,6 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      awscli2
       aws-vault
       binutils
       cachix
