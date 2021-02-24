@@ -100,6 +100,13 @@ in {
         '';
       };
 
+      "mpv_input_conf" = {
+        target = ".config/mpv/input.conf";
+        text = ''
+          ! run sh -c "echo ''${path} >> list.txt && notify-send mpv \"Saved ''${path} to ''${working-directory}/list.txt\""
+        '';
+      };
+
       "global-sbt-aliases" = {
         target = ".sbt/1.0/global-aliases.sbt";
         text = ''
