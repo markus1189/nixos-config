@@ -43,10 +43,10 @@ in
     zsh = {
       enable = true;
       enableCompletion = true;
+      enableBashCompletion = true;
+      enableGlobalCompInit = false;
       autosuggestions.enable = true;
       promptInit = ''
-        autoload -U promptinit && promptinit
-
         PROMPT=""
         PROMPT="%{$fg_bold[blue]%}%2c > %{$reset_color%}"
 
@@ -70,12 +70,6 @@ in
 
         zstyle ':completion:*' completer _expand _complete _ignored _approximate
 
-        autoload -Uz compinit
-        compinit
-
-        autoload -Uz bashcompinit
-        bashcompinit
-
         HISTFILE=~/.histfile
         HISTSIZE=999999999999
         SAVEHIST=999999999999
@@ -86,6 +80,7 @@ in
         zle -N edit-command-line
         bindkey "^X^E" edit-command-line
 
+        # Copy current command
         copy-current-command() {
           zle kill-buffer
           print -rn -- $CUTBUFFER | ${pkgs.xclip}/bin/xclip -i -selection clipboard
@@ -94,9 +89,14 @@ in
         zle -N copy-current-command
         bindkey '^X^A' copy-current-command
 
+        # Customize word erasing
         source ${customEraseWord}
 
+        # Install fzf-tab
         source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+
+        autoload -U compinit && compinit
+        autoload -U bashcompinit && bashcompinit
       '';
     };
   };
