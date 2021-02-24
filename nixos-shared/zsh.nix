@@ -92,6 +92,8 @@ in
         bindkey '^X^A' copy-current-command
 
         source ${customEraseWord}
+
+        source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       '';
     };
   };
