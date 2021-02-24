@@ -73,6 +73,9 @@ in
         autoload -Uz compinit
         compinit
 
+        autoload -Uz bashcompinit
+        bashcompinit
+
         HISTFILE=~/.histfile
         HISTSIZE=999999999999
         SAVEHIST=999999999999
