@@ -793,7 +793,7 @@ rec {
     '';
   sendCurrentTemperature = { pyvicareSecret, botToken }: writeShellScript {
     name = "sendCurrentTemperature";
-    deps = [ (notifySendHome botToken) (pyvicare pyvicareSecret) ];
+    deps = [ (notifySendHome botToken) (pyvicare pyvicareSecret) coreutils ];
     pure = true;
   } ''
     unset c
