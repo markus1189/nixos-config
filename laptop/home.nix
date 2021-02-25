@@ -94,6 +94,7 @@ in {
       "mpv_config" = {
         target = ".config/mpv/mpv.conf";
         text = ''
+          write-filename-in-watch-later-config=yes
           save-position-on-quit=yes
           osd-msg3="''${time-pos} / ''${duration} [''${playtime-remaining} @ ''${speed}]"
           osd-duration=5000
