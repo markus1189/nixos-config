@@ -27,6 +27,8 @@
       nix-prefetch-github
       nix-index
       nixfmt
+      nixpkgs-lint
+      nixpkgs-fmt
       niv
       notifySendPb
       notifySendTelegram
