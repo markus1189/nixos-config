@@ -95,6 +95,8 @@ in
         # Install fzf-tab
         source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
 
+
+        # enableGlobalCompInit is false
         autoload -U compinit && compinit
         autoload -U bashcompinit && bashcompinit
       '';
