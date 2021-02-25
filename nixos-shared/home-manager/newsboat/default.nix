@@ -89,6 +89,10 @@ let
       owner = "Duncaen";
       repo = "OpenDoas";
     }
+    {
+      owner = "nushell";
+      repo = "nushell";
+    }
   ];
 
   subreddits = [
