@@ -209,7 +209,6 @@ in rec {
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${config.lib._custom_.userName}";
     initialPassword = "markus"; # for qemu
-    symlinks = with pkgs.myConfigFiles; { ".xmonad/xmonad.hs" = xmonad; };
   };
 
   users.extraGroups.vboxusers.members = [ "${config.lib._custom_.userName}" ];

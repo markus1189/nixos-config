@@ -14,6 +14,10 @@ in {
     ];
 
     file = {
+      "xmonad.hs" = {
+        target = ".xmonad/xmonad.hs";
+        source = pkgs.myConfigFiles.xmonad;
+      };
       "flameshot-config" = {
         target = ".config/flameshot/flameshot.ini";
         text = ''
