@@ -57,9 +57,9 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--high" ,"#42d3a5"
                         , "--minwidth","2"
                         , "--"
-                        , "-i","<fc=green>0</fc>"
-                        , "-O","<fc=orange>0</fc>"
-                        , "-o","<fc=red>O</fc>"
+                        , "-i","<fc=green>(0)</fc>"
+                        , "-O","<fc=orange>(0)</fc>"
+                        , "-o","<fc=red>(O)</fc>"
                         ] 100
                     , Run DiskU
                         [("/","<usedp>% <used>/<size>")]
