@@ -273,6 +273,7 @@ in {
               rate = "60.00";
             };
             "DP-2" = {
+              primary = true;
               enable = true;
               position = "0x0";
               mode = "1920x1600";
@@ -302,6 +303,7 @@ in {
             };
             "DP-2".enable = false;
             "DP-3" = {
+              primary = true;
               enable = true;
               position = "0x0";
               mode = "1920x1600";
@@ -330,6 +332,7 @@ in {
               rate = "60.00";
             };
             "DP-3" = {
+              primary = true;
               enable = true;
               position = "0x0";
               mode = "1920x1600";
