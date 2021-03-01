@@ -131,7 +131,7 @@
    (quote
     (("\\.hp\\'" "hp2pretty" "hp2ps")
      ("\\.\\(svg\\)\\|\\(png\\)\\|\\(jpg\\)\\'" "imv")
-     ("\\.\\(mp4\\)\\|\\(avi\\)\\|\\(mkv\\)\\|\\(m4v\\)\\'" "mplayer -really-quiet")
+     ("\\.\\(mp4\\)\\|\\(avi\\)\\|\\(mkv\\)\\|\\(m4v\\)\\'" "mpv")
      ("\\.pdf\\'" "zathura" "pdftotext ? /dev/stdout" "evince")
      ("\\.ps\\'" "evince")
      ("\\.\\(ods\\)\\|\\(odf\\)\\'" "libreoffice")
@@ -1305,6 +1305,9 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package counsel-jq
+  :ensure t)
+
+(use-package org-drill
   :ensure t)
 
 ;;;

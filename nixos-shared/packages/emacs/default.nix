@@ -97,6 +97,7 @@ in
     move-text
     multiple-cursors
     nix-mode
+    org-drill
     ormolu
     ox-jira
     plantuml-mode
