@@ -1,5 +1,5 @@
 import Data.Functor (void, (<&>))
-import Data.List (isInfixOf, isPrefixOf)
+import Data.List (isPrefixOf)
 import qualified Data.Map as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
@@ -196,7 +196,7 @@ myKeys =
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
-    ((myModKey, xK_equal), sendMessage Expand),
+    ((myModKey, xK_grave), withDisplay $ withFocused . maximizeFloatWindow),
     ((myModKey, xK_minus), sendMessage Shrink),
     ( (myModKey, xK_p),
       submap . M.fromList $
@@ -224,13 +224,14 @@ myKeys =
     ((0, xF86AudioNext), spawn "@playerctl@/bin/playerctl next"),
     ((0, xF86AudioForward), spawn "@playerctl@/bin/playerctl position +2"),
     ((0, xF86AudioRewind), spawn "@playerctl@/bin/playerctl position -2")
-    -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
   ]
+    -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
     ++ [ ((m .|. myModKey, k), windows $ f i)
          | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0]),
            (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
        ]
   where
+    maximizeFloatWindow d w = liftIO $ resizeWindow d w 3840 1560
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
     scratchTermRight = namedScratchpadAction myScratchPads "right"
