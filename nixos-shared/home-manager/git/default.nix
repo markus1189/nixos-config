@@ -144,6 +144,7 @@ in
 
       init = {
         templatedir = "${./git_template}";
+        defaultBranch = "main";
       };
     };
   };
