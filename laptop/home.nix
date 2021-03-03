@@ -15,10 +15,43 @@ in
     ];
 
     file = {
+      "arbtt-categorizer" = {
+        target = ".arbtt/categorize.cfg";
+        text = ''
+          aliases ("Navigator"  -> "firefox",
+                   "org_pwmt_zathura" -> "zathura",
+                   "telegram-desktop" -> "telegram",
+                   "gl" -> "mpv"
+                  )
+
+          $idle > 600 ==> tag inactive,
+
+          current window ($title =~ /.*YouTube.*Firefox/ || $title =~ /- mpv$/) ==> tag act:watching,
+          current window $program == ["org_pwmt_zathura", "zathura"] ==> tag act:reading,
+          current window $program == ["telegram-desktop", "slack"] ==> tag act:chatting,
+          current window $program == ["zoom"] ==> tag act:meeting,
+          current window $program == "emacs" ==> tag act:coding,
+          current window $program == "urxvt" ==> tag act:shell,
+
+          -- Could be useful to see whom I chat with most
+          -- current window ($program == "slack" && $title =~ /Slack \|[[:space:]]*([^|]*) \|/) ==> tag slack:$1,
+
+          current window $title =~ /Online Whiteboard for Visual Collaboration/ ==> tag web:miro,
+          current window $title =~ /Amazon.de/ ==> tag web:amazon,
+          current window $title =~ /DuckDuckGo/ ==> tag web:ddg,
+          current window $title =~ /Ultimate AWS Certified.*Udemy/ ==> tag web:aws,
+
+          current window ($program == "emacs" && $title =~ /.*nixos-config.*/) ==> tag emacs:nixos,
+
+          -- tag program:$current.program,
+        '';
+      };
+
       "xmonad.hs" = {
         target = ".xmonad/xmonad.hs";
         source = pkgs.myConfigFiles.xmonad;
       };
+
       "flameshot-config" = {
         target = ".config/flameshot/flameshot.ini";
         text = ''
@@ -31,6 +64,7 @@ in
           uiColor=#ee8903
         '';
       };
+
       "edbrowse-config" = {
         target = ".ebrc";
         text = ''
@@ -54,6 +88,7 @@ in
           }
         '';
       };
+
       "gtk-bookmarks" = {
         text = ''
           file:///home/markus/Downloads
@@ -65,6 +100,7 @@ in
         '';
         target = ".gtk-bookmarks";
       };
+
       "keynavrc" = {
         source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
         target = ".keynavrc";
