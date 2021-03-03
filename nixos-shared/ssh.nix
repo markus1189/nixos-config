@@ -36,7 +36,7 @@
           ServerAliveCountMax 3
 
         Host nuci
-          HostName markus1189.no-ip.org
+          HostName ssh.markushauck.me
           User mediacenter
           Port 4225
           ServerAliveInterval 60
@@ -49,21 +49,21 @@
           ServerAliveCountMax 3
 
         Host mci
-          HostName markus1189.no-ip.org
+          HostName ssh.markushauck.me
           User mediacenter
           Port 443
           ServerAliveInterval 60
           ServerAliveCountMax 3
 
         Host mctl
-          HostName markus1189.no-ip.org
+          HostName ssh.markushauck.me
           User mediacenter
           DynamicForward 12345
           Port 443
           RequestTTY no
 
         Host mcivnc
-          HostName markus1189.no-ip.org
+          HostName ssh.markushauck.me
           User mediacenter
           RequestTTY no
           LocalForward 5900 localhost:5900
