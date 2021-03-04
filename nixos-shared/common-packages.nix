@@ -37,6 +37,7 @@
       telegramPhotosLastYear
       pwgen
       yq
+      (myScripts.captureTOTP)
     ];
   };
 }
