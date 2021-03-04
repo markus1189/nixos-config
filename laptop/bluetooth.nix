@@ -4,7 +4,7 @@
   hardware = {
     bluetooth = {
       enable = true;
-      config = {
+      settings = {
         General = {
           ControllerMode = "bredr";
           Enable = "Source,Sink,Media,Socket";
