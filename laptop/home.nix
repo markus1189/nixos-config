@@ -188,6 +188,10 @@ in
 
     mpv = { enable = true; };
 
+    password-store = {
+      enable = true;
+    };
+
     autorandr = {
       enable = true;
       profiles = {
