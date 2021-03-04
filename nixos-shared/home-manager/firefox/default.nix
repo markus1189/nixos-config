@@ -21,6 +21,47 @@
           @-moz-document domain("google.com"), domain("google.de") {
               span > .f { color: darkorange !important; font-weight: bold !important }
           }
+
+          @-moz-document domain("amazon.de") {
+              #merchant-info {
+                  font-size: 15px; color: darkorange !important;
+                  font-weight: bold !important;
+                  color: darkorange !important;
+              }
+
+              #ddmDeliveryMessage {
+                  font-size: 15px !important;
+                  font-weight: bold !important;
+                  color: darkorange !important;
+
+              }
+
+              #ddmDeliveryMessage > a {
+                  font-size: 15px !important;
+                  font-weight: bold !important;
+                  color: black !important;
+              }
+
+              #acrCustomerReviewText {
+                  font-size: 15px !important;
+                  font-weight: bold !important;
+                  color: darkorange !important;
+              }
+
+              #sellerProfileTriggerId {
+                  font-size: 15px !important;
+                  font-weight: bold !important;
+                  color: black !important;
+              }
+
+              .a-price-whole {
+                 font-weight: bold !important;
+              }
+
+              span .a-color-price {
+                 color: gray !important;
+              }
+          }
         '';
         path = "managed";
       };
