@@ -53,6 +53,10 @@ in {
         key = "inCode";
         url = "https://feeds.feedburner.com/incodeblog";
       }
+      {
+        key = "dilbert";
+        url = "http://feed.dilbert.com/dilbert/daily_strip";
+      }
     ]);
   };
 }
