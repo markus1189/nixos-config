@@ -29,6 +29,7 @@ in
       homeManager
       (import ../nixos-shared/home-manager/module.nix { homeNixFile = ./home.nix; })
       ./kodi.nix
+      ./adguard.nix
     ];
 
   lib = {
