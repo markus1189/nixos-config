@@ -1,7 +1,7 @@
 { config, pkgs, ...}:
 
 {
-  environment.systemPackages = [ pkgs.adguard ];
+  environment.systemPackages = [ pkgs.adguardhome ];
 
   networking.firewall.allowedTCPPorts = [
     3000
