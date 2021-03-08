@@ -231,7 +231,7 @@ myKeys =
            (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
        ]
   where
-    maximizeFloatWindow d w = liftIO $ resizeWindow d w 3840 1560
+    maximizeFloatWindow d w = liftIO $ moveResizeWindow d w 0 22 3834 1560
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
     scratchTermRight = namedScratchpadAction myScratchPads "right"
