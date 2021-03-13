@@ -14,6 +14,7 @@ let
   gitignoreGlobal = writeText "gitignore-global-file" ''
     ${lib.readFile ndtSources.gitignore-io}
     *~undo-tree~
+    .direnv
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
