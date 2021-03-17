@@ -4,8 +4,10 @@
   environment = {
     systemPackages = with pkgs; [
       aws-vault
+      bat
       binutils
       cachix
+      dnsutils
       ed
       edbrowse
       gnupg
