@@ -66,6 +66,7 @@ myManageHook =
         "Unity-2d-launcher",
         "Vncviewer",
         "feh",
+        "flameshot",
         "Gpick",
         "Ubuntu-tweak",
         "de-tud-cs-se-flashcards-Main",
