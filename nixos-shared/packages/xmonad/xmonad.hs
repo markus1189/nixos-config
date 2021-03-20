@@ -4,7 +4,7 @@ import qualified Data.Map as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
 import XMonad
-import XMonad.Actions.CopyWindow (kill1)
+import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
 import XMonad.Actions.Submap
@@ -193,7 +193,7 @@ myKeys =
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
     ((myModKey, xK_Tab), toggleWS' ["NSP"]),
-    ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
+        -- ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
@@ -219,6 +219,9 @@ myKeys =
     ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
     ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
+    -- Copy to all, kill again
+    ((myModKey, xK_a), windows copyToAll),
+    ((myModCtrl, xK_a), killAllOtherCopies),
     -- Multimedia via Bose
     ((0, xF86AudioPlay), spawn "@playerctl@/bin/playerctl play-pause"),
     ((0, xF86AudioPrev), spawn "@playerctl@/bin/playerctl previous"),
