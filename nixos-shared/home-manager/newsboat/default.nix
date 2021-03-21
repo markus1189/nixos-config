@@ -132,14 +132,16 @@ let
     { name = "netsec"; }
     { name = "exploitdev"; }
 
-    { name = "rpg"; }
-    { name = "worldbuilding"; }
+    # RPG
     { name = "musicforrpg"; }
-    { name = "papertowns"; }
-    { name = "maps"; }
-    { name = "roll20"; }
-    { name = "mrvalor"; }
+    { name = "osr"; }
     { name = "penandpaper"; }
+    { name = "roll20"; }
+    { name = "rpg"; }
+    { name = "rpgnews"; }
+    { name = "solo_roleplaying"; }
+    { name = "worldbuilding"; }
+
     { name = "podcasts"; }
     {
       name = "worldnews";
