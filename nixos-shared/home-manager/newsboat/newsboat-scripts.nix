@@ -1,5 +1,5 @@
-{ writeScript, jq, pup, secrets, curl, cacert, yq, ... }: rec {
-  jsonToRssScript = writeScript "json-to-rss" ''
+{ writeScript, writeScriptBin, jq, pup, secrets, curl, cacert, yq, ... }: rec {
+  jsonToRssScript = writeScriptBin "json-to-rss" ''
         # Expects the following format:
 
         # [
@@ -29,7 +29,7 @@
         "<title>\(.title)</title>",
         "<link>\(.link)</link>",
         "<guid>\(.link)</guid>",
-        "<pubDate>\(.pubDate)</pubDate>",
+        if has("pubDate") then "<pubDate>\(.pubDate)</pubDate>" else "" end,
         "</item>"
       ] | join("\n")) | join("\n")'
     )
@@ -48,7 +48,7 @@
           ${jq}/bin/jq 'map({title: .. | select(try .class == "title") | .children[0].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "title") | .children[0] | .href)", pubDate: .. | select(try .class == "timestamp") | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class == "teaser") | .children | map(.text) | join(" ")})'
       }
 
-      getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
+      getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss "Taunus Nachrichten Umwelt (Manual Scrape)" "Manual scrape of Umwelt on Taunus Nachrichten" "https://www.taunus-nachrichten.de/nachrichten/umwelt"
     '';
   scrapeTaunusNachrichtenSuche = search:
     writeScript "scrape-taunus-nachrichten-suche.sh" ''
@@ -60,7 +60,7 @@
           ${jq}/bin/jq 'map({title: .. | select(try .class | contains("field-title")) | .children[].children[].text, link: "https://www.taunus-nachrichten.de\(.. | select(try .class == "field field-title") | .children[].children[].href)",pubDate: .. | select(try .class | contains("field-post-date")) | .text | strptime("%d. %B %Y") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: .. | select(try .class | contains("-teaser")) | .text})'
       }
 
-      getItems | buildItems | ${jsonToRssScript} "Taunus Nachrichten - Search for \"${search}\"" "Manual scrape of a search onTaunus Nachrichten" "https://www.taunus-nachrichten.de"
+      getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss "Taunus Nachrichten - Search for \"${search}\"" "Manual scrape of a search onTaunus Nachrichten" "https://www.taunus-nachrichten.de"
     '';
   scrapeHgonScript = writeScript "scrape-hgon.sh" ''
     getItems() {
@@ -71,7 +71,7 @@
         ${jq}/bin/jq 'map({pubDate: .. | select(try .tag == "time") | .datetime | strptime("%Y.%m.%d ") | strftime("%a, %d %b %Y %H:%M:%S GMT"), title: .. | select(try .tag == "h3") | .text, link: "https://www.hgon.de/\(.. | select(try .tag == "a") | .href)", description: .. | select(try .class == "card__content") | .children | map(.text) | join(" ")})'
     }
 
-    getItems | buildItems | ${jsonToRssScript} "HGON Entdecken (Manual Scrape)" "Manual scrape of HGON news" "https://www.hgon.de/entdecken"
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss "HGON Entdecken (Manual Scrape)" "Manual scrape of HGON news" "https://www.hgon.de/entdecken"
   '';
   scrapeErlebnisHessen = writeScript "scrape-erlebnis-hessen.sh" ''
     getItems() {
@@ -82,7 +82,18 @@
         ${jq}/bin/jq 'map({link: .href, title: [.. | select(.tag? == "span" and (.class? | contains("c-teaser"))) | .. | .text?] | join(" - "), pubDate: .. | select(.datetime?) | .datetime | strptime("%Y-%m-%dT%H:%M+0200") | strftime("%a, %d %b %Y %H:%M:%S GMT"), description: ""})'
     }
 
-    getItems | buildItems | ${jsonToRssScript} "Erlebnis Hessen (Manual Scrape)" "Manual scrape of Erlebnis Hessen" "https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss "Erlebnis Hessen (Manual Scrape)" "Manual scrape of Erlebnis Hessen" "https://www.hr-fernsehen.de/sendungen-a-z/erlebnis-hessen/sendungen/index.html"
+  '';
+  scrapeDriveThruRPG = writeScriptBin "scrape" ''
+    getItems() {
+       ${pup}/bin/pup 'table:first-child h3 a:nth-child(odd) json{}'
+    }
+
+    buildItems() {
+       ${jq}/bin/jq -r '.[:10] | map({link: .href[0:43],title: .text, description: ""})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'DriveThruRPG Top 10' "Bestselling 10 titles from DriveThruRPG Top 100" 'https://www.drivethrurpg.com/top_100.php'
   '';
 
   addToPocketScript = writeScript "add-to-pocket.sh" ''

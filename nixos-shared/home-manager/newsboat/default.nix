@@ -26,6 +26,10 @@ let
         url = "https://www.taunus-nachrichten.de/nachrichten/umwelt";
         filter = scrapeTaunusNachrichtenUmwelt;
       }
+      {
+        url = "https://www.drivethrurpg.com/top_100.php";
+        filter = "${scrapeDriveThruRPG}/bin/scrape";
+      }
     ] ++ (map taunusNachrichtenSearch [
       "waldkauz"
       "eisvogel"
