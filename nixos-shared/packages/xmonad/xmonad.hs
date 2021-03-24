@@ -1,5 +1,5 @@
 import Data.Functor (void, (<&>))
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, foldl')
 import qualified Data.Map as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
@@ -8,6 +8,7 @@ import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
 import XMonad.Actions.Submap
+import XMonad.Actions.WindowBringer (bringWindow)
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
 import XMonad.Hooks.DynamicLog
@@ -28,10 +29,12 @@ import XMonad.Layout.ResizableTile (ResizableTall (..))
 import XMonad.Layout.SimpleFloat (simpleFloat)
 import XMonad.Layout.Tabbed
 import qualified XMonad.StackSet as W
+import XMonad.Prompt.Window (allWindows)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (spawnPipe)
 import Data.Char (toLower)
+import Control.Monad (filterM)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -209,7 +212,9 @@ myKeys =
     ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
     ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory"),
     ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse"),
-    ((myModKey, xK_z), spawn "xdg-open 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
+    ((myModKey, xK_z), spawn "zoom 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
+    ((myModShift, xK_z), bringAllWindowsByClass "zoom"),
+    ((myModCtrl,  xK_z), bringAllWindowsByClass "zoom"),
     ((myModShift, xK_BackSpace), clearUrgents),
     ((myModShift, xK_l), scratchTermLower),
     ((myModShift, xK_o), scratchTermRight),
@@ -264,6 +269,13 @@ myKeysP =
     (myModKeyP "o m p", raise (iclassName "mpv"))
   ]
   where iclassName cls = className <&> (cls ==) . map toLower
+
+bringAllWindowsByClass :: String -> X ()
+bringAllWindowsByClass cls = do
+  ws <- M.elems <$> allWindows
+  zoomWindows <- filterM (runQuery (className =? cls)) ws
+  let f = foldl' (\acc w -> bringWindow w . acc) id zoomWindows
+  windows f
 
 myModKey :: ButtonMask
 myModKey = mod4Mask
