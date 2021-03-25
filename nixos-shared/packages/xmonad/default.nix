@@ -1,6 +1,28 @@
-args@{ mutate, xmobar, xkill, xmobarLower, xmobarUpper, playerctl, rofi
-, chooseNetwork, xmonadReset, singlehead, takeScreenshot, lockScreen
-, centerMouse, multihead4k, emacsAnywhere, clipmenu, rofiDefaults
-, autoMonitorConfig, tmx, browserHistory, bukuRun, ddgr, flameshot, autorandr }:
+args@{ autoMonitorConfig
+, autorandr
+, browserHistory
+, bukuRun
+, centerMouse
+, chooseNetwork
+, clipmenu
+, ddgr
+, emacsAnywhere
+, flameshot
+, lockScreen
+, multihead4k
+, mutate
+, playerctl
+, rofi
+, rofiDefaults
+, singlehead
+, takeScreenshot
+, tmx
+, xdotool
+, xkill
+, xmobar
+, xmobarLower
+, xmobarUpper
+, xmonadReset
+}:
 
 mutate ./xmonad.hs (builtins.removeAttrs args [ "mutate" ])
