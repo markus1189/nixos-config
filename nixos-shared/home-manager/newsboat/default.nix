@@ -145,6 +145,8 @@ let
     { name = "rpgnews"; }
     { name = "solo_roleplaying"; }
     { name = "worldbuilding"; }
+    { name = "swn"; }
+    { name = "wwn"; }
 
     { name = "podcasts"; }
     {
