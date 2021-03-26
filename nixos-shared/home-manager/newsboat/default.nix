@@ -53,7 +53,7 @@ let
 
   subredditToRss = args:
     "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
-      toString (args.threshold or 25)
+      toString (args.threshold or 30)
     }&view=rss";
 
   githubReleases = [
