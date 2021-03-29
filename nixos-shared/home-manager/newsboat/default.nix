@@ -140,7 +140,6 @@ let
     { name = "musicforrpg"; }
     { name = "osr"; }
     { name = "penandpaper"; }
-    { name = "roll20"; }
     { name = "rpg"; }
     { name = "rpgnews"; }
     { name = "solo_roleplaying"; }
