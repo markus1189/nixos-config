@@ -59,7 +59,7 @@
         acDisconnect = {
           event = "ac_adapter ACPI0003:00 00000080 00000000";
           action = ''
-            echo -n 700 > /sys/class/backlight/intel_backlight/brightness
+            echo -n 5000 > /sys/class/backlight/intel_backlight/brightness
             echo -n 0 > /sys/class/leds/tpacpi::kbd_backlight/brightness
           '';
         };
