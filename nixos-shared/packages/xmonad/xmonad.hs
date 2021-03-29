@@ -211,7 +211,7 @@ myKeys =
     ),
     ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
     ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory"),
-    ((myModKey, xK_w), nextScreen >> spawn "@centerMouse@/bin/centerMouse"),
+    ((myModKey, xK_w), nextScreen'),
     ((myModShift, xK_BackSpace), clearUrgents),
     ((myModShift, xK_l), scratchTermLower),
     ((myModShift, xK_o), scratchTermRight),
@@ -266,12 +266,20 @@ myKeysP =
     (myModKeyP "o m p", raise (iclassName "mpv")),
     (myModKeyP "o z o", raise (ititle "zoom meeting")),
     (myModKeyP "z g", raise (ititle "zoom meeting")),
-    (myModKeyP "z c", spawn "zoom 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
+    (myModKeyP "z z", spawn "zoom 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
     (myModKeyP "z b", bringAllWindowsByClass "zoom"),
-    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Zoom Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\"")
+    (myModKeyP "z w", bringAllWindowsByClass "zoom" >> nextScreen'),
+    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Zoom Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
+    (myModKeyP "z e", bringAllWindowsByClass "zoom" >> swapNextScreen')
   ]
   where iclassName cls = className <&> (cls ==) . map toLower
         ititle n = title <&> (n ==) . map toLower
+
+nextScreen' :: X ()
+nextScreen' = nextScreen >> spawn "@centerMouse@/bin/centerMouse"
+
+swapNextScreen' :: X ()
+swapNextScreen' = swapNextScreen >> spawn "@centerMouse@/bin/centerMouse"
 
 bringAllWindowsByClass :: String -> X ()
 bringAllWindowsByClass cls = do
