@@ -38,13 +38,16 @@ let
 
     pretty_git_log $*
   '';
+
+  userName = "Markus Hauck";
 in
 {
   value = {
+    inherit userName;
+    userEmail = "markus1189@gmail.com";
+
     enable = true;
     package = gitPackage;
-    userEmail = "markus1189@gmail.com";
-    userName = "Markus Hauck";
 
     delta.enable = true;
 
@@ -62,10 +65,27 @@ in
       "*.bin diff=binary"
     ];
 
+    includes = [
+      {
+        condition = "gitdir:~/repos/otto/";
+        contents = {
+          user = {
+            name = userName;
+            email = "markus.hauck@otto.de";
+            signingkey = "6A0A92D088F61D5115036375F51BC654371DD87B";
+          };
+
+          commit = {
+            gpgsign = true;
+          };
+        };
+      }
+    ];
+
     extraConfig = {
       user = {
         useConfigOnly = true;
-        signingkey = "A7767559";
+        signingkey = "A81E5C8BE9DB291A497B2258B76588292D543934";
       };
 
       color = {
