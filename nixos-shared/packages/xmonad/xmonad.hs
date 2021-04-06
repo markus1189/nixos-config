@@ -18,6 +18,7 @@ import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
+import XMonad.Layout.BinarySpacePartition (emptyBSP)
 import XMonad.Layout.Grid (Grid (..))
 import XMonad.Layout.IM (Property (Role), withIM)
 import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
@@ -311,7 +312,7 @@ myLayoutHook =
         (standardLayouts ||| gimpLayout)
         standardLayouts
 
-standardLayouts = tabLayout ||| myTall ||| tiled ||| autoMasterLayout Grid ||| Grid ||| Full ||| simpleFloat
+standardLayouts = tabLayout ||| emptyBSP ||| myTall ||| tiled ||| autoMasterLayout Grid ||| Grid ||| Full ||| simpleFloat
   where
     myTall = Tall 1 (3 % 100) (1 % 2)
 
