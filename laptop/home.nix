@@ -383,13 +383,13 @@ in
             config = {
               "DP-1".enable = false;
               "DP-2" = {
-                primary = true;
                 enable = true;
                 position = "1920x0";
                 mode = "1920x1600";
                 rate = "60.00";
               };
               "DP-3" = {
+                primary = true;
                 enable = true;
                 position = "0x0";
                 mode = "1920x1600";
