@@ -11,6 +11,7 @@ rec {
     ndt = import (builtins.fetchTarball
       "https://github.com/markus1189/ndt/archive/master.tar.gz") {
         nixpkgs = self;
+        ghc = "ghc884";
       };
   };
 
