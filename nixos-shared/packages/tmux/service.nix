@@ -24,11 +24,13 @@
       clock24 = true;
       keyMode = "vi";
 
-      extraConfig = ''
+      extraConfig = with pkgs; ''
         ${pkgs.lib.readFile ./tmux.conf}
-        run-shell ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
-        run-shell ${pkgs.tmuxPlugins.copycat}/share/tmux-plugins/copycat/copycat.tmux
-        run-shell ${pkgs.tmuxPlugins.fpp}/share/tmux-plugins/fpp/fpp.tmux
+        run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
+        run-shell ${tmuxPlugins.copycat}/share/tmux-plugins/copycat/copycat.tmux
+        run-shell ${tmuxPlugins.fpp}/share/tmux-plugins/fpp/fpp.tmux
+        run-shell ${tmuxPlugins.fingers}/share/tmux-plugins/fingers/tmux-fingers.tmux
+        run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
       '';
     };
   };
