@@ -18,10 +18,6 @@ rec {
     ndtSources = import ../ndt/sources.nix { };
   };
 
-  dunstWithDunstify = self: super: {
-    dunst = super.dunst.override { dunstify = true; };
-  };
-
   wallpapersOverlay = self: super: {
     markus-wallpapers = rec {
       cc = super.fetchurl {
@@ -45,7 +41,6 @@ rec {
     ndtSourcesOverlay
     stableNixpkgsOverlay
     nixpkgs1703Overlay
-    dunstWithDunstify
     wallpapersOverlay
   ];
 }
