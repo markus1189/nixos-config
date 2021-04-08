@@ -44,7 +44,7 @@
     };
   };
 
-  programs.steam.enable = true;
+  programs.steam.enable = false;
 
   services = {
     throttled.enable = true;

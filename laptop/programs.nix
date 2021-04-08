@@ -91,7 +91,6 @@ in
       mr
       mplayer
       mtools
-      mu
       netcat-openbsd
       nethogs
       nixUnstable
