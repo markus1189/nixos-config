@@ -111,7 +111,6 @@ let
     { name = "dataisbeautiful"; }
     { name = "emacs"; }
     { name = "fantasy"; }
-    { name = "fountainpens"; }
     { name = "functionalprogramming"; }
     { name = "geb"; }
     { name = "haskell"; }
@@ -127,12 +126,7 @@ let
     { name = "ultrarunning"; }
     { name = "trailrunning"; }
     { name = "writingprompts"; }
-    {
-      name = "reverseengineering";
-      threshold = 30;
-    }
     { name = "howtohack"; }
-    { name = "liveoverflow"; }
     { name = "netsec"; }
     { name = "exploitdev"; }
 
