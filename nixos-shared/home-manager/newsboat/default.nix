@@ -101,6 +101,10 @@ let
       owner = "elves";
       repo = "elvish";
     }
+    {
+      owner = "tmux";
+      repo = "tmux";
+    }
   ];
 
   subreddits = [
