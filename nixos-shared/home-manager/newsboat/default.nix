@@ -112,14 +112,12 @@ let
     { name = "commandline"; }
     { name = "compsci"; }
     { name = "dailyprogrammer"; }
-    { name = "dataisbeautiful"; }
     { name = "emacs"; }
     { name = "fantasy"; }
     { name = "functionalprogramming"; }
     { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
-    { name = "luciddreaming"; }
     { name = "malazan"; }
     { name = "nixos"; }
     { name = "notebooks"; }
@@ -130,9 +128,7 @@ let
     { name = "ultrarunning"; }
     { name = "trailrunning"; }
     { name = "writingprompts"; }
-    { name = "howtohack"; }
     { name = "netsec"; }
-    { name = "exploitdev"; }
 
     # RPG
     { name = "musicforrpg"; }
@@ -145,7 +141,6 @@ let
     { name = "swn"; }
     { name = "wwn"; }
 
-    { name = "podcasts"; }
     {
       name = "worldnews";
       threshold = 70;
