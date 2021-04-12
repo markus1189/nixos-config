@@ -90,7 +90,8 @@ myManageHook =
         "Save File",
         "Options",
         "Document Print Status",
-        "Terminator Preferences"
+        "Terminator Preferences",
+        "Microsoft Teams Notification"
       ]
     resourceFloats = []
     ignored = ["Unity-2d-panel", "trayer"]
