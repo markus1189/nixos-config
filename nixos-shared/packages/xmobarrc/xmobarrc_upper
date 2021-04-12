@@ -66,9 +66,10 @@ Config { font = "xft:Source Code Pro-9:bold"
                         ["-L", "20", "-H", "50", "-m", "1", "-p", "2"]
                         100
                     , Run Date "%F %T" "date" 1
+                    , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% | %battery% | <fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | <fc=orange>%date%</fc>"
        }
