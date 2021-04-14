@@ -22,6 +22,8 @@ in {
     consumer_key = dummy;
   };
 
+  toggl = dummy;
+
   gasboiler = {
     username = dummy;
     password = dummy;

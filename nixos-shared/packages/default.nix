@@ -21,6 +21,7 @@ in {
           myScripts = pkgs.callPackage ./scripts { };
           xmobars = callPackage ./xmobarrc {
             inherit mutate;
+            togglTimer = myScripts.togglTimer secrets.toggl;
             wirelessInterface = config.lib._custom_.wirelessInterface;
           };
           mutate = callPackage ./mutate { };
