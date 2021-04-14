@@ -126,10 +126,10 @@ in rec {
   services = {
     offlineimap.enable = false;
 
-    upower.enable = true;
+    upower.enable = false;
 
     tlp = {
-      enable = true;
+      enable = false;
       settings = { USB_BLACKLIST = "046d:c52b"; };
     };
 
