@@ -556,8 +556,8 @@ rec {
     wait
 
     {
-      sqlite3 -csv /tmp/chromium-history "SELECT title, url, visit_count, 'chromium' FROM urls ORDER BY visit_count DESC" &
-      sqlite3 -csv /tmp/firefox-history "SELECT title, url, visit_count, 'firefox' FROM moz_places ORDER BY visit_count DESC" &
+      sqlite3 -csv /tmp/chromium-history "SELECT title, url, visit_count, 'chromium' FROM urls ORDER BY visit_count DESC"
+      sqlite3 -csv /tmp/firefox-history "SELECT title, url, visit_count, 'firefox' FROM moz_places ORDER BY visit_count DESC"
     } | xsv sort -NRs3 | rofi -dmenu -disable-history -i -monitor -4 | xsv select 2 | xclip -sel clipboard -i
   '';
 
