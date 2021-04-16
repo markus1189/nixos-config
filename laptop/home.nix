@@ -90,6 +90,7 @@ in
       };
 
       "gtk-bookmarks" = {
+        target = ".gtk-bookmarks";
         text = ''
           file:///home/markus/Downloads
           file:///home/markus/Dropbox
@@ -98,7 +99,21 @@ in
           file:///home/markus/Photos/developed
           file:///home/markus/repos/nixos-config
         '';
-        target = ".gtk-bookmarks";
+      };
+
+      "gtkrc2" = {
+        target = ".gtkrc-2.0";
+        text = ''
+          gtk-key-theme-name = "Emacs"
+        '';
+      };
+
+      "gtk3" = {
+        target = ".config/gtk-3.0/settings.ini";
+        text = ''
+          [Settings]
+          gtk-key-theme-name = Emacs
+        '';
       };
 
       "keynavrc" = {
