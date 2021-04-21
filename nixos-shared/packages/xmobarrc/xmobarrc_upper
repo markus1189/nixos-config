@@ -67,10 +67,10 @@ Config { font = "xft:Source Code Pro-9:bold"
                         100
                     , Run Date "%F %T" "date" 1
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 60
-                    , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 60
+                    , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 180
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | %toggl% <fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | %toggl%<fc=orange>%date%</fc>"
        }
