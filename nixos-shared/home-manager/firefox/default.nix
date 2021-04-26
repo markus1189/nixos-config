@@ -14,6 +14,12 @@
         };
         userChrome = "";
         userContent = ''
+          /* add '[pdf]' next to links to PDF files */
+          a[href$=".pdf"]:after {
+            font-size: smaller;
+            content: " [pdf]";
+          }
+
           @-moz-document domain("news.ycombinator.com") {
               .hnuser { font-size: 20px; color: black !important }
               .score { font-size: 15px }
