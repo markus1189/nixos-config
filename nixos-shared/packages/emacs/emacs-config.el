@@ -467,6 +467,7 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "M-SPC") 'cycle-spacing)
   (global-set-key (kbd "C-h") 'backward-delete-char)
 
+  (global-set-key (kbd "C-<f5>") 'compile)
   (global-set-key (kbd "<f5>") 'compile-dwim)
 
   (defvar get-buffer-compile-command (lambda (file) (cons file 1)))
