@@ -131,6 +131,8 @@ let
     { name = "netsec"; }
 
     # RPG
+    { name = "ironsworn"; }
+    { name = "starforged"; }
     { name = "musicforrpg"; }
     { name = "osr"; }
     { name = "penandpaper"; }
