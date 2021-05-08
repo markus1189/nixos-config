@@ -30,6 +30,10 @@ let
         url = "https://www.drivethrurpg.com/top_100.php";
         filter = "${scrapeDriveThruRPG}/bin/scrape";
       }
+      {
+        url = "https://dnd.wizards.com/content/dragon";
+        filter = "${scrapeDragonPlusMagaine}/bin/scrape";
+      }
     ] ++ (map taunusNachrichtenSearch [
       "waldkauz"
       "eisvogel"

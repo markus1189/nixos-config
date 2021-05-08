@@ -96,6 +96,18 @@
     getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'DriveThruRPG Top 10' "Bestselling 10 titles from DriveThruRPG Top 100" 'https://www.drivethrurpg.com/top_100.php'
   '';
 
+  scrapeDragonPlusMagaine = writeScriptBin "scrape" ''
+    getItems() {
+       ${pup}/bin/pup 'article json{}'
+    }
+
+    buildItems() {
+       ${jq}/bin/jq 'map({title: .children[0].children[1].children[0].children[0].text, link: .children[0].children[1].children[0].children[0].href,description: .children[0].children[1].children[1].children[0].text | gsub("^:\\s+"; "Release Date: ")})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Dragon+ Magazine' "Dragon+ Magazine Issues" 'https://dnd.wizards.com/content/dragon'
+  '';
+
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     TAGS="newsboat"
     URL="''${1}"
