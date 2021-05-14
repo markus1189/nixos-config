@@ -11,6 +11,7 @@
   mhl (tap-hold-next-release 750 spc (layer-toggle layer1))
   mhk M-tab
   cap (tap-hold-next-release 750 esc lctl)
+  tab (tap-hold-next-release 750 tab (layer-toggle layer1))
 )
 
 (defalias
@@ -46,7 +47,7 @@
 (deflayer default
   _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  @tab _    _    _    _    _    _    _    _    _    _    _    _    _
   @cap _    _    _    _    _    _    _    _    _    _    _         _
   _    _    _    _    _    _    _    _    _    _    _              _
   _    _    _                 @mhl        @sym _    _    _    _    _
