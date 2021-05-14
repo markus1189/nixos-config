@@ -30,7 +30,7 @@
     xserver = {
       layout = "us";
       xkbVariant = "altgr-intl";
-      xkbOptions = "eurosign:e,caps:ctrl_modifier";
+      xkbOptions = "eurosign:e";
     };
   };
 }

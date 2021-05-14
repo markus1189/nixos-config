@@ -1,0 +1,74 @@
+(defcfg
+  ;; For Linux
+  input  (device-file "@inputDeviceFile@")
+  output (uinput-sink "My KMonad output")
+
+  fallthrough true
+  allow-cmd false
+)
+
+(defalias
+  mhl (tap-hold-next-release 750 spc (layer-toggle layer1))
+  mhk M-tab
+  cap (tap-hold-next-release 750 esc lctl)
+)
+
+(defalias
+  sym (layer-toggle symbols)
+  ae RA-q
+  oe RA-p
+  ue RA-y
+  ss RA-s
+  jj RA-j
+  kk RA-k
+)
+
+(defsrc
+  esc   f1  f2  f3  f4  f5  f6  f7  f8  f9  f10 f11 f12 home end ins del
+  grv   1    2    3    4    5    6    7    8    9    0    -    =     bspc
+  tab   q    w    e    r    t    y    u    i    o    p    [    ]     \
+  caps  a    s    d    f    g    h    j    k    l    ;    '          ret
+  lsft  z    x    c    v    b    n    m    ,    .    /               rsft
+  lctl  lmet lalt             spc          ralt prnt rctl pgup  up  pgdn
+                                                         left down rght
+)
+
+;; (deflayer template
+;;   _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
+;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
+;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
+;;   _    _    _    _    _    _    _    _    _    _    _    _         _
+;;   _    _    _    _    _    _    _    _    _    _    _              _
+;;   _    _    _                 _           _    _    _    _    _    _
+;;                                                          _    _    _
+;; )
+
+(deflayer default
+  _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  @cap _    _    _    _    _    _    _    _    _    _    _         _
+  _    _    _    _    _    _    _    _    _    _    _              _
+  _    _    _                 @mhl        @sym _    _    _    _    _
+                                                         _    _    _
+)
+
+(deflayer layer1
+  XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
+  XX   tab  XX   XX   @mhk XX   left down up   rght XX   XX        XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
+  XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
+                                                         XX   XX   XX
+)
+
+(deflayer symbols
+  XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
+  XX   XX   XX   XX   XX   XX   XX   @ue  XX   @oe  XX   XX   XX   XX
+  XX   @ae  @ss  XX   XX   XX   XX   @jj  @kk  XX   XX   XX        XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
+  XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
+                                                         XX   XX   XX
+)
