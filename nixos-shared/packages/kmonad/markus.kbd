@@ -20,7 +20,7 @@
   mhl (tap-hold-next-release 1000 spc (layer-toggle layer1))
   sfl (sticky-key 1000 lsft)
   sfr (sticky-key 1000 rsft)
-  shl (tap-hold-next-release 300 lsft (layer-toggle shiftedLayer1))
+  ct1 (tap-hold-next-release 300 lctrl (layer-toggle moddedLayer1))
   tab (tap-hold-next 300 tab (layer-toggle tabbed))
 )
 
@@ -41,7 +41,7 @@
   caps  a    s    d    f    g    h    j    k    l    ;    '          ret
   lsft  z    x    c    v    b    n    m    ,    .    /               rsft
   lctl  lmet lalt             spc          ralt prnt rctl pgup  up  pgdn
-                                                         left down rght
+                                                          left down rght
 )
 
 (deflayer default
@@ -56,15 +56,15 @@
 
 (deflayer layer1
   _    XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  _    _   XX _
-  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   bspc
-  _    XX   XX   XX   XX   XX   @aul @aur @all XX   XX   XX   XX   XX
-  XX   tab  XX   XX   XX   @gwt left down up   rght XX   XX        _
-  @shl XX   XX   XX   XX   @adl @adr XX   XX   XX   XX             _
-  XX   XX   XX                spc         XX   XX   XX   XX   XX   XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   _
+  @ct1 XX   XX   XX   XX   XX   @aul @aur @all XX   XX   XX   XX   XX
+  _    tab  XX   XX   XX   @gwt left down up   rght XX   XX        XX
+  _    XX   XX   XX   XX   @adl @adr XX   XX   XX   XX             _
+  _    XX   _                 spc         XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
 )
 
-(deflayer shiftedLayer1
+(deflayer moddedLayer1
   XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
@@ -90,7 +90,7 @@
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX        XX
   _    XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             _
-  _    XX   XX                spc         XX   XX   XX   XX   up   XX
+  _   XX   XX                spc         XX   XX   XX   XX   up   XX
                                                          left down right
 )
 
