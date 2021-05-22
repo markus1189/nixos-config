@@ -9,7 +9,12 @@ let
   myWallpaper =
     "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/wallpapers/nineish-dark-gray-2020-07-02/contents/images/nix-wallpaper-nineish-dark-gray.png";
 in rec {
-  lib = { _custom_ = { userName = "markus"; }; };
+  lib = {
+    _custom_ = {
+      userName = "markus";
+      inherit ndtSources;
+    };
+  };
 
   imports = [
     (import ../nixos-shared/common-services.nix)
