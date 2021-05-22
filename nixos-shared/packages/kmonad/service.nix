@@ -1,12 +1,20 @@
 { config, lib, pkgs, ... }:
 
 let
-  kmonad = pkgs.haskell.lib.unmarkBroken (pkgs.haskell.lib.doJailbreak pkgs.haskellPackages.kmonad);
-  myConfigExternal = pkgs.mutate ./markus.kbd { inputDeviceFile = "/dev/input/by-id/usb-Lenovo_ThinkPad_Compact_USB_Keyboard_with_TrackPoint-event-kbd"; };
-  myConfigInternal = pkgs.mutate ./markus.kbd { inputDeviceFile = "/dev/input/by-path/platform-i8042-serio-0-event-kbd"; };
-in
+  kmonadSrc = config.lib._custom_.ndtSources.kmonad;
+  kmonad = with pkgs.haskell.lib;
+    overrideSrc (unmarkBroken (doJailbreak pkgs.haskellPackages.kmonad)) {
+      src = kmonadSrc;
+    };
+  myConfigExternal = pkgs.mutate ./markus.kbd {
+    inputDeviceFile =
+      "/dev/input/by-id/usb-Lenovo_ThinkPad_Compact_USB_Keyboard_with_TrackPoint-event-kbd";
+  };
+  myConfigInternal = pkgs.mutate ./markus.kbd {
+    inputDeviceFile = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
+  };
 
-{
+in {
   systemd.services.mykmonadexternal = {
     description = "my custom kmonad unit for external";
     serviceConfig = {
