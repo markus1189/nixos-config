@@ -8,15 +8,17 @@
 )
 
 (defalias
-  mhl (tap-hold-next-release 1000 spc (layer-toggle layer1))
-  shl (tap-hold-next-release 300 lsft (layer-toggle shiftedLayer1))
-  mhk M-tab
-  cap (tap-hold-next-release 150 esc lctl)
-  tab (tap-hold-next 300 tab (layer-toggle layer1))
   all (tap-macro C-end C-S-home)
-  gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
-  dwn (tap-macro down down down down down)
+  cap (tap-hold-next-release 150 esc lctl)
   dup (tap-macro up   up   up   up   up)
+  dwn (tap-macro down down down down down)
+  gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
+  mhk M-tab
+  mhl (tap-hold-next-release 1000 spc (layer-toggle layer1))
+  sfl (sticky-key 1000 lsft)
+  sfr (sticky-key 1000 rsft)
+  shl (tap-hold-next-release 300 lsft (layer-toggle shiftedLayer1))
+  tab (tap-hold-next 300 tab (layer-toggle tabbed))
 )
 
 (defalias
@@ -39,22 +41,12 @@
                                                          left down rght
 )
 
-;; (deflayer template
-;;   _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
-;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-;;   _    _    _    _    _    _    _    _    _    _    _    _         _
-;;   _    _    _    _    _    _    _    _    _    _    _              _
-;;   _    _    _                 _           _    _    _    _    _    _
-;;                                                          _    _    _
-;; )
-
 (deflayer default
   _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
   @tab _    _    _    _    _    _    _    _    _    _    _    _    _
   @cap _    _    _    _    _    _    _    _    _    _    _         _
-  _    _    _    _    _    _    _    _    _    _    _              _
+  @sfl _    _    _    _    _    _    _    _    _    _              @sfr
   _    _    _                 @mhl        @sym _    _    _    XX   _
                                                          XX   XX   XX
 )
@@ -65,7 +57,7 @@
   _    XX   XX   XX   XX   XX   XX   XX   @all XX   XX   XX   XX   XX
   XX   tab  XX   XX   XX   @gwt left down up   rght XX   XX        _
   @shl XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             _
-  XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
+  XX   XX   XX                spc         XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
 )
 
@@ -88,3 +80,23 @@
   XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
 )
+
+(deflayer tabbed
+  XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX        XX
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
+  XX   XX   XX                spc         XX   XX   XX   XX   XX   XX
+                                                         XX   XX   XX
+)
+
+;; (deflayer template
+;;   _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
+;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
+;;   _    _    _    _    _    _    _    _    _    _    _    _    _    _
+;;   _    _    _    _    _    _    _    _    _    _    _    _         _
+;;   _    _    _    _    _    _    _    _    _    _    _              _
+;;   _    _    _                 _           _    _    _    _    _    _
+;;                                                          _    _    _
+;; )
