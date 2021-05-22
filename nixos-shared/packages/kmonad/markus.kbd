@@ -13,7 +13,10 @@
   mhk M-tab
   cap (tap-hold-next-release 150 esc lctl)
   tab (tap-hold-next 300 tab (layer-toggle layer1))
-  all (tap-macro end S-home)
+  all (tap-macro C-end C-S-home)
+  gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
+  dwn (tap-macro down down down down down)
+  dup (tap-macro up   up   up   up   up)
 )
 
 (defalias
@@ -57,10 +60,10 @@
 )
 
 (deflayer layer1
-  _    XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
+  _    XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  _    _   XX _
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   bspc
-  XX   XX   XX   XX   XX   XX   XX   XX   @all XX   XX   XX   XX   XX
-  XX   tab  XX   XX   @mhk XX   left down up   rght XX   XX        XX
+  _    XX   XX   XX   XX   XX   XX   XX   @all XX   XX   XX   XX   XX
+  XX   tab  XX   XX   XX   @gwt left down up   rght XX   XX        _
   @shl XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             _
   XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
@@ -70,7 +73,7 @@
   XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
-  XX   tab  XX   XX   XX   XX   home XX   XX   end  XX   XX        XX
+  XX   tab  XX   XX   XX   XX   home @dwn @dup end  XX   XX        XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
   XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
