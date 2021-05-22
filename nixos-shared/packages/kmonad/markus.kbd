@@ -45,7 +45,7 @@
 )
 
 (deflayer default
-  _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  _
+  _    _   _   _   _   _   _   _   _   _   _   _   _   _    _   _  XX
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
   @tab _    _    _    _    _    _    _    _    _    _    _    _    _
   @cap _    _    _    _    _    _    _    _    _    _    _         _
@@ -56,7 +56,7 @@
 
 (deflayer layer1
   _    XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  _    _   XX _
-  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   _
+  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   del
   @ct1 XX   XX   XX   XX   XX   @aul @aur @all XX   XX   XX   XX   XX
   _    tab  XX   XX   XX   @gwt left down up   rght XX   XX        XX
   _    XX   XX   XX   XX   @adl @adr XX   XX   XX   XX             _
