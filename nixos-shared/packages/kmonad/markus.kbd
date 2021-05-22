@@ -8,12 +8,15 @@
 )
 
 (defalias
+  aul (tap-macro up left)
+  aur (tap-macro up right)
+  adl (tap-macro down left)
+  adr (tap-macro down right)
   all (tap-macro C-end C-S-home)
   cap (tap-hold-next-release 150 esc lctl)
   dup (tap-macro up   up   up   up   up)
   dwn (tap-macro down down down down down)
   gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
-  mhk M-tab
   mhl (tap-hold-next-release 1000 spc (layer-toggle layer1))
   sfl (sticky-key 1000 lsft)
   sfr (sticky-key 1000 rsft)
@@ -54,9 +57,9 @@
 (deflayer layer1
   _    XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  _    _   XX _
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   bspc
-  _    XX   XX   XX   XX   XX   XX   XX   @all XX   XX   XX   XX   XX
+  _    XX   XX   XX   XX   XX   @aul @aur @all XX   XX   XX   XX   XX
   XX   tab  XX   XX   XX   @gwt left down up   rght XX   XX        _
-  @shl XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             _
+  @shl XX   XX   XX   XX   @adl @adr XX   XX   XX   XX             _
   XX   XX   XX                spc         XX   XX   XX   XX   XX   XX
                                                          XX   XX   XX
 )
@@ -86,9 +89,9 @@
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX        XX
-  XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
-  XX   XX   XX                spc         XX   XX   XX   XX   XX   XX
-                                                         XX   XX   XX
+  _    XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             _
+  _    XX   XX                spc         XX   XX   XX   XX   up   XX
+                                                         left down right
 )
 
 ;; (deflayer template
