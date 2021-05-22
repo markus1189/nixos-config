@@ -109,6 +109,10 @@ let
       owner = "tmux";
       repo = "tmux";
     }
+    {
+      owner = "kmonad";
+      repo = "kmonad";
+    }
   ];
 
   subreddits = [
