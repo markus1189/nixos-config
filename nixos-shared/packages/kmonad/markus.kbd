@@ -55,8 +55,8 @@
   @tab _    _    _    _    _    _    _    _    _    _    _    _    _
   @cap _    _    _    _    _    _    _    _    _    _    _         _
   _    _    _    _    _    _    _    _    _    _    _              _
-  _    _    _                 @mhl        @sym _    _    _    _    _
-                                                         _    _    _
+  _    _    _                 @mhl        @sym _    _    _    XX   _
+                                                         XX   XX   XX
 )
 
 (deflayer layer1
