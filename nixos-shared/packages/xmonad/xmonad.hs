@@ -256,7 +256,8 @@ myKeys =
 
 myKeysP :: [(String, X ())]
 myKeysP =
-  [ (myModKeyP "o c h", raise (iclassName "chromium-browser")),
+  [ (myModKeyP "o 1 p", raise (iclassName "1password")),
+    (myModKeyP "o c h", raise (iclassName "chromium-browser")),
     (myModKeyP "o e m", raise (iclassName "emacs")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise (iclassName "jetbrains-idea-ce")),
