@@ -18,7 +18,6 @@
   dwn (tap-macro down down down down down)
   gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
   mhl (tap-hold-next-release 1000 spc (layer-toggle layer1))
-  sfl (sticky-key 1000 lsft)
   sfr (sticky-key 1000 rsft)
   ct1 (tap-hold-next-release 300 lctrl (layer-toggle moddedLayer1))
   tab (tap-hold-next 300 tab (layer-toggle tabbed))
@@ -49,7 +48,7 @@
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
   @tab _    _    _    _    _    _    _    _    _    _    _    _    _
   @cap _    _    _    _    _    _    _    _    _    _    _         _
-  @sfl _    _    _    _    _    _    _    _    _    _              @sfr
+  _    _    _    _    _    _    _    _    _    _    _              @sfr
   _    _    _                 @mhl        @sym _    _    _    XX   _
                                                          XX   XX   XX
 )
