@@ -13,6 +13,8 @@
           "browser.warnOnQuit" = true;
           "network.dnsCacheEntries" = 0;
           "network.dnsCacheExpiration" = 0;
+          "devtools.cache.disabled" = true;
+          "devtools.netmonitor.persistlog" = true;
         };
         userChrome = "";
         userContent = ''
