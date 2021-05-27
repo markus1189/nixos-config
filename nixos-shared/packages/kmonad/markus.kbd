@@ -31,6 +31,7 @@
   ss RA-s
   jj RA-j
   kk RA-k
+  eur RA-5
 )
 
 (defsrc
@@ -76,7 +77,7 @@
 (deflayer symbols
   XX   XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX  XX   XX  XX XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX
-  XX   XX   XX   XX   XX   XX   XX   @ue  XX   @oe  XX   XX   XX   XX
+  XX   XX   XX   @eur XX   XX   XX   @ue  XX   @oe  XX   XX   XX   XX
   XX   @ae  @ss  XX   XX   XX   XX   @jj  @kk  XX   XX   XX        XX
   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX   XX             XX
   XX   XX   XX                XX          XX   XX   XX   XX   XX   XX
