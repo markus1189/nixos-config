@@ -10,7 +10,9 @@
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
           "browser.tabs.closeWindowWithLastTab" = false;
           "browser.sessionstore.warnOnQuit" = true;
-          "browser.>warnOnQuit" = true;
+          "browser.warnOnQuit" = true;
+          "network.dnsCacheEntries" = 0;
+          "network.dnsCacheExpiration" = 0;
         };
         userChrome = "";
         userContent = ''
