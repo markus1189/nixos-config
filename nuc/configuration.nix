@@ -199,7 +199,8 @@ in {
       serviceConfig = {
         User = config.lib._custom_.userName;
         Group = "users";
-        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/.reminders";
+        ExecStart =
+          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/.reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
@@ -211,7 +212,7 @@ in {
         User = config.lib._custom_.userName;
         Group = "users";
         ExecStart =
-          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/home-notification-reminders";
+          "${pkgs.remind}/bin/remind -z -k'${pkgs.sendCurrentTemperature}/bin/sendCurrentTemperature' /home/${config.lib._custom_.userName}/home-notification-reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
