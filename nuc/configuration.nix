@@ -188,4 +188,13 @@ in
       flags = [ "-I" "nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix" ];
     };
   };
+
+  systemd.services."remind-home-notifications" = {
+    description = "remind unit for home notifications";
+    serviceConfig = {
+      ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/home-notification-reminders";
+      Restart = "always";
+      WantedBy = "multi-user.target";
+    };
+  };
 }
