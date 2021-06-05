@@ -5,32 +5,32 @@
 { config, pkgs, ... }:
 
 let
-  ndtSources = import ../ndt/sources.nix {};
+  ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
-in
-{
-  imports =
-    [
-      (import ../nixos-shared/common-services.nix)
-      (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
-      (import ./cron.nix)
-      ../nixos-shared/common-packages.nix
-      ../nixos-shared/common-programs.nix
-      ../nixos-shared/fasd.nix
-      ../nixos-shared/fzf.nix
-      ../nixos-shared/packages
-      ../nixos-shared/packages/services.nix
-      ../nixos-shared/restic/module.nix
-      ../nixos-shared/ripgrep.nix
-      ../nixos-shared/ssh.nix
-      ../nixos-shared/zsh.nix
-      ./fileSystems.nix
-      ./hardware-configuration.nix
-      homeManager
-      (import ../nixos-shared/home-manager/module.nix { homeNixFile = ./home.nix; })
-      ./kodi.nix
-      ./adguard.nix
-    ];
+in {
+  imports = [
+    (import ../nixos-shared/common-services.nix)
+    (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
+    (import ./cron.nix)
+    ../nixos-shared/common-packages.nix
+    ../nixos-shared/common-programs.nix
+    ../nixos-shared/fasd.nix
+    ../nixos-shared/fzf.nix
+    ../nixos-shared/packages
+    ../nixos-shared/packages/services.nix
+    ../nixos-shared/restic/module.nix
+    ../nixos-shared/ripgrep.nix
+    ../nixos-shared/ssh.nix
+    ../nixos-shared/zsh.nix
+    ./fileSystems.nix
+    ./hardware-configuration.nix
+    homeManager
+    (import ../nixos-shared/home-manager/module.nix {
+      homeNixFile = ./home.nix;
+    })
+    ./kodi.nix
+    ./adguard.nix
+  ];
 
   lib = {
     _custom_ = {
@@ -63,16 +63,19 @@ in
       127.0.0.1 ${config.networking.hostName}
     '';
 
-    timeServers = [ "0.nixos.pool.ntp.org" "1.nixos.pool.ntp.org" "2.nixos.pool.ntp.org" "3.nixos.pool.ntp.org" ];
+    timeServers = [
+      "0.nixos.pool.ntp.org"
+      "1.nixos.pool.ntp.org"
+      "2.nixos.pool.ntp.org"
+      "3.nixos.pool.ntp.org"
+    ];
   };
 
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
     overlays = (import ../nixos-shared/shared-overlays.nix).overlays;
-    config = {
-      allowUnfree = true;
-    };
+    config = { allowUnfree = true; };
   };
 
   nix = {
@@ -86,9 +89,7 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment = {
-    variables = {
-      EDITOR = "${pkgs.vim}/bin/vim";
-    };
+    variables = { EDITOR = "${pkgs.vim}/bin/vim"; };
 
     systemPackages = with pkgs; [
       bashmount
@@ -137,9 +138,7 @@ in
   hardware.pulseaudio.enable = true;
 
   # Enable the X11 windowing system.
-  services.xserver = {
-    enable = true;
-  };
+  services.xserver = { enable = true; };
 
   # Enable touchpad support.
   # services.xserver.libinput.enable = true;
@@ -176,7 +175,9 @@ in
   security = {
     sudo = {
       enable = true;
-      extraConfig = "\Defaults: ${config.lib._custom_.userName} timestamp_timeout=30\n";
+      extraConfig = ''
+        Defaults: ${config.lib._custom_.userName} timestamp_timeout=30
+      '';
     };
   };
 
@@ -185,18 +186,35 @@ in
     autoUpgrade = {
       enable = true;
       dates = "04:21";
-      flags = [ "-I" "nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix" ];
+      flags = [
+        "-I"
+        "nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix"
+      ];
     };
   };
 
-  systemd.services."remind-home-notifications" = {
-    description = "remind unit for home notifications";
-    serviceConfig = {
-      User = config.lib._custom_.userName;
-      Group = "users";
-      ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/home-notification-reminders";
-      Restart = "always";
-      WantedBy = "multi-user.target";
+  systemd.services = {
+    remind-personal-notifications = {
+      description = "remind unit for personal notifications";
+      serviceConfig = {
+        User = config.lib._custom_.userName;
+        Group = "users";
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/.reminders";
+        Restart = "always";
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    remind-home-notifications = {
+      description = "remind unit for home notifications";
+      serviceConfig = {
+        User = config.lib._custom_.userName;
+        Group = "users";
+        ExecStart =
+          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/home-notification-reminders";
+        Restart = "always";
+      };
+      wantedBy = [ "multi-user.target" ];
     };
   };
 }
