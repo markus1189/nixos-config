@@ -192,6 +192,8 @@ in
   systemd.services."remind-home-notifications" = {
     description = "remind unit for home notifications";
     serviceConfig = {
+      User = config.lib._custom_.userName;
+      Group = config.lib._custom_.userName;
       ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/home-notification-reminders";
       Restart = "always";
       WantedBy = "multi-user.target";
