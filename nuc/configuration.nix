@@ -200,7 +200,7 @@ in {
         User = config.lib._custom_.userName;
         Group = "users";
         ExecStart =
-          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %s' /home/${config.lib._custom_.userName}/.reminders";
+          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %%s' /home/${config.lib._custom_.userName}/.reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
