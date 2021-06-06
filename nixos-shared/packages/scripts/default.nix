@@ -893,7 +893,7 @@ rec {
       import os
       from PyViCare.PyViCareGazBoiler import GazBoiler
 
-      t=GazBoiler('${username}','${password}',"token.save")
+      t=GazBoiler('${username}','${password}')
 
       print(t.getOutsideTemperature())
     '';
