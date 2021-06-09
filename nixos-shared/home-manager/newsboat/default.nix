@@ -144,6 +144,7 @@ let
     { name = "musicforrpg"; }
     { name = "osr"; }
     { name = "penandpaper"; }
+    { name = "PretendingToBePeople"; }
     { name = "rpg"; }
     { name = "rpgnews"; }
     { name = "solo_roleplaying"; }
