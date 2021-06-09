@@ -137,6 +137,16 @@ in {
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
+  services.syncthing = {
+    enable = true;
+    package = pkgs.syncthing;
+    configDir = "/home/${config.lib._custom_.userName}/.config/syncthing";
+    dataDir = "/home/${config.lib._custom_.userName}/Sync";
+    openDefaultPorts = true;
+    systemService = true;
+    user = "${config.lib._custom_.userName}";
+  };
+
   # Enable the X11 windowing system.
   services.xserver = { enable = true; };
 
