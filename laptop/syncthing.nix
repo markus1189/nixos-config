@@ -2,7 +2,7 @@ userName: { config, pkgs, ...}:
 
 {
   services.syncthing = {
-    enable = false;
+    enable = true;
     package = pkgs.syncthing;
     configDir = "/home/${userName}/.config/syncthing";
     dataDir = "/home/${userName}/Sync";
