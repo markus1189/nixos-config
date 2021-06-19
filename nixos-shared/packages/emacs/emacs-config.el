@@ -1311,4 +1311,11 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package org-drill
   :ensure t)
 
+(use-package verb
+  :ensure t)
+
+(use-package org
+  :ensure t
+  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+
 ;;;

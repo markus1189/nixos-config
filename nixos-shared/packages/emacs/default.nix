@@ -117,6 +117,7 @@ in
     terraform-mode
     typescript-mode
     use-package
+    verb
     wgrep-helm
     which-key
     yaml-mode
