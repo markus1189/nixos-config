@@ -251,6 +251,12 @@ in
     {
       bash.enable = true;
 
+      broot = {
+        enable = true;
+        enableBashIntegration = true;
+        enableZshIntegration = true;
+      };
+
       zsh = {
         enable = true;
         shellAliases = {
