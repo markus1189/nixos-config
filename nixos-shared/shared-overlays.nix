@@ -37,11 +37,16 @@ rec {
     };
   };
 
+  pinBukuWhileBroken = self: super: {
+    buku = (import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-21.05.tar.gz) {}).buku;
+  };
+
   overlays = [
     ndtOverlay
     ndtSourcesOverlay
     stableNixpkgsOverlay
     nixpkgs1703Overlay
     wallpapersOverlay
+    pinBukuWhileBroken
   ];
 }
