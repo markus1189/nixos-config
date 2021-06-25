@@ -7,7 +7,6 @@ let
       export LIBGL_DRI3_DISABLE=1
       exec ${pkgs.chromium}/bin/chromium --app=${pkgs.lib.escapeShellArg url}
     '';
-  teamboard-abschluss = web2nix { name = "teamboard-abschluss"; url = "https://miro.com/app/board/o9J_ks-8k-s=/?moveToWidget=3074457348190738188&cot=13"; };
   gmail = account: web2nix { name = "gmail${toString account}"; url = "https://mail.google.com/mail/u/${toString account}/#inbox"; };
 in
 {
