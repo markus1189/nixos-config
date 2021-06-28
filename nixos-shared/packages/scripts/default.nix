@@ -147,9 +147,8 @@ rec {
       deps = [ systemd procps ];
       failFast = false;
     } ''
-    OUTPUT="$(systemctl is-active openvpn-*.service)"
-    OPENCONNECT="$(pgrep openconnect)"
-    VPNC="$(pgrep vpnc)"
+
+    OUTPUT="$(systemctl is-active 'wg-quick-*.service' 'openvpn-*.service')"
     COLOR=$(if [[ "$OUTPUT" == active || ! -z "$OPENCONNECT" || ! -z "$VPNC" ]]; then echo lightgreen; else echo red; fi)
     echo "<fc=$COLOR>VPN</fc>"
   '';
