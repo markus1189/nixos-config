@@ -171,6 +171,8 @@ in
           addCommandAlias("c", "compile")
           addCommandAlias("t", "test")
           addCommandAlias("to", "testOnly")
+          addCommandAlias("d", "set javaOptions += \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"")
+          addCommandAlias("do","set javaOptions -= \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"")
         '';
       };
 
