@@ -204,6 +204,7 @@ myKeys =
     ((myModKey, xK_e), swapNextScreen),
     ((myModKey, xK_grave), withDisplay $ withFocused . maximizeFloatWindow),
     ((myModKey, xK_minus), sendMessage Shrink),
+    ((myModShift, xK_minus), sendMessage Expand),
     ( (myModKey, xK_p),
       submap . M.fromList $
         [ ((0, xK_p), spawn "@playerctl@/bin/playerctl -p spotify previous"),
