@@ -49,7 +49,14 @@ in
     enable = true;
     package = gitPackage;
 
-    delta.enable = true;
+    delta = {
+      enable = true;
+      options = {
+        navigate = true;
+
+        features = "side-by-side line-numbers decorations";
+      };
+    };
 
     aliases = {
       co = "checkout";
@@ -119,6 +126,7 @@ in
 
       diff = {
         mnemonicprefix = true;
+        algorithm = "histogram";
       };
 
       "diff \"binary\"" = {
