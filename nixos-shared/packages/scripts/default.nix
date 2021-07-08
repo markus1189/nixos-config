@@ -144,13 +144,15 @@ rec {
   isVpnActive = writeShellScript
     {
       name = "isVpnActive";
-      deps = [ systemd procps ];
+      deps = [ systemd procps gnugrep ];
       failFast = false;
     } ''
 
-    OUTPUT="$(systemctl is-active 'wg-quick-*.service' 'openvpn-*.service')"
-    COLOR=$(if [[ "$OUTPUT" == active || ! -z "$OPENCONNECT" || ! -z "$VPNC" ]]; then echo lightgreen; else echo red; fi)
-    echo "<fc=$COLOR>VPN</fc>"
+    OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep active)"
+    WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep active)"
+    COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo lightgreen; else echo red; fi)
+    LABEL=$(if [[ -n "$OPENVPN" ]]; then echo "OVP"; elif [[ -n "$WIREGUARD" ]]; then echo "WGD"; else echo "VPN"; fi)
+    echo "<fc=$COLOR>''${LABEL}</fc>"
   '';
 
   togglTimer = togglApiToken: writeShellScript
