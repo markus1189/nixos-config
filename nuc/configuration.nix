@@ -30,6 +30,7 @@ in {
     })
     ./kodi.nix
     ./adguard.nix
+    (../nixos-shared/wireguard.nix "nuc")
   ];
 
   lib = {

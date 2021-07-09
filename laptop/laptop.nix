@@ -27,7 +27,7 @@ in rec {
     ../nixos-shared/packages/services.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
-    ../nixos-shared/wireguard.nix
+    (import ../nixos-shared/wireguard.nix "p1")
     ../nixos-shared/zsh.nix
     ./k8s.nix
     ./bluetooth.nix
