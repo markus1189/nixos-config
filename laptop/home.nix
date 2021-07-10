@@ -168,7 +168,7 @@ in
         target = ".sbt/1.0/global-aliases.sbt";
         text = ''
           addCommandAlias("r", "reload")
-          addCommandAlias("c", "compile")
+          addCommandAlias("c", "Test/compile")
           addCommandAlias("t", "test")
           addCommandAlias("to", "testOnly")
           addCommandAlias("d", "set javaOptions += \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"")
