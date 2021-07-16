@@ -223,7 +223,7 @@ in {
         User = config.lib._custom_.userName;
         Group = "users";
         ExecStart =
-          "${pkgs.remind}/bin/remind -z -k'${pkgs.sendCurrentTemperature}/bin/sendCurrentTemperature' /home/${config.lib._custom_.userName}/home-notification-reminders";
+          "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.lib._custom_.userName}/home-notification-reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];

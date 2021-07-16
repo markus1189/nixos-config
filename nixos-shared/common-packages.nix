@@ -35,7 +35,7 @@
       notifySendPb
       notifySendTelegram
       sendTelegramPoll
-      sendCurrentTemperature
+      viessmannOutsideTemperature
       telegramPhotosLastYear
       pwgen
       yq

@@ -898,22 +898,6 @@ rec {
 
       print(t.getOutsideTemperature())
     '';
-  sendCurrentTemperature = { pyvicareSecret, botToken }: writeShellScript
-    {
-      name = "sendCurrentTemperature";
-      deps = [ (notifySendHome botToken) (pyvicare pyvicareSecret) coreutils ];
-      pure = true;
-    } ''
-    unset c
-    until TEMP="$(pyvicare)"; do
-      ((c++)) && ((c==6)) && break
-      sleep 1
-    done
-    unset c
-
-    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
-  '';
-
   captureTOTP = writeShellScript
     {
       name = "captureTOTP";
@@ -922,4 +906,41 @@ rec {
     } ''
     import -window root -quality 90 - | zbarimg -q --raw /dev/stdin 2>/dev/null
   '';
+
+  viessmannOutsideTemperature = {viessmannRefreshToken, botToken}: writeShellScript
+    {
+      name = "viessmannOutsideTemperature";
+      deps = [ curl cacert jq (notifySendHome botToken) ];
+      pure = true;
+    } ''
+    INSTALLATION_ID=210377
+    GATEWAY_SERIAL=7637415026914199
+    DEVICE_ID=0
+    REFRESH_TOKEN="${viessmannRefreshToken}"
+
+    getOutsideTemperature() {
+        ACCESS_TOKEN="$(curl -s \
+                         --fail \
+                         -X POST \
+                         --url "https://iam.viessmann.com/idp/v2/token" \
+                         -H "Content-Type: application/x-www-form-urlencoded" \
+                         -d "grant_type=refresh_token&client_id=48fea126801782efa5a4bde834a74009&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
+
+    curl -s \
+         --fail \
+         -X GET \
+         -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
+         --url "https://api.viessmann.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
+        jq '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
+    }
+
+    unset c
+    until TEMP="$(getOutsideTemperature)"; do
+        ((c++)) && ((c==6)) && break
+        sleep 1
+    done
+    unset c
+
+    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
+    '';
 }

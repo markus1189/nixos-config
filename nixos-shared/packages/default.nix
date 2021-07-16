@@ -38,10 +38,11 @@ in {
             myScripts.telegramPhotosLastYear secrets.telegramBotToken;
           mkRsstailToPocketUnitWithSecrets =
             myScripts.mkRsstailToPocketUnit secrets.pocket;
-          sendCurrentTemperature = myScripts.sendCurrentTemperature {
-            botToken = secrets.telegramBotToken;
-            pyvicareSecret = secrets.gasboiler;
-          };
+          viessmannOutsideTemperature =
+            myScripts.viessmannOutsideTemperature {
+              botToken = secrets.telegramBotToken;
+              viessmannRefreshToken = secrets.viessmannRefreshToken;
+            };
           logArgs = myScripts.logArgs;
           myConfigFiles = {
             xmonad = callPackage ./xmonad {
