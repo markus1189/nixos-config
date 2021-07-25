@@ -237,6 +237,26 @@ in
           alt2: '([^'\n\r]+)'
         '';
       };
+
+      "lnav-custom-formats" = {
+        target = ".lnav/formats/custom/custom-formats-home-manager.json";
+        text = pkgs.lib.strings.toJSON {
+          "$schema" = "https://lnav.org/schemas/format-v1.schema.json";
+          otto_log = {
+            title = "Java Logback Format";
+            description = "Log format for most logback formats";
+            json = true;
+            level-field = "level";
+            level = {
+              error = "ERROR";
+              warning = "WARN";
+              info = "INFO";
+            };
+            timestamp-field = "@timestamp";
+            body-field = "message";
+          };
+        };
+      };
     };
   };
 
