@@ -242,7 +242,7 @@ in
         target = ".lnav/formats/custom/custom-formats-home-manager.json";
         text = pkgs.lib.strings.toJSON {
           "$schema" = "https://lnav.org/schemas/format-v1.schema.json";
-          otto_log = {
+          java_log = {
             title = "Java Logback Format";
             description = "Log format for most logback formats";
             json = true;
