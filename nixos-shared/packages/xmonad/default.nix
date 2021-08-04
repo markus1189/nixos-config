@@ -2,6 +2,7 @@ args@{ autoMonitorConfig
 , autorandr
 , browserHistory
 , bukuRun
+, dunst
 , centerMouse
 , chooseNetwork
 , clipmenu

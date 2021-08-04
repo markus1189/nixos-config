@@ -2,7 +2,9 @@
 , cacert
 , coreutils
 , curl
+, dbus
 , dragon-drop
+, dunst
 , emacs
 , feh
 , findutils
@@ -153,6 +155,18 @@ rec {
     COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo lightgreen; else echo red; fi)
     LABEL=$(if [[ -n "$OPENVPN" ]]; then echo "OVP"; elif [[ -n "$WIREGUARD" ]]; then echo "WGD"; else echo "VPN"; fi)
     echo "<fc=$COLOR>''${LABEL}</fc>"
+  '';
+
+  dunstStatus = writeShellScript
+    {
+      name = "dunstStatus";
+      deps = [ dunst dbus ];
+      failFast = true;
+    } ''
+
+    if [[ "$(dunstctl is-paused)" == "true" ]]; then
+      echo "<fc=red>PAUSED</fc> "
+    fi
   '';
 
   togglTimer = togglApiToken: writeShellScript

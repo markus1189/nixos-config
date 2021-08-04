@@ -193,6 +193,7 @@ myKeys =
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
     ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
+    ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((myModKey, xK_F11), spawn "~/bin/f11"),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
