@@ -72,10 +72,12 @@
         no-dhcp-interface=lo
         bind-interfaces
 
-        server=10.64.0.1 # wireguard
+        # server=10.64.0.1 # wireguard
         server=1.1.1.1 # if wireguard is inactive
         server=/otto.de/10.79.255.100
         server=/otto.de/10.79.255.200
+        server=/ottogroup.com/10.79.255.100
+        server=/ottogroup.com/10.79.255.200
         server=/otto.de/# # fallback to default dns
       '';
     };
