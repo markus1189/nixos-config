@@ -14,7 +14,7 @@
     "url": "https://github.com/darktable-org/darktable"
   },
   "emacs-dired-plus": {
-    "sha256": "1m5kipsb1wxhydf36k16m711rdnamvr5k828a3jiq61h0np6s4kd",
+    "sha256": "0hqk5ap9m1d6g5wq4vdiv9kmgl8a2q8nxg0956wm8nrh0qxila5n",
     "type": "url",
     "url": "https://www.emacswiki.org/emacs/download/dired+.el"
   },
@@ -25,35 +25,35 @@
   },
   "gitignore-io": {
     "name": "gitignore-io",
-    "sha256": "1myq9rhnkrij8f1rg1wzxg6vq16p9aqgz0n4ydcjfnzn9rwb6ax6",
+    "sha256": "0s2il4x7p2a9s74haj301x3l920r0nqdj59sak3mi5grs9mzkhzb",
     "type": "url",
     "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go"
   },
   "home-manager": {
     "branch": "master",
-    "date": "2021-04-29T17:58:15+02:00",
+    "date": "2021-07-29T23:01:52+02:00",
     "deepClone": false,
     "fetchSubmodules": false,
     "leaveDotGit": false,
     "owner": "rycee",
-    "path": "/nix/store/4kmr8h95cl7aa344wf8rs8nvlfvy2ddc-home-manager",
+    "path": "/nix/store/26kwxgcr8zbvmnw3arw8f81gjpb8svd9-home-manager",
     "repo": "home-manager",
-    "rev": "d57c59e7cb4beba06825c042df35cc1f707bb41a",
-    "sha256": "1hmm0wwzg2cgx84p5jyzxqn18nibfnvk2shlpvxja79a1923lrq9",
+    "rev": "7f976da06840c268cc291a021bab7532b923713c",
+    "sha256": "06ip8hxjm8mvwrjzrsp9l8zzj74rr2sy6x009pfyz5w6030axdpr",
     "type": "github",
     "url": "https://github.com/rycee/home-manager"
   },
   "hosts": {
     "branch": "master",
-    "date": "2021-04-29T19:53:38-04:00",
+    "date": "2021-08-02T11:17:54-04:00",
     "deepClone": false,
     "fetchSubmodules": false,
     "leaveDotGit": false,
     "owner": "StevenBlack",
-    "path": "/nix/store/ka9kv6qpypj52ah1gz5daba3qxc8rsz0-hosts",
+    "path": "/nix/store/s0kbx8cjhdhicyzjqbbpzszc4fykk8za-hosts",
     "repo": "hosts",
-    "rev": "037f143f2d17bdaad50d16497f9890a2ad6540df",
-    "sha256": "1j9q332qb01a1w6qyyps1ykf314fplgiccw6dlampi5vg5zk330l",
+    "rev": "f929591bd671ce7fe2cbd9eeccd3284d130b0046",
+    "sha256": "1np4ks9krd96hp92cjqy6dwvjirqghjfldgh08pma79bx0cjx1pf",
     "type": "github",
     "url": "https://github.com/StevenBlack/hosts"
   },
