@@ -75,12 +75,6 @@
           }
 
           @-moz-document domain("jenkins.ft1.cloud.otto.de") {
-            a[href="/view/Order_Core_Pipeline/"] {
-              background: orange !important;
-            }
-          }
-
-          @-moz-document domain("jenkins.ft1.cloud.otto.de") {
             .tab > a[href$="Order_Core_Pipeline/"] {
               background: orange !important;
               color: black !important;
@@ -94,6 +88,12 @@
             .tab > a[href$="Order_Up_Pipeline/"] {
               background: orange !important;
               color: black !important;
+            }
+
+            .tab > a[href$="Order_Common_Pipeline/"] {
+              background: orange !important;
+              color: black !important;
+            }
           }
         '';
         path = "managed";
