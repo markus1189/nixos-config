@@ -121,6 +121,7 @@
  '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
 
 (custom-set-variables
+ '(async-shell-command-buffer 'new-buffer)
  '(ediff-merge-split-window-function (quote split-window-horizontally))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
