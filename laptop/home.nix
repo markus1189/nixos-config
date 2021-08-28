@@ -287,10 +287,19 @@ in {
 
     zsh = {
       enable = true;
+      history = rec {
+        expireDuplicatesFirst = true;
+        extended = true;
+        ignoreDups = true;
+        ignorePatterns = [ "rm *" ];
+        ignoreSpace = true;
+        save = 999999999;
+        size = save;
+        share = true;
+      };
       shellAliases = {
         "aws-vault" =
           "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
-        "p" = "pass";
       };
     };
 

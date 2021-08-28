@@ -70,11 +70,8 @@ in
 
         zstyle ':completion:*' completer _expand _complete _ignored _approximate
 
-        HISTFILE=~/.histfile
-        HISTSIZE=999999999999
-        SAVEHIST=999999999999
-
         setopt appendhistory
+  setopt hist_ignore_all_dups
         bindkey -e
 
         zle -N edit-command-line
