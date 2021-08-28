@@ -1319,4 +1319,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 
+(use-package transpose-frame
+  :ensure t)
+
 ;;;

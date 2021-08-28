@@ -115,6 +115,7 @@ in
     smartparens
     solarized-theme
     terraform-mode
+    transpose-frame
     typescript-mode
     use-package
     verb
