@@ -133,18 +133,27 @@ in {
       };
 
       "jrnl_config" = {
-        target = ".jrnl_config";
-        text = builtins.toJSON {
-          journals = { default = "/home/markus/Dropbox/journal.txt"; };
-          editor = "${pkgs.vim}/bin/vim";
-          encrypt = false;
-          default_hour = 9;
-          default_minute = 0;
-          timeformat = "%Y-%m-%dT%H:%M:%S";
-          tagsymbols = "@";
-          highlight = true;
-          linewrap = 79;
-        };
+        target = ".config/jrnl/jrnl.yaml";
+        text = ''
+          colors:
+            body: none
+            date: none
+            tags: none
+            title: none
+          default_hour: 9
+          default_minute: 0
+          editor: /nix/store/0dcf13hhk1kl9i0gcq7yjp8p9cp166n4-vim-8.2.2567/bin/vim
+          encrypt: false
+          highlight: true
+          indent_character: '|'
+          journals:
+            default: /home/markus/Syncthing/jrnl/journal.txt
+          linewrap: 79
+          tagsymbols: '@'
+          template: false
+          timeformat: '%Y-%m-%dT%H:%M:%S'
+          version: v2.8
+        '';
       };
 
       "mpv_config" = {
