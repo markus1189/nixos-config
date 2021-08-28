@@ -399,11 +399,15 @@ in rec {
         "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
     });
 
-    etc = {
-      "youtube-dl.conf".text = ''
+    etc = let youtube-downloader-config-shared = ''
         -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
         --restrict-filenames
-      '';
+j        --embed-subs
+    '';
+    in {
+      "youtube-dl.conf".text = youtube-downloader-config-shared;
+
+      "yt-dlp.conf".text = youtube-downloader-config-shared;
 
       "X11/Xresources".text = ''
         URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
