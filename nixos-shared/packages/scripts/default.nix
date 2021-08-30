@@ -689,7 +689,7 @@ rec {
   bukuRun = writeShellScript
     {
       name = "bukuRun";
-      deps = [ rofi buku gawk unixtools.column firefox ];
+      deps = [ rofi buku gawk unixtools.column firefox gnugrep ];
       pure = true;
     } ''
     export BROWSER=firefox
