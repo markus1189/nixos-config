@@ -176,15 +176,17 @@ in
       # wine
       which
       xclip
+      xdotool
       x11vnc
       xvfb_run
+      yt-dlp
+      youtube-dl
       zathura
       zip
       zlib
       zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
-      youtube-dl
       pygments
     ]) ++ (with pkgs.haskellPackages; [
       cabal2nix
