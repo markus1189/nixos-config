@@ -129,6 +129,9 @@ in {
 
           [repos/nixos-config]
           checkout = git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'
+
+          [/home/markus/repos/clones/home-manager]
+          checkout = git clone 'https://github.com/nix-community/home-manager' 'home-manager'
         '';
       };
 
