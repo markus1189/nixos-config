@@ -72,6 +72,7 @@ in
       html2text
       httpie
       i3lock
+      inotify-tools
       jetbrains.idea-community
       inetutils
       imagemagick
@@ -114,6 +115,7 @@ in
       pv
       pythonFull
       rclone
+      remind
       rlwrap
       rofi
       # (rWrapper.override {
