@@ -116,6 +116,7 @@ in
       pythonFull
       rclone
       remind
+      wyrd
       rlwrap
       rofi
       # (rWrapper.override {
