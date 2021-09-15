@@ -34,6 +34,10 @@ let
         url = "https://dnd.wizards.com/content/dragon";
         filter = "${scrapeDragonPlusMagaine}/bin/scrape";
       }
+      {
+        url = "https://www.fnp.de/lokales/main-taunus/";
+        filter = "${scrapeFnpMtk}/bin/scrape";
+      }
     ] ++ (map taunusNachrichtenSearch [
       "waldkauz"
       "eisvogel"

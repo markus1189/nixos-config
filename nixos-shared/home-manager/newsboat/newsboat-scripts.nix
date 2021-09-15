@@ -7,7 +7,6 @@
         #     "pubDate": "",
         #     "title": "",
         #     "link": "",
-        #     "description": ""
         #   }
         # ]
 
@@ -106,6 +105,18 @@
     }
 
     getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Dragon+ Magazine' "Dragon+ Magazine Issues" 'https://dnd.wizards.com/content/dragon'
+  '';
+
+  scrapeFnpMtk = writeScriptBin "scrape" ''
+    getItems() {
+       ${pup}/bin/pup '.id-LinkOverlay-link json{}'
+    }
+
+    buildItems() {
+       ${jq}/bin/jq 'map(select(.href != "") | {title: .title,link: "https://www.fnp.de\(.href)"})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'FNP: Main Taunus Kreis' "Nachrichten von fnp.de für MTK" 'https://www.fnp.de/lokales/main-taunus/'
   '';
 
   addToPocketScript = writeScript "add-to-pocket.sh" ''
