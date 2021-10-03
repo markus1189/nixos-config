@@ -90,6 +90,7 @@ in {
     systemPackages = with pkgs; [
       bashmount
       coreutils
+      google-chrome
       feh
       jq
       lsof
