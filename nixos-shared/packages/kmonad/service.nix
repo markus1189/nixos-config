@@ -25,6 +25,7 @@ in {
 
   systemd.services.mykmonadinternal = {
     description = "my custom kmonad unit for internal";
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       ExecStart = "${kmonad}/bin/kmonad ${myConfigInternal}";
       Restart = "always";
