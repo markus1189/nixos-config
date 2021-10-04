@@ -3,7 +3,7 @@
 let
   scripts =
     (lib.makeScope newScope (self: args)).callPackage ./newsboat-scripts.nix
-      { };
+    { };
   taunusNachrichtenSearch = search: {
     url =
       "https://www.taunus-nachrichten.de/search/content/${search}?solrsort=ds_created%20desc";
@@ -120,6 +120,7 @@ let
   ];
 
   subreddits = [
+    { name = "androidgaming"; }
     { name = "books"; }
     { name = "commandline"; }
     { name = "compsci"; }
@@ -140,7 +141,9 @@ let
     { name = "ultrarunning"; }
     { name = "trailrunning"; }
     { name = "writingprompts"; }
-    { name = "netsec"; }
+    {
+      name = "netsec";
+    }
 
     # RPG
     { name = "ironsworn"; }
@@ -161,8 +164,7 @@ let
       threshold = 70;
     }
   ];
-in
-{
+in {
   value = {
     enable = true;
 
@@ -171,17 +173,13 @@ in
     reloadTime = 15;
     reloadThreads = 10;
 
-    urls = map
-      (url: {
-        inherit url;
-        tags = tagify url;
-      })
-      (urlLines ++ map subredditToRss subreddits) ++ map
-      (url: {
-        inherit url;
-        tags = [ "filter" ];
-      })
-      urlFilters ++ map fromGitHubRelease githubReleases;
+    urls = map (url: {
+      inherit url;
+      tags = tagify url;
+    }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
+      inherit url;
+      tags = [ "filter" ];
+    }) urlFilters ++ map fromGitHubRelease githubReleases;
 
     queries = {
       "Youtube Videos" = ''tags # "youtube"'';
