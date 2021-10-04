@@ -402,7 +402,7 @@ in rec {
     etc = let youtube-downloader-config-shared = ''
         -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
         --restrict-filenames
-j        --embed-subs
+        --embed-subs
     '';
     in {
       "youtube-dl.conf".text = youtube-downloader-config-shared;
