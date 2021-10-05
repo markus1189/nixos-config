@@ -128,6 +128,7 @@ let
     { name = "emacs"; }
     { name = "fantasy"; }
     { name = "functionalprogramming"; }
+    { name = "garminfenix"; }
     { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
