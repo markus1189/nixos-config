@@ -80,6 +80,11 @@
               color: black !important;
             }
 
+            .tab > a[href$="Order_Checkout_Pipeline/"] {
+              background: orange !important;
+              color: black !important;
+            }
+
             .tab > a[href$="Checkout_Core_Pipeline/"] {
               background: orange !important;
               color: black !important;
