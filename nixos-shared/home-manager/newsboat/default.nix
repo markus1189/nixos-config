@@ -165,6 +165,85 @@ let
       threshold = 70;
     }
   ];
+  fromYoutubeChannel = args: {
+    url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
+    tags = [ "youtube" "!hide" ];
+  };
+  youtubeChannels = [
+    {
+      title = "Chris Kaula";
+      id = "UCl_5s2WDFi38LiXUQA7CTWQ";
+      enabled = false;
+    }
+    {
+      title = "Iron Home";
+      id = "UCt8REhn8USXlxhiTc9H_F3w";
+    }
+    {
+      title = "Daily MTB Rider";
+      id = "UCHMfbHsJZCqRtSCVLV-RnYA";
+    }
+    {
+      title = "Aiko Sukdolak";
+      id = "UC4hJTeF0QvnsC7bIshU_K2w";
+    }
+    {
+      title = "Steve Mattheis";
+      id = "UCDIr0UgrBJ3lGfs0eeKV6Tw";
+    }
+    {
+      title = "Figboot on Pens";
+      id = "UCI1aF4MNqSzKIS2t0KHS1gw";
+    }
+    {
+      title = "Trond Westby";
+      id = "UCJV7ONWjegVFOlHpAGgjGMQ";
+    }
+    {
+      title = "Stefano Ianiro Wildlife";
+      id = "UCKq3tXnvXnA0feJYmOx9MPw";
+    }
+    {
+      title = "Ben Fitzcosta";
+      id = "UCMYHM19nuv892Qo8ZlLvUaw";
+    }
+    {
+      title = "Morten Hilmer";
+      id = "UCYzMdQa5aD6dnKHLdBxDMkw";
+    }
+    {
+      title = "SuperTragopan";
+      id = "UCa51ED7iENUjtadDnqPuoWw";
+    }
+    {
+      title = "Simon Baxter";
+      id = "UCcGPU4A6xJ1OYOkvfMoo25w";
+    }
+    {
+      title = "exurb1a";
+      id = "UCimiUgDLbi6P17BdaCZpVbg";
+    }
+    {
+      title = "Ornithologie für Anfänger";
+      id = "UCkJQqECiHJ3UmTeztifoFpg";
+    }
+    {
+      title = "Mark Smith";
+      id = "UCyGYUrC2IvaHWoX6dwEsrMA";
+    }
+    {
+      title = "Simon Wantling";
+      id = "UCzbbkYQUqeGNKSRwoyWB9IA";
+    }
+    {
+      title = "Global Mountain Bike Network";
+      id = "UC_A--fhX5gea0i4UtpD99Gg";
+    }
+    {
+      title = "GOLDEN TRAIL SERIES";
+      id = "UC8szqVDJF60HueoqJrD50qw";
+    }
+  ];
 in {
   value = {
     enable = true;
@@ -180,7 +259,9 @@ in {
     }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
       inherit url;
       tags = [ "filter" ];
-    }) urlFilters ++ map fromGitHubRelease githubReleases;
+    }) urlFilters ++ map fromGitHubRelease githubReleases
+      ++ map fromYoutubeChannel
+      (lib.filter (arg: arg.enabled or true) youtubeChannels);
 
     queries = {
       "Youtube Videos" = ''tags # "youtube"'';
