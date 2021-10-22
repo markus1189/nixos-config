@@ -256,11 +256,13 @@ myKeys =
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
 
+-- use "xprop"
 myKeysP :: [(String, X ())]
 myKeysP =
   [ (myModKeyP "o 1 p", raise (iclassName "1password")),
     (myModKeyP "o c h", raise (iclassName "chromium-browser")),
     (myModKeyP "o e m", raise (iclassName "emacs")),
+    (myModKeyP "o d i", raise (iclassName "discord")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise (iclassName "jetbrains-idea-ce")),
     (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (title <&> ("im:" `isPrefixOf`)))),
