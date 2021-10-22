@@ -117,6 +117,10 @@ let
       owner = "kmonad";
       repo = "kmonad";
     }
+    {
+      owner = "saulpw";
+      repo = "visidata";
+    }
   ];
 
   subreddits = [
