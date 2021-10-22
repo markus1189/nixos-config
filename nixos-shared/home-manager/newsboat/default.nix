@@ -163,6 +163,7 @@ let
     { name = "worldbuilding"; }
     { name = "swn"; }
     { name = "wwn"; }
+    { name = "soloboardgaming"; }
 
     {
       name = "worldnews";
