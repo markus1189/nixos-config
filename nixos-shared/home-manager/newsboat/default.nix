@@ -248,6 +248,10 @@ let
       title = "GOLDEN TRAIL SERIES";
       id = "UC8szqVDJF60HueoqJrD50qw";
     }
+    {
+      title = "Saul Pwanson - Visidata";
+      id = "UCDw36yB-ZXJ_FnqEH7o2HfQ";
+    }
   ];
 in {
   value = {
