@@ -40,6 +40,7 @@
       pwgen
       yq
       (myScripts.captureTOTP)
+      visidata
     ];
   };
 }
