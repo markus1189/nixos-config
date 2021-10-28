@@ -1323,4 +1323,9 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package transpose-frame
   :ensure t)
 
+(use-package eros
+  :ensure t
+  :hook
+  (prog-mode . eros-mode))
+
 ;;;

@@ -36,6 +36,7 @@ in
     docker
     dumb-jump
     dyalog-mode
+    eros
     evil
     evil-numbers
     expand-region
