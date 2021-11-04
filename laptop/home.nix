@@ -14,6 +14,20 @@ in {
     ];
 
     file = {
+      "visidatarc" = {
+        target = ".visidatarc";
+        text = ''
+          options.input_history = 'history'
+          options.disp_date_fmt = '%Y-%m-%d %H:%M:%S'
+
+          Sheet.bindkey(ALT + '.', 'repeat-input')
+          Sheet.bindkey('z' + ALT + '.', 'repeat-last')
+
+          def mh_utc_from_unix(seconds):
+            return datetime.datetime.utcfromtimestamp(seconds).strftime('%Y-%m-%dT%H:%M:%SZ')
+        '';
+      };
+
       "arbtt-categorizer" = {
         target = ".arbtt/categorize.cfg";
         text = ''
