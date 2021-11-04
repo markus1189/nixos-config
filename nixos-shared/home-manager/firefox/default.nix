@@ -85,7 +85,7 @@
               color: black !important;
             }
 
-            .tab > a[href$="Checkout_Core_Pipeline/"] {
+            .tab > a[href$="Order_AWS_Bootstrap_Pipeline/"] {
               background: orange !important;
               color: black !important;
             }
