@@ -76,6 +76,10 @@ in {
           saveAfterCopyPath=/home/markus/Downloads
           savePath=/home/markus/Downloads
           uiColor=#ee8903
+          copyPathAfterSave=true
+
+          [Shortcuts]
+          TYPE_PIN=Ctrl+P
         '';
       };
 
