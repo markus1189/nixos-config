@@ -1,4 +1,12 @@
 rec {
+  stableNixpkgsOverlay = self: super: {
+    stableNixpkgs = import self.ndtSources.nixpkgs-2003 { };
+  };
+
+  nixpkgs1703Overlay = self: super: {
+    nixpkgs1703 = import self.ndtSources.nixpkgs-1703 { };
+  };
+
   ndtOverlay = self: super: {
     ndt = import (builtins.fetchTarball
       "https://github.com/markus1189/ndt/archive/master.tar.gz") {
@@ -29,13 +37,16 @@ rec {
     };
   };
 
-  visidataOverlay = self: super: {
-    visidata = builtins.trace "INFO: Using visidata overlay"
-      super.visidata.overridePythonAttrs (old: {
-        propagatedBuildInputs = old.propagatedBuildInputs
-          ++ (with self.python3Packages; [ sh ]);
-      });
+  pinBukuWhileBroken = self: super: {
+    buku = (import (fetchTarball https://github.com/NixOS/nixpkgs/archive/release-21.05.tar.gz) {}).buku;
   };
 
-  overlays = [ ndtOverlay ndtSourcesOverlay wallpapersOverlay visidataOverlay ];
+  overlays = [
+    ndtOverlay
+    ndtSourcesOverlay
+    stableNixpkgsOverlay
+    nixpkgs1703Overlay
+    wallpapersOverlay
+    pinBukuWhileBroken
+  ];
 }
