@@ -29,13 +29,13 @@ rec {
     };
   };
 
-  visidataOverlay = self: super: {
-    visidata = builtins.trace "INFO: Using visidata overlay"
-      super.visidata.overridePythonAttrs (old: {
-        propagatedBuildInputs = old.propagatedBuildInputs
-          ++ (with self.python3Packages; [ sh ]);
-      });
-  };
+  visidataOverlay = self: super:
+    let pkgs = with self.python3Packages; [ requests sh pytimeparse ];
+    in {
+      visidata = builtins.trace "INFO: Using visidata overlay"
+        super.visidata.overridePythonAttrs
+        (old: { propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs; });
+    };
 
   overlays = [ ndtOverlay ndtSourcesOverlay wallpapersOverlay visidataOverlay ];
 }
