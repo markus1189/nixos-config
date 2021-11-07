@@ -59,11 +59,6 @@ let
     tags = [ "github-release" "!hide" ];
   };
 
-  subredditToRss = args:
-    "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
-      toString (args.threshold or 30)
-    }&view=rss";
-
   githubReleases = [
     {
       owner = "CMB";
@@ -122,6 +117,11 @@ let
       repo = "visidata";
     }
   ];
+
+  subredditToRss = args:
+    "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
+      toString (args.threshold or 40)
+    }&view=rss";
 
   subreddits = [
     { name = "androidgaming"; }
