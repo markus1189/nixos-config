@@ -20,6 +20,7 @@ in {
     serviceConfig = {
       ExecStart = "${kmonad}/bin/kmonad ${myConfigExternal}";
       Restart = "always";
+      wantedBy = [ "multi-user.target" ];
     };
   };
 
@@ -29,6 +30,7 @@ in {
     serviceConfig = {
       ExecStart = "${kmonad}/bin/kmonad ${myConfigInternal}";
       Restart = "always";
+      wantedBy = [ "multi-user.target" ];
     };
   };
 }
