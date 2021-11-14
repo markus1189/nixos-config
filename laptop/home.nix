@@ -19,6 +19,7 @@ in {
         text = ''
           options.input_history = 'history'
           options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f'
+          options.disp_float_fmt = '{:.04f}'
 
           Sheet.bindkey(ALT + '.', 'repeat-input')
           Sheet.bindkey('z' + ALT + '.', 'repeat-last')
