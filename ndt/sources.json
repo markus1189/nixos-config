@@ -98,5 +98,20 @@
     "sha256": "07a3nyrj3pwl017ig0rbn5rbmbf14gl3vqggvkyrdby01726p5fg",
     "type": "github",
     "url": "https://github.com/nixos/nixpkgs-channels"
+  },
+  "zsh-histdb": {
+    "branch": "master",
+    "date": "2021-10-13T10:18:20+01:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "larkery",
+    "path": "/nix/store/8kky7rdxpk8iy4lgq17zisysz5sh3hsy-zsh-histdb",
+    "repo": "zsh-histdb",
+    "rev": "0b63f7c9f6748a1fa65b8d8e4508146da2c59087",
+    "sha256": "00q02jpcq9a8sj6g6dj3jx7sq8p9aqn8s8ajlgrg0xxnspx1vaw2",
+    "type": "github",
+    "url": "https://github.com/larkery/zsh-histdb"
   }
 }
