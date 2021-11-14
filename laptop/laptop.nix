@@ -250,7 +250,7 @@ in rec {
   };
 
   hardware = {
-    video = { hidpi.enable = true; };
+    video = { hidpi.enable = false; };
 
     pulseaudio = {
       enable = true;
