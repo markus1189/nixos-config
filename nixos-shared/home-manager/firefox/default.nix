@@ -24,6 +24,10 @@
             content: " [pdf]";
           }
 
+          @-moz-document domain("login.codecentric.de") {
+              #zocial-users-codecentric { background: orange !important }
+          }
+
           @-moz-document domain("news.ycombinator.com") {
               .hnuser { font-size: 20px; color: black !important }
               .score { font-size: 15px }
