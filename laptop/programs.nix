@@ -38,6 +38,7 @@ in
       chromium
       cloc
       coreutils
+      discord
       docker_compose
       dmenu
       ddgr
