@@ -165,6 +165,10 @@ let
     { name = "wwn"; }
     { name = "soloboardgaming"; }
 
+    # Crypto
+    { name = "CryptoCurrencies"; }
+    { name = "CryptoMarkets"; }
+
     {
       name = "worldnews";
       threshold = 70;
