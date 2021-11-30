@@ -305,6 +305,56 @@ in {
       enable = true;
       enableBashIntegration = true;
       enableZshIntegration = true;
+      verbs = let brootXclip = pkgs.writeShellScript "broot-xclip" ''
+        ${pkgs.xclip}/bin/xclip -i -selection clipboard <(echo -n "$1")
+        echo "Copied: $1"
+      '';
+      in [
+        {
+          invocation = "emacs";
+          key = "alt-e";
+          external = "${pkgs.emacs}/bin/emacsclient -n {file}";
+          apply_to = "any";
+        }
+        {
+          key = "alt-h";
+          internal = ":focus ~";
+        }
+        {
+          key = "alt-enter";
+          external = "cd {directory}";
+          from_shell = true;
+        }
+        {
+          key = "alt-w";
+          external = "${brootXclip} {file}";
+          from_shell = true;
+        }
+        {
+          key = "ctrl-w";
+          internal = ":input_del_word_left";
+        }
+        {
+          key = "ctrl-e";
+          internal = ":input_go_to_end";
+        }
+        {
+          key = "ctrl-a";
+          internal = ":input_go_to_start";
+        }
+        {
+          key = "ctrl-u";
+          internal = ":input_clear";
+        }
+        {
+          key = "alt-b";
+          internal = ":input_go_word_left";
+        }
+        {
+          key = "alt-f";
+          internal = ":input_go_word_right";
+        }
+      ];
     };
 
     zsh = {
