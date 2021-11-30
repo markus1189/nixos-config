@@ -14,14 +14,24 @@ let
     inputDeviceFile = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
   };
 
-in {
-  systemd.services.mykmonadexternal = {
+  mykmonadexternal = "mykmonadexternal";
+
+  lenovoKeyboardUdevName = "Lenovo ThinkPad Compact USB Keyboard with TrackPoint";
+in rec {
+  systemd.services.${mykmonadexternal} = {
     description = "my custom kmonad unit for external";
     serviceConfig = {
       ExecStart = "${kmonad}/bin/kmonad ${myConfigExternal}";
       Restart = "always";
       wantedBy = [ "multi-user.target" ];
     };
+  };
+
+  services.udev = {
+    extraRules = ''
+       ACTION=="add", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block start ${mykmonadexternal}.service"
+       ACTION=="remove", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block stop ${mykmonadexternal}.service"
+    '';
   };
 
   systemd.services.mykmonadinternal = {
