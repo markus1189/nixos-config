@@ -4,6 +4,7 @@
 , systemd
 , source-code-pro
 , rofi
+, xdg-utils
 }:
 
 let
@@ -14,50 +15,31 @@ in
     enable = true;
     settings = {
       global = {
-        font = "Source Code Pro 11";
-        allow_markup = "yes";
-        plain_text = "no";
-        format = ''<b>%s (%a)</b>\n%b'';
-        sort = "true";
-        indicate_hidden = "yes";
-        alignment = "center";
-        bounce_freq = 0;
-        show_age_threshold = "-1";
-        word_wrap = "yes";
-        ignore_newline = "no";
-        stack_duplicates = "yes";
-        hide_duplicates_count = "yes";
-        geometry = "400x60-30-45";
-        shrink = "no";
+        monitor = "0";
+        follow = "none";
+        width = "400";
+        height = "60";
+        origin = "bottom-right";
+        notification_limit = "5";
         transparency = 20;
-        idle_threshold = "10m";
-        follow = "keyboard";
-        sticky_history = "yes";
-        history_length = 42;
-        dmenu = "${rofi}/bin/rofi -dmenu";
-        show_indicators = "yes";
-        line_height = 3;
         separator_height = 2;
         padding = 6;
         horizontal_padding = 6;
         separator_color = "frame";
-        startup_notification = "false";
-        icon_position = "off";
+        idle_threshold = "5m";
+        font = "Source Code Pro 11";
+        line_height = 3;
+        format = ''<b>%s (%a)</b>\n%b'';
+        show_age_threshold = "5m";
+        ignore_newline = "false";
+        stack_duplicates = "true";
+        show_indicators = "true";
+        icon_position = "right";
         max_icon_size = 80;
-        mouse_left = "do_action";
-        mouse_middle = "do_action";
-        mouse_right = "close_current";
-      };
-
-      frame = {
-        width = 3;
-        color = "#2B313C";
-      };
-
-      shortcuts = {
-        close = "ctrl+space";
-        history = "ctrl+grave";
-        context = "ctrl+shift+space";
+        sticky_history = "true";
+        history_length = 99;
+        dmenu = "${rofi}/bin/rofi -dmenu";
+        browser = "${xdg-utils}/bin/xdg-open";
       };
 
       urgency_low = {

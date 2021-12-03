@@ -194,7 +194,12 @@ myKeys =
     ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
+
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
+    ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl history-pop"),
+    ((shiftMask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
+    ((mod1Mask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl context"),
+
     ((myModKey, xK_F11), spawn "~/bin/f11"),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
