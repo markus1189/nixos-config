@@ -327,7 +327,7 @@ in {
         }
         {
           key = "alt-w";
-          external = "${brootXclip} {file}";
+          external = "${brootXclip} '{file}'";
           from_shell = true;
         }
         {
