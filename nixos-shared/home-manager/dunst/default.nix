@@ -17,8 +17,7 @@ in
       global = {
         monitor = "0";
         follow = "none";
-        width = "400";
-        height = "60";
+        width = "450";
         origin = "bottom-right";
         notification_limit = "5";
         transparency = 20;
@@ -35,11 +34,13 @@ in
         stack_duplicates = "true";
         show_indicators = "true";
         icon_position = "right";
-        max_icon_size = 80;
+        max_icon_size = 32;
         sticky_history = "true";
         history_length = 99;
         dmenu = "${rofi}/bin/rofi -dmenu";
         browser = "${xdg-utils}/bin/xdg-open";
+        alignment = "center";
+        ellipsize = "end";
       };
 
       urgency_low = {
