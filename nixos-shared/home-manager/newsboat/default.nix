@@ -120,34 +120,44 @@ let
 
   subredditToRss = args:
     "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
-      toString (args.threshold or 40)
+      toString (args.threshold or 50)
     }&view=rss";
 
   subreddits = [
     { name = "androidgaming"; }
+    { name = "deadcells"; }
     { name = "books"; }
     { name = "commandline"; }
     { name = "compsci"; }
-    { name = "dailyprogrammer"; }
     { name = "emacs"; }
     { name = "fantasy"; }
     { name = "functionalprogramming"; }
-    { name = "garminfenix"; }
+    { name = "DistributedSystems"; }
+    { name = "ProgrammingLanguages"; }
+    {
+      name = "ExperiencedDevs";
+      threshold = 60;
+    }
+    {
+      name = "garminfenix";
+      threshold = 60;
+    }
     { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
     { name = "malazan"; }
     { name = "nixos"; }
     { name = "notebooks"; }
+    { name = "netsec"; }
     {
       name = "scala";
       threshold = 100;
     }
     { name = "ultrarunning"; }
     { name = "trailrunning"; }
-    { name = "writingprompts"; }
     {
-      name = "netsec";
+      name = "writingprompts";
+      threshold = 80;
     }
 
     # RPG
@@ -163,7 +173,9 @@ let
     { name = "worldbuilding"; }
     { name = "swn"; }
     { name = "wwn"; }
-    { name = "soloboardgaming"; }
+    {
+      name = "soloboardgaming";
+    }
 
     # Crypto
     { name = "CryptoCurrencies"; }
