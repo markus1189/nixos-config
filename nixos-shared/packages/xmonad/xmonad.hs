@@ -196,8 +196,8 @@ myKeys =
     ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
 
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
-    ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl history-pop"),
-    ((shiftMask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
+    ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
+    ((shiftMask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl history-pop"),
     ((mod1Mask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl context"),
 
     ((myModKey, xK_F11), spawn "~/bin/f11"),
