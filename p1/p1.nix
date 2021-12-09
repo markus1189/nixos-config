@@ -51,6 +51,8 @@
 
     fprintd.enable = false;
 
+    fstrim.enable = true;
+
     fwupd = { enable = true; };
 
     dnsmasq = {
