@@ -12,7 +12,7 @@
 
     less = {
       envVariables = {
-        LESS = "-XI";
+        LESS = "-RXi";
       };
     };
 
