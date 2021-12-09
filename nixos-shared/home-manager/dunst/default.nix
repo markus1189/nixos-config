@@ -17,9 +17,9 @@ in
       global = {
         monitor = "0";
         follow = "none";
-        width = "450";
-        origin = "bottom-right";
-        notification_limit = "5";
+        width = "400";
+        origin = "top-right";
+        notification_limit = "10";
         transparency = 20;
         separator_height = 2;
         padding = 6;
@@ -34,7 +34,7 @@ in
         stack_duplicates = "true";
         show_indicators = "true";
         icon_position = "right";
-        max_icon_size = 32;
+        max_icon_size = 64;
         sticky_history = "true";
         history_length = 99;
         dmenu = "${rofi}/bin/rofi -dmenu";
