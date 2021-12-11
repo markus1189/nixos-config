@@ -268,6 +268,10 @@ let
       title = "Saul Pwanson - Visidata";
       id = "UCDw36yB-ZXJ_FnqEH7o2HfQ";
     }
+    {
+      title = "MotionTwin (Dead Cells)";
+      id = "UCqeVdbCP-fVjSGEVnY-3lWQ";
+    }
   ];
 in {
   value = {
