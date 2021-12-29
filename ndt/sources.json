@@ -1,15 +1,16 @@
 {
   "darktable": {
     "branch": "master",
-    "date": "2021-04-30T08:16:07+02:00",
+    "date": "2021-12-27T09:25:31+01:00",
     "deepClone": false,
+    "fetchLFS": false,
     "fetchSubmodules": true,
     "leaveDotGit": false,
     "owner": "darktable-org",
-    "path": "/nix/store/qrh825ddmyhcpb4jg6d0nvdgiyn60wv7-darktable",
+    "path": "/nix/store/55y7h11adbk3fnfws5qmw9gmdq4vrm8f-darktable",
     "repo": "darktable",
-    "rev": "bc55e88285d0e76ef394be1c82f5dd9563cf2c0e",
-    "sha256": "0flj9i72sfsmraa6p720qzhay48w3hqnl2w29gairpfrd7sgnhjq",
+    "rev": "576b84e5a7233a4df3e9327597c0c3a4165aad56",
+    "sha256": "1i7nl1ygm7ib1kjg8a65q2k4sf0n3f482yapmii45fg31m9rv7dy",
     "type": "github",
     "url": "https://github.com/darktable-org/darktable"
   },
