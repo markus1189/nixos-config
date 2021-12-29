@@ -387,11 +387,12 @@ in rec {
         "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
     });
 
-    etc = let youtube-downloader-config-shared = ''
+    etc = let
+      youtube-downloader-config-shared = ''
         -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
         --restrict-filenames
         --embed-subs
-    '';
+      '';
     in {
       "youtube-dl.conf".text = youtube-downloader-config-shared;
 
