@@ -104,16 +104,6 @@ in rec {
 
   nixpkgs = {
     overlays = ((import ../nixos-shared/shared-overlays.nix).overlays ++ [
-      # (self: super:
-      #   let pinnedVersion = pkgs.lib.importJSON ../pinned-versions/lensfun-version.json;
-      #   in {
-      #   lensfun = builtins.trace "INFO: Using custom lensfun version" super.lensfun.overrideAttrs (old: rec {
-      #     name = "lensfun-${pinnedVersion.rev}";
-      #     src = pkgs.fetchgit {
-      #       inherit (pinnedVersion) url rev sha256 fetchSubmodules;
-      #     };
-      #   });
-      # })
       (self: super: {
         darktable = builtins.trace "INFO: Using latest darktable via overlay"
           super.darktable.overrideAttrs (old: rec {
