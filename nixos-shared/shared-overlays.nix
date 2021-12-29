@@ -32,7 +32,7 @@ rec {
   visidataOverlay = self: super:
     let pkgs = with self.python3Packages; [ requests sh pytimeparse ];
     in {
-      visidata = builtins.trace "INFO: Using visidata overlay"
+      visidata = builtins.trace "INFO: Using visidata overlay for more python packages"
         super.visidata.overridePythonAttrs
         (old: { propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs; });
     };
