@@ -1,16 +1,16 @@
 {
   "darktable": {
     "branch": "master",
-    "date": "2021-12-27T09:25:31+01:00",
+    "date": "2021-12-29T17:59:56+01:00",
     "deepClone": false,
     "fetchLFS": false,
     "fetchSubmodules": true,
     "leaveDotGit": false,
     "owner": "darktable-org",
-    "path": "/nix/store/55y7h11adbk3fnfws5qmw9gmdq4vrm8f-darktable",
+    "path": "/nix/store/5gwbk7jb2d924h949bds39mwrmpcjchg-darktable",
     "repo": "darktable",
-    "rev": "576b84e5a7233a4df3e9327597c0c3a4165aad56",
-    "sha256": "1i7nl1ygm7ib1kjg8a65q2k4sf0n3f482yapmii45fg31m9rv7dy",
+    "rev": "955c8c14cce032193aba3a8812a3268ff2dc9b9b",
+    "sha256": "02l6wikhpj6bni8a8gnzp9zxab2rkzp6iy978mdvy5x72xghn395",
     "type": "github",
     "url": "https://github.com/darktable-org/darktable"
   },
@@ -26,7 +26,7 @@
   },
   "gitignore-io": {
     "name": "gitignore-io",
-    "sha256": "0s2il4x7p2a9s74haj301x3l920r0nqdj59sak3mi5grs9mzkhzb",
+    "sha256": "15r3fxykw79i3ln0vaflf6ghx4riw4a5bjpdkp05bdq1h7wlkv7a",
     "type": "url",
     "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go"
   },
