@@ -272,6 +272,10 @@ let
       title = "MotionTwin (Dead Cells)";
       id = "UCqeVdbCP-fVjSGEVnY-3lWQ";
     }
+    {
+      title = "Computerphile";
+      id = "UC9-y-6csu5WGm29I7JiwpnA";
+    }
   ];
 in {
   value = {
