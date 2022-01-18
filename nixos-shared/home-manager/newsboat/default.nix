@@ -261,6 +261,10 @@ let
       id = "UC_A--fhX5gea0i4UtpD99Gg";
     }
     {
+      title = "Global Cycling Network";
+      id = "UCuTaETsuCOkJ0H_GAztWt0Q";
+    }
+    {
       title = "GOLDEN TRAIL SERIES";
       id = "UC8szqVDJF60HueoqJrD50qw";
     }
