@@ -312,7 +312,7 @@ in {
       show-read-feeds no
       show-read-articles no
       confirm-exit yes
-      confirm-mark-all-feeds-read no
+      confirm-mark-feed-read no
       download-full-page yes
       history-limit 9999
 
