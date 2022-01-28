@@ -1,21 +1,21 @@
 {
   "darktable": {
     "branch": "master",
-    "date": "2022-01-14T12:26:11+01:00",
+    "date": "2022-01-27T21:48:39+01:00",
     "deepClone": false,
     "fetchLFS": false,
     "fetchSubmodules": true,
     "leaveDotGit": false,
     "owner": "darktable-org",
-    "path": "/nix/store/599fcyb1b11wb0x5q21j067nvlgznmi2-darktable",
+    "path": "/nix/store/rbfqb9d834wllblgqms50am0fh143hmm-darktable",
     "repo": "darktable",
-    "rev": "f40169abbfab5dc0fbf60568a400c7e27a97c128",
-    "sha256": "0n0dy30ypj3ccqfzmzax1h8pnpr3rvfpiaqwgli82rci5w668ia2",
+    "rev": "4fed6dc15a98828158915746b564d5dfe80c7608",
+    "sha256": "0lsd8dm32ahmq7m4qdhdbf9bk64a7czx3li17i3ld2qd9vr9r9d2",
     "type": "github",
     "url": "https://github.com/darktable-org/darktable"
   },
   "emacs-dired-plus": {
-    "sha256": "18hwhbjwqc0f5afsl4z16sqsgvc6axgclvk210f8sxbp8if7rmhk",
+    "sha256": "0if5qb482snsll8s3piip1zv13c2grlwc911w38s73a6334h2c1n",
     "type": "url",
     "url": "https://www.emacswiki.org/emacs/download/dired+.el"
   },
