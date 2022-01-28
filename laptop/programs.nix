@@ -1,14 +1,5 @@
 { pkgs, ... }:
 
-let
-  web2nix = { pkgs ? import <nixpkgs> {}, url, name ? url, ... }:
-    pkgs.writeScriptBin name ''
-      #!${pkgs.runtimeShell}
-      export LIBGL_DRI3_DISABLE=1
-      exec ${pkgs.chromium}/bin/chromium --app=${pkgs.lib.escapeShellArg url}
-    '';
-  gmail = account: web2nix { name = "gmail${toString account}"; url = "https://mail.google.com/mail/u/${toString account}/#inbox"; };
-in
 {
   nixpkgs = {
     config = {
@@ -65,7 +56,6 @@ in
       gnumake
       gnuplot
       go-pup
-      googleearth
       google-chrome
       gparted
       graphviz
