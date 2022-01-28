@@ -277,10 +277,16 @@ in rec {
     };
   };
 
-  virtualisation.docker = {
-    enable = true;
-    extraOptions =
-      "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
+  virtualisation = {
+    docker = {
+      enable = true;
+      extraOptions =
+        "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
+    };
+
+    podman = {
+      enable = true;
+    };
   };
 
   # virtualisation.virtualbox.host.enable = true;
