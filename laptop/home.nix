@@ -554,4 +554,23 @@ in {
       Restart = "always";
     };
   };
+
+  xdg = {
+    mimeApps = let
+      zathuraDesktop =
+        "${pkgs.zathura}/share/applications/org.pwmt.zathura.desktop";
+    in {
+      enable = true;
+      associations.added = {
+        "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+        "x-scheme-handler/tg" = [ "telegramdesktop.desktop" ];
+        "x-scheme-handler/msteams" = [ "teams.desktop" ];
+      };
+      defaultApplications = {
+        "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+        "x-scheme-handler/tg" = [ "telegramdesktop.desktop" ];
+        "x-scheme-handler/msteams" = [ "teams.desktop" ];
+      };
+    };
+  };
 }
