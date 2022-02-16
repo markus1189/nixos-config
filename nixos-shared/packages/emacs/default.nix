@@ -115,6 +115,7 @@ in
     pdf-tools
     smartparens
     solarized-theme
+    systemd
     terraform-mode
     transpose-frame
     typescript-mode

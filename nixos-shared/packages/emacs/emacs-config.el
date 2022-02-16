@@ -1328,4 +1328,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook
   (prog-mode . eros-mode))
 
+(use-package systemd
+  :ensure t)
+
 ;;;
