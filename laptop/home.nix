@@ -312,10 +312,11 @@ in {
       enable = true;
       enableBashIntegration = true;
       enableZshIntegration = true;
-      verbs = let brootXclip = pkgs.writeShellScript "broot-xclip" ''
-        ${pkgs.xclip}/bin/xclip -i -selection clipboard <(echo -n "$1")
-        echo "Copied: $1"
-      '';
+      verbs = let
+        brootXclip = pkgs.writeShellScript "broot-xclip" ''
+          ${pkgs.xclip}/bin/xclip -i -selection clipboard <(echo -n "$1")
+          echo "Copied: $1"
+        '';
       in [
         {
           invocation = "emacs";
