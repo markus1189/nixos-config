@@ -269,6 +269,13 @@ in {
         '';
       };
 
+      "rofi-config" = {
+        target = ".config/rofi/config.rasi";
+        text = ''
+          @theme "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi"
+        '';
+      };
+
       "lnav-custom-formats" = {
         target = ".lnav/formats/custom/custom-formats-home-manager.json";
         text = pkgs.lib.strings.toJSON {
