@@ -29,6 +29,7 @@ import XMonad.Layout.Reflect (reflectHoriz)
 import XMonad.Layout.ResizableTile (ResizableTall (..))
 import XMonad.Layout.SimpleFloat (simpleFloat)
 import XMonad.Layout.Tabbed
+import XMonad.Layout.TrackFloating (trackFloating, useTransientFor)
 import qualified XMonad.StackSet as W
 import XMonad.Prompt.Window (allWindows)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
@@ -319,7 +320,7 @@ myModShiftCtrl = myModKey .|. controlMask .|. shiftMask
 
 myLayoutHook =
   mkToggle (NOBORDERS ?? FULL ?? EOT) $
-    avoidStruts . smartBorders $
+    avoidStruts . smartBorders . trackFloating $
       onWorkspace
         (workSpaceN 5)
         (standardLayouts ||| gimpLayout)
