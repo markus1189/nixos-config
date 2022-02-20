@@ -76,13 +76,13 @@ in {
         target = ".config/flameshot/flameshot.ini";
         text = ''
           [General]
+          copyPathAfterSave=true
           disabledTrayIcon=false
           drawColor=#ff0000
-          drawThickness=0
-          saveAfterCopyPath=/home/markus/Downloads
+          drawThickness=3
+          saveAfterCopy=true
           savePath=/home/markus/Downloads
           uiColor=#ee8903
-          copyPathAfterSave=true
 
           [Shortcuts]
           TYPE_PIN=Ctrl+P
