@@ -110,6 +110,7 @@ in rec {
             name = "darktable-${self.ndtSources.darktable.rev}";
             version = self.ndtSources.darktable.rev;
             src = self.ndtSources.darktable.outPath;
+            patches = [];
           });
       })
     ]);
