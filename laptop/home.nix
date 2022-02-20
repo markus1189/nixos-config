@@ -3,6 +3,11 @@
 let
   secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
+  garmin = (pkgs.callPackage
+    (import ../nixos-shared/home-manager/garmin-connect/default.nix {
+      targetDir = "/home/markus/Syncthing/activities";
+      password = secrets.garminConnect.password;
+    }) { });
 in {
   home = {
     packages = with pkgs; [
@@ -539,21 +544,28 @@ in {
 
   fonts = { fontconfig = { enable = true; }; };
 
-  systemd.user.services.arbtt = let arbttPackage = pkgs.haskellPackages.arbtt;
-  in {
-    Unit = { Description = "arbtt statistics capture service"; };
+  systemd.user.services = {
 
-    Install = { WantedBy = [ "graphical-session.target" ]; };
+    garminConnectSync = garmin.service;
 
-    Service = {
-      Type = "simple";
-      ExecStart =
-        "${arbttPackage}/bin/arbtt-capture --logfile=%h/.arbtt/capture.log --sample-rate=${
-          toString 60
-        }";
-      Restart = "always";
+    arbtt = let arbttPackage = pkgs.haskellPackages.arbtt;
+    in {
+      Unit = { Description = "arbtt statistics capture service"; };
+
+      Install = { WantedBy = [ "graphical-session.target" ]; };
+
+      Service = {
+        Type = "simple";
+        ExecStart =
+          "${arbttPackage}/bin/arbtt-capture --logfile=%h/.arbtt/capture.log --sample-rate=${
+            toString 60
+          }";
+        Restart = "always";
+      };
     };
   };
+
+  systemd.user.timers = { garminConnectSync = garmin.timer; };
 
   xdg = {
     mimeApps = let
