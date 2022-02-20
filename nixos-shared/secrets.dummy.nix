@@ -1,5 +1,7 @@
 let dummy = "just-a-dummy-value";
 in {
+  garminConnect = { password = dummy; };
+
   x11vnc = { password = dummy; };
 
   googlepw = dummy;
