@@ -16,6 +16,8 @@ let
     export B2_ACCOUNT_KEY="${secrets.restic.b2bucket.account-key}"
 
     echo "[$(date)] Started restic command"
+    ${restic}/bin/restic --verbose unlock || echo "Unlock operation unsuccessful"
+
     ${restic}/bin/restic --verbose ${lib.strings.concatStringsSep " " args} &&
       ${curl}/bin/curl --retry 3 --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt "https://hc-ping.com/${healthcheckId}/$?"
   '';
