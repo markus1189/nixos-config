@@ -15,7 +15,7 @@ in {
       dunst
       ndt
       haskellPackages.brittany
-      jrnl
+      # jrnl fails at tests (2022-02-18)
     ];
 
     file = {

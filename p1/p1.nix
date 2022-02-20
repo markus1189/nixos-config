@@ -33,7 +33,8 @@
   system.stateVersion = "20.09";
 
   hardware = {
-    opengl.extraPackages = with pkgs; [ intel-ocl ];
+    # 403 on url
+    # opengl.extraPackages = with pkgs; [ intel-ocl ];
     cpu.intel.updateMicrocode = true;
     trackpoint = {
       device = "TPPS/2 Elan TrackPoint";
