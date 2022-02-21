@@ -3,11 +3,6 @@
 let
   secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
-  garmin = (pkgs.callPackage
-    (import ../nixos-shared/home-manager/garmin-connect/default.nix {
-      targetDir = "/home/markus/Syncthing/activities";
-      password = secrets.garminConnect.password;
-    }) { });
 in {
   home = {
     packages = with pkgs; [
@@ -545,9 +540,6 @@ in {
   fonts = { fontconfig = { enable = true; }; };
 
   systemd.user.services = {
-
-    garminConnectSync = garmin.service;
-
     arbtt = let arbttPackage = pkgs.haskellPackages.arbtt;
     in {
       Unit = { Description = "arbtt statistics capture service"; };
@@ -564,8 +556,6 @@ in {
       };
     };
   };
-
-  systemd.user.timers = { garminConnectSync = garmin.timer; };
 
   xdg = {
     mimeApps = let
