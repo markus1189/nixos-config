@@ -280,6 +280,10 @@ let
       title = "Computerphile";
       id = "UC9-y-6csu5WGm29I7JiwpnA";
     }
+    {
+      title = "NorCal Cycling";
+      id = "UCIfRR1N2Gm1vjj9X955iWSQ";
+    }
   ];
 in {
   value = {
