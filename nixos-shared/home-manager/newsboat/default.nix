@@ -286,7 +286,7 @@ let
     }
   ];
   fromKtn = args: {
-    url = "https://kill-the-newsletter.com/feeds/${args.id}.xml";
+    url = "https://kill-the-newsletter.com/feeds/${args.id}.xml \"~${args.title}\"";
     tags = [ "ktn" ];
   };
   killTheNewsletters = [{
