@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesNgGen, mplayer, fasd, plantuml, pandoc, git, ndtSources }:
+{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, mplayer, fasd, plantuml, pandoc, git, ndtSources }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
@@ -11,7 +11,7 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
   '');
-  emacsWithPackages = (emacsPackagesNgGen emacs).emacsWithPackages;
+  emacsWithPackages = (emacsPackagesFor emacs).emacsWithPackages;
   quick-yes = runCommandLocal "install-quick-yes" {} ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.emacs-quick-yes} $out/share/emacs/site-lisp/quick-yes.el

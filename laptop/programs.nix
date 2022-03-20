@@ -30,7 +30,7 @@
       cloc
       coreutils
       discord
-      docker_compose
+      docker-compose
       dmenu
       ddgr
       deluge
@@ -55,11 +55,11 @@
       glxinfo
       gnumake
       gnuplot
-      go-pup
+      pup
       google-chrome
       gparted
       graphviz
-      hicolor_icon_theme
+      hicolor-icon-theme
       html2text
       httpie
       i3lock
@@ -82,7 +82,7 @@
       mr
       mplayer
       mtools
-      netcat-openbsd
+      libressl.nc
       nethogs
       nixUnstable
       nix-index
