@@ -285,6 +285,14 @@ let
       id = "UCIfRR1N2Gm1vjj9X955iWSQ";
     }
   ];
+  fromKtn = args: {
+    url = "https://kill-the-newsletter.com/feeds/${args.id}.xml";
+    tags = [ "ktn" ];
+  };
+  killTheNewsletters = [{
+    title = "Bike Components";
+    id = "bgfqc0awgchwumud";
+  }];
 in {
   value = {
     enable = true;
@@ -302,7 +310,8 @@ in {
       tags = [ "filter" ];
     }) urlFilters ++ map fromGitHubRelease githubReleases
       ++ map fromYoutubeChannel
-      (lib.filter (arg: arg.enabled or true) youtubeChannels);
+      (lib.filter (arg: arg.enabled or true) youtubeChannels)
+      ++ map fromKtn killTheNewsletters;
 
     queries = {
       "Youtube Videos" = ''tags # "youtube"'';
