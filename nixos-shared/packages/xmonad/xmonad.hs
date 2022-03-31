@@ -111,9 +111,9 @@ myManageHook =
         "Scala IDE"
       ]
     ws6 = []
-    ws7 = []
+    ws7 = ["MPlayer", "mplayer2", "mpv"]
     ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
-    ws9 = ["MPlayer", "mplayer2", "mpv", "microsoft teams - preview"]
+    ws9 = ["microsoft teams - preview"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
         className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
