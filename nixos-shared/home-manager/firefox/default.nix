@@ -76,6 +76,10 @@
               span .a-color-price {
                  color: gray !important;
               }
+
+              .displayAddressDiv {
+                 background-color: darkorange !important;
+              }
           }
 
           @-moz-document domain("jenkins.ft1.cloud.otto.de") {
