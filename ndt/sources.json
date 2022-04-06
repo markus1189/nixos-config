@@ -26,7 +26,7 @@
   },
   "gitignore-io": {
     "name": "gitignore-io",
-    "sha256": "15r3fxykw79i3ln0vaflf6ghx4riw4a5bjpdkp05bdq1h7wlkv7a",
+    "sha256": "0gl10hs6ivl5zpk35km5z9fmb8hv9ddg8avfk8wpa3s03qw2am2l",
     "type": "url",
     "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go"
   },
