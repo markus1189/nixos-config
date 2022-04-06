@@ -25,6 +25,7 @@ in rec {
     ../nixos-shared/fzf.nix
     ../nixos-shared/packages
     ../nixos-shared/packages/services.nix
+    ../nixos-shared/rclone-mounts.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
     (import ../nixos-shared/wireguard.nix "p1")
