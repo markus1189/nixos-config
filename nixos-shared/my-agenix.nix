@@ -8,13 +8,4 @@ in {
     systemPackages =
       [ (pkgs.callPackage "${ndtSources.agenix}/pkgs/agenix.nix" {}) ];
   };
-
-  age = {
-    secrets = {
-      rclonePremiumize= {
-        file = ../secrets/rclone-premiumize.age;
-        name = "rclone/premiumize";
-      };
-    };
-  };
 }

@@ -1,17 +1,25 @@
 { config, pkgs, ... }:
 
-let secrets = import ../nixos-shared/secrets.nix;
-in {
+{
+    age = {
+    secrets = {
+      rclonePremiumize= {
+        file = ../secrets/rclone-premiumize.age;
+        name = "rclone/premiumize";
+        owner = config.lib._custom_.userName;
+      };
+    };
+  };
+
   systemd = {
     services = {
       rclonePremiumizeMount = let
         mountPoint = "/home/${config.lib._custom_.userName}/mounts/rclone/premiumize";
-        configFile = pkgs.writeText "rclone-config" secrets.rclone.premiumize;
+        configFile = config.age.secrets.rclonePremiumize.path;
       in {
         description = "Rclone mount for premiumize";
         serviceConfig = {
           User = config.lib._custom_.userName;
-          Group = "users";
           ExecStop = "/run/wrappers/bin/fusermount -u ${mountPoint}";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
           ExecStart = ''
