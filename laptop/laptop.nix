@@ -44,6 +44,7 @@ in rec {
       homeNixFile = ./home.nix;
     })
     (import ./syncthing.nix config.lib._custom_.userName)
+    ../nixos-shared/my-agenix.nix
   ];
 
   documentation = {

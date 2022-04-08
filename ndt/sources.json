@@ -1,4 +1,19 @@
 {
+  "agenix": {
+    "branch": "main",
+    "date": "2022-04-02T16:34:17-07:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "ryantm",
+    "path": "/nix/store/1b9bz5hdglr54kqrf7kq0j5zvgcwj1ys-agenix",
+    "repo": "agenix",
+    "rev": "0d5e59ed645e4c7b60174bc6f6aac6a203dc0b01",
+    "sha256": "1mb9xgblx9bc56sv6v0jfjlfj6qkvq3jhzlsgs6z0mgcvpb5jvwb",
+    "type": "github",
+    "url": "https://github.com/ryantm/agenix"
+  },
   "darktable": {
     "branch": "master",
     "date": "2022-02-18T08:58:59+01:00",

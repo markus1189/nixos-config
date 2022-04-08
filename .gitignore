@@ -1,7 +1,6 @@
 contextual/
-/secrets.nix
 *undo-tree*
 result/
 .gitsecret/keys/random_seed
-secrets.nix
 /nixos-shared/packages/xmonad/.direnv
+/nixos-shared/secrets.nix
