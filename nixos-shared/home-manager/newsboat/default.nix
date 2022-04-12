@@ -284,6 +284,10 @@ let
       title = "NorCal Cycling";
       id = "UCIfRR1N2Gm1vjj9X955iWSQ";
     }
+    {
+      title = "Questing Beast";
+      id = "UCvYwePdbWSEwUa-Pk02u3Zw";
+    }
   ];
   fromKtn = args: {
     url = "https://kill-the-newsletter.com/feeds/${args.id}.xml \"~${args.title}\"";
