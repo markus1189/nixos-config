@@ -4,7 +4,7 @@
       self: super: {
         ndt = import (builtins.fetchTarball https://github.com/markus1189/ndt/archive/master.tar.gz) {
           nixpkgs = self;
-          ghc = "ghc884";
+          ghc = "ghc8107";
         };
       }
     )
