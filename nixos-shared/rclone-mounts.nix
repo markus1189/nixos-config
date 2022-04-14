@@ -24,6 +24,7 @@
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
           ExecStart = ''
             ${pkgs.rclone}/bin/rclone mount \
+              -v \
               --config ${configFile} \
               --vfs-cache-mode full \
               --vfs-cache-max-age 48h \
