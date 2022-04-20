@@ -290,13 +290,20 @@ let
     }
   ];
   fromKtn = args: {
-    url = "https://kill-the-newsletter.com/feeds/${args.id}.xml \"~${args.title}\"";
+    url =
+      ''https://kill-the-newsletter.com/feeds/${args.id}.xml "~${args.title}"'';
     tags = [ "ktn" ];
   };
-  killTheNewsletters = [{
-    title = "Bike Components";
-    id = "bgfqc0awgchwumud";
-  }];
+  killTheNewsletters = [
+    {
+      title = "Bike Components";
+      id = "bgfqc0awgchwumud";
+    }
+    {
+      title = "Chaosium";
+      id = "o2bsigatmzdvp2t2";
+    }
+  ];
 in {
   value = {
     enable = true;
