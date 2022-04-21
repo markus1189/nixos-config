@@ -12,6 +12,8 @@
       set incsearch   " show incremental search results as you type
       set number      " display line number
       set noswapfile  " disable swap file
+
+      set t_te=       " keep output in terminal
     '';
   };
 }
