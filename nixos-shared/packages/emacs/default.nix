@@ -62,6 +62,7 @@ in
     helm
     helm-flyspell
     helm-projectile
+    helm-rg
     helm-swoop
     hl-anything
     hydra

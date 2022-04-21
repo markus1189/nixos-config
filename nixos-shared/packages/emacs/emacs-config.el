@@ -1331,4 +1331,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package systemd
   :ensure t)
 
+(use-package helm-rg
+  :ensure t)
+
 ;;;
