@@ -6,6 +6,8 @@
   '';
 
   programs = {
+    bcc.enable = true;  # shellsnoop, opensnoop, exitsnoop etc
+
     command-not-found.enable = false;
 
     firejail.enable = true;
