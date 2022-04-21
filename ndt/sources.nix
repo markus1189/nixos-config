@@ -2,7 +2,11 @@
   overlays = [
     (
       self: super: {
-        ndt = import (builtins.fetchTarball https://github.com/markus1189/ndt/archive/master.tar.gz) {
+        ndt = import (builtins.fetchGit {
+        name = "ndt-fetchgit";
+        url = "https://github.com/markus1189/ndt/";
+        rev = "47670efb0ec13df6710ea394d2b305740c9685b8";
+      }) {
           nixpkgs = self;
           ghc = "ghc8107";
         };
