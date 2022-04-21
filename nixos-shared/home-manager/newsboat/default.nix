@@ -303,6 +303,10 @@ let
       title = "Chaosium";
       id = "o2bsigatmzdvp2t2";
     }
+    {
+      title = "Tor.com";
+      id = "sbpv9agei99dsegl";
+    }
   ];
 in {
   value = {
