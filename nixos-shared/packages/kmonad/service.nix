@@ -2,10 +2,14 @@
 
 let
   kmonadSrc = config.lib._custom_.ndtSources.kmonad;
+  kmonadPackage = pkgs.haskellPackages.kmonad;
+  mutatedPatch = (pkgs.mutate ./githash.patch {
+    version = kmonadSrc.rev;
+  });
   kmonad = with pkgs.haskell.lib;
-    overrideSrc (unmarkBroken (doJailbreak pkgs.haskellPackages.kmonad)) {
+    appendPatch (overrideSrc (unmarkBroken (doJailbreak kmonadPackage)) {
       src = kmonadSrc;
-    };
+    }) mutatedPatch;
   myConfigExternal = pkgs.mutate ./markus.kbd {
     inputDeviceFile =
       "/dev/input/by-id/usb-Lenovo_ThinkPad_Compact_USB_Keyboard_with_TrackPoint-event-kbd";
@@ -16,7 +20,8 @@ let
 
   mykmonadexternal = "mykmonadexternal";
 
-  lenovoKeyboardUdevName = "Lenovo ThinkPad Compact USB Keyboard with TrackPoint";
+  lenovoKeyboardUdevName =
+    "Lenovo ThinkPad Compact USB Keyboard with TrackPoint";
 in rec {
   systemd.services.${mykmonadexternal} = {
     description = "my custom kmonad unit for external";
@@ -29,8 +34,8 @@ in rec {
 
   services.udev = {
     extraRules = ''
-       ACTION=="add", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block start ${mykmonadexternal}.service"
-       ACTION=="remove", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block stop ${mykmonadexternal}.service"
+      ACTION=="add", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block start ${mykmonadexternal}.service"
+      ACTION=="remove", ATTRS{name}=="${lenovoKeyboardUdevName}", RUN="${pkgs.systemd}/bin/systemctl --no-block stop ${mykmonadexternal}.service"
     '';
   };
 

@@ -1,0 +1,28 @@
+From 9325fa0cfde17967486734413169488f57c4c093 Mon Sep 17 00:00:00 2001
+From: Markus Hauck <markus1189@gmail.com>
+Date: Sat, 23 Apr 2022 10:32:44 +0200
+Subject: [PATCH] Git hash
+
+---
+ src/KMonad/Args/TH.hs | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/src/KMonad/Args/TH.hs b/src/KMonad/Args/TH.hs
+index 0abfcc4..9090ad7 100644
+--- a/src/KMonad/Args/TH.hs
++++ b/src/KMonad/Args/TH.hs
+@@ -21,10 +21,4 @@ import UnliftIO.Process (readProcessWithExitCode)
+ 
+ -- | Get the git hash of the current revision at compile time
+ gitHash :: Q Exp
+-gitHash = do
+-  str <- runIO do
+-    (exitCode, hash, _) <- readProcessWithExitCode "git" ["rev-parse", "HEAD"] ""
+-    pure case exitCode of
+-      ExitSuccess -> takeWhile (/= '\n') hash
+-      _           -> ""
+-  [| fromString str |]
++gitHash = [| fromString "@version@" |]
+-- 
+2.35.1
+
