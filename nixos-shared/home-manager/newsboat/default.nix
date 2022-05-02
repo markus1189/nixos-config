@@ -125,7 +125,6 @@ let
 
   subreddits = [
     { name = "androidgaming"; }
-    { name = "deadcells"; }
     { name = "books"; }
     { name = "commandline"; }
     { name = "compsci"; }
@@ -163,23 +162,20 @@ let
     # RPG
     { name = "ironsworn"; }
     { name = "starforged"; }
-    { name = "musicforrpg"; }
     { name = "osr"; }
     { name = "penandpaper"; }
-    { name = "PretendingToBePeople"; }
+    { name = "pretendingtobepeople"; }
     { name = "rpg"; }
     { name = "rpgnews"; }
     { name = "solo_roleplaying"; }
+    { name = "theglasscannonpodcast"; }
+    { name = "traveller"; }
     { name = "worldbuilding"; }
     { name = "swn"; }
     { name = "wwn"; }
     {
       name = "soloboardgaming";
     }
-
-    # Crypto
-    { name = "CryptoCurrencies"; }
-    { name = "CryptoMarkets"; }
 
     {
       name = "worldnews";
@@ -288,6 +284,10 @@ let
       title = "Questing Beast";
       id = "UCvYwePdbWSEwUa-Pk02u3Zw";
     }
+    {
+      title = "Seth Skorkowsky";
+      id = "UCQs8-UJ7IHsrzhQ-OQOYBmg";
+    }
   ];
   fromKtn = args: {
     url =
@@ -306,6 +306,10 @@ let
     {
       title = "Tor.com";
       id = "sbpv9agei99dsegl";
+    }
+    {
+      title = "Money Stuff";
+      id = "appeyt9qbgbukkqh";
     }
   ];
 in {
