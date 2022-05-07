@@ -288,6 +288,10 @@ let
       title = "Seth Skorkowsky";
       id = "UCQs8-UJ7IHsrzhQ-OQOYBmg";
     }
+    {
+      title = "Glasscannon Network";
+      id = "UC83CJFLyDe72XgkKBd5a9IA";
+    }
   ];
   fromKtn = args: {
     url =
