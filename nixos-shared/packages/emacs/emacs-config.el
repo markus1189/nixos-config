@@ -919,12 +919,11 @@ Position the cursor at its beginning, according to the current mode."
   :config
   (add-to-list 'auto-mode-alist '("\\.restclient\\'" . restclient-mode)))
 
-;; TODO: figure out how to customize build
-;; (use-package pdf-tools
-;;   :init
-;;   (setq pdf-info-epdfinfo-program "/tmp/epdfinfo")
-;;   :config
-;;   (pdf-tools-install))
+(use-package pdf-tools
+  :init
+  ;; (setq pdf-info-epdfinfo-program "/tmp/epdfinfo")
+  :config
+  (pdf-tools-install))
 
 (use-package hippie-exp
   :ensure t
