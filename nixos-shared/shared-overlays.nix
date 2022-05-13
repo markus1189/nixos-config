@@ -33,9 +33,11 @@ rec {
     let pkgs = with self.python3Packages; [ requests sh pytimeparse ];
     in {
       visidata =
-        builtins.trace "INFO: Using visidata overlay for more python packages"
-        super.visidata.overridePythonAttrs
-        (old: { propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs; });
+        builtins.trace "INFO: Using visidata overlay for more python packages and develop branch"
+        super.visidata.overridePythonAttrs (old: {
+          propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs;
+          src = self.ndtSources.visidata.outPath;
+        });
     };
 
   overlays = [ ndtOverlay ndtSourcesOverlay wallpapersOverlay visidataOverlay ];

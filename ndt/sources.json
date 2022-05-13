@@ -120,6 +120,21 @@
     "type": "github",
     "url": "https://github.com/nixos/nixpkgs-channels"
   },
+  "visidata": {
+    "branch": "develop",
+    "date": "2022-05-10T18:38:28-07:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "saulpw",
+    "path": "/nix/store/mac9g2ccsrf3b0q23k62g082dcplys6d-visidata",
+    "repo": "visidata",
+    "rev": "f16e830c28b541ab57d3330549ff24a6ca6115f4",
+    "sha256": "1pfz5i3shgr2cvzg36ic832aiz9r1x4rmmrfndg19bwsvx6800z9",
+    "type": "github",
+    "url": "https://github.com/saulpw/visidata"
+  },
   "zsh-histdb": {
     "branch": "master",
     "date": "2022-01-18T13:13:05+00:00",
