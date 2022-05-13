@@ -32,11 +32,6 @@ in {
       rsstail = pkgs.mkRsstailToPocketUnitWithSecrets;
       otherServices = {
         garminConnectSync = garmin.service;
-        patchbayStravaResponder = (pkgs.callPackage
-          (import ../nixos-shared/home-manager/patchbay/responder.nix) {
-            patchbayUrl =
-              "https://patchbay.pub/res/d5b1851f-448b-4c74-a2c0-1f9f62d90879-67757c09-079b-4df5-9f94-6c33b8060f10";
-          }).value;
       };
       rssTailServices = map rsstail [
         {
