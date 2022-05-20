@@ -3,7 +3,7 @@
 , coreutils
 , curl
 , dbus
-, dragon-drop
+, xdragon
 , dunst
 , emacs
 , feh
@@ -394,7 +394,7 @@ rec {
   takeScreenshot = writeShellScript
     {
       name = "takeScreenshot";
-      deps = [ coreutils scrot libnotify xclip dragon-drop ];
+      deps = [ coreutils scrot libnotify xclip xdragon ];
     } ''
     sleep 0.5
     notify-send -t 1000 'Screenshot' 'Select area to capture'

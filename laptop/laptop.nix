@@ -250,7 +250,6 @@ in rec {
       extraConfig = ''
         load-module module-switch-on-connect
       '';
-      extraModules = [ pkgs.pulseaudio-modules-bt ];
     };
 
     opengl.driSupport32Bit = true;

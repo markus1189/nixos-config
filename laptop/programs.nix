@@ -34,7 +34,7 @@
       dmenu
       ddgr
       deluge
-      dragon-drop
+      xdragon
       dstat
       emacs
       entr
