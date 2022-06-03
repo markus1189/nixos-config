@@ -60,6 +60,7 @@
       gparted
       graphviz
       hicolor-icon-theme
+      hledger
       html2text
       httpie
       i3lock
