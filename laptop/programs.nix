@@ -83,6 +83,7 @@
       mr
       mplayer
       mtools
+      mu
       libressl.nc
       nethogs
       nixUnstable
