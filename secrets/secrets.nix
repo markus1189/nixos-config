@@ -10,5 +10,6 @@ let
   all = users ++ systems;
 in {
   "rclone-premiumize.age".publicKeys = all;
+  "rclone-gdrive.age".publicKeys = all;
   "cc-wlan-certificate.age".publicKeys = all;
 }
