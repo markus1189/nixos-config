@@ -61,6 +61,7 @@
       graphviz
       hicolor-icon-theme
       hledger
+      hledger-ui
       html2text
       httpie
       i3lock
