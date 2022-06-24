@@ -150,10 +150,10 @@ rec {
       failFast = false;
     } ''
 
-    OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep active)"
-    WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep active)"
+    OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep -q active && echo OVP)"
+    WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep -q active && echo WGD)"
     COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo lightgreen; else echo red; fi)
-    LABEL=$(if [[ -n "$OPENVPN" ]]; then echo "OVP"; elif [[ -n "$WIREGUARD" ]]; then echo "WGD"; else echo "VPN"; fi)
+    LABEL="''${OPENVPN}''${WIREGUARD}"
     echo "<fc=$COLOR>''${LABEL}</fc>"
   '';
 
