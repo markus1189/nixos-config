@@ -12,7 +12,7 @@ import XMonad.Actions.WindowBringer (bringWindow)
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, ewmhDesktopsLogHook, ewmhDesktopsStartup)
+import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
@@ -366,21 +366,12 @@ runTerminal :: String -> String -> String
 runTerminal termTitle arg =
   unwords [myTerminal, "-title", termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
 
--- like the standard ewmh, but don't focus (damn it)
-ewmhSupport :: XConfig a -> XConfig a
-ewmhSupport c =
-  c
-    { startupHook = startupHook c <> ewmhDesktopsStartup,
-      handleEventHook = handleEventHook c <> ewmhDesktopsEventHook,
-      logHook = logHook c <> ewmhDesktopsLogHook
-    }
-
 main :: IO ()
 main = do
   xmobarBottom <- spawnPipe "@xmobar@/bin/xmobar @xmobarLower@"
   void $ spawnPipe "@xmobar@/bin/xmobar @xmobarUpper@"
   xmonad $
-    ewmhSupport $
+    ewmh $
       docks $
         withUrgencyHook NoUrgencyHook $
           def
