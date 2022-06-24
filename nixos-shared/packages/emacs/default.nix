@@ -65,6 +65,7 @@ in
     helm-rg
     helm-swoop
     hl-anything
+    hledger-mode
     hydra
     ibuffer-vc
     ibuffer-projectile
