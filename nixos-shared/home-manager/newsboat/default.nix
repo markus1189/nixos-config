@@ -315,6 +315,10 @@ let
       title = "Money Stuff";
       id = "appeyt9qbgbukkqh";
     }
+    {
+      title = "5-Bullet Friday";
+      id = "0edslwsaoudstyp9";
+    }
   ];
 in {
   value = {
