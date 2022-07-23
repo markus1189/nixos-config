@@ -319,6 +319,10 @@ let
       title = "5-Bullet Friday";
       id = "0edslwsaoudstyp9";
     }
+    {
+      title = "Thinking About Things";
+      id = "tc8vjbiw33og592y";
+    }
   ];
 in {
   value = {
