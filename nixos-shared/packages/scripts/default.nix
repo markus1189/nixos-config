@@ -833,7 +833,7 @@ rec {
   viessmannOutsideTemperature = {viessmannRefreshToken, botToken}: writeShellScript
     {
       name = "viessmannOutsideTemperature";
-      deps = [ curl cacert jq (notifySendHome botToken) ];
+      deps = [ curl cacert jq (notifySendHome botToken) coreutils ];
       pure = true;
     } ''
     INSTALLATION_ID=210377
