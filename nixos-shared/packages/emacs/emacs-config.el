@@ -21,7 +21,7 @@
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
  '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
- '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#f6f3e8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Source Code Pro"))))
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
  '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
@@ -1119,18 +1119,18 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (setq plantuml-jar-path "@plantuml@/lib/plantuml.jar"))
 
-(use-package mu4e
-  :config
-  (require 'mu4e-utils)
-  (setq
+;; (use-package mu4e
+;;   :config
+;;   (require 'mu4e-utils)
+;;   (setq
 ;;       mu4e-sent-folder "/[Google Mail].All Mail"
 ;;       mu4e-drafts-folder "/[Google Mail].Drafts"
 ;;       mu4e-trash-folder "/[Google Mail].Trash"
 ;;       mu4e-refile-folder "/[Google Mail].All Mail"
-      mu4e-maildir "~/mail"
+;;      mu4e-maildir "~/mail"
 ;;       mu4e-html2text-command "@pandoc@/bin/pandoc -f html -t org"
 ;;       mu4e-view-auto-mark-as-read nil
-      )
+;;      )
 ;;   (add-to-list 'mu4e-bookmarks
 ;;        (make-mu4e-bookmark
 ;;          :name  "Inbox"
@@ -1143,7 +1143,7 @@ string). It returns t if a new completion is found, nil otherwise."
 ;;                                    "NOT maildir:/[Google Mail].Spam AND "
 ;;                                    "NOT maildir:/[Google Mail].Bin")
 ;;                           "Unread messages" ?u)))
-  )
+;;  )
 
 (use-package terraform-mode
   :ensure t)
@@ -1378,4 +1378,16 @@ string). It returns t if a new completion is found, nil otherwise."
               (make-local-variable 'company-backends)
               (add-to-list 'company-backends 'hledger-company))))
 
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;; (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-org-config))
 ;;;

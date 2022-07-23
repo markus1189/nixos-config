@@ -34,6 +34,7 @@ in
     direnv
     dockerfile-mode
     docker
+    doom-themes
     dumb-jump
     dyalog-mode
     eros
