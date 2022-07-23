@@ -858,12 +858,15 @@ rec {
     }
 
     unset c
-    until TEMP="$(getOutsideTemperature)"; do
-        ((c++)) && ((c==6)) && break
-        sleep 1
+    until TEMP="$(getOutsideTemperature)" && [[ ! -z "''${TEMP}" ]]; do
+        ((c++)) && ((c==10)) && break
+        sleep 3
     done
-    unset c
 
-    notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
+    if [[ ! -z "''${TEMP}" ]]; then
+      notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
+    else
+      notifySendHome "Aktuelle Temperatur konnte nicht ermittelt werden nach $c Versuchen"
+    fi
     '';
 }
