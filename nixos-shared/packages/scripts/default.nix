@@ -847,7 +847,7 @@ rec {
                          -X POST \
                          --url "https://iam.viessmann.com/idp/v2/token" \
                          -H "Content-Type: application/x-www-form-urlencoded" \
-                         -d "grant_type=refresh_token&client_id=48fea126801782efa5a4bde834a74009&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
+                         -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
 
     curl -s \
          --fail \
