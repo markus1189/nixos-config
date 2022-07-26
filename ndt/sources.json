@@ -135,6 +135,21 @@
     "type": "github",
     "url": "https://github.com/saulpw/visidata"
   },
+  "xclip": {
+    "branch": "master",
+    "date": "2022-01-29T09:58:10-08:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "leaveDotGit": false,
+    "owner": "astrand",
+    "path": "/nix/store/xw7q1gcc9sw8w2fiqsskz5sdxkp02ykh-xclip",
+    "repo": "xclip",
+    "rev": "b372f73579d30f9ba998ffd0a73694e7abe2c313",
+    "sha256": "1kldpi4wpwcliv9rncmrdqshcmdbhhj3gdw9w1cj69kvd1br24d4",
+    "type": "github",
+    "url": "https://github.com/astrand/xclip"
+  },
   "zsh-histdb": {
     "branch": "master",
     "date": "2022-01-18T13:13:05+00:00",

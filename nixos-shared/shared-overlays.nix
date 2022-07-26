@@ -32,13 +32,27 @@ rec {
   visidataOverlay = self: super:
     let pkgs = with self.python3Packages; [ requests sh pytimeparse ];
     in {
-      visidata =
-        builtins.trace "INFO: Using visidata overlay for more python packages and develop branch"
+      visidata = builtins.trace
+        "INFO: Using visidata overlay for more python packages and develop branch"
         super.visidata.overridePythonAttrs (old: {
           propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs;
           src = self.ndtSources.visidata.outPath;
         });
     };
 
-  overlays = [ ndtOverlay ndtSourcesOverlay wallpapersOverlay visidataOverlay ];
+  xclipOverlay = self: super: {
+    xclip = builtins.trace "INFO: Using xclip overlay for newer version"
+      super.xclip.overrideAttrs (old: {
+        version = self.ndtSources.xclip.rev;
+        src = self.ndtSources.xclip.outPath;
+      });
+  };
+
+  overlays = [
+    ndtOverlay
+    ndtSourcesOverlay
+    wallpapersOverlay
+    visidataOverlay
+    xclipOverlay
+  ];
 }
