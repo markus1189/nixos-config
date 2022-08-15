@@ -14,7 +14,7 @@ from garminconnect import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-startdate = datetime.date.today()
+startdate = datetime.date.today() - datetime.timedelta(days = 4)
 enddate = datetime.date.today()
 
 if "GARMIN_CONNECT_TARGET_DIR" in os.environ:
