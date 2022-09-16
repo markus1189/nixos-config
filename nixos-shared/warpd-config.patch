@@ -1,0 +1,45 @@
+diff --git i/src/config.c w/src/config.c
+index 2e335be..95f7852 100644
+--- i/src/config.c
++++ w/src/config.c
+@@ -14,8 +14,8 @@ static struct {
+ 	const char *description;
+ 	enum option_type type;
+ } options[] = {
+-	{ "hint_activation_key", "A-M-x", "Activates hint mode.", OPT_ACTIVATION_KEY },
+-	{ "hint2_activation_key", "A-M-X", "Activate two pass hint mode.", OPT_ACTIVATION_KEY },
++	{ "hint_activation_key", "C-;", "Activates hint mode.", OPT_ACTIVATION_KEY },
++	{ "hint2_activation_key", "C-:", "Activate two pass hint mode.", OPT_ACTIVATION_KEY },
+ 	{ "grid_activation_key", "A-M-g", "Activates grid mode and allows for further manipulation of the pointer using the mapped keys.", OPT_ACTIVATION_KEY },
+ 	{ "history_activation_key", "A-M-h", "Activate history mode.", OPT_ACTIVATION_KEY },
+ 	{ "screen_activation_key", "A-M-s", "Activate (s)creen selection mode.", OPT_ACTIVATION_KEY },
+@@ -54,7 +54,7 @@ static struct {
+ 	{ "scroll_down", "e", "Scroll down key.", OPT_NORMAL_KEY },
+ 	{ "scroll_up", "r", "Scroll up key.", OPT_NORMAL_KEY },
+ 
+-	{ "cursor_color", "#FF4500", "The color of the pointer in normal mode (rgba hex value).", OPT_STRING },
++	{ "cursor_color", "#Ff8c00", "The color of the pointer in normal mode (rgba hex value).", OPT_STRING },
+ 
+ 	{ "cursor_size", "7", "The height of the pointer in normal mode.", OPT_INT },
+ 	{ "repeat_interval", "20", "The number of milliseconds before repeating a movement event.", OPT_INT },
+@@ -89,7 +89,7 @@ static struct {
+ 	{ "hint_chars", "abcdefghijklmnopqrstuvwxyz", "The character set from which hints are generated. The total number of hints is the square of the size of this string. It may be desirable to increase this for larger screens or trim it to increase gaps between hints.", OPT_STRING },
+ 	{ "hint_font", "Arial", "The font name used by hints. Note: This is platform specific, in X it corresponds to a valid xft font name, on macos it corresponds to a postscript name.", OPT_STRING },
+ 
+-	{ "hint_size", "20", "Hint size (range: 1-1000)", OPT_INT },
++	{ "hint_size", "17", "Hint size (range: 1-1000)", OPT_INT },
+ 	{ "hint_border_radius", "3", "Border radius.", OPT_INT },
+ 
+ 	{ "hint_exit", "esc", "The exit key used for hint mode.", OPT_HINT_KEY },
+@@ -108,9 +108,9 @@ static struct {
+ 	{ "scroll_acceleration", "1600", "Scroll acceleration in units/second^2.", OPT_INT },
+ 	{ "scroll_deceleration", "-3400", "Scroll deceleration.", OPT_INT },
+ 
+-	{ "indicator", "none", "Specifies an optional visual indicator to be displayed while normal mode is active, must be one of: topright, topleft, bottomright, bottomleft, none", OPT_STRING },
++	{ "indicator", "topright", "Specifies an optional visual indicator to be displayed while normal mode is active, must be one of: topright, topleft, bottomright, bottomleft, none", OPT_STRING },
+ 	{ "indicator_color", "#00ff00", "The color of the visual indicator color.", OPT_STRING },
+-	{ "indicator_size", "12", "The size of the visual indicator in pixels.", OPT_INT },
++	{ "indicator_size", "20", "The size of the visual indicator in pixels.", OPT_INT },
+ };
+ 
+ const char *config_get(const char *key)
