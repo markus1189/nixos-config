@@ -24,7 +24,9 @@
       iotop
       jo
       jq
+      jless
       logArgs
+      moreutils
       nix-prefetch-docker
       nix-prefetch-git
       nix-prefetch-github
