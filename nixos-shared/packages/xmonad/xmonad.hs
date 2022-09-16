@@ -4,14 +4,92 @@ import qualified Data.Map as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
 import XMonad
+    ( button3,
+      controlMask,
+      mod1Mask,
+      mod4Mask,
+      shiftMask,
+      xK_0,
+      xK_1,
+      xK_9,
+      xK_BackSpace,
+      xK_F1,
+      xK_F10,
+      xK_F11,
+      xK_F12,
+      xK_F2,
+      xK_F9,
+      xK_Return,
+      xK_Tab,
+      xK_a,
+      xK_b,
+      xK_d,
+      xK_e,
+      xK_grave,
+      xK_h,
+      xK_l,
+      xK_m,
+      xK_minus,
+      xK_n,
+      xK_o,
+      xK_p,
+      xK_q,
+      xK_s,
+      xK_space,
+      xK_t,
+      xK_u,
+      xK_w,
+      xK_x,
+      moveResizeWindow,
+      runQuery,
+      spawn,
+      withDisplay,
+      (|||),
+      xmonad,
+      (-->),
+      (<+>),
+      (=?),
+      className,
+      composeAll,
+      doFloat,
+      doIgnore,
+      doShift,
+      resource,
+      title,
+      focus,
+      sendMessage,
+      windows,
+      withFocused,
+      Button,
+      ButtonMask,
+      KeySym,
+      Window,
+      MonadIO(liftIO),
+      (.|.),
+      Default(def),
+      Layout,
+      ManageHook,
+      X,
+      XConfig(workspaces, manageHook, borderWidth, focusFollowsMouse,
+              terminal, focusedBorderColor, layoutHook, startupHook, logHook,
+              modMask, mouseBindings),
+      Full(Full),
+      Resize(Expand, Shrink),
+      Tall(Tall) )
 import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
-import XMonad.Actions.Submap
+import XMonad.Actions.Submap ( submap )
 import XMonad.Actions.WindowBringer (bringWindow)
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
 import XMonad.Hooks.DynamicLog
+    ( PP(ppOutput, ppTitle, ppUrgent, ppVisible, ppCurrent, ppWsSep,
+         ppSep, ppLayout),
+      dynamicLogWithPP,
+      xmobarColor,
+      xmobarPP,
+      xmobarStrip )
 import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
@@ -23,17 +101,27 @@ import XMonad.Layout.Grid (Grid (..))
 import XMonad.Layout.IM (Property (Role), withIM)
 import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
 import XMonad.Layout.MultiToggle.Instances
+    ( StdTransformers(FULL, NOBORDERS) )
 import XMonad.Layout.NoBorders (smartBorders)
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Reflect (reflectHoriz)
 import XMonad.Layout.ResizableTile (ResizableTall (..))
 import XMonad.Layout.SimpleFloat (simpleFloat)
 import XMonad.Layout.Tabbed
-import XMonad.Layout.TrackFloating (trackFloating, useTransientFor)
+    ( shrinkText,
+      Theme(activeColor, activeTextColor, activeBorderColor,
+            inactiveColor, inactiveTextColor, inactiveBorderColor, urgentColor,
+            urgentTextColor, urgentBorderColor, fontName, decoHeight),
+      tabbed )
+import XMonad.Layout.TrackFloating (trackFloating)
 import qualified XMonad.StackSet as W
 import XMonad.Prompt.Window (allWindows)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
 import XMonad.Util.NamedScratchpad
+    ( customFloating,
+      namedScratchpadAction,
+      namedScratchpadManageHook,
+      NamedScratchpad(NS) )
 import XMonad.Util.Run (spawnPipe)
 import Data.Char (toLower)
 import Control.Monad (filterM)
