@@ -77,6 +77,7 @@
 
         # server=10.64.0.1 # wireguard
         server=1.1.1.1 # if wireguard is inactive
+        server=/byod.gp.ottogroup.com/1.1.1.1 # for vpn connect
         server=/otto.de/10.79.255.100
         server=/otto.de/10.79.255.200
         server=/ottogroup.com/10.79.255.100

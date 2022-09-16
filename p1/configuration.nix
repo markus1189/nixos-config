@@ -8,4 +8,10 @@
     ./p1.nix
     ./otto.nix
   ];
+
+  services.globalprotect = {
+    enable = false;
+    # if you need a Host Integrity Protection report
+    # csdWrapper = "${pkgs.openconnect}/libexec/openconnect/hipreport.sh";
+  };
 }
