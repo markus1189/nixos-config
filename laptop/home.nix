@@ -5,6 +5,8 @@ let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 in {
   home = {
+    stateVersion = "18.09";
+
     packages = with pkgs; [
       source-code-pro
       dunst

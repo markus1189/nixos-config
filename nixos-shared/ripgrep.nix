@@ -21,6 +21,7 @@ in
 
     systemPackages = [
       pkgs.ripgrep
+      pkgs.ripgrep-all
     ];
 
     shellAliases = (with pkgs; {

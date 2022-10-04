@@ -13,8 +13,8 @@
     systemPackages = with pkgs; [
       ack
       actkbd
-      alsaOss
-      alsaUtils
+      alsa-oss
+      alsa-utils
       ammonite
       arandr
       aspell
@@ -124,7 +124,7 @@
       #   ];
       # })
       rsync
-      rxvt_unicode-with-plugins
+      rxvt-unicode
       sbt
       scala
       scalafmt
@@ -160,7 +160,6 @@
       # })
       trayer
       tree
-      # unetbootin
       units
       unrar
       unzip
@@ -175,7 +174,7 @@
       xclip
       xdotool
       x11vnc
-      xvfb_run
+      xvfb-run
       yt-dlp
       youtube-dl
       zathura
@@ -184,7 +183,7 @@
       zoom-us
       zsh
     ] ++ (with pkgs.pythonPackages; [
-      pygments
+      # pygments
     ]) ++ (with pkgs.haskellPackages; [
       cabal2nix
       # hasktags

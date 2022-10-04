@@ -30,7 +30,7 @@ rec {
   };
 
   visidataOverlay = self: super:
-    let pkgs = with self.python3Packages; [ requests sh pytimeparse ];
+    let pkgs = with self.python3Packages; [ requests sh pytimeparse importlib-metadata ];
     in {
       visidata = builtins.trace
         "INFO: Using visidata overlay for more python packages and develop branch"
