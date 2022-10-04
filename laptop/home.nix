@@ -405,7 +405,11 @@ in {
     vim =
       (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
 
-    mpv = { enable = true; };
+    mpv = {
+      enable = true;
+      package =
+        pkgs.mpv.override { scripts = [ pkgs.mpvScripts.sponsorblock ]; };
+    };
 
     password-store = {
       enable = true;
