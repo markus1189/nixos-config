@@ -9,7 +9,9 @@ let
       password = secrets.garminConnect.password;
     }) { });
 in {
-  home = { };
+  home = {
+    stateVersion = "18.09";
+  };
 
   manual = {
     html.enable = true;
