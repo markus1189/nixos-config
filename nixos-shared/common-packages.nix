@@ -43,7 +43,9 @@
       pwgen
       yq
       (myScripts.captureTOTP)
+      viddy
       visidata
+      watchexec
     ];
   };
 }
