@@ -19,6 +19,11 @@ in {
 
   telegramBotToken = dummy;
 
+  shellyWebUI = {
+    username = dummy;
+    password = dummy;
+  };
+
   pocket = {
     access_token = dummy;
     consumer_key = dummy;
