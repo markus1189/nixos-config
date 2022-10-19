@@ -16,6 +16,7 @@ let
   devices = {
     light = "light";
     dishwasher = "spuehlmaschine";
+    waschkueche = "waschkueche";
   };
 in {
   services.prometheus = rec {
@@ -87,6 +88,14 @@ in {
               type = shellyPlugType;
               room = rooms.kitchen;
               device = devices.dishwasher;
+            };
+          }
+          {
+            targets = [ "http://192.168.178.40/status" ];
+            labels = {
+              type = shellyPlugType;
+              room = rooms.waschkueche;
+              device = "sp3";
             };
           }
         ];
