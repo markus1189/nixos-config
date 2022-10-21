@@ -12,11 +12,11 @@ let
   rooms = {
     markus = "Markus Zimmer";
     kitchen = "Kueche";
+    waschkueche = "waschkueche";
   };
   devices = {
     light = "light";
     dishwasher = "spuehlmaschine";
-    waschkueche = "waschkueche";
   };
 in {
   services.prometheus = rec {
