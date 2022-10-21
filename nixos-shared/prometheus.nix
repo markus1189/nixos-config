@@ -54,7 +54,8 @@ in {
                 m = ''
                   ${shellyPlugMetricPrefix}_power{type="${shellyPlugType}",room="${rooms.kitchen}",device="${devices.dishwasher}"}
                 '';
-              in "avg_over_time(${m}[20s]) < 1.38 and ${m} > 1";
+                dt = "8m";
+              in "avg_over_time(${m}[${dt}]) < 2 and avg_over_time(${m}[${dt}]) > 1";
               for = "90s";
             }
             {
@@ -145,12 +146,12 @@ in {
             api_url = "https://api.telegram.org";
             parse_mode = "HTML";
             message = ''
-{{ if gt (len .Alerts.Firing) 0 }}🚨 {{if gt (len .Alerts.Firing) 1 }}Aktive Alarme{{else}}Aktiver Alarm{{end}} ({{ len .Alerts.Firing }})
-{{ range .Alerts.Firing }}- {{ .Labels.alertname }}
-{{ end }}{{ end }}
-{{ if gt (len .Alerts.Resolved) 0 }}✅ {{if gt (len .Alerts.Resolved) 1 }}Erledigte Alarme{{else}}Erledigter Alarm{{end}} ({{ len .Alerts.Resolved }})
-{{ range .Alerts.Resolved }}- {{ .Labels.alertname }}
-{{ end }}{{ end }}
+              {{ if gt (len .Alerts.Firing) 0 }}🚨 {{if gt (len .Alerts.Firing) 1 }}Aktive Alarme{{else}}Aktiver Alarm{{end}} ({{ len .Alerts.Firing }})
+              {{ range .Alerts.Firing }}- {{ .Labels.alertname }}
+              {{ end }}{{ end }}
+              {{ if gt (len .Alerts.Resolved) 0 }}✅ {{if gt (len .Alerts.Resolved) 1 }}Erledigte Alarme{{else}}Erledigter Alarm{{end}} ({{ len .Alerts.Resolved }})
+              {{ range .Alerts.Resolved }}- {{ .Labels.alertname }}
+              {{ end }}{{ end }}
             ''; # see https://gotemplate.io/
           }];
         }];
