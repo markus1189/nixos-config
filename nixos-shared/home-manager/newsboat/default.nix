@@ -292,6 +292,10 @@ let
       title = "Glasscannon Network";
       id = "UC83CJFLyDe72XgkKBd5a9IA";
     }
+    {
+      title = "Great Scott";
+      id = "UC6mIxFTvXkWQVEHPsEdflzQ";
+    }
   ];
   fromKtn = args: {
     url =
