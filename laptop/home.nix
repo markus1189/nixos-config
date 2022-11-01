@@ -408,7 +408,7 @@ in {
     mpv = {
       enable = true;
       package =
-        pkgs.mpv.override { scripts = [ pkgs.mpvScripts.sponsorblock ]; };
+        pkgs.mpv.override { scripts = with pkgs.mpvScripts; [ sponsorblock mpris ]; };
     };
 
     password-store = {
