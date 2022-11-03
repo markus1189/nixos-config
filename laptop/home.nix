@@ -142,6 +142,19 @@ in {
         target = ".keynavrc";
       };
 
+      "warpd-config" = {
+        text = ''
+          hint_activation_key: C-;
+          history_activation_key: C-colon
+          cursor_color: #Ff8c00
+          hint_size: 17
+          indicator: topright
+          indicator_size: 20
+          hint_chars: ^qwertz12345xcvbasdfhjkl;'yuiop[],67890n./$
+        '';
+        target = ".config/warpd/config";
+      };
+
       "mrconfig" = {
         target = ".mrconfig";
         text = ''

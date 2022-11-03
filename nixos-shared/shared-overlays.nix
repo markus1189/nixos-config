@@ -48,18 +48,10 @@ rec {
       });
   };
 
-  warpdConfigOverlay = self: super: {
-    warpd = builtins.trace "INFO: configuring warpd via config patch"
-      super.warpd.overrideAttrs (old: {
-        patches = old.patches ++ [ ./warpd-config.patch ];
-      });
-  };
-
   overlays = [
     ndtOverlay
     ndtSourcesOverlay
     wallpapersOverlay
-    warpdConfigOverlay
     visidataOverlay
     xclipOverlay
   ];

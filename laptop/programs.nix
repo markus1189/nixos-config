@@ -167,6 +167,7 @@
       up
       update-resolv-conf
       vim
+      warpd
       w3m
       wget
       # wine
