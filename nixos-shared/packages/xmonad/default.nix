@@ -19,6 +19,7 @@ args@{ autoMonitorConfig
 , singlehead
 , takeScreenshot
 , tmx
+, warpd
 , wyrd
 , xdotool
 , xkill

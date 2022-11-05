@@ -145,7 +145,6 @@ in {
       "warpd-config" = {
         text = ''
           hint_activation_key: C-;
-          history_activation_key: C-colon
           cursor_color: #Ff8c00
           hint_size: 17
           indicator: topright

@@ -75,7 +75,7 @@ import XMonad
               modMask, mouseBindings),
       Full(Full),
       Resize(Expand, Shrink),
-      Tall(Tall) )
+      Tall(Tall), xK_semicolon )
 import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
@@ -284,10 +284,14 @@ myKeys =
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
 
+    -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
     ((shiftMask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl history-pop"),
     ((mod1Mask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl context"),
+
+    -- Warpd
+    ((shiftMask .|. controlMask, xK_semicolon), spawn "@warpd@/bin/warpd --history --oneshot --click 1"),
 
     ((myModKey, xK_F11), spawn "~/bin/f11"),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
