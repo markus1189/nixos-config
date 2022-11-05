@@ -150,6 +150,8 @@ in {
           indicator: topright
           indicator_size: 20
           hint_chars: ^qwertz12345xcvbasdfhjkl;'yuiop[],67890n./$
+          buttons: space , question
+          oneshot_buttons: Return - /
         '';
         target = ".config/warpd/config";
       };
