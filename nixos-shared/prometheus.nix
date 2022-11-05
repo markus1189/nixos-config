@@ -104,6 +104,14 @@ in {
               device = "sp3";
             };
           }
+          {
+            targets = [ "http://192.168.178.42/status" ];
+            labels = {
+              type = shellyPlugType;
+              room = rooms.waschkueche;
+              device = "sp4";
+            };
+          }
         ];
         relabel_configs = [
           {
