@@ -370,6 +370,7 @@ in {
       confirm-mark-feed-read no
       download-full-page yes
       history-limit 9999
+      keep-articles-days 7
 
       color background white default bold
       color listnormal white default
