@@ -121,6 +121,8 @@ in
     systemd
     terraform-mode
     transpose-frame
+    treemacs
+    treemacs-projectile
     typescript-mode
     use-package
     verb

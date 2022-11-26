@@ -1390,4 +1390,10 @@ string). It returns t if a new completion is found, nil otherwise."
   (doom-themes-visual-bell-config)
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-org-config))
+
+(use-package treemacs
+  :ensure t)
+
+(use-package treemacs-projectile
+  :ensure t)
 ;;;
