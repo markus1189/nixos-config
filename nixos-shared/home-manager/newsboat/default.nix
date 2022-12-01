@@ -49,6 +49,7 @@ let
     "rssbox.herokuapp.com/twitter" = [ "twitter" ];
     "reddit.com" = [ "reddit" "!hide" ];
     "reddit-top-rss" = [ "reddit" "reddit-top" "!hide" ];
+    "localhost:9999" = [ "reddit" "reddit-top" "!hide" ]; # my local container
   };
   tagify = url:
     lib.lists.flatten (lib.attrValues
