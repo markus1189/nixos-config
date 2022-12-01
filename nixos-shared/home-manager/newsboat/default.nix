@@ -120,7 +120,7 @@ let
 
   subredditToRss = let
     # baseUrl = "https://reddit-top-rss.herokuapp.com"; # offline heroku instance...
-    baseUrl = "localhost:9999";
+    baseUrl = "http://localhost:9999";
   in args:
   "filter:${scripts.redditUseCommentsAsLink}:${baseUrl}/?subreddit=${args.name}&threshold=${
     toString (args.threshold or 50)
