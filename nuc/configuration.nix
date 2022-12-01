@@ -12,6 +12,7 @@ in {
     (import ../nixos-shared/common-services.nix)
     (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
     (import ./cron.nix)
+    ../nixos-shared/reddit-top-rss.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix

@@ -118,10 +118,13 @@ let
     }
   ];
 
-  subredditToRss = args:
-    "filter:${scripts.redditUseCommentsAsLink}:https://reddit-top-rss.herokuapp.com/?subreddit=${args.name}&threshold=${
-      toString (args.threshold or 50)
-    }&view=rss";
+  subredditToRss = let
+    # baseUrl = "https://reddit-top-rss.herokuapp.com"; # offline heroku instance...
+    baseUrl = "localhost:9999";
+  in args:
+  "filter:${scripts.redditUseCommentsAsLink}:${baseUrl}/?subreddit=${args.name}&threshold=${
+    toString (args.threshold or 50)
+  }&view=rss";
 
   subreddits = [
     { name = "androidgaming"; }
@@ -173,14 +176,14 @@ let
     { name = "worldbuilding"; }
     { name = "swn"; }
     { name = "wwn"; }
-    {
-      name = "soloboardgaming";
-    }
+    { name = "soloboardgaming"; }
 
     {
       name = "worldnews";
       threshold = 70;
     }
+
+    { name = "tools"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
@@ -300,7 +303,8 @@ let
       title = "BigCliveDotCom";
       id = "UCtM5z2gkrGRuWd0JQMx76qA";
     }
-    { title = "ProblemLoeser";
+    {
+      title = "ProblemLoeser";
       id = "UCosVFjW2FecfJE3I12-fZag";
     }
   ];
