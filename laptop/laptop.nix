@@ -218,6 +218,7 @@ in rec {
       google-fonts
       inconsolata
       iosevka
+      nerdfonts
       powerline-fonts
       source-code-pro
       source-sans-pro
