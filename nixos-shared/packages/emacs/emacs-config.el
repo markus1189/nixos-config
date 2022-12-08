@@ -21,7 +21,7 @@
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
  '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
- '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Sauce Code Pro Nerd Font "))))
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
  '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
