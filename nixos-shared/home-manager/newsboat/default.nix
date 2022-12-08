@@ -308,6 +308,9 @@ let
       title = "ProblemLoeser";
       id = "UCosVFjW2FecfJE3I12-fZag";
     }
+    { title = "DIY Perks";
+      id = "UCUQo7nzH1sXVpzL92VesANw";
+    }
   ];
   fromKtn = args: {
     url =
