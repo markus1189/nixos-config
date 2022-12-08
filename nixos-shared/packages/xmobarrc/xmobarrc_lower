@@ -1,6 +1,6 @@
-Config { font = "xft:Source Code Pro-9:bold"
+Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , bgColor = "black"
-       , fgColor = "grey"
+       , fgColor = "lightgray"
        , position = BottomW L 91
        , pickBroadest = False
        , lowerOnStart = False

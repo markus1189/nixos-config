@@ -1,11 +1,11 @@
-Config { font = "xft:Source Code Pro-9:bold"
+Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , bgColor = "black"
-       , fgColor = "grey"
+       , fgColor = "lightgray"
        , position = TopW L 100
        , lowerOnStart = False
        , pickBroadest = False
        , commands = [ Run Network "@wirelessInterface@"
-                        [ "-t", "<rx> ↓ <tx> ↑"
+                        [ "-t", "<rx>  <tx> 祝"
                         , "--normal","#42d3a5"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
@@ -23,20 +23,17 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--high", "#42d3a5"
                         ] 40
                     , Run MultiCpu
-                        [ "-t", "(<total>) <bar>"
+                        [ "-t", "(<total>)"
                         , "-L","10"
                         , "-H","40"
                         , "--normal","#42d3a5"
                         , "--high","red"
                         , "-p", "3"
-                        , "-W", "30"
+                        , "-W", "10"
                         , "-S", "True"
                         ] 40
                     , Run Memory
                         [ "-t", "<usedratio>% <used> MiB"
-                        ] 300
-                    , Run Swap
-                        [ "-t", "<usedratio>%"
                         ] 300
                     , Run ThermalZone 0
                         ["-t", "<temp>°C"
@@ -57,15 +54,15 @@ Config { font = "xft:Source Code Pro-9:bold"
                         , "--high" ,"#42d3a5"
                         , "--minwidth","2"
                         , "--"
-                        , "-i","<fc=green>(0)</fc>"
-                        , "-O","<fc=orange>(0)</fc>"
-                        , "-o","<fc=red>(O)</fc>"
+                        , "-i","<fc=green></fc>"
+                        , "-O","<fc=orange></fc>"
+                        , "-o","<fc=red></fc>"
                         ] 100
                     , Run DiskU
                         [("/","<usedp>% <used>/<size>")]
                         ["-L", "20", "-H", "50", "-m", "1", "-p", "2"]
                         100
-                    , Run Date "%F %T" "date" 1
+                    , Run Date " %F  %T" "date" 1
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 120
                     , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 180
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 30
@@ -73,5 +70,5 @@ Config { font = "xft:Source Code Pro-9:bold"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% }{ %top% | RAM %memory% | DSK %disku% | SWP %swap% | %@wirelessInterface@% %@wirelessInterface@wi% %vpn% | %battery% | %toggl%%dunst%<fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top%   %memory%   %disku%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%  %toggl%%dunst%<fc=orange>%date%</fc>"
        }
