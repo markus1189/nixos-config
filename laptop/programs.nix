@@ -63,7 +63,6 @@
       hledger
       hledger-ui
       html2text
-      httpie
       i3lock
       inotify-tools
       jetbrains.idea-community
