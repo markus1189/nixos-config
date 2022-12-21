@@ -52,15 +52,14 @@ in {
               alert = "Spühlmaschine ist fertig";
               expr = let
                 m = ''
-                  ${shellyPlugMetricPrefix}_power{type="${shellyPlugType}",room="${rooms.kitchen}",device="${devices.dishwasher}"}
-                '';
-                dt = "8m";
-              in "avg_over_time(${m}[${dt}]) < 2 and avg_over_time(${m}[${dt}]) > 1";
-              for = "90s";
-            }
-            {
-              alert = "Spühlmaschine ist fertig 2";
-              expr = ''shelly_plug_power{device="spuehlmaschine",room="Kueche",type="shelly_plug"} < 1 and shelly_plug_power{device="spuehlmaschine",room="Kueche",type="shelly_plug"} > 0'';
+                  ${shellyPlugMetricPrefix}_power{device="${devices.dishwasher}",room="${rooms.kitchen}",type="${shellyPlugType}"}'';
+              in ''
+                  ${m} < 1
+                and
+                  ${m} > 0
+                and
+                  ((${m} offset 10m) < 30)
+              '';
               for = "60s";
             }
             {
