@@ -342,6 +342,10 @@ let
       title = "Thinking About Things";
       id = "tc8vjbiw33og592y";
     }
+    {
+      title = "Learn Electronics Repair";
+      id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
+    }
   ];
 in {
   value = {
