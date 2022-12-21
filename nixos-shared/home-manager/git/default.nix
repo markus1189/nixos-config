@@ -48,6 +48,7 @@ in
 
     enable = true;
     package = gitPackage;
+    lfs.enable = true;
 
     delta = {
       enable = true;
