@@ -43,12 +43,6 @@ in {
           name = "shelly-plugs";
           rules = [
             {
-              alert = "LichtImZimmer";
-              expr = ''
-                ${shellyPlugMetricPrefix}_power{type="${shellyPlugType}",room="${rooms.markus}",device="${devices.light}"} > 2.5'';
-              for = "30s";
-            }
-            {
               alert = "Spühlmaschine ist fertig";
               expr = let
                 m = ''
