@@ -159,10 +159,12 @@ in {
     autoLogin = {
       enable = true;
       user = "${config.lib._custom_.userName}";
-      relogin = true;
     };
 
-    sddm = { enable = true; };
+    sddm = {
+      enable = true;
+      autoLogin = { relogin = true; };
+    };
   };
 
   services.xserver.desktopManager.plasma5.enable = true;
