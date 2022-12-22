@@ -2,13 +2,18 @@
 
 let
   secrets = import ../nixos-shared/secrets.nix;
-  moduleName = "shellyPlug";
+  shellyPlugModule = "shellyPlug";
   jsonExporterPort = 7979;
   toYAMLFile = data:
     (pkgs.writeText "prometheus-rule-file"
       (pkgs.lib.generators.toYAML { } data));
   shellyPlugMetricPrefix = "shelly_plug";
   shellyPlugType = "shelly_plug";
+
+  shellyUniModule = "shellyUni";
+  shellyUniMetricPrefix = "shelly_uni";
+  shellyUniType = "shelly_uni";
+
   rooms = {
     markus = "Markus Zimmer";
     kitchen = "Kueche";
@@ -71,7 +76,7 @@ in {
         job_name = "shellyViaJsonExporter";
         scrape_interval = "10s";
         metrics_path = "/probe";
-        params = { module = [ moduleName ]; };
+        params = { module = [ shellyPlugModule ]; };
         static_configs = [
           {
             targets = [ "http://192.168.178.36/status" ];
@@ -103,6 +108,37 @@ in {
               type = shellyPlugType;
               room = rooms.waschkueche;
               device = "sp4";
+            };
+          }
+        ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = [ "__param_target" ];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement =
+              "${exporters.json.listenAddress}:${toString exporters.json.port}";
+          }
+        ];
+      }
+      {
+        job_name = "shellyUniViaJsonExporter";
+        scrape_interval = "10s";
+        metrics_path = "/probe";
+        params = { module = [ shellyUniModule ]; };
+        static_configs = [
+          {
+            targets = [ "http://192.168.178.26/status" ];
+            labels = {
+              type = shellyUniType;
+              room = rooms.markus;
+              device = "uni1";
             };
           }
         ];
@@ -171,7 +207,7 @@ in {
         listenAddress = "0.0.0.0";
         configFile = toYAMLFile {
           modules = {
-            "${moduleName}" = {
+            "${shellyPlugModule}" = {
               metrics = [{
                 name = shellyPlugMetricPrefix;
                 type = "object";
@@ -184,6 +220,29 @@ in {
                   meter_total = "{.meters[0].total}";
                   ison = "{.relays[0].ison}";
                   has_update = "{.has_update}";
+                };
+              }];
+              http_client_config = {
+                basic_auth = {
+                  inherit (secrets.shellyWebUI) username password;
+                };
+              };
+            };
+            "${shellyUniModule}" = {
+              metrics = [{
+                name = shellyUniMetricPrefix;
+                type = "object";
+                path = "{@}";
+                values = {
+                  ison1 = "{.relays[0].ison}";
+                  ison2 = "{.relays[1].ison}";
+                  adcs = "{.adcs[0].voltage}";
+                  temperature = "{.ext_temperature.0.tC}";
+                  humidity = "{.ext_humidity.0.hum}";
+                  has_update = "{.update.has_update}";
+                  ram_free = "{.ram_free}";
+                  fs_free = "{.fs_free}";
+                  uptime = "{.uptime}";
                 };
               }];
               http_client_config = {
