@@ -155,14 +155,16 @@ in {
   # services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.sddm = {
-    enable = true;
+  services.xserver.displayManager = {
     autoLogin = {
       enable = true;
       user = "${config.lib._custom_.userName}";
       relogin = true;
     };
+
+    sddm = { enable = true; };
   };
+
   services.xserver.desktopManager.plasma5.enable = true;
 
   services.x11vnc = {
