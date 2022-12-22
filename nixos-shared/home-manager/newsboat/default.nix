@@ -350,6 +350,10 @@ let
       title = "ElectroBoom";
       id = "UC83CJFLyDe72XgkKBd5a9IA";
     }
+    {
+      title = "Postapocalyptic Inventor";
+      id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
+    }
   ];
 in {
   value = {
