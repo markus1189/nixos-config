@@ -63,7 +63,7 @@ in {
             }
             {
               alert = "ShellyHasUpdate";
-              expr = "shelly_plug_has_update > 0";
+              expr = "shelly_plug_has_update > 0 or shelly_uni_has_update > 0";
               for = "30m";
             }
           ];
@@ -239,7 +239,7 @@ in {
                   adcs = "{.adcs[0].voltage}";
                   temperature = "{.ext_temperature.0.tC}";
                   humidity = "{.ext_humidity.0.hum}";
-                  has_update = "{.update.has_update}";
+                  has_update = "{.has_update}";
                   ram_free = "{.ram_free}";
                   fs_free = "{.fs_free}";
                   uptime = "{.uptime}";
