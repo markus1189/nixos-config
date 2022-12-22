@@ -346,6 +346,10 @@ let
       title = "Learn Electronics Repair";
       id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
     }
+    {
+      title = "ElectroBoom";
+      id = "UC83CJFLyDe72XgkKBd5a9IA";
+    }
   ];
 in {
   value = {
