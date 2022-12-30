@@ -308,8 +308,25 @@ let
       title = "ProblemLoeser";
       id = "UCosVFjW2FecfJE3I12-fZag";
     }
-    { title = "DIY Perks";
+    {
+      title = "DIY Perks";
       id = "UCUQo7nzH1sXVpzL92VesANw";
+    }
+    {
+      title = "Learn Electronics Repair";
+      id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
+    }
+    {
+      title = "ElectroBoom";
+      id = "UC83CJFLyDe72XgkKBd5a9IA";
+    }
+    {
+      title = "Postapocalyptic Inventor";
+      id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
+    }
+    {
+      title = "This Old House";
+      id = "UCUtWNBWbFL9We-cdXkiAuJA";
     }
   ];
   fromKtn = args: {
@@ -341,22 +358,6 @@ let
     {
       title = "Thinking About Things";
       id = "tc8vjbiw33og592y";
-    }
-    {
-      title = "Learn Electronics Repair";
-      id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
-    }
-    {
-      title = "ElectroBoom";
-      id = "UC83CJFLyDe72XgkKBd5a9IA";
-    }
-    {
-      title = "Postapocalyptic Inventor";
-      id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
-    }
-    {
-      title = "This Old House";
-      id = "UCUtWNBWbFL9We-cdXkiAuJA";
     }
   ];
 in {
