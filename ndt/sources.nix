@@ -5,10 +5,10 @@
         ndt = import (builtins.fetchGit {
         name = "ndt-fetchgit";
         url = "https://github.com/markus1189/ndt/";
-        rev = "47670efb0ec13df6710ea394d2b305740c9685b8";
+        rev = "9b2ad45bd46675e8e7ceb62a90b86e3f54dd5cab";
       }) {
           nixpkgs = self;
-          ghc = "ghc8107";
+          ghc = "ghc902";
         };
       }
     )
