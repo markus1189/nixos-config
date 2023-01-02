@@ -328,6 +328,10 @@ let
       title = "This Old House";
       id = "UCUtWNBWbFL9We-cdXkiAuJA";
     }
+    {
+      title = "Jeff Pelletier";
+      id = "UCNKMpnM_Yvf6E-Hhf9btYqA";
+    }
   ];
   fromKtn = args: {
     url =
