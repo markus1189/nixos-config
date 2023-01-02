@@ -55,7 +55,7 @@ def download_hr(date):
     else:
         logger.info(f"Downloading hr data to {output_file}")
         with open(output_file, "wb") as fb:
-            data = api.get_heart_rates(yesterday.isoformat())
+            data = api.get_heart_rates(date.isoformat())
             fb.write(json.dumps(data).encode())
 
 def download_sleep(date):
@@ -65,7 +65,7 @@ def download_sleep(date):
     else:
         logger.info(f"Downloading sleep data to {output_file}")
         with open(output_file, "wb") as fb:
-            data = api.get_sleep_data(yesterday.isoformat())
+            data = api.get_sleep_data(date.isoformat())
             fb.write(json.dumps(data).encode())
 
 
