@@ -3,6 +3,7 @@ import datetime
 import os
 import os.path
 import requests
+import json
 
 from garminconnect import (
     Garmin,
@@ -14,8 +15,9 @@ from garminconnect import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-startdate = datetime.date.today() - datetime.timedelta(days = 4)
+startdate = datetime.date.today() - datetime.timedelta(days = 5)
 enddate = datetime.date.today()
+yesterday = datetime.date.today() - datetime.timedelta(days = 1)
 
 if "GARMIN_CONNECT_TARGET_DIR" in os.environ:
     target_dir = os.environ['GARMIN_CONNECT_TARGET_DIR']
@@ -35,7 +37,7 @@ def download(activity_id, file_name, dl_fmt):
     ext = extension(dl_fmt)
     output_file = f"{target_dir}/{file_name}.{ext}"
     if os.path.exists(output_file):
-        logger.warn("Skipping %s, as it already exists", output_file)
+        logger.warning("Skipping %s, as it already exists", output_file)
     else:
         logger.info(
             "Downloading %s format as .%s to %s",
@@ -45,6 +47,31 @@ def download(activity_id, file_name, dl_fmt):
         data = api.download_activity(activity_id, dl_fmt=dl_fmt)
         with open(output_file, "wb") as fb:
             fb.write(data)
+
+def download_hr(date):
+    output_file = f"{target_dir}/{date.isoformat()}_hr.json"
+    if os.path.exists(output_file):
+        logger.warning(f"Skipping because file {output_file} exists!")
+    else:
+        logger.info(f"Downloading hr data to {output_file}")
+        with open(output_file, "wb") as fb:
+            data = api.get_heart_rates(yesterday.isoformat())
+            fb.write(json.dumps(data).encode())
+
+def download_sleep(date):
+    output_file = f"{target_dir}/{date.isoformat()}_sleep.json"
+    if os.path.exists(output_file):
+        logger.warning(f"Skipping because file {output_file} exists!")
+    else:
+        logger.info(f"Downloading sleep data to {output_file}")
+        with open(output_file, "wb") as fb:
+            data = api.get_sleep_data(yesterday.isoformat())
+            fb.write(json.dumps(data).encode())
+
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
 
 
 try:
@@ -75,6 +102,10 @@ try:
         download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
         download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
 
+    for single_date in daterange(startdate, yesterday):
+        download_hr(single_date)
+        download_sleep(single_date)
+
 except (
         GarminConnectConnectionError,
         GarminConnectAuthenticationError,
@@ -84,6 +115,7 @@ except (
         "Error occurred during Garmin Connect communication: %s",
         err,
         exc_info=True)
+    raise err
 
 logger.info("Done, signaling healthcheck")
 requests.get('https://hc-ping.com/c10412fc-b708-40da-9612-02b60f186a24')

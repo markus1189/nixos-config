@@ -2,9 +2,6 @@
 { writeScriptBin, python310 }:
 let
   scriptName = "garmin-connect-fetch";
-  # fetchScript = writers.writePython3Bin scriptName {
-  #   libraries = [ python310Packages.garminconnect python310Packages.python-dateutil python310Packages.requests ];
-  # } (builtins.readFile ./garmin-connect-fetch.py);
   fetchScript = writeScriptBin "garmin-connect-fetch" ''
     #!${myPython}/bin/python3
 
