@@ -50,23 +50,17 @@ def download(activity_id, file_name, dl_fmt):
 
 def download_hr(date):
     output_file = f"{target_dir}/{date.isoformat()}_hr.json"
-    if os.path.exists(output_file):
-        logger.warning(f"Skipping because file {output_file} exists!")
-    else:
-        logger.info(f"Downloading hr data to {output_file}")
-        with open(output_file, "wb") as fb:
-            data = api.get_heart_rates(date.isoformat())
-            fb.write(json.dumps(data).encode())
+    logger.info(f"Downloading hr data to {output_file}")
+    with open(output_file, "wb") as fb:
+        data = api.get_heart_rates(date.isoformat())
+        fb.write(json.dumps(data).encode())
 
 def download_sleep(date):
     output_file = f"{target_dir}/{date.isoformat()}_sleep.json"
-    if os.path.exists(output_file):
-        logger.warning(f"Skipping because file {output_file} exists!")
-    else:
-        logger.info(f"Downloading sleep data to {output_file}")
-        with open(output_file, "wb") as fb:
-            data = api.get_sleep_data(date.isoformat())
-            fb.write(json.dumps(data).encode())
+    logger.info(f"Downloading sleep data to {output_file}")
+    with open(output_file, "wb") as fb:
+        data = api.get_sleep_data(date.isoformat())
+        fb.write(json.dumps(data).encode())
 
 
 def daterange(start_date, end_date):
