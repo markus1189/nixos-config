@@ -113,7 +113,7 @@ in rec {
             name = "darktable-${self.ndtSources.darktable.rev}";
             version = self.ndtSources.darktable.rev;
             src = self.ndtSources.darktable.outPath;
-            patches = [];
+            patches = [ ];
           });
       })
     ]);
@@ -201,7 +201,15 @@ in rec {
     isNormalUser = true;
     uid = 1000;
     group = "users";
-    extraGroups = [ "wheel" "audio" "docker" "lp" "wireshark" "video" ];
+    extraGroups = [
+      "wheel"
+      "audio"
+      "docker"
+      "lp"
+      "wireshark"
+      "video"
+      "dialout" # allow access to serial ports
+    ];
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${config.lib._custom_.userName}";
     initialPassword = "markus"; # for qemu
@@ -287,9 +295,7 @@ in rec {
         "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
     };
 
-    podman = {
-      enable = true;
-    };
+    podman = { enable = true; };
   };
 
   # virtualisation.virtualbox.host.enable = true;
