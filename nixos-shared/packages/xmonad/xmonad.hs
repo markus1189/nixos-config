@@ -363,7 +363,7 @@ myKeysP =
     (myModKeyP "o e m", raise (iclassName "emacs")),
     (myModKeyP "o d i", raise (iclassName "discord")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
-    (myModKeyP "o i n", raise (iclassName "jetbrains-idea-ce")),
+    (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
     (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (title <&> ("im:" `isPrefixOf`)))),
     (myModKeyP "o m s", raise (iclassName "microsoft teams - preview")),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
