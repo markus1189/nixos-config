@@ -149,7 +149,7 @@ in {
           hint_size: 17
           indicator: topright
           indicator_size: 20
-          hint_chars: ^qwertz12345xcvbasdfhjkl;'yuiop[],67890n./$
+          hint_chars: qwertz12345xcvbasdfhjkl;yuiop,67890n./
           buttons: space , question
           oneshot_buttons: Return - /
         '';
