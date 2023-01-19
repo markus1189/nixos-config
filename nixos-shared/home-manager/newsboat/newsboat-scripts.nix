@@ -1,4 +1,4 @@
-{ writeScript, writeScriptBin, jq, pup, secrets, curl, cacert, yq, ... }: rec {
+{ writeScript, writeScriptBin, jq, gzip, pup, secrets, curl, cacert, yq, ... }: rec {
   jsonToRssScript = writeScriptBin "json-to-rss" ''
         # Expects the following format:
 
@@ -29,6 +29,7 @@
         "<link>\(.link)</link>",
         "<guid>\(.link)</guid>",
         if has("pubDate") then "<pubDate>\(.pubDate)</pubDate>" else "" end,
+        if has("description") then "<description>\(.description)</description>" else "" end,
         "</item>"
       ] | join("\n")) | join("\n")'
     )
@@ -117,6 +118,20 @@
     }
 
     getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'FNP: Main Taunus Kreis' "Nachrichten von fnp.de für MTK" 'https://www.fnp.de/lokales/main-taunus/'
+  '';
+
+  scrapePatreonBigClive = writeScriptBin "scrape" ''
+    getItems() {
+      ${curl}/bin/curl -s 'https://www.patreon.com/api/posts?include=user.null%2Caccess_rules.tier.null%2Cattachments.null%2Caudio.null%2Cimages.null%2Cpoll.choices.null%2Cpoll.current_user_responses.null&fields[user]=full_name%2Cimage_url%2Curl&fields[post]=comment_count%2Ccontent%2Ccontent_teaser_text%2Ccurrent_user_can_view%2Cembed%2Cimage%2Cis_paid%2Clike_count%2Cmin_cents_pledged_to_view%2Cpatreon_url%2Cpledge_url%2Cpost_file%2Cpost_type%2Cpost_metadata%2Cpublished_at%2Cteaser_text%2Cthumbnail%2Ctitle%2Cupgrade_url%2Curl%2Cvideo_preview&fields[reward]=[]&fields[access-rule]=access_rule_type%2Camount_cents%2Cpost_count&fields[media]=download_url%2Cimage_urls%2Cmetadata&filter[campaign_id]=187993&filter[contains_exclusive_posts]=true&filter[is_draft]=false&page[size]=10&sort=-published_at&json-api-use-default-includes=false&json-api-version=1.0' --globoff -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Referer: https://www.patreon.com/bigclive' -H 'Content-Type: application/vnd.api+json' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Sec-Fetch-Dest: empty' |
+        ${gzip}/bin/gunzip |
+        ${jq}/bin/jq '.data | map({id, attributes: .attributes | {title,url,teaser_text,published_at}})'
+    }
+
+    buildItems() {
+       ${jq}/bin/jq 'map({title: .attributes.title, link: .attributes.url, guid: .attributes.url, pubDate: .attributes.published_at, description: .attributes.teaser_text})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Patreon: BigClive' "Creating Technical teardowns and creations." 'https://www.patreon.com/bigclive'
   '';
 
   addToPocketScript = writeScript "add-to-pocket.sh" ''

@@ -11,6 +11,8 @@ let
   };
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
+  urlScripts = map (script: "exec:${script}/bin/scrape")
+    (with scripts; [ scrapePatreonBigClive ]);
   urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}") (with scripts;
     [
       {
@@ -379,7 +381,10 @@ in {
     }) (urlLines ++ map subredditToRss subreddits) ++ map (url: {
       inherit url;
       tags = [ "filter" ];
-    }) urlFilters ++ map fromGitHubRelease githubReleases
+    }) urlFilters ++ map (exec: {
+      url = exec;
+      tags = [ "exec" ];
+    }) urlScripts ++ map fromGitHubRelease githubReleases
       ++ map fromYoutubeChannel
       (lib.filter (arg: arg.enabled or true) youtubeChannels)
       ++ map fromKtn killTheNewsletters;
