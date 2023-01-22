@@ -840,6 +840,10 @@ rec {
     INSTALLATION_ID=210377
     GATEWAY_SERIAL=7637415026914199
     DEVICE_ID=0
+    # Get a new one:
+    # https://iam.viessmann.com/idp/v2/authorize?client_id=45e59eb93fb498140de733c44637d8df&redirect_uri=http://localhost:4244/&response_type=code&code_challenge=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c&scope=IoT%20User%20offline_access
+    # curl -X POST "https://iam.viessmann.com/idp/v2/token" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=authorization_code" --data-urlencode "code_verifier=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c" --data-urlencode "client_id=45e59eb93fb498140de733c44637d8df" --data-urlencode "redirect_uri=http://localhost:4244/" --data-urlencode "code=PASTE_CODE"
+    #
     REFRESH_TOKEN="${viessmannRefreshToken}"
 
     getOutsideTemperature() {
