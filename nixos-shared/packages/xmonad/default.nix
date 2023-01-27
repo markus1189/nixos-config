@@ -18,9 +18,11 @@ args@{ autoMonitorConfig
 , rxvt-unicode
 , singlehead
 , takeScreenshot
+, tesseract4
 , tmx
 , warpd
 , wyrd
+, xclip
 , xdotool
 , xkill
 , xmobar
