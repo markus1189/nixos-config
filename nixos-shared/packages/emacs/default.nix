@@ -77,6 +77,7 @@ in
     js2-mode
     json-mode
     jsonnet-mode
+    just-mode
     jq-mode
     (kubernetes.overrideAttrs (old: { buildInputs = old.buildInputs ++ [ git ]; }))
     # kubel
