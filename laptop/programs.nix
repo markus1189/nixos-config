@@ -106,7 +106,6 @@
       powertop
       psmisc
       pv
-      pythonFull
       rclone
       remind
       wyrd
@@ -190,7 +189,6 @@
       hlint
       # idris
       # pkgs.stack
-      structured-haskell-mode
       (pkgs.ormolu)
       xmobar
     ]) ++ (with pkgs.xorg; [

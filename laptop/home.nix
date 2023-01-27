@@ -11,7 +11,6 @@ in {
       source-code-pro
       dunst
       ndt
-      haskellPackages.brittany
       # jrnl fails at tests (2022-02-18)
     ];
 
