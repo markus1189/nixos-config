@@ -46,6 +46,7 @@ in rec {
     (import ./syncthing.nix config.lib._custom_.userName)
     ../nixos-shared/my-agenix.nix
     ./codecentric.nix
+    ../nixos-shared/nix-ld.nix
   ];
 
   documentation = {
