@@ -334,6 +334,10 @@ let
       title = "Jeff Pelletier";
       id = "UCNKMpnM_Yvf6E-Hhf9btYqA";
     }
+    {
+      title = "EEVblog";
+      id = "UC2DjFE7Xf11URZqWBigcVOQ";
+    }
   ];
   fromKtn = args: {
     url =
