@@ -65,7 +65,6 @@
       html2text
       i3lock
       inotify-tools
-      jetbrains.idea-community
       inetutils
       imagemagick
       imv
