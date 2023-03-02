@@ -8,7 +8,7 @@ in
   networking = {
     wg-quick = {
       interfaces = {
-        wg-us118 = secrets.wireguard.mozilla.${host}.wg-us118;
+        wg-nyc301 = secrets.wireguard.mozilla.${host}.wg-nyc301;
       };
     };
   };
