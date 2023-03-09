@@ -99,6 +99,7 @@ in
     markdown-preview-mode
     mvn
     magit
+    magit-todos
     move-text
     multiple-cursors
     nix-mode

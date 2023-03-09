@@ -1399,4 +1399,7 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package just-mode
   :ensure t)
+
+(use-package magit-todos
+  :ensure t)
 ;;;
