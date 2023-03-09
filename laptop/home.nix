@@ -27,6 +27,9 @@ in {
 
           def mh_utc_from_unix(seconds):
             return datetime.datetime.utcfromtimestamp(seconds).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+          options.reddit_client_id = 'AM6u5feracoVWJ3gJWTnCA'
+          options.reddit_client_secret = '${secrets.reddit.visidata}'
         '';
       };
 
