@@ -339,6 +339,10 @@ let
       title = "EEVblog";
       id = "UC2DjFE7Xf11URZqWBigcVOQ";
     }
+    {
+      title = "Pine Hollow Auto Diagnostics";
+      id = "UCn4Ifss-t3wMT6VBzQoKPUA";
+    }
   ];
   fromKtn = args: {
     url =
