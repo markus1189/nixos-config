@@ -18,9 +18,14 @@ in {
       "visidatarc" = {
         target = ".visidatarc";
         text = ''
+          import json
+
           options.input_history = 'history'
           options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f'
           options.disp_float_fmt = '{:.04f}'
+
+          options.reddit_client_id = 'AM6u5feracoVWJ3gJWTnCA'
+          options.reddit_client_secret = '${secrets.reddit.visidata}'
 
           Sheet.bindkey(ALT + '.', 'repeat-input')
           Sheet.bindkey('z' + ALT + '.', 'repeat-last')
@@ -28,8 +33,8 @@ in {
           def mh_utc_from_unix(seconds):
             return datetime.datetime.utcfromtimestamp(seconds).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-          options.reddit_client_id = 'AM6u5feracoVWJ3gJWTnCA'
-          options.reddit_client_secret = '${secrets.reddit.visidata}'
+          def mh_fromjson(s):
+            return json.loads(s)
         '';
       };
 
