@@ -134,6 +134,24 @@
     getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Patreon: BigClive' "Creating Technical teardowns and creations." 'https://www.patreon.com/bigclive'
   '';
 
+  scrapeMazdaWeiss = writeScriptBin "scrape" ''
+    getItems() {
+      ${curl}/bin/curl -s 'https://fmm.mazda.de/api/filter/?locationradius=100&transmission[]=a&fuel[]=P&price[]=100&price[]=25000&sort=price_asc&from=0&end=48&condition=used&dealerid=GJeDK8no27sxJXa1' \
+          --globoff \
+          -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' \
+          -H 'Accept: application/json' \
+          -H 'Origin: https://www.mazda-autohaus-weiss-niedernhausen.de' |
+          ${jq}/bin/jq '.data.cars | map({id,model,mileage,priceDealerFormatted,dateadded})'
+    }
+
+    buildItems() {
+       ${jq}/bin/jq 'map({pubDate: .dateadded, title: "\(.model) for \(.priceDealerFormatted) at \(.mileage) km", link: "https://www.mazda-autohaus-weiss-niedernhausen.de/beratung-und-kauf/fahrzeugboerse/gebrauchtwagen/\(.id)"})'
+    }
+
+    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Autohaus Paul Weiss' "Autohaus Paul Weiss in Niedernhausen" 'https://www.mazda-autohaus-weiss-niedernhausen.de'
+
+  '';
+
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     TAGS="newsboat"
     URL="''${1}"
