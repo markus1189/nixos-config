@@ -44,30 +44,42 @@ in {
 
     ruleFiles = [
       (toYAMLFile {
-        groups = [{
-          name = "shelly-plugs";
-          rules = [
-            {
-              alert = "Spühlmaschine ist fertig";
-              expr = let
-                m = ''
-                  ${shellyPlugMetricPrefix}_power{device="${devices.dishwasher}",room="${rooms.kitchen}",type="${shellyPlugType}"}'';
-              in ''
-                  ${m} < 1
-                and
-                  ${m} > 0
-                and
-                  ((${m} offset 10m) < 30)
-              '';
-              for = "60s";
-            }
-            {
-              alert = "ShellyHasUpdate";
-              expr = "shelly_plug_has_update > 0 or shelly_uni_has_update > 0";
-              for = "30m";
-            }
-          ];
-        }];
+        groups = [
+          {
+            name = "shelly-plugs";
+            rules = [
+              {
+                alert = "Spühlmaschine ist fertig";
+                expr = let
+                  m = ''
+                    ${shellyPlugMetricPrefix}_power{device="${devices.dishwasher}",room="${rooms.kitchen}",type="${shellyPlugType}"}'';
+                in ''
+                    ${m} < 1
+                  and
+                    ${m} > 0
+                  and
+                    ((${m} offset 10m) < 30)
+                '';
+                for = "60s";
+              }
+              {
+                alert = "ShellyHasUpdate";
+                expr =
+                  "shelly_plug_has_update > 0 or shelly_uni_has_update > 0";
+                for = "30m";
+              }
+            ];
+          }
+          {
+            name = "shelly-unis";
+            rules = [{
+              alert = "WindowStillClosed";
+              expr = ''
+                shelly_uni_ison1{room="Markus Zimmer"} > 0 and on() hour() > 14'';
+              for = "10m";
+            }];
+          }
+        ];
       })
     ];
 
@@ -132,16 +144,14 @@ in {
         scrape_interval = "10s";
         metrics_path = "/probe";
         params = { module = [ shellyUniModule ]; };
-        static_configs = [
-          {
-            targets = [ "http://192.168.178.22/status" ];
-            labels = {
-              type = shellyUniType;
-              room = rooms.markus;
-              device = "uni1";
-            };
-          }
-        ];
+        static_configs = [{
+          targets = [ "http://192.168.178.22/status" ];
+          labels = {
+            type = shellyUniType;
+            room = rooms.markus;
+            device = "uni1";
+          };
+        }];
         relabel_configs = [
           {
             source_labels = [ "__address__" ];
