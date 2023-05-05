@@ -188,6 +188,7 @@ let
     }
 
     { name = "tools"; }
+    { name = "esp32"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
