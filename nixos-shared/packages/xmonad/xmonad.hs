@@ -155,32 +155,33 @@ myManageHook =
     ]
   where
     classFloats =
-      [ "Xmessage",
-        "Unity-2d-launcher",
-        "Vncviewer",
-        "feh",
-        "flameshot",
-        "Gpick",
-        "Ubuntu-tweak",
-        "de-tud-cs-se-flashcards-Main",
-        "xv",
-        "mplayer2",
-        "Gxmessage",
-        "gxmessage",
-        "de-hackermuehle-pdfpresenter-PdfPresenter",
-        "gtk-recordmydesktop",
-        "Gtk-recordmydesktop",
-        "nethack-qt",
-        "zoom",
-        "sun-awt-X11-XWindowPeer"
+      [ "Xmessage"
+      , "Unity-2d-launcher"
+      , "Vncviewer"
+      , "feh"
+      , "flameshot"
+      , "Gpick"
+      , "Ubuntu-tweak"
+      , "de-tud-cs-se-flashcards-Main"
+      , "xv"
+      , "mplayer2"
+      , "Gxmessage"
+      , "gxmessage"
+      , "de-hackermuehle-pdfpresenter-PdfPresenter"
+      , "gtk-recordmydesktop"
+      , "Gtk-recordmydesktop"
+      , "nethack-qt"
+      , "zoom"
+      , "sun-awt-X11-XWindowPeer"
+      , ".scrcpy-wrapped"
       ]
     titleFloats =
-      [ "Save As...",
-        "Save File",
-        "Options",
-        "Document Print Status",
-        "Terminator Preferences",
-        "Microsoft Teams Notification"
+      [ "Save As..."
+      ,  "Save File"
+      ,  "Options"
+      ,  "Document Print Status"
+      ,  "Terminator Preferences"
+      ,  "Microsoft Teams Notification"
       ]
     resourceFloats = []
     ignored = ["Unity-2d-panel", "trayer"]
