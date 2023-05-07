@@ -375,6 +375,10 @@ let
       title = "Thinking About Things";
       id = "tc8vjbiw33og592y";
     }
+    {
+      title = "Leuchtturm1917";
+      id = "1ema4onuqfab8l4o";
+    }
   ];
 in {
   value = {
