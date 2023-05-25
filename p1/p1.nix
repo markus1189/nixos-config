@@ -23,7 +23,12 @@
     };
   };
 
-  boot = { kernelPackages = pkgs.linuxPackages_latest; };
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelParams = [
+      "psmouse.synaptics_intertouch=0" # fix touchpad button not working
+    ];
+  };
 
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking = { hostName = "nixos-p1"; };
