@@ -171,6 +171,7 @@ in rec {
           ${usrPkgs.singlehead}/bin/singlehead
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xorg.xsetroot}/bin/xsetroot -cursor_name left_ptr
+          ${pkgs.xorg.xset}/bin/xset r rate 250 30
           ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${myWallpaper} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
         '';
