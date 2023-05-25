@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hip-report name="hip-report">
+  <md5-sum>$MD5</md5-sum>
+  <user-name>$USER</user-name>
+  <domain>$DOMAIN</domain>
+  <host-name>$COMPUTER</host-name>
+  <host-id>$HOSTID</host-id>
+  <ip-address>$IP</ip-address>
+  <ipv6-address>$IPV6</ipv6-address>
+  <generate-time>$NOW</generate-time>
+  <hip-report-version>4</hip-report-version>
+  <categories>
+    <entry name="host-info">
+      <client-version>5.3.4-5</client-version>
+      <os>Linux Ubuntu 22.04.2 LTS</os>
+      <os-vendor>Linux</os-vendor>
+      <domain/>
+      <host-name>nixos-p1</host-name>
+      <host-id>1db7d14c-264c-11b2-a85c-fe928f9414ec</host-id>
+      <network-interface>
+        <entry name="wlp3s0">
+          <description>wlp3s0</description>
+          <mac-address>e4:a7:a0:14:11:80</mac-address>
+          <ip-address>
+            <entry name="192.168.1.42"/>
+          </ip-address>
+          <ipv6-address>
+            <entry name="fe80::b8a7:ef36:560f:473a"/>
+          </ipv6-address>
+        </entry>
+      </network-interface>
+    </entry>
+    <entry name="anti-malware">
+      <list>
+        <entry>
+          <ProductInfo>
+            <Prod name="Clamav" version="0.103.8" defver="26907" prodType="3" engver="0.103.8" osType="1" vendor="ClamWin Pty Ltd" dateday="$DAY" dateyear="$YEAR" datemon="$MONTH">
+            </Prod>
+            <real-time-protection>yes</real-time-protection>
+            <last-full-scan-time>$NOW</last-full-scan-time>
+          </ProductInfo>
+        </entry>
+      </list>
+    </entry>
+    <entry name="disk-backup">
+      <list/>
+    </entry>
+    <entry name="disk-encryption">
+      <list>
+        <entry>
+          <ProductInfo>
+            <Prod name="cryptsetup" version="2.4.3" vendor="GitLab Inc.">
+            </Prod>
+            <drives>
+              <entry>
+                <drive-name>/</drive-name>
+                <enc-state>encrypted</enc-state>
+              </entry>
+              <entry>
+                <drive-name>All</drive-name>
+                <enc-state>encrypted</enc-state>
+              </entry>
+            </drives>
+          </ProductInfo>
+        </entry>
+      </list>
+    </entry>
+    <entry name="firewall">
+      <list>
+        <entry>
+          <ProductInfo>
+            <Prod name="IPTables" version="1.8.7" vendor="IPTables">
+            </Prod>
+            <is-enabled>yes</is-enabled>
+          </ProductInfo>
+        </entry>
+        <entry>
+          <ProductInfo>
+            <Prod name="nftables" version="1.0.2" vendor="The Netfilter Project">
+            </Prod>
+            <is-enabled>yes</is-enabled>
+          </ProductInfo>
+        </entry>
+      </list>
+    </entry>
+    <entry name="patch-management">
+      <list>
+        <entry>
+          <ProductInfo>
+            <Prod name="Advanced Packaging Tool" version="2.4.9" vendor="GNU">
+            </Prod>
+            <is-enabled>yes</is-enabled>
+          </ProductInfo>
+        </entry>
+      </list>
+      <missing-patches/>
+    </entry>
+    <entry name="data-loss-prevention">
+      <list/>
+    </entry>
+  </categories>
+</hip-report>
