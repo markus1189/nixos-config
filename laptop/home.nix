@@ -329,6 +329,8 @@ in {
 
   programs = let passDir = "$HOME/.local/share/password-store";
   in {
+    atuin.enable = true;
+
     bash.enable = true;
 
     broot = {
