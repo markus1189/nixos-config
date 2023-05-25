@@ -38,6 +38,7 @@
       dstat
       emacs
       entr
+      envsubst
       evince
       exa
       exfat
@@ -87,7 +88,6 @@
       nethogs
       nixUnstable
       nix-index
-      # nixops
       nmap
       openssl
       openvpn
@@ -137,7 +137,6 @@
       tdesktop
       terminator
       testdisk
-      #tigervnc
       # (texlive.combine {
       #   inherit (texlive)
       #   scheme-medium
@@ -155,6 +154,7 @@
       #   xstring
       #   enumitem;
       # })
+      html-tidy
       trayer
       tree
       units

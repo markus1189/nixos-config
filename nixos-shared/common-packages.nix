@@ -20,7 +20,7 @@
       git-secret
       gron
       htop
-      # httpie
+      httpie
       iotop
       jo
       jq
