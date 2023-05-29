@@ -325,7 +325,7 @@ myKeys =
     ((myModShift, xK_u), scratchTermUpper),
     ((myModShift, xK_w), shiftNextScreen),
     ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
-    ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=20 @clipmenu@/bin/clipmenu"),
+    ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=30 @clipmenu@/bin/clipmenu"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     -- Copy to all, kill again
     ((myModKey, xK_a), windows copyToAll),
