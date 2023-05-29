@@ -379,6 +379,10 @@ let
       title = "Leuchtturm1917";
       id = "1ema4onuqfab8l4o";
     }
+    {
+      title = "Lamy";
+      id = "fxshdjutxkvhp4uq";
+    }
   ];
 in {
   value = {
