@@ -119,6 +119,10 @@ let
       owner = "saulpw";
       repo = "visidata";
     }
+    {
+      owner = "johnwarne";
+      repo = "reddit-top-rss";
+    }
   ];
 
   subredditToRss = let
