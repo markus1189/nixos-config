@@ -4,8 +4,10 @@
   services = {
     openssh = {
       enable = true;
-      passwordAuthentication = false;
-      permitRootLogin = "prohibit-password";
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "prohibit-password";
+      };
       extraConfig = ''
         PermitEmptyPasswords no
         AllowUsers ${config.lib._custom_.userName}
