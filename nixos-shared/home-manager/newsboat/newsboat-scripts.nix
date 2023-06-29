@@ -136,7 +136,7 @@
 
   scrapeMazdaWeiss = writeScriptBin "scrape" ''
     getItems() {
-      ${curl}/bin/curl -s 'https://fmm.mazda.de/api/filter/?locationradius=100&transmission[]=a&fuel[]=P&price[]=100&price[]=25000&sort=price_asc&from=0&end=48&condition=used&dealerid=GJeDK8no27sxJXa1' \
+      ${curl}/bin/curl -s 'https://fmm.mazda.de/api/filter/?locationradius=100&transmission[]=a&fuel[]=P&price[]=100&price[]=30000&sort=price_asc&from=0&end=48&condition=used&dealerid=GJeDK8no27sxJXa1' \
           --globoff \
           -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' \
           -H 'Accept: application/json' \
