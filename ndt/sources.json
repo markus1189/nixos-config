@@ -90,35 +90,20 @@
     "type": "github",
     "url": "https://github.com/kmonad/kmonad"
   },
-  "nixpkgs-1703": {
-    "branch": "nixos-17.03",
-    "date": "2018-01-06T11:26:51+00:00",
+  "nixpkgs-2305": {
+    "branch": "nixos-23.05",
+    "date": "2023-06-27T09:36:01+08:00",
     "deepClone": false,
     "fetchLFS": false,
     "fetchSubmodules": false,
     "leaveDotGit": false,
-    "owner": "nixos",
-    "path": "/nix/store/lhwzxaz7aax3sf2daqkvv9ljxn0sx6cg-nixpkgs-channels",
-    "repo": "nixpkgs-channels",
-    "rev": "78e9665b48ff45d3e29f45b3ebeb6fc6c6e19922",
-    "sha256": "09f50jaijvry9lrnx891qmcf92yb8qs64n1cvy0db2yjrmxsxyw8",
+    "owner": "NixOS",
+    "path": "/nix/store/8gz5d1bfzb5rhmj0rg7blarn3699mflr-nixpkgs",
+    "repo": "nixpkgs",
+    "rev": "9790f3242da2152d5aa1976e3e4b8b414f4dd206",
+    "sha256": "1y6zipys4803ckvnamfljb8raglgkbz1fz1fg03cxp4jqiiva5s1",
     "type": "github",
-    "url": "https://github.com/nixos/nixpkgs-channels"
-  },
-  "nixpkgs-2003": {
-    "branch": "nixos-20.03",
-    "date": "2021-04-05T21:10:27+02:00",
-    "deepClone": false,
-    "fetchLFS": false,
-    "fetchSubmodules": false,
-    "leaveDotGit": false,
-    "owner": "nixos",
-    "path": "/nix/store/719jb4vrh1186x1j5s09g9gxc65yhpgr-nixpkgs-channels",
-    "repo": "nixpkgs-channels",
-    "rev": "6d1a044fc9ff3cc96fca5fa3ba9c158522bbf2a5",
-    "sha256": "07a3nyrj3pwl017ig0rbn5rbmbf14gl3vqggvkyrdby01726p5fg",
-    "type": "github",
-    "url": "https://github.com/nixos/nixpkgs-channels"
+    "url": "https://github.com/NixOS/nixpkgs"
   },
   "visidata": {
     "branch": "develop",
