@@ -252,8 +252,6 @@ in rec {
   };
 
   hardware = {
-    video = { hidpi.enable = false; };
-
     pulseaudio = {
       enable = true;
       package = pkgs.pulseaudioFull;
