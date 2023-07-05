@@ -202,7 +202,7 @@ myManageHook =
     ws6 = []
     ws7 = ["MPlayer", "mplayer2", "mpv"]
     ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
-    ws9 = ["microsoft teams - preview"]
+    ws9 = ["teams-for-linux"]
     miscellaneous =
       [ title =? "vmail" --> doShift (workSpaceN 7),
         className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
@@ -367,7 +367,7 @@ myKeysP =
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
     (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (title <&> ("im:" `isPrefixOf`)))),
-    (myModKeyP "o m s", raise (iclassName "microsoft teams - preview")),
+    (myModKeyP "o m s", raise (iclassName "teams-for-linux")),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
     (myModKeyP "o s i", raise (iclassName "signal")),
     (myModKeyP "o s l", raise (iclassName "slack")),
