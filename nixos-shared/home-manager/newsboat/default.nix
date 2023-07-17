@@ -168,7 +168,9 @@ let
       name = "writingprompts";
       threshold = 80;
     }
-    { name = "startrek"; }
+    {
+      name = "startrek";
+    }
 
     # RPG
     { name = "ironsworn"; }
