@@ -350,6 +350,10 @@ let
       title = "Pine Hollow Auto Diagnostics";
       id = "UCn4Ifss-t3wMT6VBzQoKPUA";
     }
+    {
+      title = "EJ's Training Camp";
+      id = "UCDvIKQseajsYER98pcn46BA";
+    }
   ];
   fromKtn = args: {
     url =
