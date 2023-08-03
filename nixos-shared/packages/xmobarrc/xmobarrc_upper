@@ -5,7 +5,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , lowerOnStart = False
        , pickBroadest = False
        , commands = [ Run Network "@wirelessInterface@"
-                        [ "-t", "<rx>  <tx> 祝"
+                        [ "-t", "<rx> 󰁅 <tx> 󰁝"
                         , "--normal","#42d3a5"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
@@ -54,9 +54,9 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "--high" ,"#42d3a5"
                         , "--minwidth","2"
                         , "--"
-                        , "-i","<fc=green></fc>"
-                        , "-O","<fc=orange></fc>"
-                        , "-o","<fc=red></fc>"
+                        , "-i","<fc=green>󰂄</fc>"
+                        , "-O","<fc=orange>󱧥</fc>"
+                        , "-o","<fc=red>󰂃</fc>"
                         ] 100
                     , Run DiskU
                         [("/","<usedp>% <used>/<size>")]
@@ -70,5 +70,5 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% }{ %top%   %memory%   %disku%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%  %toggl%%dunst%<fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top%  󰍛 %memory%  󰋊 %disku%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%  %toggl%%dunst%<fc=orange>%date%</fc>"
        }
