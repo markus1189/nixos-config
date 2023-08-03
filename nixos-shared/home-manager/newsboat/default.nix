@@ -354,6 +354,10 @@ let
       title = "EJ's Training Camp";
       id = "UCDvIKQseajsYER98pcn46BA";
     }
+    {
+      title = "Jetpens";
+      id = "UCVbn813ctsoChuTT4LuLqrA";
+    }
   ];
   fromKtn = args: {
     url =
