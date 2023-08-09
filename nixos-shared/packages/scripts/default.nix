@@ -153,7 +153,7 @@ rec {
     OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep -q active && echo OVP)"
     WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep -q active && echo WGD)"
     COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo lightgreen; else echo red; fi)
-    ICON=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo ' '; else echo ''; fi)
+    ICON=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo ' '; else echo ''; fi)
     LABEL="''${OPENVPN}''${WIREGUARD}"
     echo "<fc=$COLOR>''${LABEL}''${ICON}</fc>"
   '';
@@ -181,7 +181,7 @@ rec {
             jq -e -r 'map(if .duration < 0 then now + .duration else .duration end) | add')
 
         if [[ "$?" == 0 ]]; then
-            echo "''${OUTPUT_SUM}" | jq -r '{hours: (. / 3600 | floor), minutes: (. % 3600 / 60 | round)} | " \(.hours)h \(.minutes)m "'
+            echo "''${OUTPUT_SUM}" | jq -r '{hours: (. / 3600 | floor), minutes: (. % 3600 / 60 | round)} | "󱑍 \(.hours)h \(.minutes)m "'
         else
             echo " 0h 0m "
         fi
