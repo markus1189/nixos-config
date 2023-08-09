@@ -329,7 +329,16 @@ in {
 
   programs = let passDir = "$HOME/.local/share/password-store";
   in {
-    atuin.enable = true;
+    atuin = {
+      enable = true;
+      settings = {
+        show_preview = true;
+        max_preview_height = 5;
+        history_filter = [
+          "DONOTTRACK"
+        ];
+      };
+    };
 
     bash.enable = true;
 
