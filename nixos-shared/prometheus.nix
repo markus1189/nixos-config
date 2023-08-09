@@ -72,12 +72,20 @@ in {
           }
           {
             name = "shelly-unis";
-            rules = [{
-              alert = "WindowStillClosed";
-              expr = ''
-                shelly_uni_ison1{room="Markus Zimmer"} > 0 and on() hour() >= 15'';
-              for = "10m";
-            }];
+            rules = [
+              {
+                alert = "WindowStillClosed";
+                expr = ''
+                  shelly_uni_ison1{room="Markus Zimmer"} > 0 and on() hour() >= 15'';
+                for = "10m";
+              }
+              {
+                alert = "WindowStillOpen";
+                expr = ''
+                  shelly_uni_ison1{room="Markus Zimmer"} == 0 and on() hour() >= 8'';
+                for = "10m";
+              }
+            ];
           }
         ];
       })
