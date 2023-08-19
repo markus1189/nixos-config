@@ -337,6 +337,7 @@ in {
         history_filter = [
           "DONOTTRACK"
         ];
+        inline_height = 25;
       };
     };
 
