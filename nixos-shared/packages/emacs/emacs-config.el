@@ -1,4 +1,4 @@
-(require 'package)
+>(require 'package)
 (require 'quick-yes) ;; added via load path...
 (require 'dired+) ;; added via load path...
 
@@ -1402,4 +1402,8 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package magit-todos
   :ensure t)
+
+(use-package dhall-mode
+  :ensure t
+  :mode "\\.dhall\\'")
 ;;;

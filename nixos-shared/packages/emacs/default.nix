@@ -29,6 +29,7 @@ in
     company
     dash
     deadgrep
+    dhall-mode
     dired-plus
     dired-filter
     direnv
