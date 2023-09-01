@@ -21,7 +21,7 @@ in {
           import json
 
           options.input_history = 'history'
-          options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f'
+          options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f%z'
           options.disp_float_fmt = '{:.04f}'
 
           options.reddit_client_id = 'AM6u5feracoVWJ3gJWTnCA'
