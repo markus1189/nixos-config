@@ -16,7 +16,11 @@
           "devtools.cache.disabled" = true;
           "devtools.netmonitor.persistlog" = true;
         };
-        userChrome = "";
+        userChrome = ''
+          #TabsToolbar {
+            display: none;
+          }
+        '';
         userContent = ''
           /* add '[pdf]' next to links to PDF files */
           a[href$=".pdf"]:after {
