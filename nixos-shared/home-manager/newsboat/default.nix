@@ -123,6 +123,10 @@ let
       owner = "johnwarne";
       repo = "reddit-top-rss";
     }
+    {
+      owner = "mbnuqw";
+      repo = "sidebery";
+    }
   ];
 
   subredditToRss = let
