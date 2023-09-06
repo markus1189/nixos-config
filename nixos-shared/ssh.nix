@@ -25,11 +25,6 @@
           User markus
           Port 4241
 
-        Host xps
-          HostName nixos-xps
-          User markus
-          Port 4241
-
         Host nuc
           HostName 192.168.178.46
           User mediacenter
@@ -43,43 +38,6 @@
           Port 4225
           ServerAliveInterval 60
           ServerAliveCountMax 3
-
-        Host mc
-          HostName 192.168.178.86
-          User mediacenter
-          ServerAliveInterval 60
-          ServerAliveCountMax 3
-
-        Host mci
-          HostName ssh.markushauck.me
-          User mediacenter
-          Port 443
-          ServerAliveInterval 60
-          ServerAliveCountMax 3
-
-        Host mctl
-          HostName ssh.markushauck.me
-          User mediacenter
-          DynamicForward 12345
-          Port 443
-          RequestTTY no
-
-        Host mcivnc
-          HostName ssh.markushauck.me
-          User mediacenter
-          RequestTTY no
-          LocalForward 5900 localhost:5900
-          Port 443
-          ServerAliveInterval 60
-          ServerAliveCountMax 3
-
-        Host yellow
-          HostName 192.168.178.118
-          User yellow
-
-        Host pi
-          HostName 192.168.178.60
-          User pi
       '';
     };
   };
