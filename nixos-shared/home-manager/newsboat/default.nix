@@ -331,10 +331,6 @@ let
       id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
     }
     {
-      title = "ElectroBoom";
-      id = "UC83CJFLyDe72XgkKBd5a9IA";
-    }
-    {
       title = "Postapocalyptic Inventor";
       id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
     }
@@ -361,6 +357,10 @@ let
     {
       title = "Jetpens";
       id = "UCVbn813ctsoChuTT4LuLqrA";
+    }
+    {
+      title = "Basti HW";
+      id = "UCsZNco1cxrspWzlPX3Kim9g";
     }
   ];
   fromKtn = args: {
