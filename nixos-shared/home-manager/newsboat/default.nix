@@ -362,6 +362,10 @@ let
       title = "Basti HW";
       id = "UCsZNco1cxrspWzlPX3Kim9g";
     }
+    {
+      title = "CarbotAnimations";
+      id = "UC1uug_uZrVmylfPVBLBvitQ";
+    }
   ];
   fromKtn = args: {
     url =
