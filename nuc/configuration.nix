@@ -55,6 +55,7 @@ in {
     supplicant = {
       "${config.lib._custom_.wirelessInterface}" = {
         configFile.path = "/etc/wpa_supplicant.conf";
+        userControlled.enable = true;
       };
     };
 
