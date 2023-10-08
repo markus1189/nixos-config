@@ -405,6 +405,10 @@ let
       title = "Lamy";
       id = "fxshdjutxkvhp4uq";
     }
+    {
+      title = "Salomon DE";
+      id = "xb9ujr6s9d3ed1w1";
+    }
   ];
 in {
   value = {
