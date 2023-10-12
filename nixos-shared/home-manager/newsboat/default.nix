@@ -366,6 +366,10 @@ let
       title = "CarbotAnimations";
       id = "UC1uug_uZrVmylfPVBLBvitQ";
     }
+    {
+      title = "Salomon TV";
+      id = "UCCH7Ny59oLRGfw3imhL0d7A";
+    }
   ];
   fromKtn = args: {
     url =
