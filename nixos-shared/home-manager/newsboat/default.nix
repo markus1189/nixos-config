@@ -370,6 +370,14 @@ let
       title = "Salomon TV";
       id = "UCCH7Ny59oLRGfw3imhL0d7A";
     }
+    {
+      title = "Sally McRae";
+      id = "UC_zyfHGL6MWzm36l9TEWFRg";
+    }
+    {
+      title = "MKMe Lab";
+      id = "UCTo55-kBvyy5Y1X_DTgrTOQ";
+    }
   ];
   fromKtn = args: {
     url =
