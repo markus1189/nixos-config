@@ -378,6 +378,14 @@ let
       title = "MKMe Lab";
       id = "UCTo55-kBvyy5Y1X_DTgrTOQ";
     }
+    {
+      title = "Buy it Fix it";
+      id = "UChwnFBBtasi2kn2TDK5OsWg";
+    }
+    {
+      title = "My Mate Vince";
+      id = "UChY9Cgv-iyPDvf1Bkyx20OQ";
+    }
   ];
   fromKtn = args: {
     url =
