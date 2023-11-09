@@ -221,6 +221,7 @@ let
     {
       title = "Aiko Sukdolak";
       id = "UC4hJTeF0QvnsC7bIshU_K2w";
+      enabled = false;
     }
     {
       title = "Steve Mattheis";
@@ -239,14 +240,6 @@ let
       id = "UCKq3tXnvXnA0feJYmOx9MPw";
     }
     {
-      title = "Ben Fitzcosta";
-      id = "UCMYHM19nuv892Qo8ZlLvUaw";
-    }
-    {
-      title = "Morten Hilmer";
-      id = "UCYzMdQa5aD6dnKHLdBxDMkw";
-    }
-    {
       title = "SuperTragopan";
       id = "UCa51ED7iENUjtadDnqPuoWw";
     }
@@ -257,14 +250,6 @@ let
     {
       title = "exurb1a";
       id = "UCimiUgDLbi6P17BdaCZpVbg";
-    }
-    {
-      title = "Ornithologie für Anfänger";
-      id = "UCkJQqECiHJ3UmTeztifoFpg";
-    }
-    {
-      title = "Mark Smith";
-      id = "UCyGYUrC2IvaHWoX6dwEsrMA";
     }
     {
       title = "Simon Wantling";
@@ -327,10 +312,6 @@ let
       id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
     }
     {
-      title = "This Old House";
-      id = "UCUtWNBWbFL9We-cdXkiAuJA";
-    }
-    {
       title = "Jeff Pelletier";
       id = "UCNKMpnM_Yvf6E-Hhf9btYqA";
     }
@@ -355,14 +336,6 @@ let
       id = "UCsZNco1cxrspWzlPX3Kim9g";
     }
     {
-      title = "CarbotAnimations";
-      id = "UC1uug_uZrVmylfPVBLBvitQ";
-    }
-    {
-      title = "Salomon TV";
-      id = "UCCH7Ny59oLRGfw3imhL0d7A";
-    }
-    {
       title = "Sally McRae";
       id = "UC_zyfHGL6MWzm36l9TEWFRg";
     }
@@ -377,6 +350,10 @@ let
     {
       title = "My Mate Vince";
       id = "UChY9Cgv-iyPDvf1Bkyx20OQ";
+    }
+    {
+      title = "TechDregs";
+      id = "UCSoOJTknGqXQSeamRjEE8aA";
     }
   ];
   fromKtn = args: {
