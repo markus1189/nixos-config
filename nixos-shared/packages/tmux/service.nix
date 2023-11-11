@@ -28,7 +28,6 @@
         ${pkgs.lib.readFile ./tmux.conf}
         run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
         run-shell ${tmuxPlugins.copycat}/share/tmux-plugins/copycat/copycat.tmux
-        run-shell ${tmuxPlugins.fingers}/share/tmux-plugins/fingers/tmux-fingers.tmux
 
         run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
         set -g @extrakto_copy_key "tab"
