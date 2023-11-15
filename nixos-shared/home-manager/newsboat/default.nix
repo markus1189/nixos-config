@@ -134,7 +134,7 @@ let
     baseUrl = "http://localhost:9999";
   in args:
   "filter:${scripts.redditUseCommentsAsLink}:${baseUrl}/?subreddit=${args.name}&threshold=${
-    toString (args.threshold or 50)
+    toString (args.threshold or 60)
   }&view=rss";
 
   subreddits = [
@@ -147,14 +147,8 @@ let
     { name = "functionalprogramming"; }
     { name = "DistributedSystems"; }
     { name = "ProgrammingLanguages"; }
-    {
-      name = "ExperiencedDevs";
-      threshold = 60;
-    }
-    {
-      name = "garminfenix";
-      threshold = 60;
-    }
+    { name = "ExperiencedDevs"; }
+    { name = "garminfenix"; }
     { name = "geb"; }
     { name = "haskell"; }
     { name = "internetisbeautiful"; }
@@ -199,6 +193,10 @@ let
 
     { name = "tools"; }
     { name = "esp32"; }
+    { name = "usbchardware"; }
+    { name = "askelectronics"; }
+    { name = "gadgets"; }
+    { name = "electronics"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
