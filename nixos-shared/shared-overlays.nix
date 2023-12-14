@@ -31,26 +31,28 @@ rec {
 
   visidataOverlay = self: super:
     let
-      pkgs = with self.python3Packages; [
-        requests
-        sh
-        pytimeparse
-        tomli
-        # plugins that will soon already be included
-        importlib-metadata
-        faker
-        pdfminer
-        praw
-        psutil
-      ];
+      pypkgs = with self.python3Packages;
+        [
+          requests
+          sh
+          pytimeparse
+          tomli
+          # plugins that will soon already be included
+          importlib-metadata
+          faker
+          pdfminer
+          praw
+          psutil
+        ];
     in {
       visidata = builtins.trace
         "INFO: Using visidata overlay for more python packages and develop branch [${self.ndtSources.visidata.date} @ ${self.ndtSources.visidata.rev}]"
         super.visidata.overridePythonAttrs (old: {
-          propagatedBuildInputs = old.propagatedBuildInputs ++ pkgs;
+          propagatedBuildInputs = old.propagatedBuildInputs ++ pypkgs;
           src = self.ndtSources.visidata.outPath;
           doCheck = false;
-          patches = [ ./0001-shell.py-Provide-columns-as-environment-variables.patch ];
+          patches =
+            [ ./0001-shell.py-Provide-columns-as-environment-variables.patch ];
         });
     };
 
