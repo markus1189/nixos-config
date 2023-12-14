@@ -396,7 +396,6 @@ in rec {
       ff = "${emacs}/bin/emacsclient -n -c";
       FF = "${emacs}/bin/emacsclient -n";
       magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
-      ll = "${exa}/bin/exa -labgSh --git";
       cdt = "cd $(${coreutils}/bin/mktemp -d)";
       pwdc = "pwd | clip";
       wpa_cli =

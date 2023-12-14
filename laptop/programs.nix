@@ -41,7 +41,6 @@ in {
         entr
         envsubst
         evince
-        exa
         exfat
         exiftool
         expect
