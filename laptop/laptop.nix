@@ -299,7 +299,15 @@ in rec {
     podman = { enable = true; };
   };
 
-  # virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host.package = let
+    nixpkgs2311 = import ndtSources.nixpkgs-2311 {
+      config = {
+        allowUnfreePredicate = pkg:
+          builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
+      };
+    };
+  in nixpkgs2311.virtualbox;
 
   programs = {
     zsh = let
