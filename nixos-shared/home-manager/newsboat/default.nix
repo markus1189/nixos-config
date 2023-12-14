@@ -127,6 +127,10 @@ let
       owner = "mbnuqw";
       repo = "sidebery";
     }
+    {
+      owner = "ast-grep";
+      repo = "ast-grep";
+    }
   ];
 
   subredditToRss = let
