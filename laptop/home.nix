@@ -20,7 +20,6 @@ in {
         text = ''
           import json
 
-          options.input_history = 'history'
           options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f%z'
           options.disp_float_fmt = '{:.04f}'
 
