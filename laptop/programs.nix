@@ -21,6 +21,7 @@ in {
         aspell
         aspellDicts.de
         aspellDicts.en
+        ast-grep
         at
         bc
         bashmount
