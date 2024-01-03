@@ -75,7 +75,7 @@ import XMonad
               modMask, mouseBindings),
       Full(Full),
       Resize(Expand, Shrink),
-      Tall(Tall), xK_semicolon )
+      Tall(Tall), xK_semicolon, stringProperty )
 import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
 import qualified XMonad.Actions.FlexibleManipulate as Flex
@@ -139,6 +139,7 @@ myManageHook =
       [isDialog --> doFloat],
       [className =? c --> doFloat | c <- classFloats],
       [title =? t --> doFloat | t <- titleFloats],
+      [stringProperty "WM_NAME" =? t --> doIgnore | t <- windowNameIgnores],
       [resource =? r --> doFloat | r <- resourceFloats],
       [resource =? i --> doIgnore | i <- ignored],
       [className =? c --> doShift (workSpaceN 1) | c <- ws1],
@@ -182,6 +183,9 @@ myManageHook =
       ,  "Document Print Status"
       ,  "Terminator Preferences"
       ,  "Microsoft Teams Notification"
+      ]
+    windowNameIgnores =
+      [ "NormCap"
       ]
     resourceFloats = []
     ignored = ["Unity-2d-panel", "trayer"]
