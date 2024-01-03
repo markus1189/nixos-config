@@ -159,6 +159,7 @@ let
     { name = "malazan"; }
     { name = "nixos"; }
     { name = "notebooks"; }
+    { name = "planneraddicts"; }
     { name = "netsec"; }
     {
       name = "scala";
