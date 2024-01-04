@@ -4,6 +4,7 @@ import os
 import os.path
 import requests
 import json
+from dateutil import parser
 
 from garminconnect import (
     Garmin,
@@ -15,9 +16,17 @@ from garminconnect import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-startdate = datetime.date.today() - datetime.timedelta(days = 5)
-enddate = datetime.date.today()
-yesterday = datetime.date.today() - datetime.timedelta(days = 1)
+if "GARMIN_CONNECT_START_DATE" in os.environ:
+    startdate = parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True)
+else:
+    startdate = datetime.date.today() - datetime.timedelta(days = 5)
+
+if "GARMIN_CONNECT_END_DATE" in os.environ:
+    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True)
+else:
+    enddate = datetime.date.today()
+
+logger.info(f"Start: {startdate}, End: {enddate}")
 
 if "GARMIN_CONNECT_TARGET_DIR" in os.environ:
     target_dir = os.environ['GARMIN_CONNECT_TARGET_DIR']
@@ -59,7 +68,7 @@ def download_sleep(date):
     output_file = f"{target_dir}/{date.isoformat()}_sleep.json"
     logger.info(f"Downloading sleep data to {output_file}")
     with open(output_file, "wb") as fb:
-        data = api.get_sleep_data(date.isoformat())
+        data = api.get_sleep_data(date.date().isoformat())
         fb.write(json.dumps(data).encode())
 
 
@@ -79,7 +88,8 @@ try:
 
     activities = api.get_activities_by_date(
         startdate.isoformat(),
-        enddate.isoformat(), None
+        enddate.isoformat(),
+        None
     )
 
     for activity in activities:
@@ -96,7 +106,7 @@ try:
         download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
         download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
 
-    for single_date in daterange(startdate, yesterday):
+    for single_date in daterange(startdate, enddate):
         download_hr(single_date)
         download_sleep(single_date)
 

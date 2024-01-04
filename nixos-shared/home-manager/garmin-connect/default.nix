@@ -1,14 +1,16 @@
 { targetDir, password }:
 { writeScriptBin, python310 }:
 let
+  myPython = python310.withPackages
+    (ps: with ps; [ garminconnect python-dateutil requests ]);
+
   scriptName = "garmin-connect-fetch";
-  fetchScript = writeScriptBin "garmin-connect-fetch" ''
+
+  fetchScript = writeScriptBin scriptName ''
     #!${myPython}/bin/python3
 
     ${builtins.readFile ./garmin-connect-fetch.py}
   '';
-  myPython =
-    python310.withPackages (ps: with ps; [ garminconnect python-dateutil requests ]);
 in {
   service = {
     Unit = { Description = "Sync activities from Garmin Connect"; };
@@ -27,13 +29,9 @@ in {
   };
 
   timer = {
-    Unit = {
-      After = ["time-set.target" "time-sync.target"];
-    };
+    Unit = { After = [ "time-set.target" "time-sync.target" ]; };
 
-    Install = {
-      WantedBy = [ "network-online.target" ];
-    };
+    Install = { WantedBy = [ "network-online.target" ]; };
 
     Timer = {
       OnCalendar = "*-*-* 9,14,21:00:00";
