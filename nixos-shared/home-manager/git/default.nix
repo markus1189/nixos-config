@@ -128,6 +128,8 @@ in
       diff = {
         mnemonicprefix = true;
         algorithm = "histogram";
+        colormoved = "default";
+        colormovedws = "allow-indentation-change";
       };
 
       "diff \"binary\"" = {
