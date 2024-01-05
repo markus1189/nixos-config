@@ -212,10 +212,6 @@ in {
         ts
       ]) ++ [ # Go related stuff
         go
-        glide
-        go2nix
-        dep2nix
-        godef
       ];
   };
 }

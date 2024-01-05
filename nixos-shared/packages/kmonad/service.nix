@@ -7,9 +7,9 @@ let
     version = kmonadSrc.rev;
   });
   kmonad = with pkgs.haskell.lib;
-    appendPatch (overrideSrc (dontCheck (unmarkBroken (doJailbreak kmonadPackage))) {
+     (overrideSrc (dontCheck (unmarkBroken (doJailbreak kmonadPackage))) {
       src = kmonadSrc;
-    }) mutatedPatch;
+    });
   myConfigExternal = pkgs.mutate ./markus.kbd {
     inputDeviceFile =
       "/dev/input/by-id/usb-Lenovo_ThinkPad_Compact_USB_Keyboard_with_TrackPoint-event-kbd";
