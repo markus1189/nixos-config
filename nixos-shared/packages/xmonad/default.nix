@@ -10,6 +10,7 @@ args@{ autoMonitorConfig
 , emacsAnywhere
 , flameshot
 , lockScreen
+, normcap
 , multihead4k
 , mutate
 , playerctl
