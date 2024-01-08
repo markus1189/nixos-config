@@ -72,6 +72,30 @@ def download_sleep(date):
         fb.write(json.dumps(data).encode())
 
 
+def download_hrv(date):
+    output_file = f"{target_dir}/{date.isoformat()}_hrv.json"
+    logger.info(f"Downloading hrv to {output_file}")
+    with open(output_file, "wb") as fb:
+        data = api.get_hrv_data(date.date().isoformat())
+        fb.write(json.dumps(data).encode())
+
+
+def download_rhr(date):
+    output_file = f"{target_dir}/{date.isoformat()}_rhr_day.json"
+    logger.info(f"Downloading rhr to {output_file}")
+    with open(output_file, "wb") as fb:
+        data = api.get_rhr_day(date.date().isoformat())
+        fb.write(json.dumps(data).encode())
+
+
+def download_race_predictions(date):
+    output_file = f"{target_dir}/{date.isoformat()}_race_predictions.json"
+    logger.info(f"Downloading race predictions to {output_file}")
+    with open(output_file, "wb") as fb:
+        data = api.get_race_predictions(date.date().isoformat(), date.date().isoformat(), 'daily')
+        fb.write(json.dumps(data).encode())
+
+
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + datetime.timedelta(n)
@@ -109,6 +133,9 @@ try:
     for single_date in daterange(startdate, enddate):
         download_hr(single_date)
         download_sleep(single_date)
+        download_rhr(single_date)
+        download_hrv(single_date)
+        download_race_predictions(single_date)
 
 except (
         GarminConnectConnectionError,
