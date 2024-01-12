@@ -179,7 +179,7 @@ in {
         zathura
         zip
         zlib
-        (nixpkgs2305.zoom-us)
+        zoom-us
         zsh
       ] ++ (with pkgs.pythonPackages;
         [
