@@ -202,6 +202,7 @@ let
     { name = "askelectronics"; }
     { name = "gadgets"; }
     { name = "electronics"; }
+    { name = "cataclysmdda"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
