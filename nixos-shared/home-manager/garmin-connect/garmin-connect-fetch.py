@@ -68,7 +68,7 @@ def download_sleep(date):
     output_file = f"{target_dir}/{date.isoformat()}_sleep.json"
     logger.info(f"Downloading sleep data to {output_file}")
     with open(output_file, "wb") as fb:
-        data = api.get_sleep_data(date.date().isoformat())
+        data = api.get_sleep_data(to_date(date).isoformat())
         fb.write(json.dumps(data).encode())
 
 
@@ -76,7 +76,7 @@ def download_hrv(date):
     output_file = f"{target_dir}/{date.isoformat()}_hrv.json"
     logger.info(f"Downloading hrv to {output_file}")
     with open(output_file, "wb") as fb:
-        data = api.get_hrv_data(date.date().isoformat())
+        data = api.get_hrv_data(to_date(date).isoformat())
         fb.write(json.dumps(data).encode())
 
 
@@ -84,7 +84,7 @@ def download_rhr(date):
     output_file = f"{target_dir}/{date.isoformat()}_rhr_day.json"
     logger.info(f"Downloading rhr to {output_file}")
     with open(output_file, "wb") as fb:
-        data = api.get_rhr_day(date.date().isoformat())
+        data = api.get_rhr_day(to_date(date).isoformat())
         fb.write(json.dumps(data).encode())
 
 
@@ -92,8 +92,15 @@ def download_race_predictions(date):
     output_file = f"{target_dir}/{date.isoformat()}_race_predictions.json"
     logger.info(f"Downloading race predictions to {output_file}")
     with open(output_file, "wb") as fb:
-        data = api.get_race_predictions(date.date().isoformat(), date.date().isoformat(), 'daily')
+        data = api.get_race_predictions(to_date(date).isoformat(), to_date(date).isoformat(), 'daily')
         fb.write(json.dumps(data).encode())
+
+
+def to_date(date):
+    if type(date) is datetime.datetime:
+        return date.date()
+    else:
+        return date
 
 
 def daterange(start_date, end_date):
@@ -116,21 +123,22 @@ try:
         None
     )
 
-    for activity in activities:
-        activity_id = activity["activityId"]
-        activity_start = activity["startTimeLocal"]
-        activity_type = activity["activityType"]["typeKey"]
-        file_name = (activity_start.replace(" ", "_").replace(":", "-")
-                     + "_"
-                     + activity_type)
-        logger.info("Downloading activity with id: %s", activity_id)
+    # for activity in activities:
+    #     activity_id = activity["activityId"]
+    #     activity_start = activity["startTimeLocal"]
+    #     activity_type = activity["activityType"]["typeKey"]
+    #     file_name = (activity_start.replace(" ", "_").replace(":", "-")
+    #                  + "_"
+    #                  + activity_type)
+    #     logger.info("Downloading activity with id: %s", activity_id)
 
-        download(activity_id, file_name, api.ActivityDownloadFormat.GPX)
-        download(activity_id, file_name, api.ActivityDownloadFormat.TCX)
-        download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
-        download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
+    #     download(activity_id, file_name, api.ActivityDownloadFormat.GPX)
+    #     download(activity_id, file_name, api.ActivityDownloadFormat.TCX)
+    #     download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
+    #     download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
 
     for single_date in daterange(startdate, enddate):
+        logger.info("Date type is %s", type(single_date))
         download_hr(single_date)
         download_sleep(single_date)
         download_rhr(single_date)
