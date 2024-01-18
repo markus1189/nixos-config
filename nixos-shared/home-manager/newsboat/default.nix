@@ -359,6 +359,10 @@ let
       title = "TechDregs";
       id = "UCSoOJTknGqXQSeamRjEE8aA";
     }
+    {
+      title = "Worm Girl CDDA";
+      id = "UCNQJqvSXfDBOd9spve8doWw";
+    }
   ];
   fromKtn = args: {
     url =
