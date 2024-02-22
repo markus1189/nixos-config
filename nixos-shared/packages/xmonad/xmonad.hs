@@ -258,11 +258,11 @@ myTab =
       urgentTextColor = "black",
       urgentBorderColor = "black",
       fontName = myFont,
-      decoHeight = 14
+      decoHeight = 24
     }
 
 myFont :: String
-myFont = "xft:DejaVu Sans-7:bold"
+myFont = "xft:SauceCodePro Nerd Font Bold:10"
 
 myMouseBindings :: p -> [((ButtonMask, Button), Window -> X ())]
 myMouseBindings _ = [((myModKey, button3), \w -> focus w >> Flex.mouseWindow Flex.linear w)]
