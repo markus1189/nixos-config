@@ -178,6 +178,10 @@ in
         templatedir = "${./git_template}";
         defaultBranch = "main";
       };
+
+      transfer.fsckobjects = true;
+      fetch.fsckobjects = true;
+      receive.fsckobjects = true;
     };
   };
 }
