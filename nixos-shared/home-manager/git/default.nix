@@ -168,10 +168,12 @@ in
       rebase = {
         stat = true;
         autosquash = true;
+        instructionFormat = "%<(100,trunc)%s | %<(25,trunc)%aN | %<(23,trunc)%ar";
       };
 
       commit = {
         template = "${./git-commit-template}";
+        verbose = true;
       };
 
       init = {
