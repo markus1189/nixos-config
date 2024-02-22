@@ -182,6 +182,8 @@ in
       transfer.fsckobjects = true;
       fetch.fsckobjects = true;
       receive.fsckobjects = true;
+
+      branch.sort = "-committerdate";
     };
   };
 }
