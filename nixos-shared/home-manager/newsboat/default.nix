@@ -363,6 +363,10 @@ let
       title = "Worm Girl CDDA";
       id = "UCNQJqvSXfDBOd9spve8doWw";
     }
+    {
+      title = "ParkNotes";
+      id = "UCt1ES-_FMXQfM3JeO_FrOXw";
+    }
   ];
   fromKtn = args: {
     url =
