@@ -12,7 +12,7 @@ let
   urlsFile = ./urls;
   urlLines = lib.splitString "\n" (builtins.readFile urlsFile);
   urlScripts = map (script: "exec:${script}/bin/scrape")
-    (with scripts; [ scrapePatreonBigClive ]);
+    (with scripts; [ scrapePatreonBigClive scrapeGoethlingKaufmann ]);
   urlFilters = map (attrs: "filter:${attrs.filter}:${attrs.url}") (with scripts;
     [
       {
