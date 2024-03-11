@@ -112,6 +112,7 @@ in
     protobuf-mode
     quick-yes
     restclient
+    rg
     s
     sbt-mode
     scala-mode

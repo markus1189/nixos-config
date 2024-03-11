@@ -192,12 +192,6 @@
   :bind (("C-s-SPC" . flycheck-next-error)
          ("C-S-s-SPC" . flycheck-previous-error)))
 
-(use-package fullframe
-  :ensure t
-  :demand t
-  :config
-  (fullframe magit-status magit-mode-quit-window))
-
 (use-package flyspell
   :ensure t
   :hook
@@ -215,10 +209,8 @@
       (ispell-change-dictionary change)
       (message "Dictionary switched from %s to %s" dic change)))
 
-  :bind (("C-c s" . flyspell-buffer)
-         ("C-c S" . mh/switch-ispell-dictionary)
-         :map flyspell-mode-map
-         ("C-." . helm-flyspell-correct)))
+  :bind (:map flyspell-mode-map
+              ("C-." . helm-flyspell-correct)))
 
 (use-package magit
   :ensure t
@@ -234,6 +226,10 @@
   (defun mh/magit-log-edit-mode-hook ()
     ;; (flyspell-mode)
     (set-fill-column 72))
+  (setq magit-display-buffer-function
+        #'magit-display-buffer-fullframe-status-v1)
+  (setq magit-bury-buffer-function
+        #'magit-restore-window-configuration)
   :hook
   ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)))
 
@@ -302,7 +298,7 @@
   :bind ("M-s o" . helm-swoop))
 
 (use-package wgrep-helm
-    :ensure t)
+  :ensure t)
 
 (use-package solarized-theme
   :ensure t
@@ -896,13 +892,13 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :config
   (defhydra hydra-goto-error ()
-                  "hydra-errors"
-                  ("DEL" kill-whole-line "delete-line")
-                  ("j" next-error "next")
-                  ("k" previous-error "prev")
-                  ("g" first-error "first")
-                  ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
-                  ("q" nil "cancel"))
+    "hydra-errors"
+    ("DEL" kill-whole-line "delete-line")
+    ("j" next-error "next")
+    ("k" previous-error "prev")
+    ("g" first-error "first")
+    ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
+    ("q" nil "cancel"))
   :bind (("M-g" . hydra-goto-error/body)))
 
 (use-package jq-mode
@@ -1182,7 +1178,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package deadgrep
   :ensure t
   :bind (:map dired-mode-map
-         ("C-c r" . deadgrep)))
+              ("C-c r" . deadgrep)))
 
 (use-package go-mode
   :ensure t)
@@ -1289,8 +1285,8 @@ string). It returns t if a new completion is found, nil otherwise."
 
 ;; optional if you want which-key integration
 (use-package which-key
-    :config
-    (which-key-mode))
+  :config
+  (which-key-mode))
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package dap-mode
@@ -1406,4 +1402,10 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package dhall-mode
   :ensure t
   :mode "\\.dhall\\'")
+
+(use-package rg
+  :ensure t
+  :init
+  (rg-enable-menu)
+  )
 ;;;
