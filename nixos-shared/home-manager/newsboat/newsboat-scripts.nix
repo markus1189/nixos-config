@@ -136,7 +136,7 @@
 
   scrapeGoethlingKaufmann = writeScriptBin "scrape" ''
     getItems() {
-      ${curl}/bin/curl -s 'https://www.goethling-kaufmann.de/wp-json/ws/v1/stock/listing/?orderField=enteredInStockDate&orderMode=desc&type=USED&fuelType=Benzin&gearType=Automatik&hp.min=100&price.min=16000&city=Hofheim%7CEschborn%7CKelkheim&price.max=35000&year.min=2015&bodyType=Kombi%7CSUV%7CVan' \
+      ${curl}/bin/curl -s 'https://www.goethling-kaufmann.de/wp-json/ws/v1/stock/listing/?orderField=enteredInStockDate&orderMode=desc&type=USED&fuelType=Benzin&gearType=Automatik&hp.min=100&price.min=10000&city=Hofheim%7CEschborn%7CKelkheim&price.max=30000&year.min=2015&make=Volkswagen&model=Golf%7CPolo&km.max=80000&gearType=Automatik' \
           --globoff \
           -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' \
           -H 'Accept: application/json' |
