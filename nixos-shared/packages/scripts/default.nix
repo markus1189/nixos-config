@@ -29,8 +29,8 @@
 , procps
 , psmisc
 , pulseaudioFull
-, python38
-, python38Packages
+, python3
+, python3Packages
 , rofi
 , rsstail
 , scrot
@@ -793,7 +793,7 @@ rec {
     };
   pyvicare =
     let
-      mypython = with python38Packages;
+      mypython = with python3Packages;
         let
           pyvicare = buildPythonPackage rec {
             pname = "PyViCare";
@@ -809,7 +809,7 @@ rec {
             doCheck = false;
           };
         in
-        python38.withPackages (ps: [ pyvicare ]);
+        python3.withPackages (ps: [ pyvicare ]);
     in
     { username, password }:
     writeScriptBin "pyvicare" ''
