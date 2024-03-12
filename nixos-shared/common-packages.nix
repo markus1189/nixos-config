@@ -46,6 +46,7 @@
       viddy
       visidata
       watchexec
+      wormhole-william
     ];
   };
 }
