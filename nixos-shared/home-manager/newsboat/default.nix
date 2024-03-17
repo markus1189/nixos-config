@@ -203,6 +203,10 @@ let
     { name = "gadgets"; }
     { name = "electronics"; }
     { name = "cataclysmdda"; }
+
+    { name = "kettlebell"; }
+    { name = "flexibility"; }
+    { name = "bodyweightfitness"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
