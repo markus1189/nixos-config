@@ -30,10 +30,10 @@
     ];
   };
 
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking = { hostName = "nixos-p1"; };
-
-  networking.interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
+  networking = {
+    hostName = "nixos-p1";
+    interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
+  };
 
   system.stateVersion = "20.09";
 

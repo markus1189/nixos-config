@@ -310,6 +310,11 @@ in rec {
   in nixpkgs2311.virtualbox;
 
   programs = {
+    captive-browser = {
+      enable = true;
+      interface = config.lib._custom_.wirelessInterface;
+    };
+
     zsh = let
       modifiedZbell = pkgs.writeText "modified-zbell.sh" ''
         #!/usr/bin/env zsh
