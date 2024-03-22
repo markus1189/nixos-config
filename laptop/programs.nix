@@ -72,6 +72,7 @@ in {
         imv
         inkscape
         insomnia
+        jqp # interactive jq queries
         keynav
         k9s
         libnotify
