@@ -162,17 +162,25 @@ in {
         target = ".config/warpd/config";
       };
 
-      "mrconfig" = {
+      "mrconfig" = let
+        clonedRepo = owner: repo: ''
+        [repos/clones/${repo}]
+        checkout = git clone 'https://github.com/${owner}/${repo}' '${repo}'
+        '';
+        projectRepo = repo: ''
+        [repos/projects/${repo}]
+        checkout = git clone 'git@github.com:markus1189/${repo}.git'
+        '';
+      in {
         target = ".mrconfig";
         text = ''
-          [repos/clones/nixpkgs]
-          checkout = git clone 'https://github.com/NixOS/nixpkgs' 'nixpkgs'
-
           [repos/nixos-config]
           checkout = git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'
 
-          [/home/markus/repos/clones/home-manager]
-          checkout = git clone 'https://github.com/nix-community/home-manager' 'home-manager'
+          ${clonedRepo "nixos" "nixpkgs"}
+          ${clonedRepo "nix-community" "home-manager"}
+          ${projectRepo "tiervermittlung-bot"}
+          ${projectRepo "hocket"}
         '';
       };
 
