@@ -74,7 +74,7 @@ in rec {
     '';
   };
 
-  boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
+  # boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
 
   console = {
     font = "latarcyrheb-sun32";

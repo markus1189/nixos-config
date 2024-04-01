@@ -133,7 +133,7 @@ in {
         sshfs
         sqlite
         slack
-        sysdig
+        # sysdig
         system-config-printer
         tcpdump
         tdesktop
