@@ -138,7 +138,7 @@ in
     myEmacsConfig
   ]) ++ (with epkgs.elpaPackages; [
     # auctex
-    pabbrev
+    #pabbrev
     undo-tree
     csv-mode
     rainbow-mode
