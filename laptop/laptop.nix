@@ -300,14 +300,14 @@ in rec {
   };
 
   virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.host.package = let
-    nixpkgs2311 = import ndtSources.nixpkgs-2311 {
-      config = {
-        allowUnfreePredicate = pkg:
-          builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
-      };
-    };
-  in nixpkgs2311.virtualbox;
+  # virtualisation.virtualbox.host.package = let
+  #   nixpkgs2311 = import ndtSources.nixpkgs-2311 {
+  #     config = {
+  #       allowUnfreePredicate = pkg:
+  #         builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
+  #     };
+  #   };
+  # in nixpkgs2311.virtualbox;
 
   programs = {
     captive-browser = {
