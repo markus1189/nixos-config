@@ -299,7 +299,6 @@ myKeys =
     ((shiftMask .|. controlMask, xK_semicolon), spawn "@warpd@/bin/warpd --history --oneshot --click 1"),
 
     ((myModKey, xK_F11), spawn "~/bin/f11"),
-    ((myModShift, xK_F12), spawn "@normcap@/bin/normcap"),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
