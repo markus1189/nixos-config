@@ -371,6 +371,10 @@ let
       title = "ParkNotes";
       id = "UCt1ES-_FMXQfM3JeO_FrOXw";
     }
+    {
+      title = "The Bad Spot";
+      id = "UCSHZfmwfiIxCpKrQFrr7YyQ";
+    }
   ];
   fromKtn = args: {
     url =
