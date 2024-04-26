@@ -17,12 +17,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 if "GARMIN_CONNECT_START_DATE" in os.environ:
-    startdate = parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True)
+    startdate = (parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True)).date()
 else:
-    startdate = datetime.date.today() - datetime.timedelta(days = 5)
+    startdate = (datetime.date.today() - datetime.timedelta(days = 10)).date()
 
 if "GARMIN_CONNECT_END_DATE" in os.environ:
-    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True)
+    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True).date()
 else:
     enddate = datetime.date.today()
 
@@ -123,19 +123,19 @@ try:
         None
     )
 
-    # for activity in activities:
-    #     activity_id = activity["activityId"]
-    #     activity_start = activity["startTimeLocal"]
-    #     activity_type = activity["activityType"]["typeKey"]
-    #     file_name = (activity_start.replace(" ", "_").replace(":", "-")
-    #                  + "_"
-    #                  + activity_type)
-    #     logger.info("Downloading activity with id: %s", activity_id)
+    for activity in activities:
+        activity_id = activity["activityId"]
+        activity_start = activity["startTimeLocal"]
+        activity_type = activity["activityType"]["typeKey"]
+        file_name = (activity_start.replace(" ", "_").replace(":", "-")
+                     + "_"
+                     + activity_type)
+        logger.info("Downloading activity with id: %s", activity_id)
 
-    #     download(activity_id, file_name, api.ActivityDownloadFormat.GPX)
-    #     download(activity_id, file_name, api.ActivityDownloadFormat.TCX)
-    #     download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
-    #     download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
+        download(activity_id, file_name, api.ActivityDownloadFormat.GPX)
+        download(activity_id, file_name, api.ActivityDownloadFormat.TCX)
+        download(activity_id, file_name, api.ActivityDownloadFormat.ORIGINAL)
+        download(activity_id, file_name, api.ActivityDownloadFormat.CSV)
 
     for single_date in daterange(startdate, enddate):
         logger.info("Date type is %s", type(single_date))

@@ -1,7 +1,7 @@
 { targetDir, password }:
-{ writeScriptBin, python310 }:
+{ writeScriptBin, python3 }:
 let
-  myPython = python310.withPackages
+  myPython = python3.withPackages
     (ps: with ps; [ garminconnect python-dateutil requests ]);
 
   scriptName = "garmin-connect-fetch";
