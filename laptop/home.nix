@@ -215,6 +215,12 @@ in {
           save-position-on-quit=yes
           osd-msg3="''${time-pos} / ''${duration} [''${playtime-remaining} @ ''${speed}]"
           osd-duration=5000
+
+          [stream]
+          cache=yes
+          demuxer-max-bytes=500MiB
+          demuxer-readahead-secs=30
+          cache-secs=600
         '';
       };
 
