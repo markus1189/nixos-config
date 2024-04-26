@@ -113,7 +113,6 @@ import XMonad.Layout.Tabbed
             inactiveColor, inactiveTextColor, inactiveBorderColor, urgentColor,
             urgentTextColor, urgentBorderColor, fontName, decoHeight),
       tabbed )
-import XMonad.Layout.TrackFloating (trackFloating)
 import qualified XMonad.StackSet as W
 import XMonad.Prompt.Window (allWindows)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
@@ -125,6 +124,7 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (spawnPipe)
 import Data.Char (toLower)
 import Control.Monad (filterM)
+import XMonad.Layout.FocusTracking (focusTracking)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -417,7 +417,7 @@ myModShiftCtrl = myModKey .|. controlMask .|. shiftMask
 
 myLayoutHook =
   mkToggle (NOBORDERS ?? FULL ?? EOT) $
-    avoidStruts . smartBorders . trackFloating $
+    avoidStruts . smartBorders . focusTracking $
       onWorkspace
         (workSpaceN 5)
         (standardLayouts ||| gimpLayout)
