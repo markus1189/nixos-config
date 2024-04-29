@@ -17,12 +17,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 if "GARMIN_CONNECT_START_DATE" in os.environ:
-    startdate = (parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True)).date()
+    startdate = (parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True))
 else:
-    startdate = (datetime.date.today() - datetime.timedelta(days = 10)).date()
+    startdate = (datetime.date.today() - datetime.timedelta(days = 10))
 
 if "GARMIN_CONNECT_END_DATE" in os.environ:
-    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True).date()
+    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True)
 else:
     enddate = datetime.date.today()
 
