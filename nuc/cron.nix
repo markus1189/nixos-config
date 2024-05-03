@@ -12,6 +12,7 @@ let
   sendIpAddr = "${pkgs.myScripts.sendIpAddr secrets.telegramBotToken}/bin/sendIpAddr";
   telegramSendPhoto = "${pkgs.myScripts.telegramSendPhoto secrets.telegramBotToken}/bin/telegramSendPhoto}";
   userName = config.lib._custom_.userName;
+  curl = "${pkgs.curl}/bin/curl";
 in
 {
   services = {
@@ -24,7 +25,8 @@ in
         " 0           * * *   * ${userName} ${find} ${downloadDir} -type f \\( -iname '*.idx' -or -iname '*.sfv' -or -iname '*.url' -or -iname '*.rev' -or -iname '*[.-]sample.[ma][kv][vi]' \\) -delete"
         " 5  4,10,16,22 * *   * ${userName} ${find} ${downloadDir} -mindepth 2 -type f \\( -iname \"*.mkv\" -or -iname \"*.avi\" \\) -exec mv -v {} ${downloadDir} ';'"
         "35           4 * *   * ${userName} ${find} ${downloadDir} -type d -empty -delete"
-        "0 8 * * * ${userName} ${find} /media/backups/Photos/web -name \"*$(date -d '-1 year' +%Y%m%d)*\" | ${xargs} ${telegramSendPhoto}"
+        " 0   0/5     * * *   * ${curl} -s https://hc-ping.com/6656b215-0e49-48ff-9af0-a79c64faab9f"
+        " 0   0       7 * *   * ${userName} ${find} /media/backups/Photos/web -name \"*$(date -d '-1 year' +%Y%m%d)*\" | ${xargs} ${telegramSendPhoto}"
       ];
     };
   };
