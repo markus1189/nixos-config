@@ -25,8 +25,8 @@ in
         " 0           * * *   * ${userName} ${find} ${downloadDir} -type f \\( -iname '*.idx' -or -iname '*.sfv' -or -iname '*.url' -or -iname '*.rev' -or -iname '*[.-]sample.[ma][kv][vi]' \\) -delete"
         " 5  4,10,16,22 * *   * ${userName} ${find} ${downloadDir} -mindepth 2 -type f \\( -iname \"*.mkv\" -or -iname \"*.avi\" \\) -exec mv -v {} ${downloadDir} ';'"
         "35           3 * *   * ${userName} ${find} ${downloadDir} -type d -empty -delete"
-        " 0/5         * * *   * ${userName} ${curl} -s https://hc-ping.com/6656b215-0e49-48ff-9af0-a79c64faab9f"
-        " 0           6 * *   * ${userName} ${find} /media/backups/Photos/web -name \"*$(date -d '-1 year' +%Y%m%d)*\" | ${xargs} ${telegramSendPhoto}"
+        " */5         * * *   * ${userName} ${curl} -s https://hc-ping.com/6656b215-0e49-48ff-9af0-a79c64faab9f"
+        " 0           6 * *   * ${userName} ${find} /media/backups/Photos/web -name \"*$(date -d '-1 year' +\%Y\%m\%d)*\" | ${xargs} ${telegramSendPhoto}"
       ];
     };
   };
