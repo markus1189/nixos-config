@@ -104,7 +104,7 @@ in {
       lsof
       mplayer
       nix-index
-      nixUnstable
+      nixVersions.git
       parallel
       pciutils
       pmutils

@@ -88,7 +88,7 @@ in {
         mu
         libressl.nc
         nethogs
-        nixUnstable
+        nixVersions.git
         nix-index
         nmap
         openssl
