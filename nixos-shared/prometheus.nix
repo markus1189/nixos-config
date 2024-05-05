@@ -93,7 +93,7 @@ in {
         params = { module = [ shellyPlugModule ]; };
         static_configs = [
           {
-            targets = [ "http://192.168.178.24/status" ];
+            targets = [ "http://192.168.178.29/status" ];
             labels = {
               type = shellyPlugType;
               room = rooms.markus;
@@ -101,7 +101,7 @@ in {
             };
           }
           {
-            targets = [ "http://192.168.178.25/status" ];
+            targets = [ "http://192.168.178.34/status" ];
             labels = {
               type = shellyPlugType;
               room = rooms.kitchen;
@@ -109,7 +109,7 @@ in {
             };
           }
           {
-            targets = [ "http://192.168.178.23/status" ];
+            targets = [ "http://192.168.178.31/status" ];
             labels = {
               type = shellyPlugType;
               room = rooms.waschkueche;
@@ -117,7 +117,7 @@ in {
             };
           }
           {
-            targets = [ "http://192.168.178.21/status" ];
+            targets = [ "http://192.168.178.28/status" ];
             labels = {
               type = shellyPlugType;
               room = rooms.waschkueche;
