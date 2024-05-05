@@ -6,10 +6,10 @@ let
   mutatedPatch = (pkgs.mutate ./githash.patch {
     version = kmonadSrc.rev;
   });
-  kmonad = with pkgs.haskell.lib;
+  kmonad = (with pkgs.haskell.lib;
      (overrideSrc (dontCheck (unmarkBroken (doJailbreak kmonadPackage))) {
       src = kmonadSrc;
-    });
+     })).bin;
   myConfigExternal = pkgs.mutate ./markus.kbd {
     inputDeviceFile =
       "/dev/input/by-id/usb-Lenovo_ThinkPad_Compact_USB_Keyboard_with_TrackPoint-event-kbd";
