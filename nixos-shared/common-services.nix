@@ -1,4 +1,4 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
 {
   services = {
@@ -19,18 +19,16 @@
       localuser = config.lib._custom_.userName;
     };
 
-    sysstat = {
-      enable = false;
-    };
+    sysstat = { enable = false; };
 
-    tailscale = {
-      enable = false;
-    };
+    tailscale = { enable = false; };
 
     xserver = {
-      layout = "us";
-      xkbVariant = "altgr-intl";
-      xkbOptions = "eurosign:e";
+      xkb = {
+        layout = "us";
+        variant = "altgr-intl";
+        options = "eurosign:e";
+      };
     };
   };
 }
