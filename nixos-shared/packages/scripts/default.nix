@@ -786,6 +786,7 @@ rec {
           ExecStart = "${script}/bin/${name}";
           RestartSec = 10;
           Restart = "always";
+          StartLimitInterval=2*60;
         };
 
         Install = { WantedBy = [ "default.target" ]; };
