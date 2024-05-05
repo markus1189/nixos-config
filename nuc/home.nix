@@ -54,7 +54,7 @@ in {
         }
         {
           key = "monkeyuser";
-          url = "https://www.monkeyuser.com/feed";
+          url = "https://www.monkeyuser.com/index.xml";
         }
         {
           key = "inCode";
