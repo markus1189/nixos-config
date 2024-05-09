@@ -143,11 +143,6 @@ in {
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
-  services.changedetection-io = {
-    enable = true;
-    webDriverSupport = true;
-  };
-
   services.syncthing = {
     enable = true;
     package = pkgs.syncthing;
