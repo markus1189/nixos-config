@@ -292,10 +292,6 @@ let
       id = "UCQs8-UJ7IHsrzhQ-OQOYBmg";
     }
     {
-      title = "Glasscannon Network";
-      id = "UC83CJFLyDe72XgkKBd5a9IA";
-    }
-    {
       title = "Great Scott";
       id = "UC6mIxFTvXkWQVEHPsEdflzQ";
     }
@@ -316,10 +312,6 @@ let
       id = "UCFX1Z9N6aPWuCN_KR8UZ2vg";
     }
     {
-      title = "Postapocalyptic Inventor";
-      id = "UCDbWmfrwmzn1ZsGgrYRUxoA";
-    }
-    {
       title = "Jeff Pelletier";
       id = "UCNKMpnM_Yvf6E-Hhf9btYqA";
     }
@@ -330,10 +322,6 @@ let
     {
       title = "Pine Hollow Auto Diagnostics";
       id = "UCn4Ifss-t3wMT6VBzQoKPUA";
-    }
-    {
-      title = "EJ's Training Camp";
-      id = "UCDvIKQseajsYER98pcn46BA";
     }
     {
       title = "Jetpens";
@@ -374,6 +362,18 @@ let
     {
       title = "The Bad Spot";
       id = "UCSHZfmwfiIxCpKrQFrr7YyQ";
+    }
+    {
+      title = "Project Farm";
+      id = "UC2rzsm1Qi6N1X-wuOg_p0Ng";
+    }
+    {
+      title = "Techisode TV";
+      id = "UCo6hpY_BpeDt72PEJicyVOQ";
+    }
+    {
+      title = "How-2-repair.com";
+      id = "UCgGbvwkKfnt1V-CvdzXo7OQ";
     }
   ];
   fromKtn = args: {
