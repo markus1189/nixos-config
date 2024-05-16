@@ -176,8 +176,8 @@ rec {
       deps = [ jq cacert curl coreutils ];
       failFast = false;
     } ''
-      if curl -s -u ${togglApiToken}:api_token -X GET https://api.track.toggl.com/api/v8/time_entries/current | jq -e '.data' > /dev/null; then
-        OUTPUT_SUM=$(curl -s -u ${togglApiToken}:api_token -G --data-urlencode "start_date=$(date -d '12 hours ago' --iso-8601=s)" 'https://api.track.toggl.com/api/v8/time_entries' |
+      if curl -s -u ${togglApiToken}:api_token -X GET https://api.track.toggl.com/api/v9/me/time_entries/current | jq -e '.' > /dev/null; then
+        OUTPUT_SUM=$(curl -s -u ${togglApiToken}:api_token -G --data-urlencode "start_date=$(date -d '12 hours ago' --iso-8601=s)" --data-urlencode "end_date=$(date --iso-8601=s)" 'https://api.track.toggl.com/api/v9/me/time_entries' |
             jq -e -r 'map(if .duration < 0 then now + .duration else .duration end) | add')
 
         if [[ "$?" == 0 ]]; then
