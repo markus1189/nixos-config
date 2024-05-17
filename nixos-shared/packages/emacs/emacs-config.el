@@ -1101,11 +1101,11 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (beacon-mode 1))
 
-(use-package pabbrev
-  :ensure t
-  :config
-  (global-pabbrev-mode)
-  (setq pabbrev-idle-timer-verbose nil))
+;; (use-package pabbrev
+;;   :ensure t
+;;   :config
+;;   (global-pabbrev-mode)
+;;   (setq pabbrev-idle-timer-verbose nil))
 
 (use-package groovy-mode
   :ensure t)
