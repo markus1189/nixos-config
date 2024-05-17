@@ -120,6 +120,7 @@ in
     strace-mode
     persistent-scratch
     pdf-tools
+    rust-mode
     smartparens
     solarized-theme
     systemd

@@ -1408,4 +1408,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :init
   (rg-enable-menu)
   )
+
+(use-package rust-mode
+  :ensure t)
 ;;;
