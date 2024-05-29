@@ -814,7 +814,7 @@ rec {
         emacsclient -c -e "(ediff-files3 \"$1\" \"$2\" \"$3\")"
       fi
     elif [[ "$MODE" == "diff-dir" ]]; then
-      emacsclient -c -e "(ediff-directories \"$1\" \"$2\" nil)"
+      emacsclient -c -e "(ediff-directories \"$1\" \"$2\" \".*\")"
     else
       echo "Invalid arguments: '$GIVEN_ARGS'"
       exit 1
