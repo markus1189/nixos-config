@@ -131,6 +131,10 @@ let
       owner = "ast-grep";
       repo = "ast-grep";
     }
+    {
+      owner = "martinvonz";
+      repo = "jj";
+    }
   ];
 
   subredditToRss = let
