@@ -1,54 +1,10 @@
-{ buku
-, cacert
-, coreutils
-, curl
-, dbus
-, xdragon
-, dunst
-, emacs
-, feh
-, findutils
-, firefox
-, gawk
-, git
-, gnugrep
-, gnuplot
-, gnused
-, haskellPackages
-, i3lock
-, imagemagick
-, jo
-, jq
-, less
-, lib
-, libnotify
-, markus-wallpapers
-, nixos-artwork
-, oathToolkit
-, playerctl
-, procps
-, psmisc
-, pulseaudioFull
-, python3
-, python3Packages
-, rofi
-, rsstail
-, scrot
-, sqlite
-, stdenv
-, systemd
-, tmux
-, unixtools
-, wmctrl
-, wpa_supplicant
-, writeScriptBin
-, xclip
-, xdotool
-, xorg
-, xsel
-, xsv
-, zbar
-, zsh
+{ buku, cacert, coreutils, curl, dbus, xdragon, dunst, emacs, feh, findutils
+, firefox, gawk, git, gnugrep, gnuplot, gnused, haskellPackages, i3lock
+, imagemagick, jo, jq, less, lib, libnotify, markus-wallpapers, nixos-artwork
+, oathToolkit, playerctl, procps, psmisc, pulseaudioFull, python3
+, python3Packages, rofi, rsstail, scrot, sqlite, stdenv, systemd, tmux
+, unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
+, xsv, zbar, zsh
 
 }:
 
@@ -61,12 +17,11 @@ rec {
     '';
 
   # Create a shell script from the given text.
-  writeShellScript =
-    { name # the filename
-    , pure ? true # if pure is true, only include the specified dependencies in PATH
+  writeShellScript = { name # the filename
+    , pure ?
+      true # if pure is true, only include the specified dependencies in PATH
     , deps ? [ ] # dependencies to include in PATH
-    , failFast ? true
-    }:
+    , failFast ? true }:
     text:
     writeScriptBin name ''
       #!${stdenv.shell}
@@ -80,12 +35,11 @@ rec {
       ${text}
     '';
 
-  tmx = writeShellScript
-    {
-      name = "tmx";
-      pure = false;
-      deps = [ tmux zsh ];
-    } ''
+  tmx = writeShellScript {
+    name = "tmx";
+    pure = false;
+    deps = [ tmux zsh ];
+  } ''
     set -e
 
     function main() {
@@ -119,11 +73,10 @@ rec {
     main $*
   '';
 
-  git-pretty-log = writeShellScript
-    {
-      name = "git-pretty-log";
-      deps = [ git gnused less ];
-    } ''
+  git-pretty-log = writeShellScript {
+    name = "git-pretty-log";
+    deps = [ git gnused less ];
+  } ''
     HASH="%C(yellow)%h%Creset"
     RELATIVE_TIME="%Cgreen(%ar)%Creset"
     AUTHOR="%C(bold blue)<%aN>%Creset"
@@ -143,12 +96,11 @@ rec {
     pretty_git_log $*
   '';
 
-  isVpnActive = writeShellScript
-    {
-      name = "isVpnActive";
-      deps = [ systemd procps gnugrep ];
-      failFast = false;
-    } ''
+  isVpnActive = writeShellScript {
+    name = "isVpnActive";
+    deps = [ systemd procps gnugrep ];
+    failFast = false;
+  } ''
 
     OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep -q active && echo OVP)"
     WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep -q active && echo WGD)"
@@ -158,20 +110,19 @@ rec {
     echo "<fc=$COLOR>''${LABEL}''${ICON}</fc>"
   '';
 
-  dunstStatus = writeShellScript
-    {
-      name = "dunstStatus";
-      deps = [ dunst dbus ];
-      failFast = true;
-    } ''
+  dunstStatus = writeShellScript {
+    name = "dunstStatus";
+    deps = [ dunst dbus ];
+    failFast = true;
+  } ''
 
     if [[ "$(dunstctl is-paused)" == "true" ]]; then
       echo "<fc=red>PAUSED</fc> "
     fi
   '';
 
-  togglTimer = togglApiToken: writeShellScript
-    {
+  togglTimer = togglApiToken:
+    writeShellScript {
       name = "togglTimer";
       deps = [ jq cacert curl coreutils ];
       failFast = false;
@@ -188,22 +139,20 @@ rec {
       else
         echo ""
       fi
-      '';
+    '';
 
-  ts = writeShellScript
-    {
-      name = "ts";
-      deps = [ coreutils ];
-    } ''
+  ts = writeShellScript {
+    name = "ts";
+    deps = [ coreutils ];
+  } ''
     FORMAT="''${1:-"%H:%M:%S"}"
     while read -r line ; do echo "$(date "+$FORMAT"): $line"; done
   '';
 
-  multiheadLeft = writeXrandrScript
-    {
-      name = "multiheadLeft";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  multiheadLeft = writeXrandrScript {
+    name = "multiheadLeft";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --mode 1920x1080 --pos 1920x0 --rotate normal \
            --output DP1 --off \
@@ -214,11 +163,10 @@ rec {
            --output DP2 --off
   '';
 
-  multiheadRight = writeXrandrScript
-    {
-      name = "multiheadRight";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  multiheadRight = writeXrandrScript {
+    name = "multiheadRight";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --mode 1920x1080 --pos 0x0 --rotate normal \
            --output DP1 --off \
@@ -229,11 +177,10 @@ rec {
            --output DP2 --off
   '';
 
-  singlehead = writeXrandrScript
-    {
-      name = "singlehead";
-      deps = [ xorg.xrandr libnotify feh ];
-    } ''
+  singlehead = writeXrandrScript {
+    name = "singlehead";
+    deps = [ xorg.xrandr libnotify feh ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --mode 1920x1080 --pos 0x0 --rotate normal \
            --output DP1 --off \
@@ -246,11 +193,10 @@ rec {
     feh --no-fehbg --bg-fill ${markus-wallpapers.cc} &
   '';
 
-  asusRight = writeXrandrScript
-    {
-      name = "asusRight";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  asusRight = writeXrandrScript {
+    name = "asusRight";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal \
            --output DP1 --mode 1920x1080 --pos 1920x0 --rotate normal \
@@ -259,11 +205,10 @@ rec {
            --output DP2 --off
   '';
 
-  multihead4k = writeXrandrScript
-    {
-      name = "multihead4k";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  multihead4k = writeXrandrScript {
+    name = "multihead4k";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --scale 1x1 --rotate normal \
            --output DP1 --mode 3840x2160 --scale 0.5x0.5 --pos 0x0 --rotate normal \
@@ -272,11 +217,10 @@ rec {
            --output DP2 --off
   '';
 
-  multihead4khdmi = writeXrandrScript
-    {
-      name = "multihead4khdmi";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  multihead4khdmi = writeXrandrScript {
+    name = "multihead4khdmi";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output VIRTUAL1 --off \
            --output eDP1 --primary --mode 1920x1080 --pos 0x0 --scale 1x1 --rotate normal \
            --output HDMI1 --mode 3840x2160 --scale 0.5x0.5 --pos 1920x0 --rotate normal \
@@ -285,11 +229,10 @@ rec {
            --output DP2 --off
   '';
 
-  widePbpRight = writeXrandrScript
-    {
-      name = "widePbpRight";
-      deps = [ xorg.xrandr libnotify ];
-    } ''
+  widePbpRight = writeXrandrScript {
+    name = "widePbpRight";
+    deps = [ xorg.xrandr libnotify ];
+  } ''
     xrandr --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal \
            --output DP1 --off \
            --output DP2 --off \
@@ -298,11 +241,10 @@ rec {
            --output VIRTUAL1 --off
   '';
 
-  widePbpBoth = writeXrandrScript
-    {
-      name = "widePbpBoth";
-      deps = [ xorg.xrandr libnotify feh ];
-    } ''
+  widePbpBoth = writeXrandrScript {
+    name = "widePbpBoth";
+    deps = [ xorg.xrandr libnotify feh ];
+  } ''
     xrandr --output eDP1 --off \
            --output DP1 --off \
            --output DP2 --primary --mode 1920x1600 --pos 0x0 --rotate normal \
@@ -313,11 +255,10 @@ rec {
     feh --no-fehbg --bg-fill ${markus-wallpapers.shrike-rape-10x8-flipped} ${markus-wallpapers.shrike-rape-10x8} &
   '';
 
-  wideUltra = writeXrandrScript
-    {
-      name = "wideUltra";
-      deps = [ xorg.xrandr libnotify feh ];
-    } ''
+  wideUltra = writeXrandrScript {
+    name = "wideUltra";
+    deps = [ xorg.xrandr libnotify feh ];
+  } ''
     xrandr --output eDP1 --mode 1920x1080 --pos 3840x0 --rotate normal \
            --output DP1 --primary --mode 3840x1600 --pos 0x0 --rotate normal \
            --output DP2 --off \
@@ -328,8 +269,8 @@ rec {
     feh --no-fehbg --bg-fill ${markus-wallpapers.shrike-rape-21x9} &
   '';
 
-  autoMonitorConfig = wirelessInterface: writeShellScript
-    {
+  autoMonitorConfig = wirelessInterface:
+    writeShellScript {
       name = "autoMonitorConfig";
       pure = true;
       deps = [
@@ -341,32 +282,31 @@ rec {
         multihead4khdmi
       ];
     } ''
-    CURRENT="$(wpa_cli -i ${wirelessInterface} status | grep '^ssid' | cut -d'=' -f 2)"
+      CURRENT="$(wpa_cli -i ${wirelessInterface} status | grep '^ssid' | cut -d'=' -f 2)"
 
-    if [[ -z "''${CURRENT}" ]]; then
-        notify-send wpa_cli "Could not find current SSID!"
-        exit 1
-    fi
+      if [[ -z "''${CURRENT}" ]]; then
+          notify-send wpa_cli "Could not find current SSID!"
+          exit 1
+      fi
 
-    case "''${CURRENT}" in
-        "cc-wlan")
-            multihead4k
-            ;;
-        "Our FRITZ Box")
-            ${widePbpBoth}/bin/widePbpBoth || ${widePbpRight}/bin/widePbpRight || ${wideUltra}/bin/wideUltra
-            ;;
-        *)
-            echo "Unknown network: ''${CURRENT}" > /dev/stderr
-    esac
-  '';
+      case "''${CURRENT}" in
+          "cc-wlan")
+              multihead4k
+              ;;
+          "Our FRITZ Box")
+              ${widePbpBoth}/bin/widePbpBoth || ${widePbpRight}/bin/widePbpRight || ${wideUltra}/bin/wideUltra
+              ;;
+          *)
+              echo "Unknown network: ''${CURRENT}" > /dev/stderr
+      esac
+    '';
 
   wpaSelectNetwork = { id, network ? id }:
     device:
-    writeShellScript
-      {
-        name = "wpaCliSelectNetwork${network}";
-        deps = [ wpa_supplicant gnugrep libnotify ];
-      } ''
+    writeShellScript {
+      name = "wpaCliSelectNetwork${network}";
+      deps = [ wpa_supplicant gnugrep libnotify ];
+    } ''
       set -e
 
       wpa_cli -i ${device} select_network ${id}
@@ -392,11 +332,10 @@ rec {
     echo "<:''${2:-pp}:''${1:-$0}::" > /dev/null
   '';
 
-  takeScreenshot = writeShellScript
-    {
-      name = "takeScreenshot";
-      deps = [ coreutils scrot libnotify xclip xdragon ];
-    } ''
+  takeScreenshot = writeShellScript {
+    name = "takeScreenshot";
+    deps = [ coreutils scrot libnotify xclip xdragon ];
+  } ''
     sleep 0.5
     notify-send -t 1000 'Screenshot' 'Select area to capture'
     FILEPATH="$(scrot -q 100 -s -c -e 'mv $f /tmp/ && echo -n /tmp/$f')"
@@ -404,11 +343,10 @@ rec {
     dragon -x "''${FILEPATH}"
   '';
 
-  gnuplot-quick = writeShellScript
-    {
-      name = "gnuplot-quick";
-      deps = [ gnuplot ];
-    } ''
+  gnuplot-quick = writeShellScript {
+    name = "gnuplot-quick";
+    deps = [ gnuplot ];
+  } ''
     FILE=''${1}
 
     if [ -z "$1" ]; then
@@ -418,11 +356,10 @@ rec {
     gnuplot -persist -e "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5; set autoscale; set grid; plot '$FILE' with linespoints ls 1"
   '';
 
-  acConnected = writeShellScript
-    {
-      name = "acConnected";
-      deps = [ coreutils findutils ];
-    } ''
+  acConnected = writeShellScript {
+    name = "acConnected";
+    deps = [ coreutils findutils ];
+  } ''
     cat /sys/class/backlight/intel_backlight/max_brightness > \
       /sys/class/backlight/intel_backlight/brightness
 
@@ -434,38 +371,34 @@ rec {
     echo -n 0 > $(find /sys/class/leds -name '*::kbd_backlight')/brightness
   '';
 
-  xmonadReset = writeShellScript
-    {
-      name = "xmonadReset";
-      deps = [ haskellPackages.xmonad psmisc ];
-    } ''
+  xmonadReset = writeShellScript {
+    name = "xmonadReset";
+    deps = [ haskellPackages.xmonad psmisc ];
+  } ''
     killall xmobar
     xmonad --restart
   '';
 
-  centerMouse = writeShellScript
-    {
-      name = "centerMouse";
-      deps = [ xdotool ];
-    } ''
+  centerMouse = writeShellScript {
+    name = "centerMouse";
+    deps = [ xdotool ];
+  } ''
     xdotool mousemove --window $(xdotool getwindowfocus) --polar 0 0
   '';
 
-  toggleSoundMute = writeShellScript
-    {
-      name = "toggleSoundMute";
-      deps = [ pulseaudioFull ];
-    } ''
+  toggleSoundMute = writeShellScript {
+    name = "toggleSoundMute";
+    deps = [ pulseaudioFull ];
+  } ''
     pactl set-sink-mute '@DEFAULT_SINK@' toggle
   '';
 
   chooseNetwork = device:
-    writeShellScript
-      {
-        name = "chooseNetwork";
-        deps = [ libnotify gnugrep coreutils wpa_supplicant gnused rofi ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "chooseNetwork";
+      deps = [ libnotify gnugrep coreutils wpa_supplicant gnused rofi ];
+      pure = true;
+    } ''
       NETWORK_NAME="$(wpa_cli list_networks |
         sed -e  's/^[[:digit:]]\+[[:space:]]*\(.*\)any.*/\1/' |
           sed -e 's/[[:space:]]*$//' |
@@ -485,20 +418,18 @@ rec {
       fi
     '';
 
-  lockScreen = writeShellScript
-    {
-      name = "lockScreen";
-      deps = [ i3lock ];
-    } ''
+  lockScreen = writeShellScript {
+    name = "lockScreen";
+    deps = [ i3lock ];
+  } ''
     i3lock -p win -e -f -i ${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png
 
   '';
 
-  currentSpotifySong = writeShellScript
-    {
-      name = "currentSpotifySong";
-      deps = [ playerctl ];
-    } ''
+  currentSpotifySong = writeShellScript {
+    name = "currentSpotifySong";
+    deps = [ playerctl ];
+  } ''
     getTag() {
       playerctl -p spotify metadata xesam:''${1} || true
     }
@@ -514,12 +445,11 @@ rec {
     fi
   '';
 
-  emacsAnywhere = writeShellScript
-    {
-      name = "emacsAnywhere";
-      deps = [ xdotool libnotify emacs coreutils ];
-      failFast = false;
-    } ''
+  emacsAnywhere = writeShellScript {
+    name = "emacsAnywhere";
+    deps = [ xdotool libnotify emacs coreutils ];
+    failFast = false;
+  } ''
 
     function waitForClose {
       until ! xdotool search --name 'Emacs Anywhere'; do
@@ -552,21 +482,19 @@ rec {
     notify-send -u low "Emacs Anywhere" "Copied to clipboard"
   '';
 
-  rofiDefaults = writeShellScript
-    {
-      name = "rofiDefaults";
-      deps = [ rofi ];
-      pure = false;
-    } ''
+  rofiDefaults = writeShellScript {
+    name = "rofiDefaults";
+    deps = [ rofi ];
+    pure = false;
+  } ''
     rofi -i -monitor -4 -disable-history "$@"
   '';
 
-  browserHistory = writeShellScript
-    {
-      name = "browserHistory";
-      deps = [ sqlite xsv coreutils rofi xclip findutils ];
-      pure = true;
-    } ''
+  browserHistory = writeShellScript {
+    name = "browserHistory";
+    deps = [ sqlite xsv coreutils rofi xclip findutils ];
+    pure = true;
+  } ''
     FIREFOX_HISTORY="$(find ~/.mozilla/ -name places.sqlite)"
     CHROMIUM_HISTORY="$(find ~/.config/chromium -name History)"
 
@@ -582,12 +510,11 @@ rec {
   '';
 
   notifySendPb = pushBulletToken:
-    writeShellScript
-      {
-        name = "notifySendPb";
-        deps = [ curl jo ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "notifySendPb";
+      deps = [ curl jo ];
+      pure = true;
+    } ''
       curl --silent --fail \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
        --header 'Access-Token: ${pushBulletToken}' \
@@ -598,12 +525,11 @@ rec {
     '';
 
   sendTelegram = chatid: name: botToken:
-    writeShellScript
-      {
-        inherit name;
-        deps = [ curl jo cacert ];
-        pure = true;
-      } ''
+    writeShellScript {
+      inherit name;
+      deps = [ curl jo cacert ];
+      pure = true;
+    } ''
       MESSAGE=''${1:?"Error: no message given!"}
       curl --silent --fail -XPOST \
        --retry-all-errors --retry 3 \
@@ -614,12 +540,11 @@ rec {
     '';
 
   sendTelegramPoll = botToken:
-    writeShellScript
-      {
-        name = "sendTelegramPoll";
-        deps = [ curl jo cacert ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "sendTelegramPoll";
+      deps = [ curl jo cacert ];
+      pure = true;
+    } ''
       QUESTION=''${1:?"Error: no message given!"}
       shift
       curl --silent --fail -XPOST \
@@ -635,12 +560,11 @@ rec {
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome";
 
   telegramSendPhoto = botToken:
-    writeShellScript
-      {
-        name = "telegramSendPhoto";
-        deps = [ curl jo coreutils ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "telegramSendPhoto";
+      deps = [ curl jo coreutils ];
+      pure = true;
+    } ''
       LIMIT=5
 
       buildArray() {
@@ -677,39 +601,36 @@ rec {
     '';
 
   telegramPhotosLastYear = botToken:
-    writeShellScript
-      {
-        name = "telegramPhotosLastYear";
-        deps = [ findutils (telegramSendPhoto botToken) ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "telegramPhotosLastYear";
+      deps = [ findutils (telegramSendPhoto botToken) ];
+      pure = true;
+    } ''
       set -o pipefail
       find ''${1:?No path to photos directory given} -name "*$(date -d '-1 year' +%Y%m%d)*" | head -1 | xargs telegramSendPhoto
     '';
 
-  bukuRun = writeShellScript
-    {
-      name = "bukuRun";
-      deps = [ buku gnused rofi coreutils findutils firefox ];
-      pure = true;
-    } ''buku --nostdin -p -f 5 | sed 's/\t/ /g' | rofi -i -matching fuzzy -dmenu | cut -d ' ' -f 1 | xargs --no-run-if-empty buku -o'';
+  bukuRun = writeShellScript {
+    name = "bukuRun";
+    deps = [ buku gnused rofi coreutils findutils firefox ];
+    pure = true;
+  }
+    "buku --nostdin -p -f 5 | sed 's/\\t/ /g' | rofi -i -matching fuzzy -dmenu | cut -d ' ' -f 1 | xargs --no-run-if-empty buku -o";
 
-  logArgs = writeShellScript
-    {
-      name = "log-args";
-      deps = [ systemd ];
-      pure = false;
-    } ''
+  logArgs = writeShellScript {
+    name = "log-args";
+    deps = [ systemd ];
+    pure = false;
+  } ''
     systemd-cat -tlog-args -- bash -c 'echo $@'
   '';
 
   addToPocketScript = { consumer_key, access_token }:
-    writeShellScript
-      {
-        name = "add-to-pocket";
-        deps = [ curl gnugrep jo ];
-        pure = true;
-      } ''
+    writeShellScript {
+      name = "add-to-pocket";
+      deps = [ curl gnugrep jo ];
+      pure = true;
+    } ''
       URL="''${1}"
       GIVEN_TAGS="''${2}"
       TAGS="''${GIVEN_TAGS},newsboat"
@@ -761,13 +682,14 @@ rec {
     { key, url, intervalSeconds ? 300 }:
     let
       name = "rsstail-${key}-script";
-      script = writeShellScript
-        {
-          inherit name;
-          pure = true;
-          deps = [ ];
-        } ''
-        ${rsstail}/bin/rsstail -n0 -i ${toString intervalSeconds} -r -l -u '${url}' \
+      script = writeShellScript {
+        inherit name;
+        pure = true;
+        deps = [ ];
+      } ''
+        ${rsstail}/bin/rsstail -n0 -i ${
+          toString intervalSeconds
+        } -r -l -u '${url}' \
           | ${gnugrep}/bin/grep --line-buffered '^Link: ' \
           | ${gawk}/bin/awk '{print $2; system("")}' \
           | while read i; do
@@ -777,8 +699,7 @@ rec {
               }/bin/add-to-pocket "$i" "rsstail"
             done
       '';
-    in
-    {
+    in {
       "rsstail-${key}" = {
         Unit = { Description = "rsstail for ${key}"; };
 
@@ -786,93 +707,100 @@ rec {
           ExecStart = "${script}/bin/${name}";
           RestartSec = 10;
           Restart = "always";
-          StartLimitInterval=2*60;
+          StartLimitInterval = 2 * 60;
         };
 
         Install = { WantedBy = [ "default.target" ]; };
       };
     };
-  pyvicare =
-    let
-      mypython = with python3Packages;
-        let
-          pyvicare = buildPythonPackage rec {
-            pname = "PyViCare";
-            version = "0.2.4";
+  pyvicare = let
+    mypython = with python3Packages;
+      let
+        pyvicare = buildPythonPackage rec {
+          pname = "PyViCare";
+          version = "0.2.4";
 
-            src = fetchPypi {
-              inherit pname version;
-              sha256 =
-                "sha256:1i64iazl5m0h2c862sgd5p73bnizbp2f0jq6i8k3c5x6494vklav";
-            };
-
-            propagatedBuildInputs = [ simplejson requests_oauthlib ];
-            doCheck = false;
+          src = fetchPypi {
+            inherit pname version;
+            sha256 =
+              "sha256:1i64iazl5m0h2c862sgd5p73bnizbp2f0jq6i8k3c5x6494vklav";
           };
-        in
-        python3.withPackages (ps: [ pyvicare ]);
-    in
-    { username, password }:
-    writeScriptBin "pyvicare" ''
-      #!${mypython}/bin/python
 
-      import os
-      from PyViCare.PyViCareGazBoiler import GazBoiler
+          propagatedBuildInputs = [ simplejson requests_oauthlib ];
+          doCheck = false;
+        };
+      in python3.withPackages (ps: [ pyvicare ]);
+  in { username, password }:
+  writeScriptBin "pyvicare" ''
+    #!${mypython}/bin/python
 
-      t=GazBoiler('${username}','${password}')
+    import os
+    from PyViCare.PyViCareGazBoiler import GazBoiler
 
-      print(t.getOutsideTemperature())
-    '';
-  captureTOTP = writeShellScript
-    {
-      name = "captureTOTP";
-      deps = [ imagemagick zbar ];
-      pure = true;
-    } ''
+    t=GazBoiler('${username}','${password}')
+
+    print(t.getOutsideTemperature())
+  '';
+  captureTOTP = writeShellScript {
+    name = "captureTOTP";
+    deps = [ imagemagick zbar ];
+    pure = true;
+  } ''
     import -window root -quality 90 - | zbarimg -q --raw /dev/stdin 2>/dev/null
   '';
 
-  viessmannOutsideTemperature = {viessmannRefreshToken, botToken}: writeShellScript
-    {
+  viessmannOutsideTemperature = { viessmannRefreshToken, botToken }:
+    writeShellScript {
       name = "viessmannOutsideTemperature";
       deps = [ curl cacert jq (notifySendHome botToken) coreutils ];
       pure = true;
     } ''
-    INSTALLATION_ID=210377
-    GATEWAY_SERIAL=7637415026914199
-    DEVICE_ID=0
-    # Get a new one:
-    # https://iam.viessmann.com/idp/v2/authorize?client_id=45e59eb93fb498140de733c44637d8df&redirect_uri=http://localhost:4244/&response_type=code&code_challenge=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c&scope=IoT%20User%20offline_access
-    # curl -X POST "https://iam.viessmann.com/idp/v2/token" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=authorization_code" --data-urlencode "code_verifier=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c" --data-urlencode "client_id=45e59eb93fb498140de733c44637d8df" --data-urlencode "redirect_uri=http://localhost:4244/" --data-urlencode "code=PASTE_CODE"
-    #
-    REFRESH_TOKEN="${viessmannRefreshToken}"
+      INSTALLATION_ID=210377
+      GATEWAY_SERIAL=7637415026914199
+      DEVICE_ID=0
+      # Get a new one:
+      # https://iam.viessmann.com/idp/v2/authorize?client_id=45e59eb93fb498140de733c44637d8df&redirect_uri=http://localhost:4244/&response_type=code&code_challenge=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c&scope=IoT%20User%20offline_access
+      # curl -X POST "https://iam.viessmann.com/idp/v2/token" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=authorization_code" --data-urlencode "code_verifier=2e21faa1-db2c-4d0b-a10f-575fd372bc8c-575fd372bc8c" --data-urlencode "client_id=45e59eb93fb498140de733c44637d8df" --data-urlencode "redirect_uri=http://localhost:4244/" --data-urlencode "code=PASTE_CODE"
+      #
+      REFRESH_TOKEN="${viessmannRefreshToken}"
 
-    getOutsideTemperature() {
-        ACCESS_TOKEN="$(curl -s \
-                         --fail \
-                         -X POST \
-                         --url "https://iam.viessmann.com/idp/v2/token" \
-                         -H "Content-Type: application/x-www-form-urlencoded" \
-                         -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
+      getOutsideTemperature() {
+          ACCESS_TOKEN="$(curl -s \
+                           --fail \
+                           -X POST \
+                           --url "https://iam.viessmann.com/idp/v2/token" \
+                           -H "Content-Type: application/x-www-form-urlencoded" \
+                           -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
 
-    curl -s \
-         --fail \
-         -X GET \
-         -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
-         --url "https://api.viessmann.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
-        jq '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
-    }
+      curl -s \
+           --fail \
+           -X GET \
+           -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
+           --url "https://api.viessmann.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
+          jq '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
+      }
 
-    unset c
-    until TEMP="$(getOutsideTemperature)" && [[ ! -z "''${TEMP}" ]]; do
-        ((c++)) && ((c==10)) && break
-        sleep 3
-    done
+      unset c
+      until TEMP="$(getOutsideTemperature)" && [[ ! -z "''${TEMP}" ]]; do
+          ((c++)) && ((c==10)) && break
+          sleep 3
+      done
 
-    if [[ ! -z "''${TEMP}" ]]; then
-      notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
-    else
-      notifySendHome "Aktuelle Temperatur konnte nicht ermittelt werden nach $c Versuchen"
-    fi
+      if [[ ! -z "''${TEMP}" ]]; then
+        notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
+      else
+        notifySendHome "Aktuelle Temperatur konnte nicht ermittelt werden nach $c Versuchen"
+      fi
     '';
+
+  emacs-ediff-files = writeShellScript {
+    name = "emacs-ediff-files";
+    pure = false;
+  } ''
+    if [[ -z $3 ]]; then
+      emacsclient -n -c -e "(ediff-files \"$1\" \"$2\")"
+    else
+      emacsclient -n -c -e "(ediff-files3 \"$1\" \"$2\" \"$3\")"
+    fi
+  '';
 }

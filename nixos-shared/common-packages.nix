@@ -25,8 +25,8 @@
       jo
       jq
       jless
-      logArgs
       moreutils
+      ncdu
       nix-prefetch-docker
       nix-prefetch-git
       nix-prefetch-github
@@ -43,6 +43,8 @@
       pwgen
       yq
       (myScripts.captureTOTP)
+      (myScripts.emacs-ediff-files)
+      (myScripts.logArgs)
       viddy
       visidata
       watchexec

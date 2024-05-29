@@ -43,7 +43,6 @@ in {
               botToken = secrets.telegramBotToken;
               viessmannRefreshToken = secrets.viessmannRefreshToken;
             };
-          logArgs = myScripts.logArgs;
           myConfigFiles = {
             xmonad = callPackage ./xmonad {
               inherit mutate;
