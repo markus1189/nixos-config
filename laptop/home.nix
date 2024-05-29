@@ -164,12 +164,12 @@ in {
 
       "mrconfig" = let
         clonedRepo = owner: repo: ''
-        [repos/clones/${repo}]
-        checkout = git clone 'https://github.com/${owner}/${repo}' '${repo}'
+          [repos/clones/${repo}]
+          checkout = git clone 'https://github.com/${owner}/${repo}' '${repo}'
         '';
         projectRepo = repo: ''
-        [repos/projects/${repo}]
-        checkout = git clone 'git@github.com:markus1189/${repo}.git'
+          [repos/projects/${repo}]
+          checkout = git clone 'git@github.com:markus1189/${repo}.git'
         '';
       in {
         target = ".mrconfig";
@@ -347,9 +347,7 @@ in {
       settings = {
         show_preview = true;
         max_preview_height = 5;
-        history_filter = [
-          "DONOTTRACK"
-        ];
+        history_filter = [ "DONOTTRACK" ];
         inline_height = 25;
       };
     };
@@ -396,8 +394,9 @@ in {
 
     mpv = {
       enable = true;
-      package =
-        pkgs.mpv.override { scripts = with pkgs.mpvScripts; [ sponsorblock mpris ]; };
+      package = pkgs.mpv.override {
+        scripts = with pkgs.mpvScripts; [ sponsorblock mpris ];
+      };
     };
 
     password-store = {
