@@ -4,3 +4,4 @@ result/
 .gitsecret/keys/random_seed
 /nixos-shared/packages/xmonad/.direnv
 /nixos-shared/secrets.nix
+result
