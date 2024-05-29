@@ -793,21 +793,31 @@ rec {
       fi
     '';
 
-  emacs-ediff-files = writeShellScript {
-    name = "emacs-ediff-files";
+  emacs-ediff-dispatch = writeShellScript {
+    name = "ediff-dispatch";
     pure = false;
   } ''
-    if [[ -z $3 ]]; then
-      emacsclient -n -c -e "(ediff-files \"$1\" \"$2\")"
-    else
-      emacsclient -n -c -e "(ediff-files3 \"$1\" \"$2\" \"$3\")"
-    fi
-  '';
+    #!/usr/bin/env bash
 
-  emacs-ediff-merge = writeShellScript {
-    name = "emacs-ediff-merge";
-    pure = false;
-  } ''
-    emacsclient -c -e "(ediff-merge-files-with-ancestor \"$1\" \"$2\" \"$3\" nil \"$4\")"
+    GIVEN_ARGS="$@"
+
+    MODE="$1"
+
+    shift
+
+    if [[ "$MODE" == "merge" ]]; then
+      emacsclient -c -e "(ediff-merge-files-with-ancestor \"$1\" \"$2\" \"$3\" nil \"$4\")"
+    elif [[ "$MODE" == "diff-file" ]]; then
+      if [[ -z $3 ]]; then
+        emacsclient -c -e "(ediff-files \"$1\" \"$2\")"
+      else
+        emacsclient -c -e "(ediff-files3 \"$1\" \"$2\" \"$3\")"
+      fi
+    elif [[ "$MODE" == "diff-dir" ]]; then
+      emacsclient -c -e "(ediff-directories \"$1\" \"$2\" nil)"
+    else
+      echo "Invalid arguments: '$GIVEN_ARGS'"
+      exit 1
+    fi
   '';
 }

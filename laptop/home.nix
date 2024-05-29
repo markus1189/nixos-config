@@ -392,12 +392,17 @@ in {
     jujutsu = {
       enable = true;
       settings = {
-        user = {name = "Markus Hauck"; email = "markus1189@gmail.com";};
+        user = {
+          name = "Markus Hauck";
+          email = "markus1189@gmail.com";
+        };
 
         merge-tools = {
           ediff = {
-            merge-args = ["$left" "$right" "$base" "$output"];
-            program = "emacs-ediff-merge";
+            merge-args = [ "merge" "$left" "$right" "$base" "$output" ];
+            diff-args = [ "diff-dir" "$left" "$right" ];
+            edit-args = [ "diff-dir" "$left" "$right" ];
+            program = "${pkgs.myScripts.emacs-ediff-dispatch}/bin/ediff-dispatch";
           };
         };
       };
