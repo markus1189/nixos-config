@@ -93,7 +93,7 @@ in {
         params = { module = [ shellyPlugModule ]; };
         static_configs = [
           {
-            targets = [ "http://192.168.178.29/status" ];
+            targets = [ "http://192.168.178.22/status" ];
             labels = {
               type = shellyPlugType;
               room = rooms.markus;
@@ -147,7 +147,7 @@ in {
         metrics_path = "/probe";
         params = { module = [ shellyUniModule ]; };
         static_configs = [{
-          targets = [ "http://192.168.178.22/status" ];
+          targets = [ "http://192.168.178.29/status" ];
           labels = {
             type = shellyUniType;
             room = rooms.markus;
