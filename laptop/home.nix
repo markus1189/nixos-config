@@ -389,6 +389,17 @@ in {
     git =
       (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
 
+    jujutsu = {
+      enable = true;
+      settings = {
+        user = {name = "Markus Hauck"; email = "markus1189@gmail.com";};
+
+        # signing = {
+        #   # sign-all = true;
+        # };
+      };
+    };
+
     vim =
       (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
 
