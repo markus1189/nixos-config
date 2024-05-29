@@ -44,6 +44,7 @@
       yq
       (myScripts.captureTOTP)
       (myScripts.emacs-ediff-files)
+      (myScripts.emacs-ediff-merge)
       (myScripts.logArgs)
       viddy
       visidata

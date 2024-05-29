@@ -394,9 +394,12 @@ in {
       settings = {
         user = {name = "Markus Hauck"; email = "markus1189@gmail.com";};
 
-        # signing = {
-        #   # sign-all = true;
-        # };
+        merge-tools = {
+          ediff = {
+            merge-args = ["$left" "$right" "$base" "$output"];
+            program = "emacs-ediff-merge";
+          };
+        };
       };
     };
 

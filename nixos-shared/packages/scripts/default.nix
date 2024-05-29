@@ -803,4 +803,11 @@ rec {
       emacsclient -n -c -e "(ediff-files3 \"$1\" \"$2\" \"$3\")"
     fi
   '';
+
+  emacs-ediff-merge = writeShellScript {
+    name = "emacs-ediff-merge";
+    pure = false;
+  } ''
+    emacsclient -c -e "(ediff-merge-files-with-ancestor \"$1\" \"$2\" \"$3\" nil \"$4\")"
+  '';
 }
