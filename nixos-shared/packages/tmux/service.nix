@@ -1,4 +1,4 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
 {
   services = {
@@ -13,9 +13,7 @@
     };
   };
 
-  environment = {
-    systemPackages = with pkgs; [ tmux ];
-  };
+  environment = { systemPackages = with pkgs; [ tmux ]; };
 
   programs = {
     tmux = {
