@@ -134,22 +134,6 @@
     getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Patreon: BigClive' "Creating Technical teardowns and creations." 'https://www.patreon.com/bigclive'
   '';
 
-  scrapeGoethlingKaufmann = writeScriptBin "scrape" ''
-    getItems() {
-      ${curl}/bin/curl -s 'https://www.goethling-kaufmann.de/wp-json/ws/v1/stock/listing/?orderField=enteredInStockDate&orderMode=desc&type=USED&fuelType=Benzin&gearType=Automatik&hp.min=100&price.min=10000&city=Hofheim%7CEschborn%7CKelkheim&price.max=30000&year.min=2015&make=Volkswagen&model=Golf%7CPolo&km.max=80000&gearType=Automatik' \
-          --globoff \
-          -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' \
-          -H 'Accept: application/json' |
-          ${jq}/bin/jq '.response.vehiclesCollection | map({hp,makeModel,registration:"\(.registration.month)/\(.registration.year)",km,price: .price.current,link:.url})'
-    }
-
-    buildItems() {
-       ${jq}/bin/jq 'map({title: "\(.makeModel) for \(.price) at \(.km) (\(.hp), \(.registration))", link})'
-    }
-
-    getItems | buildItems | ${jsonToRssScript}/bin/json-to-rss 'Goethling und Kaufmann' "Autohaus Göthling und Kaufmann" 'https://www.goethling-kaufmann.de/'
-  '';
-
   addToPocketScript = writeScript "add-to-pocket.sh" ''
     TAGS="newsboat"
     URL="''${1}"
