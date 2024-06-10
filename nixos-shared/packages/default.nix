@@ -11,7 +11,7 @@ in {
             nixpkgs // myScripts // pkgs.xorg // {
               xmobarLower = xmobars.lower;
               xmobarUpper = xmobars.upper;
-              xmobar = pkgs.haskellPackages.xmobar;
+              xmobar = pkgs.xmobar;
               xkill = pkgs.xorg.xkill;
             };
           callPackageWith = nixpkgs:
