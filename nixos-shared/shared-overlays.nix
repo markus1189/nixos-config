@@ -31,20 +31,19 @@ rec {
 
   visidataOverlay = self: super:
     let
-      pypkgs = with self.python3Packages;
-        [
-          requests
-          sh
-          pytimeparse
-          tomli
-          # plugins that will soon already be included
-          importlib-metadata
-          faker
-          pdfminer
-          praw
-          psutil
-          s3fs
-        ];
+      pypkgs = with self.python3Packages; [
+        requests
+        sh
+        pytimeparse
+        tomli
+        # plugins that will soon already be included
+        importlib-metadata
+        faker
+        pdfminer
+        praw
+        psutil
+        s3fs
+      ];
     in {
       visidata = builtins.trace
         "INFO: Using visidata overlay for more python packages and develop branch [${self.ndtSources.visidata.date} @ ${self.ndtSources.visidata.rev}]"
