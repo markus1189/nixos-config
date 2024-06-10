@@ -52,8 +52,7 @@ rec {
           propagatedBuildInputs = old.propagatedBuildInputs ++ pypkgs;
           src = self.ndtSources.visidata.outPath;
           doCheck = false;
-          patches =
-            [ ./0001-shell.py-Provide-columns-as-environment-variables.patch ];
+          patches = [ ];
         });
     };
 
