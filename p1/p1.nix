@@ -39,7 +39,7 @@
 
   hardware = {
     # 403 on url
-    # opengl.extraPackages = with pkgs; [ intel-ocl ];
+    opengl.extraPackages = with pkgs; [ intel-media-driver ];
     cpu.intel.updateMicrocode = true;
     trackpoint = {
       device = "TPPS/2 Elan TrackPoint";
