@@ -1,10 +1,10 @@
-{ buku, cacert, coreutils, curl, dbus, xdragon, dunst, emacs, feh, findutils
+{ bat, buku, cacert, coreutils, curl, dbus, fzf, xdragon, dunst, emacs, feh, findutils
 , firefox, gawk, git, gnugrep, gnuplot, gnused, haskellPackages, i3lock
 , imagemagick, jo, jq, less, lib, libnotify, markus-wallpapers, nixos-artwork
 , oathToolkit, playerctl, procps, psmisc, pulseaudioFull, python3
 , python3Packages, rofi, rsstail, scrot, sqlite, stdenv, systemd, tmux
 , unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
-, xsv, zbar, zsh
+, xsv, zbar, zsh, writeShellApplication, flameshot, tesseract, gxmessage
 
 }:
 
@@ -820,4 +820,34 @@ rec {
       exit 1
     fi
   '';
+
+  flameshotOcr = writeShellApplication {
+    name = "flameshotOcr";
+
+    runtimeInputs = [ flameshot tesseract gxmessage ];
+
+    text = ''
+      bash -c 'flameshot gui -s -r |
+        convert - -colorspace Gray -scale 1191x2000 -unsharp 6.8x2.69+0 -resize 500% png:- |
+        tesseract - - |
+        gxmessage -title "Decoded Data" -fn "Consolas 12" -wrap -geometry 640x480 -file -'
+    '';
+  };
+
+  ripgrepFzf = writeShellApplication {
+    name = "rgf";
+    runtimeInputs = [bat fzf];
+    text = ''
+    RELOAD='reload:rg --column --color=always --smart-case {q} || :'
+
+    fzf < /dev/null \
+        --disabled --ansi \
+        --bind "start:$RELOAD" --bind "change:$RELOAD" \
+        --bind 'enter:become:emacsclient -n -c +{2} {1}' \
+        --bind 'ctrl-o:execute:emacsclient -n -c +{2} {1}' \
+        --delimiter : \
+        --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
+        --preview-window '~4,+{2}+4/3,<80(up)'
+    '';
+  };
 }
