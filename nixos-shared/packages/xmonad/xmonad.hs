@@ -1,95 +1,117 @@
+import Control.Monad (filterM)
+import Data.Char (toLower)
 import Data.Functor (void, (<&>))
-import Data.List (isPrefixOf, foldl')
-import qualified Data.Map as M
+import Data.List (foldl', isPrefixOf)
+import Data.Map qualified as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
 import XMonad
-    ( button3,
-      controlMask,
-      mod1Mask,
-      mod4Mask,
-      shiftMask,
-      xK_0,
-      xK_1,
-      xK_9,
-      xK_BackSpace,
-      xK_F1,
-      xK_F10,
-      xK_F11,
-      xK_F12,
-      xK_F2,
-      xK_F9,
-      xK_Return,
-      xK_Tab,
-      xK_a,
-      xK_b,
-      xK_d,
-      xK_e,
-      xK_grave,
-      xK_h,
-      xK_l,
-      xK_m,
-      xK_minus,
-      xK_n,
-      xK_o,
-      xK_p,
-      xK_q,
-      xK_s,
-      xK_space,
-      xK_t,
-      xK_u,
-      xK_w,
-      xK_x,
-      moveResizeWindow,
-      runQuery,
-      spawn,
-      withDisplay,
-      (|||),
-      xmonad,
-      (-->),
-      (<+>),
-      (=?),
-      className,
-      composeAll,
-      doFloat,
-      doIgnore,
-      doShift,
-      resource,
-      title,
-      focus,
-      sendMessage,
-      windows,
-      withFocused,
-      Button,
-      ButtonMask,
-      KeySym,
-      Window,
-      MonadIO(liftIO),
-      (.|.),
-      Default(def),
-      Layout,
-      ManageHook,
-      X,
-      XConfig(workspaces, manageHook, borderWidth, focusFollowsMouse,
-              terminal, focusedBorderColor, layoutHook, startupHook, logHook,
-              modMask, mouseBindings),
-      Full(Full),
-      Resize(Expand, Shrink),
-      Tall(Tall), xK_semicolon, stringProperty )
-import XMonad.Actions.CopyWindow (kill1, copyToAll, killAllOtherCopies)
+  ( Button,
+    ButtonMask,
+    Default (def),
+    Full (Full),
+    KeySym,
+    Layout,
+    ManageHook,
+    MonadIO (liftIO),
+    Resize (Expand, Shrink),
+    Tall (Tall),
+    Window,
+    X,
+    XConfig
+      ( borderWidth,
+        focusFollowsMouse,
+        focusedBorderColor,
+        layoutHook,
+        logHook,
+        manageHook,
+        modMask,
+        mouseBindings,
+        startupHook,
+        terminal,
+        workspaces
+      ),
+    button3,
+    composeAll,
+    controlMask,
+    doFloat,
+    doIgnore,
+    doShift,
+    focus,
+    mod1Mask,
+    mod4Mask,
+    moveResizeWindow,
+    resource,
+    runQuery,
+    sendMessage,
+    shiftMask,
+    spawn,
+    stringProperty,
+    windows,
+    withDisplay,
+    withFocused,
+    xK_0,
+    xK_1,
+    xK_9,
+    xK_BackSpace,
+    xK_F1,
+    xK_F10,
+    xK_F11,
+    xK_F12,
+    xK_F2,
+    xK_F9,
+    xK_Return,
+    xK_Tab,
+    xK_a,
+    xK_b,
+    xK_d,
+    xK_e,
+    xK_grave,
+    xK_h,
+    xK_l,
+    xK_m,
+    xK_minus,
+    xK_n,
+    xK_o,
+    xK_p,
+    xK_q,
+    xK_s,
+    xK_semicolon,
+    xK_space,
+    xK_t,
+    xK_u,
+    xK_w,
+    xK_x,
+    xmonad,
+    (-->),
+    (.|.),
+    (<+>),
+    (=?),
+    (|||),
+  )
+import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
-import qualified XMonad.Actions.FlexibleManipulate as Flex
-import XMonad.Actions.Submap ( submap )
+import XMonad.Actions.FlexibleManipulate qualified as Flex
+import XMonad.Actions.Submap (submap)
 import XMonad.Actions.WindowBringer (bringWindow)
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
 import XMonad.Hooks.DynamicLog
-    ( PP(ppOutput, ppTitle, ppUrgent, ppVisible, ppCurrent, ppWsSep,
-         ppSep, ppLayout),
-      dynamicLogWithPP,
-      xmobarColor,
-      xmobarPP,
-      xmobarStrip )
+  ( PP
+      ( ppCurrent,
+        ppLayout,
+        ppOutput,
+        ppSep,
+        ppTitle,
+        ppUrgent,
+        ppVisible,
+        ppWsSep
+      ),
+    dynamicLogWithPP,
+    xmobarColor,
+    xmobarPP,
+    xmobarStrip,
+  )
 import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
@@ -97,92 +119,104 @@ import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
 import XMonad.Layout.BinarySpacePartition (emptyBSP)
+import XMonad.Layout.FocusTracking (focusTracking)
 import XMonad.Layout.Grid (Grid (..))
 import XMonad.Layout.IM (Property (Role), withIM)
 import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
 import XMonad.Layout.MultiToggle.Instances
-    ( StdTransformers(FULL, NOBORDERS) )
+  ( StdTransformers (FULL, NOBORDERS),
+  )
 import XMonad.Layout.NoBorders (smartBorders)
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Reflect (reflectHoriz)
 import XMonad.Layout.ResizableTile (ResizableTall (..))
 import XMonad.Layout.SimpleFloat (simpleFloat)
 import XMonad.Layout.Tabbed
-    ( shrinkText,
-      Theme(activeColor, activeTextColor, activeBorderColor,
-            inactiveColor, inactiveTextColor, inactiveBorderColor, urgentColor,
-            urgentTextColor, urgentBorderColor, fontName, decoHeight),
-      tabbed )
-import qualified XMonad.StackSet as W
+  ( Theme
+      ( activeBorderColor,
+        activeColor,
+        activeTextColor,
+        decoHeight,
+        fontName,
+        inactiveBorderColor,
+        inactiveColor,
+        inactiveTextColor,
+        urgentBorderColor,
+        urgentColor,
+        urgentTextColor
+      ),
+    shrinkText,
+    tabbed,
+  )
+import XMonad.ManageHook qualified as MH
 import XMonad.Prompt.Window (allWindows)
+import XMonad.StackSet qualified as W
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
 import XMonad.Util.NamedScratchpad
-    ( customFloating,
-      namedScratchpadAction,
-      namedScratchpadManageHook,
-      NamedScratchpad(NS) )
+  ( NamedScratchpad (NS),
+    customFloating,
+    namedScratchpadAction,
+    namedScratchpadManageHook,
+  )
 import XMonad.Util.Run (spawnPipe)
-import Data.Char (toLower)
-import Control.Monad (filterM)
-import XMonad.Layout.FocusTracking (focusTracking)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
 
 workSpaceN :: Int -> String
-workSpaceN i = myWorkspaces !! (i -1)
+workSpaceN i = myWorkspaces !! (i - 1)
 
 myManageHook :: ManageHook
 myManageHook =
   composeAll . concat $
     [ [manageHook gnomeConfig],
       [isDialog --> doFloat],
-      [className =? c --> doFloat | c <- classFloats],
-      [title =? t --> doFloat | t <- titleFloats],
+      [MH.className =? c --> doFloat | c <- classFloats],
+      [MH.title =? t --> doFloat | t <- titleFloats],
       [stringProperty "WM_NAME" =? t --> doIgnore | t <- windowNameIgnores],
       [resource =? r --> doFloat | r <- resourceFloats],
       [resource =? i --> doIgnore | i <- ignored],
-      [className =? c --> doShift (workSpaceN 1) | c <- ws1],
-      [className =? c --> doShift (workSpaceN 2) | c <- ws2],
-      [className =? c --> doShift (workSpaceN 3) | c <- ws3],
-      [className =? c --> doShift (workSpaceN 4) | c <- ws4],
-      [className =? c --> doShift (workSpaceN 5) | c <- ws5],
-      [className =? c --> doShift (workSpaceN 6) | c <- ws6],
-      [className =? c --> doShift (workSpaceN 7) | c <- ws7],
-      [className =? c --> doShift (workSpaceN 8) | c <- ws8],
-      [className =? c --> doShift (workSpaceN 9) | c <- ws9],
-      [className =? c --> doShift (workSpaceN 9) | c <- ws9],
+      [MH.className =? c --> doShift (workSpaceN 1) | c <- ws1],
+      [MH.className =? c --> doShift (workSpaceN 2) | c <- ws2],
+      [MH.className =? c --> doShift (workSpaceN 3) | c <- ws3],
+      [MH.className =? c --> doShift (workSpaceN 4) | c <- ws4],
+      [MH.className =? c --> doShift (workSpaceN 5) | c <- ws5],
+      [MH.className =? c --> doShift (workSpaceN 6) | c <- ws6],
+      [MH.className =? c --> doShift (workSpaceN 7) | c <- ws7],
+      [MH.className =? c --> doShift (workSpaceN 8) | c <- ws8],
+      [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9],
+      [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9],
       miscellaneous
     ]
   where
     classFloats =
-      [ "Xmessage"
-      , "Unity-2d-launcher"
-      , "Vncviewer"
-      , "feh"
-      , "flameshot"
-      , "Gpick"
-      , "Ubuntu-tweak"
-      , "de-tud-cs-se-flashcards-Main"
-      , "xv"
-      , "mplayer2"
-      , "Gxmessage"
-      , "gxmessage"
-      , "de-hackermuehle-pdfpresenter-PdfPresenter"
-      , "gtk-recordmydesktop"
-      , "Gtk-recordmydesktop"
-      , "nethack-qt"
-      , "zoom"
-      , "sun-awt-X11-XWindowPeer"
-      , ".scrcpy-wrapped"
+      [ "Xmessage",
+        "Unity-2d-launcher",
+        "Vncviewer",
+        "feh",
+        "flameshot",
+        "Gpick",
+        "Ubuntu-tweak",
+        "de-tud-cs-se-flashcards-Main",
+        "xv",
+        "mplayer2",
+        "Gxmessage",
+        "gxmessage",
+        "de-hackermuehle-pdfpresenter-PdfPresenter",
+        "gtk-recordmydesktop",
+        "Gtk-recordmydesktop",
+        "nethack-qt",
+        "zoom",
+        "sun-awt-X11-XWindowPeer",
+        ".scrcpy-wrapped"
       ]
     titleFloats =
-      [ "Save As..."
-      ,  "Save File"
-      ,  "Options"
-      ,  "Document Print Status"
-      ,  "Terminator Preferences"
-      ,  "Microsoft Teams Notification"
+      [ "Save As...",
+        "Save File",
+        "Options",
+        "Document Print Status",
+        "Terminator Preferences",
+        "Microsoft Teams Notification"
       ]
     windowNameIgnores =
       [ "NormCap"
@@ -208,8 +242,8 @@ myManageHook =
     ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
     ws9 = ["teams-for-linux"]
     miscellaneous =
-      [ title =? "vmail" --> doShift (workSpaceN 7),
-        className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
+      [ MH.title =? "vmail" --> doShift (workSpaceN 7),
+        MH.className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
       ]
 
 myScratchPads :: [NamedScratchpad]
@@ -221,15 +255,15 @@ myScratchPads =
   where
     prefix = takeWhile (/= ':')
     spawnSpLower = runTerminal "sp_lower" "@tmx@/bin/tmx sp_lower"
-    findLower = (prefix <$> title) =? "sp_lower"
+    findLower = (prefix <$> MH.title) =? "sp_lower"
     manageLower = customFloating $ W.RationalRect l t w h
       where
         h = 0.4
         w = 1
-        t = 1 - h -0.02
+        t = 1 - h - 0.02
         l = (1 - w) / 2
     spawnSpUpper = runTerminal "sp_upper" "@tmx@/bin/tmx sp_upper"
-    findUpper = (prefix <$> title) =? "sp_upper"
+    findUpper = (prefix <$> MH.title) =? "sp_upper"
     manageUpper = customFloating $ W.RationalRect l t w h
       where
         h = 0.5
@@ -237,7 +271,7 @@ myScratchPads =
         t = 0.02
         l = 0
     spawnSpRight = runTerminal "sp_right" "@tmx@/bin/tmx sp_right"
-    findRight = (prefix <$> title) =? "sp_right"
+    findRight = (prefix <$> MH.title) =? "sp_right"
     manageRight = customFloating $ W.RationalRect l t w h
       where
         h = 0.96
@@ -288,22 +322,26 @@ myKeys =
     ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
-
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
     ((shiftMask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl history-pop"),
     ((mod1Mask .|. controlMask, xK_grave), spawn "@dunst@/bin/dunstctl context"),
-
     -- Warpd
     ((shiftMask .|. controlMask, xK_semicolon), spawn "@warpd@/bin/warpd --history --oneshot --click 1"),
-
-    ((myModKey, xK_F11), spawn "~/bin/f11"),
+    ( (myModKey, xK_F11),
+      withFocused
+        ( \w -> do
+            (title, appName, className) <- runQuery ((,,) <$> MH.title <*> MH.appName <*> MH.className) w
+            spawn ("~/bin/f11 '" <> filter (/= '\'') title <> "' '" <> filter (/= '\'') appName <> "' '" <> filter (/= '\'') className <> "'")
+        )
+    ),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
+    ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
     ((myModKey, xK_Tab), toggleWS' ["NSP"]),
-        -- ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
+    -- ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
@@ -369,7 +407,7 @@ myKeysP =
     (myModKeyP "o d i", raise (iclassName "discord")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
-    (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (title <&> ("im:" `isPrefixOf`)))),
+    (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
     (myModKeyP "o m s", raise (iclassName "teams-for-linux")),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
     (myModKeyP "o s i", raise (iclassName "signal")),
@@ -384,8 +422,9 @@ myKeysP =
     (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Zoom Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
     (myModKeyP "z e", bringAllWindowsByClass "zoom" >> swapNextScreen')
   ]
-  where iclassName cls = className <&> (cls ==) . map toLower
-        ititle n = title <&> (n ==) . map toLower
+  where
+    iclassName cls = MH.className <&> (cls ==) . map toLower
+    ititle n = MH.title <&> (n ==) . map toLower
 
 nextScreen' :: X ()
 nextScreen' = nextScreen >> spawn "@centerMouse@/bin/centerMouse"
@@ -396,7 +435,7 @@ swapNextScreen' = swapNextScreen >> spawn "@centerMouse@/bin/centerMouse"
 bringAllWindowsByClass :: String -> X ()
 bringAllWindowsByClass cls = do
   ws <- M.elems <$> allWindows
-  zoomWindows <- filterM (runQuery (className =? cls)) ws
+  zoomWindows <- filterM (runQuery (MH.className =? cls)) ws
   let f = foldl' (\acc w -> bringWindow w . acc) id zoomWindows
   windows f
 
