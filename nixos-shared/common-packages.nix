@@ -8,6 +8,7 @@
         bat
         binutils
         cachix
+        comma
         dnsutils
         ed
         edbrowse
