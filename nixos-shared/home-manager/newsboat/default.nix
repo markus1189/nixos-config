@@ -190,7 +190,6 @@ let
     { name = "solo_roleplaying"; }
     { name = "theglasscannonpodcast"; }
     { name = "traveller"; }
-    { name = "worldbuilding"; }
     { name = "swn"; }
     { name = "wwn"; }
     { name = "soloboardgaming"; }
@@ -211,6 +210,7 @@ let
     { name = "kettlebell"; }
     { name = "flexibility"; }
     { name = "bodyweightfitness"; }
+    { name = "usenet"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
