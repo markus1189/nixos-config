@@ -84,7 +84,7 @@ in {
           drawColor=#ff0000
           drawThickness=3
           saveAfterCopy=true
-          savePath=/home/markus/Downloads
+          savePath=/home/markus/Screenshots
           uiColor=#ee8903
 
           [Shortcuts]
