@@ -25,6 +25,7 @@ in
     avy
     annotate
     beacon
+    (epkgs.copilot)
     counsel-jq
     company
     dash
