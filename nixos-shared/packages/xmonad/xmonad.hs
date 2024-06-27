@@ -337,6 +337,7 @@ myKeys =
         )
     ),
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
+    ((myModCtrl, xK_F12), spawn "@flameshot@/bin/flameshot full -c"),
     ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
