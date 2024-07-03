@@ -211,6 +211,7 @@ let
     { name = "flexibility"; }
     { name = "bodyweightfitness"; }
     { name = "usenet"; }
+    { name = "stocks"; }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
