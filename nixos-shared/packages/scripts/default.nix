@@ -121,6 +121,16 @@ rec {
     fi
   '';
 
+  xmobarSharingIndicator = writeShellScript {
+    name = "xmobarSharingIndicator";
+    deps = [ xdotool ];
+    failFast = true;
+  } ''
+    if xdotool search 'is sharing' &> /dev/null || xdotool search 'as_toolbar' &> /dev/null; then
+      echo "<fc=red>⏺ YOU ARE SHARING ⏺</fc> "
+    fi
+  '';
+
   togglTimer = togglApiToken:
     writeShellScript {
       name = "togglTimer";

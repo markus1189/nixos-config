@@ -70,9 +70,10 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
                     , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 300
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
+                    , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% }{ %top%  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%  %toggl%%dunst%<fc=orange>%date%</fc>"
+       , template = "%multicpu% }{ %top%  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%  %toggl%%dunst%%sharing%<fc=orange>%date%</fc>"
        }
