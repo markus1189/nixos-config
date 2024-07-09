@@ -1,11 +1,13 @@
 { pkgs, ... }:
 
-let ndtSources = import ../ndt/sources.nix { };
-    nixpkgs2305 = import ndtSources.nixpkgs-2305 {config = {
-          allowUnfreePredicate = pkg:
-            builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
-        };
-};
+let
+  ndtSources = import ../ndt/sources.nix { };
+  nixpkgs2305 = import ndtSources.nixpkgs-2305 {
+    config = {
+      allowUnfreePredicate = pkg:
+        builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
+    };
+  };
 in {
   nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
 
@@ -194,11 +196,13 @@ in {
           (pkgs.ormolu)
           xmobar
         ]) ++ (with pkgs.xorg; [ xbacklight xev xkill ])
-      ++ (with pkgs.nodePackages; [ js-yaml ]) ++ [ # photography related stuff
+      ++ (with pkgs.nodePackages; [ js-yaml ]) ++ [
+        # photography related stuff
         darktable
         hugin
         geeqie
-      ] ++ [ # evaluation phase
+      ] ++ [
+        # evaluation phase
         lnav # log file viewer
         pdd
         dateutils
@@ -211,7 +215,8 @@ in {
         multihead4k
         tmx
         ts
-      ]) ++ [ # Go related stuff
+      ]) ++ [
+        # Go related stuff
         go
       ];
   };
