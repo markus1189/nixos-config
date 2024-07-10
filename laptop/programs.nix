@@ -8,12 +8,17 @@ let
         builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
     };
   };
+  my-llm = pkgs.llm.withPlugins [
+    (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
+  ];
 in {
   nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
 
   environment = {
     systemPackages = with pkgs;
       [
+        my-llm
+        #
         ack
         actkbd
         alsa-oss
