@@ -402,9 +402,14 @@ in {
             merge-args = [ "merge" "$left" "$right" "$base" "$output" ];
             diff-args = [ "diff-dir" "$left" "$right" ];
             edit-args = [ "diff-dir" "$left" "$right" ];
-            program = "${pkgs.myScripts.emacs-ediff-dispatch}/bin/ediff-dispatch";
+            program =
+              "${pkgs.myScripts.emacs-ediff-dispatch}/bin/ediff-dispatch";
           };
         };
+
+        revsets = { log = "@ | ancestors(immutable_heads().., 5) | trunk()"; };
+
+        ui = { default-command = [ "log" ]; };
       };
     };
 
