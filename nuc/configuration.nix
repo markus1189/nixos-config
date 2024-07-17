@@ -125,7 +125,6 @@ in {
       which
       wyrd
       xclip
-      youtube-dl
       zathura
       zip
       zsh

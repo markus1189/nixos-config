@@ -183,7 +183,6 @@ in {
         x11vnc
         xvfb-run
         yt-dlp
-        youtube-dl
         zathura
         zip
         zlib

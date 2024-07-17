@@ -422,8 +422,6 @@ in rec {
         --embed-subs
       '';
     in {
-      "youtube-dl.conf".text = youtube-downloader-config-shared;
-
       "yt-dlp.conf".text = youtube-downloader-config-shared;
 
       "X11/Xresources".text = ''
