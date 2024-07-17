@@ -48,6 +48,6 @@
         visidata
         watchexec
         wormhole-william
-      ] ++ (with pkgs; [ (myScripts.logArgs) (myScripts.ripgrepFzf) ]);
+      ] ++ (with pkgs; [ (myScripts.logArgs) ]);
   };
 }

@@ -225,7 +225,6 @@ in rec {
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
       corefonts
-      emojione
       google-fonts
       inconsolata
       iosevka
@@ -265,11 +264,6 @@ in rec {
     opengl.driSupport32Bit = true;
 
     uinput.enable = true; # For Multimedia buttons on QuietComfort
-  };
-
-  sound = {
-    enable = true;
-    mediaKeys.enable = false;
   };
 
   security = {
