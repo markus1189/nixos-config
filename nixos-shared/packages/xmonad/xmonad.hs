@@ -415,12 +415,12 @@ myKeysP =
     (myModKeyP "o s l", raise (iclassName "slack")),
     (myModKeyP "o s p", raise (iclassName "spotify")),
     (myModKeyP "o m p", raise (iclassName "mpv")),
-    (myModKeyP "o z o", raise (ititle "zoom meeting")),
-    (myModKeyP "z g", raise (ititle "zoom meeting")),
+    (myModKeyP "o z o", raise (ititle "meeting")),
+    (myModKeyP "z g", raise (ititle "meeting")),
     (myModKeyP "z z", spawn "zoom 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
     (myModKeyP "z b", bringAllWindowsByClass "zoom"),
     (myModKeyP "z w", bringAllWindowsByClass "zoom" >> nextScreen'),
-    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Zoom Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
+    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
     (myModKeyP "z e", bringAllWindowsByClass "zoom" >> swapNextScreen')
   ]
   where
