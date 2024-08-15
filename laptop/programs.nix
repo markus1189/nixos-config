@@ -10,6 +10,7 @@ let
   };
   my-llm = pkgs.llm.withPlugins [
     (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
+    (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
   ];
 in {
   nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
