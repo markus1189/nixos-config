@@ -384,6 +384,10 @@ let
       title = "Göran Winblad - Running";
       id = "UCUwGYfvGvmqMnvQTOY8E_qg";
     }
+    {
+      title = "UTMB World Series";
+      id = "UCbBVRJq3H6yRvC9G6xBLJZw";
+    }
   ];
   fromKtn = args: {
     url =
