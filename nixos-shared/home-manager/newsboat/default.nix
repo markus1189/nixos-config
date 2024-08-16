@@ -380,6 +380,10 @@ let
       title = "How-2-repair.com";
       id = "UCgGbvwkKfnt1V-CvdzXo7OQ";
     }
+    {
+      title = "Göran Winblad - Running";
+      id = "UCUwGYfvGvmqMnvQTOY8E_qg";
+    }
   ];
   fromKtn = args: {
     url =
