@@ -420,7 +420,7 @@ myKeysP =
     (myModKeyP "z z", spawn "zoom 'zoommtg://zoom.us/join?action=join&confno=2387012688'"),
     (myModKeyP "z b", bringAllWindowsByClass "zoom"),
     (myModKeyP "z w", bringAllWindowsByClass "zoom" >> nextScreen'),
-    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Meeting' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
+    (myModKeyP "z a", spawn "@xdotool@/bin/xdotool search --name 'Meeting' --name 'as_toolbar' windowactivate --sync key alt+a windowactivate --sync \"$(@xdotool@/bin/xdotool getactivewindow)\""),
     (myModKeyP "z e", bringAllWindowsByClass "zoom" >> swapNextScreen')
   ]
   where
