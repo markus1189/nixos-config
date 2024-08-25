@@ -48,20 +48,20 @@ in {
           {
             name = "shelly-plugs";
             rules = [
-              {
-                alert = "Spühlmaschine ist fertig";
-                expr = let
-                  m = ''
-                    ${shellyPlugMetricPrefix}_power{device="${devices.dishwasher}",room="${rooms.kitchen}",type="${shellyPlugType}"}'';
-                in ''
-                    ${m} < 1
-                  and
-                    ${m} > 0
-                  and
-                    ((${m} offset 10m) < 30)
-                '';
-                for = "60s";
-              }
+              # {
+              #   alert = "Spühlmaschine ist fertig";
+              #   expr = let
+              #     m = ''
+              #       ${shellyPlugMetricPrefix}_power{device="${devices.dishwasher}",room="${rooms.kitchen}",type="${shellyPlugType}"}'';
+              #   in ''
+              #       ${m} < 1
+              #     and
+              #       ${m} > 0
+              #     and
+              #       ((${m} offset 10m) < 30)
+              #   '';
+              #   for = "60s";
+              # }
               {
                 alert = "ShellyHasUpdate";
                 expr =
