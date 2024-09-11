@@ -132,6 +132,7 @@ in {
         target = ".gtkrc-2.0";
         text = ''
           gtk-key-theme-name = "Emacs"
+          gtk-cursor-theme-name = "Adwaita"
         '';
       };
 
@@ -140,6 +141,7 @@ in {
         text = ''
           [Settings]
           gtk-key-theme-name = Emacs
+          gtk-cursor-theme-name = Adwaita
         '';
       };
 

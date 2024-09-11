@@ -419,6 +419,8 @@ in rec {
       "yt-dlp.conf".text = youtube-downloader-config-shared;
 
       "X11/Xresources".text = ''
+        Xcursor.theme: Adwaita
+
         URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
         URxvt*cursorColor: #Ffe7ba
         URxvt*background:  #000000
