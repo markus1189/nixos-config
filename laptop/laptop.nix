@@ -252,14 +252,14 @@ in rec {
   };
 
   hardware = {
-    pulseaudio = {
-      enable = true;
-      package = pkgs.pulseaudioFull;
-      support32Bit = true;
-      extraConfig = ''
-        load-module module-switch-on-connect
-      '';
-    };
+    # pulseaudio = {
+    #   enable = true;
+    #   package = pkgs.pulseaudioFull;
+    #   support32Bit = true;
+    #   extraConfig = ''
+    #     load-module module-switch-on-connect
+    #   '';
+    # };
 
     opengl.driSupport32Bit = true;
 
