@@ -31,7 +31,6 @@
     nspr
     nss
     pango
-    pipewire
     systemd
     icu
     openssl
