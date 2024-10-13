@@ -198,6 +198,16 @@ in rec {
     };
 
     clipmenu = { enable = true; };
+
+    pipewire = {
+      audio.enable = true;
+      pulse.enable = true;
+      extraConfig.pipewire = {
+        "99-disable-bell" = {
+          "context.properties" = { "module.x11.bell" = false; };
+        };
+      };
+    };
   };
 
   users.extraUsers.${config.lib._custom_.userName} = {
@@ -228,7 +238,7 @@ in rec {
       google-fonts
       inconsolata
       iosevka
-      nerdfonts
+      # nerdfonts
       powerline-fonts
       source-code-pro
       source-sans-pro

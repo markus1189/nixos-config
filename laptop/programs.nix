@@ -8,10 +8,17 @@ let
         builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
     };
   };
-  my-llm = pkgs.llm.withPlugins [
-    (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
-    (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
-  ];
+  my-llm = rec {
+    pyWithPackages = (pkgs.python3.withPackages (ps: [
+      ps.llm
+      (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
+      (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
+    ]));
+    llm = pkgs.runCommandNoCCLocal "llm" { } ''
+      mkdir -p $out/bin
+      ln -s ${pyWithPackages}/bin/llm $out/bin/llm
+    '';
+  }.llm;
 in {
   nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
 
@@ -106,6 +113,7 @@ in {
         parcellite
         patchelf
         pavucontrol
+        pwvucontrol
         pciutils
         pdfgrep
         pdftk

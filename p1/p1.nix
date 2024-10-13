@@ -64,31 +64,28 @@
     dnsmasq = {
       enable = true;
       resolveLocalQueries = false;
-      extraConfig = ''
-        listen-address=127.0.0.1 # only bind to the localhost IP
+      settings = {
+        listen-address = "127.0.0.1";
+        log-queries = true;
+        cache-size = 1000; # default = 150
+        domain-needed = true;
+        clear-on-reload = true;
+        no-resolv = true;
+        no-poll = true;
+        interface = "lo";
+        no-dhcp-interface = "lo";
+        bind-interfaces = true;
+        server = [
+          "1.1.1.1"
+          "/byod.gp.ottogroup.com/1.1.1.1"
+          "/otto.de/10.79.255.100"
+          "/otto.de/10.79.255.200"
+          "/ottogroup.com/10.79.255.100"
+          "/ottogroup.com/10.79.255.200"
+          "/otto.de/"
+        ];
+      };
 
-        log-queries
-
-        cache-size=1000 # default is 150
-        domain-needed # anything without dots in it doesn't get forwarded to DNS
-
-        clear-on-reload
-        no-resolv # don't use  /etc/resolv.conf
-        no-poll   # don't poll /etc/resolv.conf
-
-        interface=lo
-        no-dhcp-interface=lo
-        bind-interfaces
-
-        # server=10.64.0.1 # wireguard
-        server=1.1.1.1 # if wireguard is inactive
-        server=/byod.gp.ottogroup.com/1.1.1.1 # for vpn connect
-        server=/otto.de/10.79.255.100
-        server=/otto.de/10.79.255.200
-        server=/ottogroup.com/10.79.255.100
-        server=/ottogroup.com/10.79.255.200
-        server=/otto.de/# # fallback to default dns
-      '';
     };
 
     acpid = {
