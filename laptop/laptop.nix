@@ -380,6 +380,11 @@ in rec {
       enable = true;
       package = pkgs.wireshark;
     };
+
+    obs-studio = {
+      enable = true;
+      enableVirtualCamera = true;
+    };
   };
 
   environment = {
