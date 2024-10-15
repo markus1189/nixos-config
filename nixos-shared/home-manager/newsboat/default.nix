@@ -388,6 +388,10 @@ let
       title = "UTMB World Series";
       id = "UCbBVRJq3H6yRvC9G6xBLJZw";
     }
+    {
+      title = "obsessed mushroom pickers";
+      id = "UC33MjuRroWlm7vzWCEHKXMw";
+    }
   ];
   fromKtn = args: {
     url =
