@@ -384,6 +384,7 @@ in rec {
     obs-studio = {
       enable = true;
       enableVirtualCamera = true;
+      plugins = [ pkgs.obs-studio-plugins.obs-backgroundremoval ];
     };
   };
 
