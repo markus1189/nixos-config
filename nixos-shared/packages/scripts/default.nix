@@ -127,7 +127,7 @@ rec {
     failFast = true;
   } ''
     if xdotool search 'is sharing' &> /dev/null || xdotool search 'as_toolbar' &> /dev/null; then
-      echo "<fc=red>⏺ YOU ARE SHARING ⏺</fc> "
+      echo "<fc=red>⏺SHARING⏺</fc> "
     fi
   '';
 
