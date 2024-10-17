@@ -140,8 +140,8 @@ in {
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  # Enable sound.
-  hardware.pulseaudio.enable = true;
+  # # Enable sound.
+  # hardware.pulseaudio.enable = true;
 
   services.syncthing = {
     enable = true;
