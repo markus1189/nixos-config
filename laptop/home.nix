@@ -217,6 +217,8 @@ in {
           save-position-on-quit=yes
           osd-msg3="''${time-pos} / ''${duration} [''${playtime-remaining} @ ''${speed}]"
           osd-duration=5000
+          osd-font-size=40
+
           hwdec=auto
 
           [stream]
