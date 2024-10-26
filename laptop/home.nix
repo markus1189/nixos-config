@@ -221,6 +221,8 @@ in {
 
           hwdec=auto
 
+          volume-max=300
+
           [stream]
           cache=yes
           demuxer-max-bytes=500MiB
