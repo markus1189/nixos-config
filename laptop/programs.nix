@@ -13,6 +13,7 @@ let
       ps.llm
       (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
       (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
+      (pkgs.callPackage ../nixos-shared/llm-packages/llm-cerebras { })
     ]));
     llm = pkgs.runCommandNoCCLocal "llm" { } ''
       mkdir -p $out/bin
