@@ -1418,4 +1418,9 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
   (setq copilot-enable-predicates '(copilot--buffer-changed)))
+
+(use-package gptel
+  :ensure t
+  :bind ("C-c C-<return>" . gptel-send)
+  )
 ;;;

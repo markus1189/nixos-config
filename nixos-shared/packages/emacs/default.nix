@@ -76,6 +76,7 @@ in emacsWithPackages (epkgs:
       go-complete
       go-autocomplete
       goto-chg
+      gptel
       groovy-mode
       graphviz-dot-mode
       haskell-mode
