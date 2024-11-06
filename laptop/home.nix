@@ -225,8 +225,8 @@ in {
 
           [stream]
           cache=yes
-          demuxer-max-bytes=500MiB
-          demuxer-readahead-secs=30
+          demuxer-max-bytes=1000MiB
+          demuxer-readahead-secs=60
           cache-secs=600
         '';
       };
