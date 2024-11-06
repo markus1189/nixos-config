@@ -353,7 +353,8 @@ myKeys =
       submap . M.fromList $
         [ ((0, xK_p), spawn "@playerctl@/bin/playerctl -p spotify previous"),
           ((0, xK_n), spawn "@playerctl@/bin/playerctl -p spotify next"),
-          ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause")
+          ((0, xK_space), spawn "@playerctl@/bin/playerctl -p spotify play-pause"),
+          ((0, xK_m), spawn "@pamixer@/bin/pamixer -t")
         ]
     ),
     ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),

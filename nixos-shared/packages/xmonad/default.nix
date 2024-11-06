@@ -1,6 +1,6 @@
 args@{ autoMonitorConfig, autorandr, browserHistory, bukuRun, dunst, centerMouse
 , chooseNetwork, clipmenu, ddgr, emacsAnywhere, flameshot, lockScreen
-, flameshotOcr, multihead4k, mutate, playerctl, rofi, rofiDefaults, rxvt-unicode
+, flameshotOcr, multihead4k, mutate, pamixer, playerctl, rofi, rofiDefaults, rxvt-unicode
 , singlehead, takeScreenshot, tesseract4, tmx, warpd, wyrd, xclip, xdotool
 , xkill, xmobar, xmobarLower, xmobarUpper, xmonadReset, zsh }:
 
