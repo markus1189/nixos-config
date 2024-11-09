@@ -10,7 +10,8 @@ let
   };
   my-llm = rec {
     pyWithPackages = (pkgs.python3.withPackages (ps: [
-      ps.llm
+      ps.llm.overridePythonAttrs
+      (old: { doCheck = false; })
       (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
       (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
       (pkgs.callPackage ../nixos-shared/llm-packages/llm-cerebras { })
