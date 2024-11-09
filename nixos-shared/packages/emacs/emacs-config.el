@@ -358,18 +358,6 @@
   :bind
   ("C-c Y" . git-link)
   :config
-  (defun mh/git-link-aareal-gogs (hostname dirname filename branch commit start end)
-    (format "http://%s/%s/src/%s/%s"
-            hostname
-            dirname
-            commit
-            (concat filename
-                    (when start
-                      (concat "#"
-                              (if end
-                                  (format "L%s-L%s" start end)
-                                (format "L%s" start)))))))
-
   (defun mh/git-link-github (hostname dirname filename branch commit start end)
     (format "https://%s/%s/blob/%s/%s"
             hostname
@@ -385,8 +373,7 @@
         '(("github.com" mh/git-link-github)
           ("bitbucket" git-link-bitbucket)
           ("gitorious" git-link-gitorious)
-          ("gitlab" git-link-gitlab)
-          ("gogs.default.dev.aareality.aareal.org" mh/git-link-aareal-gogs))))
+          ("gitlab" git-link-gitlab))))
 
 (use-package nix-mode
   :ensure t)
@@ -865,19 +852,6 @@ Position the cursor at its beginning, according to the current mode."
 (use-package evil
   :ensure t)
 
-(use-package git-commit
-  :ensure t
-  :init
-  (defun mh/commit-insert-branch ()
-    "Insert the current branch name at point."
-    (interactive)
-    (insert
-     (replace-regexp-in-string "^\\(bugfix\\|feature\\)/"
-                               ""
-                               (concat (magit-get-current-branch) ": "))))
-  :bind
-  (("C-c b" . mh/commit-insert-branch)))
-
 (use-package yaml-mode
   :ensure t
   :demand t
@@ -1194,9 +1168,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package markdown-preview-mode
   :ensure t)
 
-(use-package gitlab-ci-mode
-  :ensure t)
-
 (use-package csv-mode
   :ensure t)
 
@@ -1394,9 +1365,6 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package just-mode
-  :ensure t)
-
-(use-package magit-todos
   :ensure t)
 
 (use-package dhall-mode

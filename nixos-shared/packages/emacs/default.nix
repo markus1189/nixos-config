@@ -68,10 +68,7 @@ in emacsWithPackages (epkgs:
       flycheck-haskell
       flycheck-yamllint
       fullframe
-      git-commit
       git-link
-      gitlab-ci-mode
-      gitlab-ci-mode-flycheck
       go-mode
       go-complete
       go-autocomplete
@@ -120,7 +117,6 @@ in emacsWithPackages (epkgs:
       markdown-preview-mode
       mvn
       magit
-      magit-todos
       move-text
       multiple-cursors
       nix-mode
