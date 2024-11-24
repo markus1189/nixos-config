@@ -87,7 +87,7 @@ import XMonad
     (.|.),
     (<+>),
     (=?),
-    (|||),
+    (|||), rescreen, xK_r,
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
@@ -159,6 +159,9 @@ import XMonad.Util.NamedScratchpad
     namedScratchpadManageHook,
   )
 import XMonad.Util.Run (spawnPipe)
+import XMonad.Layout.LayoutScreens (layoutScreens)
+import XMonad.Layout.TwoPane (TwoPane(TwoPane))
+import XMonad.Layout.DragPane (dragPane, DragType (Vertical, Horizontal))
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -319,7 +322,12 @@ myKeys =
   [ ((myModCtrl, xK_Return), windows W.swapMaster),
     ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
-    ((myModKey, xK_BackSpace), focusUrgent),
+    ((myModKey, xK_BackSpace),
+     submap . M.fromList $
+        [ ((0, xK_BackSpace), focusUrgent),
+          ((0, xK_s), layoutScreens 2 (dragPane Horizontal 0.5 0.5)),
+          ((0, xK_r), rescreen)
+        ]),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
     -- Dunst
