@@ -165,6 +165,7 @@ let
     { name = "notebooks"; }
     { name = "planneraddicts"; }
     { name = "netsec"; }
+    { name = "programmerhumor"; }
     {
       name = "scala";
       threshold = 100;
