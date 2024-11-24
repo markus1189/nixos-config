@@ -48,6 +48,7 @@ in emacsWithPackages (epkgs:
       dash
       deadgrep
       dhall-mode
+      diff-hl
       dired-plus
       dired-filter
       direnv

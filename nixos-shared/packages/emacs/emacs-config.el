@@ -1396,4 +1396,10 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :bind ("C-c C-<return>" . gptel-send)
   )
+
+(use-package diff-hl
+  :ensure t
+  :init
+  (global-diff-hl-mode))
+
 ;;;
