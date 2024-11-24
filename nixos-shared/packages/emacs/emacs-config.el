@@ -236,7 +236,9 @@
   (setq magit-bury-buffer-function
         #'magit-restore-window-configuration)
   :hook
-  ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)))
+  ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)
+   (magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+   (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
 
 (use-package projectile
   :ensure t
