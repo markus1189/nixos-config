@@ -160,8 +160,7 @@ import XMonad.Util.NamedScratchpad
   )
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Layout.LayoutScreens (layoutScreens)
-import XMonad.Layout.TwoPane (TwoPane(TwoPane))
-import XMonad.Layout.DragPane (dragPane, DragType (Vertical, Horizontal))
+import XMonad.Layout.DragPane (dragPane, DragType (Horizontal))
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -329,7 +328,6 @@ myKeys =
           ((0, xK_r), rescreen)
         ]),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
-    ((myModKey, xK_F9), spawn "@rxvtUnicode@/bin/urxvt -title wyrd-remind -e @zsh@/bin/zsh -c '@wyrd@/bin/wyrd $HOME/Syncthing/remind/reminders'"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
@@ -417,7 +415,7 @@ myKeysP =
     (myModKeyP "o d i", raise (iclassName "discord")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
-    (myModKeyP "o i m", raise ((&&) <$> iclassName "urxvt" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
+    (myModKeyP "o i m", raise ((&&) <$> iclassName "alacritty" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
     (myModKeyP "o m s", raise (iclassName "teams-for-linux")),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
     (myModKeyP "o s i", raise (iclassName "signal")),
@@ -506,11 +504,11 @@ workspaceRenamer x = case x of
   _ -> x
 
 myTerminal :: String
-myTerminal = "urxvt"
+myTerminal = "@alacritty@/bin/alacritty"
 
 runTerminal :: String -> String -> String
 runTerminal termTitle arg =
-  unwords [myTerminal, "-title", termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
+  unwords [myTerminal, "--title", termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
 
 main :: IO ()
 main = do

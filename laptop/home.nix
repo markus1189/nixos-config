@@ -349,6 +349,19 @@ in {
 
   programs = let passDir = "$HOME/.local/share/password-store";
   in {
+    alacritty = {
+      enable = true;
+      settings = {
+        font.size = 7.5;
+        window = {
+          opacity = 0;
+          blur = true;
+        };
+        selection.save_to_clipboard = true;
+        mouse.hide_when_typing = true;
+      };
+    };
+
     atuin = {
       enable = true;
       settings = {
