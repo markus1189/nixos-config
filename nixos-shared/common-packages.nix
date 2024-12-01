@@ -20,7 +20,7 @@
         (gitAndTools.git-open)
         (gitAndTools.hub)
         git-secret
-        (gnome.adwaita-icon-theme)
+        adwaita-icon-theme
         gron
         htop
         httpie
