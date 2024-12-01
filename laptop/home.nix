@@ -360,6 +360,11 @@ in {
         };
         selection.save_to_clipboard = true;
         mouse.hide_when_typing = true;
+        keyboard.bindings = [{
+          key = "v";
+          mods = "Alt";
+          action = "Paste";
+        }];
       };
     };
 
