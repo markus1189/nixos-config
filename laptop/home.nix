@@ -228,6 +228,7 @@ in {
           demuxer-max-bytes=1000MiB
           demuxer-readahead-secs=60
           cache-secs=600
+          prefetch-playlist=yes
         '';
       };
 
