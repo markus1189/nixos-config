@@ -215,6 +215,7 @@ in rec {
     uid = 1000;
     group = "users";
     extraGroups = [
+      "adbusers" # e.g. for scrcpy
       "wheel"
       "audio"
       "docker"
