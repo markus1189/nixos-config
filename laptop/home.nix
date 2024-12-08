@@ -392,10 +392,12 @@ in {
         size = save;
         share = true;
       };
+
       shellAliases = {
         "aws-vault" =
           "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
       };
+
       initExtra = ''
         source ${pkgs.ndtSources.zsh-histdb}/sqlite-history.zsh
         autoload -Uz add-zsh-hook
