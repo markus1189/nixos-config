@@ -149,7 +149,7 @@
      (chat . "You are a large language model and a conversation partner. Respond concisely.")
      (commit . "Based on the code changes, give me a short but well written git commit message describing the change.  Adhere to common commit etiquette and formatting guidelines.  Prefer a bullet list as the body of the message.")))
  '(helm-for-files-preferred-list
-   '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir helm-source-locate))
+   '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
  '(helm-split-window-default-side 'right)
  '(initial-major-mode 'org-mode)
  '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
