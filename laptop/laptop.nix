@@ -278,13 +278,10 @@ in rec {
   };
 
   security = {
-    doas = {
+    rtkit = {
       enable = true;
-      extraConfig = ''
-        deny :wheel
-        permit persist setenv { SSH_AUTH_SOCK NIX_PATH } ${config.lib._custom_.userName}
-      '';
     };
+
     sudo = {
       enable = true;
       extraConfig = ''
