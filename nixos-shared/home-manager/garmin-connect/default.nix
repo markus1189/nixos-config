@@ -3,14 +3,7 @@
 let
   myPython = python3.withPackages (ps:
     with ps; [
-      (ps.garminconnect.overridePythonAttrs (old: rec {
-        version = "0.2.23";
-        src = ps.fetchPypi {
-          pname = "garminconnect";
-          inherit version;
-          hash = "sha256-IQErVwla8GdUtT8wfz1vMoCoaYFoR30VQMyQ4t85Yn0=";
-        };
-      }))
+      garminconnect
       python-dateutil
       requests
     ]);
