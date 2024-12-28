@@ -2,11 +2,16 @@
 , plantuml, pandoc, git, ndtSources }:
 
 let
+  secrets = import ../../secrets.nix;
   mutatedEmacsConfig = mutate ./emacs-config.el {
     inherit mplayer fasd plantuml pandoc;
     yesSound = ./yes.wav;
     noSound = ./no.wav;
     popSound = ./pop.wav;
+    gptelPerplexityApiKey = secrets.gptel.perplexity;
+    gptelGeminiApiKey = secrets.gptel.gemini;
+    gptelOpenAiApiKey = secrets.gptel.openai;
+    gptelAnthropicApiKey = secrets.gptel.anthropic;
   };
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
     mkdir -p $out/share/emacs/site-lisp
