@@ -73,12 +73,6 @@
  '(guide-key/highlight-command-face ((t (:foreground "spring green"))))
  '(guide-key/key-face ((t (:foreground "dark orange"))))
  '(guide-key/prefix-command-face ((t (:foreground "dark orange"))))
- '(helm-candidate-number ((t (:inherit helm-source-header :height 0.7))))
- '(helm-ff-directory ((t (:foreground "#8ac6f2"))))
- '(helm-ff-executable ((t (:foreground "chartreuse2"))))
- '(helm-selection ((t (:background "gray24" :weight bold))))
- '(helm-source-header ((t (:foreground "DarkOrange2" :weight bold :height 1.3 :family "Sans Serif"))))
- '(helm-visible-mark ((t (:background "dark orange" :foreground "black"))))
  '(hl-line ((t (:background "gray20"))))
  '(hl-paren-face ((t (:weight ultra-bold))) t)
  '(linum ((t (:inherit (shadow default) :height 0.9))))
@@ -148,9 +142,9 @@
      (writing . "You are a large language model and a writing assistant. Respond concisely.")
      (chat . "You are a large language model and a conversation partner. Respond concisely.")
      (commit . "Based on the code changes, give me a short but well written git commit message describing the change.  Adhere to common commit etiquette and formatting guidelines.  Prefer a bullet list as the body of the message.")))
- '(helm-for-files-preferred-list
-   '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
- '(helm-split-window-default-side 'right)
+ ;; '(helm-for-files-preferred-list
+   ;; '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
+ ;; '(helm-split-window-default-side 'right)
  '(initial-major-mode 'org-mode)
  '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
  '(magit-diff-options '("--minimal" "--patience"))
@@ -203,20 +197,6 @@
   (text-mode . flyspell-mode)
   (prog-mode . flyspell-prog-mode))
 
-(use-package helm-flyspell
-  :ensure t
-  :demand t
-  :config
-  (defun mh/switch-ispell-dictionary()
-    (interactive)
-    (let* ((dic ispell-current-dictionary)
-           (change (if (string= dic "deutsch8") "english" "deutsch8")))
-      (ispell-change-dictionary change)
-      (message "Dictionary switched from %s to %s" dic change)))
-
-  :bind (:map flyspell-mode-map
-              ("C-." . helm-flyspell-correct)))
-
 (use-package magit
   :ensure t
   :defer
@@ -240,71 +220,27 @@
    (magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
    (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
 
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode
-  :commands projectile-global-mode
-  :defer 5
-  :bind (("C-s-p" . projectile-find-file))
+;; (use-package projectile
+;;   :ensure t
+;;   :diminish projectile-mode
+;;   :commands projectile-global-mode
+;;   :defer 5
+;;   :bind (("C-s-p" . projectile-find-file))
 
-  :config
-  (use-package helm-projectile
-    :demand t
-    :bind (("C-s-p" . projectile-find-file)
-           ("s-h" . helm-projectile-grep))
-    :config
-    (setq projectile-completion-system 'helm)
-    (helm-projectile-on))
-  (projectile-global-mode))
+;;   :config
+;;   (use-package helm-projectile
+;;     :demand t
+;;     :bind (("C-s-p" . projectile-find-file)
+;;            ("s-h" . helm-projectile-grep))
+;;     :config
+;;     (setq projectile-completion-system 'helm)
+;;     (helm-projectile-on))
+;;   (projectile-global-mode))
 
 (use-package s
   :ensure t)
 
 (use-package f
-  :ensure t)
-
-(use-package helm
-  :ensure t
-  :bind (("s-;" . helm-for-files)
-         ("s-'" . helm-M-x)
-         ("s-f" . helm-find-files)
-         ("M-y" . helm-show-kill-ring)
-         ("s-RET" . 'helm-man-woman)
-         :map helm-map
-         ("C-w" . backward-kill-word)
-         ("C-S-n" . mh/helm-next-line-fast)
-         ("C-S-p" . mh/helm-previous-line-fast))
-  :config
-  (require 'helm-command)
-  (require 'helm-for-files)
-  (helm-mode)
-
-  (defun mh/helm-next-line-fast ()
-    (interactive)
-    (progn (helm-next-line 5)))
-
-  (defun mh/helm-previous-line-fast ()
-    (interactive)
-    (progn (helm-previous-line 5)))
-
-
-  (defun helm-fasd ()
-    "Preconfigured helm to search using fasd."
-    (interactive)
-    (helm :sources '(helm-source-fasd)
-          :buffer "*helm async fasd source*"))
-
-  (defvar helm-source-fasd
-    (helm-build-sync-source "helm-source-fasd"
-      :volatile 't
-      :candidates (lambda () (s-lines (shell-command-to-string "@fasd@/bin/fasd -lR")))
-      :action 'helm-type-file-actions)))
-
-(use-package helm-swoop
-  :ensure t
-  :bind ("M-s o" . helm-swoop))
-
-(use-package wgrep-helm
   :ensure t)
 
 (use-package solarized-theme
@@ -314,7 +250,6 @@
   (setq solarized-use-variable-pitch nil)
   (setq solarized-high-contrast-mode-line t)
   :config
-  ;; (load-theme 'solarized-light)
   )
 
 (use-package avy
@@ -457,7 +392,6 @@ Position the cursor at its beginning, according to the current mode."
   (global-set-key (kbd "<f7>") (Λ (switch-to-buffer "*scratch*")))
   (global-set-key (kbd "<f9>") 'calc)
   (global-set-key (kbd "M-SPC") 'cycle-spacing)
-  (global-set-key (kbd "C-h") 'backward-delete-char)
 
   (global-set-key (kbd "C-<f5>") 'compile)
   (global-set-key (kbd "<f5>") 'compile-dwim)
@@ -880,7 +814,9 @@ Position the cursor at its beginning, according to the current mode."
     ("g" first-error "first")
     ("o" (lambda () (interactive) (switch-to-buffer-other-window next-error-last-buffer)) "error buf")
     ("q" nil "cancel"))
-  :bind (("M-g" . hydra-goto-error/body)))
+  :bind
+  ;; (("M-g" . hydra-goto-error/body))
+  )
 
 (use-package jq-mode
   :ensure t)
@@ -1150,8 +1086,8 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package ibuffer-vc
   :ensure t)
 
-(use-package ibuffer-projectile
-  :ensure t)
+;; (use-package ibuffer-projectile
+;;   :ensure t)
 
 (use-package json-mode
   :ensure t)
@@ -1266,7 +1202,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (which-key-mode))
 (use-package lsp-ui :commands lsp-ui-mode)
-(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package dap-mode
   :hook
   (lsp-mode . dap-mode)
@@ -1281,9 +1217,6 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package annotate
-  :ensure t)
-
-(use-package counsel-jq
   :ensure t)
 
 (use-package org-drill
@@ -1307,8 +1240,8 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package systemd
   :ensure t)
 
-(use-package helm-rg
-  :ensure t)
+;; (use-package helm-rg
+;;   :ensure t)
 
 (use-package hledger-mode
   :ensure t
@@ -1368,8 +1301,8 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package treemacs
   :ensure t)
 
-(use-package treemacs-projectile
-  :ensure t)
+;; (use-package treemacs-projectile
+;;   :ensure t)
 
 (use-package just-mode
   :ensure t)
@@ -1397,11 +1330,227 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package gptel
   :ensure t
   :bind ("C-c C-<return>" . gptel-send)
-  )
+  :config
+  (gptel-make-openai "Perplexity"
+    :host "api.perplexity.ai"
+    :key "@gptelPerplexityApiKey@"
+    :endpoint "/chat/completions"
+    :stream t
+    :models '(llama-3.1-sonar-huge-128k-online
+              llama-3.1-sonar-large-128k-chat))
+
+  (gptel-make-gemini "Gemini" :key "@gptelGeminiApiKey@" :stream t)
+
+  (setq gptel-api-key "@gptelOpenAiApiKey@")
+
+  (gptel-make-anthropic "Claude"
+    :stream t
+    :key "@gptelAnthropicApiKey@"))
 
 (use-package diff-hl
   :ensure t
   :init
   (global-diff-hl-mode))
+
+(use-package vertico
+  :ensure t
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
+
+(use-package savehist
+  :ensure t
+  :init
+  (savehist-mode))
+
+(use-package project
+  :ensure t)
+
+(use-package marginalia
+  :ensure t
+  :after vertico
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
+  :init
+  (marginalia-mode))
+
+(use-package consult-project-extra
+  :ensure t
+  :after consult
+  :bind
+  )
+
+(use-package consult
+  ;; Replace bindings. Lazily loaded by `use-package'.
+  :bind (;; CUSTOM
+         ("s-;" . consult-recent-file)
+         ("s-f" . mh/consult-fasd)
+         ;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  (defun mh/consult-fasd ()
+    (interactive)
+    (find-file (consult--read
+                (consult--async-command (lambda (input) (list "fasd" "-Rl" (string-trim input))))
+                :prompt "fasd: ")))
+
+  ;; Tweak the register preview for `consult-register-load',
+  ;; `consult-register-store' and the built-in commands.  This improves the
+  ;; register formatting, adds thin separator lines, register sorting and hides
+  ;; the window mode line.
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+  )
+
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-s-." . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t ; only need to install it, embark loads it after consult if found
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package recentf
+  :ensure t
+  :init
+  (recentf-mode 1)
+  :config
+  (setq recentf-max-menu-items 99999))
+
+(use-package dogears
+  :ensure t
+  :bind (:map global-map
+              ("M-g M-r" . dogears-remember)
+              ("M-g M-d" . dogears-go)
+              ("M-g M-b" . dogears-back)
+              ("M-g M-f" . dogears-forward)
+              ("M-g M-D" . dogears-list)
+              ;; ("M-g M-D" . dogears-sidebar)
+              )
+  :init (dogears-mode))
 
 ;;;

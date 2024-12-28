@@ -47,8 +47,9 @@ in emacsWithPackages (epkgs:
       avy
       annotate
       beacon
+      consult
+      consult-project-extra
       my_copilot
-      counsel-jq
       company
       dash
       deadgrep
@@ -57,11 +58,14 @@ in emacsWithPackages (epkgs:
       dired-plus
       dired-filter
       direnv
+      dogears
       dockerfile-mode
       docker
       doom-themes
       dumb-jump
       dyalog-mode
+      embark
+      embark-consult
       eros
       evil
       evil-numbers
@@ -83,11 +87,11 @@ in emacsWithPackages (epkgs:
       groovy-mode
       graphviz-dot-mode
       haskell-mode
-      helm
-      helm-flyspell
-      helm-projectile
-      helm-rg
-      helm-swoop
+      # helm
+      # helm-flyspell
+      # helm-projectile
+      # helm-rg
+      # helm-swoop
       hl-anything
       hledger-mode
       hydra
@@ -116,16 +120,18 @@ in emacsWithPackages (epkgs:
       lsp-treemacs
       which-key
       lsp-ui
-      helm-lsp
+      # helm-lsp
       dap-mode
       ##########
       markdown-mode
       markdown-preview-mode
+      marginalia
       mvn
       magit
       move-text
       multiple-cursors
       nix-mode
+      orderless
       org-drill
       ormolu
       ox-jira
@@ -153,7 +159,8 @@ in emacsWithPackages (epkgs:
       typescript-mode
       use-package
       verb
-      wgrep-helm
+      vertico
+      # wgrep-helm
       which-key
       yaml-mode
       yasnippet
