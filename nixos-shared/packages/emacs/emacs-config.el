@@ -1357,7 +1357,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :custom
   (vertico-cycle t)
   :init
-  (vertico-mode))
+  (vertico-mode)
+  (vertico-buffer-mode))
 
 (use-package savehist
   :ensure t
@@ -1379,13 +1380,16 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :after consult
   :bind
-  )
+  ("C-s-p" . consult-project-extra-find))
 
 (use-package consult
   ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; CUSTOM
-         ("s-;" . consult-recent-file)
-         ("s-f" . mh/consult-fasd)
+         ("s-;" . consult-buffer)
+         ("s-f" . find-file)
+         ("s-RET" . consult-man)
+         ("s-F" . mh/consult-fasd)
+         ("s-\\" . execute-extended-command)
          ;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
@@ -1450,7 +1454,8 @@ string). It returns t if a new completion is found, nil otherwise."
     (interactive)
     (find-file (consult--read
                 (consult--async-command (lambda (input) (list "fasd" "-Rl" (string-trim input))))
-                :prompt "fasd: ")))
+                :prompt "fasd: "
+                :category 'file)))
 
   ;; Tweak the register preview for `consult-register-load',
   ;; `consult-register-store' and the built-in commands.  This improves the
@@ -1492,13 +1497,20 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
 
+(defun mh/embark-kagi-search (term)
+    (interactive "sSearch Term: ")
+    (browse-url-xdg-open
+     (format "http://kagi.com/search?q=%s" term)))
+
 (use-package embark
   :ensure t
 
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-s-." . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+   ("C-s-." . embark-dwim)      ;; good alternative: M-.
+   ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
+   :map embark-general-map
+   ("k" . mh/embark-kagi-search))
 
   :init
 
