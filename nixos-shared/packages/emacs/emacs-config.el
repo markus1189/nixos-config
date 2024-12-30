@@ -1565,4 +1565,11 @@ string). It returns t if a new completion is found, nil otherwise."
               )
   :init (dogears-mode))
 
+(use-package string-inflection
+  :after embark
+  :bind (:map embark-identifier-map
+              ("-" . #'string-inflection-all-cycle))
+  :init
+  (add-to-list 'embark-repeat-actions #'stringInflectionAllCycle))
+
 ;;;
