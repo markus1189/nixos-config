@@ -1,6 +1,10 @@
 (require 'package)
 (require 'quick-yes) ;; added via load path...
 (require 'dired+) ;; added via load path...
+(require 'iy-go-to-char)
+
+(global-set-key (kbd "M-m") 'iy-go-to-char)
+
 
 (if window-system
     (progn
@@ -1565,8 +1569,5 @@ string). It returns t if a new completion is found, nil otherwise."
   (("C-c r" . vr/replace)
    ("C-c q" . vr/query-replace)
    ("C-c m" . vr/mc-mark)))
-
-(use-package iy-go-to-char
-  :ensure t)
 
 ;;;
