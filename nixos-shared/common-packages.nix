@@ -11,7 +11,7 @@
         comma
         dnsutils
         ed
-        edbrowse
+        # edbrowse
         gnupg
         gnupg1
         gitFull

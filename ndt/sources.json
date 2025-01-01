@@ -48,14 +48,9 @@
     "url": "https://github.com/darktable-org/darktable"
   },
   "emacs-dired-plus": {
-    "sha256": "0vf463psg70bf24k8jl8hp6mqcs51434nbp859w00i6j2fb1i68x",
+    "sha256": "1xnxgjd9nrjz16avyn17ryrw9w3pzjvl14y78mjn64a54fbxxjrf",
     "type": "url",
     "url": "https://www.emacswiki.org/emacs/download/dired+.el"
-  },
-  "emacs-quick-yes": {
-    "sha256": "0xs2y0hyw947g0m42fnyw0b4rxi85wmd5d5w0xwh9ic0qbq1mq8r",
-    "type": "url",
-    "url": "https://download.tuxfamily.org/user42/quick-yes.el"
   },
   "gitignore-io": {
     "name": "gitignore-io",
@@ -94,6 +89,22 @@
     "sha256": "1p3w3zicqrcqxcbhq4rymrsv0njz6kivvzxwjq5rznz7zmpm0s22",
     "type": "github",
     "url": "https://github.com/StevenBlack/hosts"
+  },
+  "iy-go-to-char": {
+    "branch": "master",
+    "date": "2015-09-27T10:26:20+08:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "hash": "sha256-oZZDUNUG2ZQZ2jDxYSiBo1r2Vvnf9SHaOzPrjYcflS0=",
+    "leaveDotGit": false,
+    "owner": "doitian",
+    "path": "/nix/store/z4h8iqin26vw7v7n3jffi220vs4s1f7c-iy-go-to-char",
+    "repo": "iy-go-to-char",
+    "rev": "04ab4f5f3a241cbbc9b8c178a22b412a62f632f9",
+    "sha256": "0bcm3y3qvsrk7gd23xfzz5bgcnm3h4l63w9hv8cr9n86sm8475m1",
+    "type": "github",
+    "url": "https://github.com/doitian/iy-go-to-char"
   },
   "kmonad": {
     "branch": "master",

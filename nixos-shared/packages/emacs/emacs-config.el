@@ -740,19 +740,6 @@ Position the cursor at its beginning, according to the current mode."
   :bind (("<f5>" . recompile))
   :config
 
-  (defun play-sound-file-async (file)
-    "Play FILE asynchronously"
-    (start-process-shell-command "appt-notify" nil "@mplayer@/bin/mplayer" "-really-quiet" file))
-
-  (defun mh/compilation-start-sound (proc)
-    (interactive)
-    (play-sound-file-async "@popSound@"))
-
-  (defun mh/compilation-play-sound-after-finish (buffer string)
-    "Play a sound after compilation finished"
-    (if (s-prefix? "finished" string)
-        (play-sound-file-async "@yesSound@")
-      (play-sound-file-async "@noSound@")))
 
   (require 'ansi-color)
   (defun colorize-compilation-buffer ()
@@ -760,10 +747,8 @@ Position the cursor at its beginning, according to the current mode."
     (ansi-color-apply-on-region compilation-filter-start (point))
     (toggle-read-only))
 
-  (add-hook 'compilation-finish-functions 'mh/compilation-play-sound-after-finish)
   :hook
-  (compilation-filter . colorize-compilation-buffer)
-  (compilation-start . mh/compilation-start-sound))
+  (compilation-filter . colorize-compilation-buffer))
 
 (use-package whitespace
   :ensure t
@@ -1580,5 +1565,8 @@ string). It returns t if a new completion is found, nil otherwise."
   (("C-c r" . vr/replace)
    ("C-c q" . vr/query-replace)
    ("C-c m" . vr/mc-mark)))
+
+(use-package iy-go-to-char
+  :ensure t)
 
 ;;;

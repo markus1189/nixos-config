@@ -116,6 +116,7 @@ in rec {
             version = self.ndtSources.darktable.rev;
             src = self.ndtSources.darktable.outPath;
             patches = [ ];
+            dontVersionCheck = true;
           });
       })
     ]);
@@ -234,19 +235,18 @@ in rec {
   fonts = {
     fontDir.enable = true;
     enableGhostscriptFonts = true;
-    fonts = with pkgs; [
+    packages = with pkgs; [
       corefonts
       google-fonts
       inconsolata
       iosevka
-      nerdfonts
       powerline-fonts
       source-code-pro
       source-sans-pro
       source-serif-pro
       ubuntu_font_family
       unifont
-    ];
+    ] ++ builtins.filter pkgs.lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
 
     fontconfig = {
       antialias = true;

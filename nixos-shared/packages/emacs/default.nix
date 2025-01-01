@@ -1,10 +1,10 @@
-{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, mplayer, fasd
+{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, fasd
 , plantuml, pandoc, git, ndtSources }:
 
 let
   secrets = import ../../secrets.nix;
   mutatedEmacsConfig = mutate ./emacs-config.el {
-    inherit mplayer fasd plantuml pandoc;
+    inherit fasd plantuml pandoc;
     yesSound = ./yes.wav;
     noSound = ./no.wav;
     popSound = ./pop.wav;
@@ -20,11 +20,15 @@ let
   emacsWithPackages = (emacsPackagesFor emacs).emacsWithPackages;
   quick-yes = runCommandLocal "install-quick-yes" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${ndtSources.emacs-quick-yes} $out/share/emacs/site-lisp/quick-yes.el
+    cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
   '';
   dired-plus = runCommandLocal "install-dired-plus" { } ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.emacs-dired-plus} $out/share/emacs/site-lisp/dired+.el
+  '';
+  iy-go-to-char = runCommandLocal "install-iy-go-to-char" { } ''
+    mkdir -p $out/share/emacs/site-lisp
+    cp ${ndtSources.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
   '';
 in emacsWithPackages (epkgs:
   (with epkgs.melpaPackages; with epkgs;
@@ -101,6 +105,7 @@ in emacsWithPackages (epkgs:
       iedit
       indent-guide
       itail
+      iy-go-to-char
       js2-refactor
       js2-mode
       json-mode

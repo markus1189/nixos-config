@@ -41,6 +41,7 @@ import XMonad
     mod1Mask,
     mod4Mask,
     moveResizeWindow,
+    rescreen,
     resource,
     runQuery,
     sendMessage,
@@ -75,6 +76,7 @@ import XMonad
     xK_o,
     xK_p,
     xK_q,
+    xK_r,
     xK_s,
     xK_semicolon,
     xK_space,
@@ -87,7 +89,7 @@ import XMonad
     (.|.),
     (<+>),
     (=?),
-    (|||), rescreen, xK_r,
+    (|||),
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
@@ -119,9 +121,11 @@ import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
 import XMonad.Layout.BinarySpacePartition (emptyBSP)
+import XMonad.Layout.DragPane (DragType (Horizontal), dragPane)
 import XMonad.Layout.FocusTracking (focusTracking)
 import XMonad.Layout.Grid (Grid (..))
 import XMonad.Layout.IM (Property (Role), withIM)
+import XMonad.Layout.LayoutScreens (layoutScreens)
 import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
 import XMonad.Layout.MultiToggle.Instances
   ( StdTransformers (FULL, NOBORDERS),
@@ -159,8 +163,6 @@ import XMonad.Util.NamedScratchpad
     namedScratchpadManageHook,
   )
 import XMonad.Util.Run (spawnPipe)
-import XMonad.Layout.LayoutScreens (layoutScreens)
-import XMonad.Layout.DragPane (dragPane, DragType (Horizontal))
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -199,18 +201,19 @@ myManageHook =
         "flameshot",
         "Gpick",
         "Ubuntu-tweak",
-        "de-tud-cs-se-flashcards-Main",
         "xv",
         "mplayer2",
         "Gxmessage",
-        "gxmessage",
+        "jklgxmessage",
         "de-hackermuehle-pdfpresenter-PdfPresenter",
         "gtk-recordmydesktop",
         "Gtk-recordmydesktop",
         "nethack-qt",
         "zoom",
         "sun-awt-X11-XWindowPeer",
-        ".scrcpy-wrapped"
+        ".scrcpy-wrapped",
+        "Emulator",
+        "qemu-system-x86_64"
       ]
     titleFloats =
       [ "Save As...",
@@ -321,12 +324,13 @@ myKeys =
   [ ((myModCtrl, xK_Return), windows W.swapMaster),
     ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
-    ((myModKey, xK_BackSpace),
-     submap . M.fromList $
+    ( (myModKey, xK_BackSpace),
+      submap . M.fromList $
         [ ((0, xK_BackSpace), focusUrgent),
           ((0, xK_s), layoutScreens 2 (dragPane Horizontal 0.5 0.5)),
           ((0, xK_r), rescreen)
-        ]),
+        ]
+    ),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),

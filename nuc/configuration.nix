@@ -104,7 +104,6 @@ in {
       feh
       jq
       lsof
-      mplayer
       nix-index
       nixVersions.git
       parallel

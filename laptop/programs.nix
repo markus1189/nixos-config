@@ -100,7 +100,6 @@ in {
         mitmproxy
         mpc_cli
         mr
-        mplayer
         mtools
         mu
         libressl.nc
