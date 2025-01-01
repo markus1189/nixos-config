@@ -20,9 +20,6 @@
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
  '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
- '(ace-jump-face-foreground ((t (:foreground "dark orange" :underline nil))))
- '(agda2-highlight-datatype-face ((t (:foreground "deep sky blue"))))
- '(agda2-highlight-function-face ((t (:foreground "deep sky blue"))))
  '(annotate-highlight-secondary ((t (:underline "dim gray"))))
  '(avy-lead-face ((t (:background "orange1" :foreground "black"))))
  '(avy-lead-face-0 ((t (:background "pale green" :foreground "black"))))
@@ -193,9 +190,10 @@
 
 (use-package flyspell
   :ensure t
-  :hook
-  (text-mode . flyspell-mode)
-  (prog-mode . flyspell-prog-mode))
+  ;; :hook
+  ;; (text-mode . flyspell-mode)
+  ;; (prog-mode . flyspell-prog-mode)
+  )
 
 (use-package magit
   :ensure t
@@ -1389,7 +1387,7 @@ string). It returns t if a new completion is found, nil otherwise."
          ("s-f" . find-file)
          ("s-RET" . consult-man)
          ("s-F" . mh/consult-fasd)
-         ("s-\\" . execute-extended-command)
+         ("s-'" . execute-extended-command)
          ;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
@@ -1571,5 +1569,16 @@ string). It returns t if a new completion is found, nil otherwise."
               ("-" . #'string-inflection-all-cycle))
   :init
   (add-to-list 'embark-repeat-actions #'stringInflectionAllCycle))
+
+(use-package eat
+  :ensure t
+  :bind (("C-c e" . eat)))
+
+(use-package visual-regexp
+  :ensure t
+  :bind
+  (("C-c r" . vr/replace)
+   ("C-c q" . vr/query-replace)
+   ("C-c m" . vr/mc-mark)))
 
 ;;;

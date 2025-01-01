@@ -27,7 +27,7 @@ let
     cp ${ndtSources.emacs-dired-plus} $out/share/emacs/site-lisp/dired+.el
   '';
 in emacsWithPackages (epkgs:
-  (with epkgs.melpaPackages;
+  (with epkgs.melpaPackages; with epkgs;
     let
       my_copilot = epkgs.callPackage
         ({ dash, editorconfig, f, fetchFromGitHub, nodejs, s, trivialBuild, }:
@@ -64,6 +64,7 @@ in emacsWithPackages (epkgs:
       doom-themes
       dumb-jump
       dyalog-mode
+      eat
       embark
       embark-consult
       eros
@@ -105,6 +106,7 @@ in emacsWithPackages (epkgs:
       json-mode
       jsonnet-mode
       just-mode
+      jump-char
       jq-mode
       (kubernetes.overrideAttrs
         (old: { buildInputs = old.buildInputs ++ [ git ]; }))
@@ -160,6 +162,7 @@ in emacsWithPackages (epkgs:
       use-package
       verb
       vertico
+      visual-regexp
       # wgrep-helm
       which-key
       yaml-mode
