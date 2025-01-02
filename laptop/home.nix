@@ -375,6 +375,7 @@ in {
         max_preview_height = 5;
         history_filter = [ "DONOTTRACK" ];
         inline_height = 25;
+        update_check = false;
       };
     };
 
