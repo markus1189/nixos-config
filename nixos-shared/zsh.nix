@@ -68,6 +68,8 @@ in {
       };
 
       interactiveShellInit = ''
+          [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+
           autoload -U colors && colors
           autoload -z edit-command-line
 
@@ -99,9 +101,6 @@ in {
           # enableGlobalCompInit is false
           autoload -U compinit ; compinit
           autoload -U bashcompinit ; bashcompinit
-
-          # Emacs eat integration, go to prompt and annotate exit code
-          [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
       '';
     };
   };
