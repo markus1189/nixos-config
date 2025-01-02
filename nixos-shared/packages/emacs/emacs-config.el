@@ -1316,7 +1316,9 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package gptel
   :ensure t
-  :bind ("C-c C-<return>" . gptel-send)
+  :bind (
+         ("C-c C-<return>" . gptel-send)
+         ("C-c g" . gptel))
   :config
   (gptel-make-openai "Perplexity"
     :host "api.perplexity.ai"
