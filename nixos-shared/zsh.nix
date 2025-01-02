@@ -75,6 +75,7 @@ in {
 
           setopt appendhistory
           setopt hist_ignore_all_dups
+
           bindkey -e
 
           zle -N edit-command-line
@@ -98,6 +99,9 @@ in {
           # enableGlobalCompInit is false
           autoload -U compinit ; compinit
           autoload -U bashcompinit ; bashcompinit
+
+          # Emacs eat integration, go to prompt and annotate exit code
+          [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
       '';
     };
   };
