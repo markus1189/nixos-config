@@ -9,6 +9,10 @@
     ./globalprotect/default.nix
   ];
 
+  hardware.graphics.extraPackages = with pkgs; [
+    intel-compute-runtime
+  ];
+
 
   # services.udev = {
   #   # for digispark
