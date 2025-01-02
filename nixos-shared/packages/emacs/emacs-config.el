@@ -1561,7 +1561,12 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package eat
   :ensure t
-  :bind (("C-c e" . eat)))
+  :bind (("C-c e" . eat))
+  :init
+  (defun mh/display-line-numbers--turn-off ()
+    (display-line-numbers-mode -1))
+  :hook
+  (eat-mode . mh/display-line-numbers--turn-off))
 
 (use-package visual-regexp
   :ensure t
