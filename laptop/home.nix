@@ -448,7 +448,7 @@ in {
     mpv = {
       enable = true;
       package = pkgs.mpv.override {
-        scripts = with pkgs.mpvScripts; [ sponsorblock mpris ];
+        scripts = with pkgs.mpvScripts; [ sponsorblock mpris smartskip ];
       };
     };
 
