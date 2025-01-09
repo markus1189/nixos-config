@@ -116,7 +116,7 @@ in emacsWithPackages (epkgs:
       (kubernetes.overrideAttrs
         (old: { buildInputs = old.buildInputs ++ [ git ]; }))
       # kubel
-      # lua-mode
+      lua-mode
       log4j-mode
       liso-theme
       ##########
@@ -170,6 +170,7 @@ in emacsWithPackages (epkgs:
       visual-regexp
       # wgrep-helm
       which-key
+      web-mode
       yaml-mode
       yasnippet
 

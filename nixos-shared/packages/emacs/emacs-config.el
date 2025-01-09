@@ -5,7 +5,6 @@
 
 (global-set-key (kbd "M-m") 'iy-go-to-char)
 
-
 (if window-system
     (progn
       (tool-bar-mode -1)
@@ -15,6 +14,65 @@
 
 (global-display-line-numbers-mode t)
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(async-shell-command-buffer 'new-buffer)
+ '(custom-enabled-themes '(wombat))
+ '(dired-auto-revert-buffer 'dired-directory-changed-p)
+ '(dired-dwim-target t)
+ '(dired-filter-saved-filters '(("custom-filters" (omit))))
+ '(dired-guess-shell-alist-user
+   '(("\\.hp\\'" "hp2pretty" "hp2ps")
+     ("\\.\\(svg\\)\\|\\(png\\)\\|\\(jpg\\)\\'" "imv")
+     ("\\.\\(mp4\\)\\|\\(avi\\)\\|\\(mkv\\)\\|\\(m4v\\)\\'" "mpv")
+     ("\\.pdf\\'" "zathura" "pdftotext ? /dev/stdout" "evince")
+     ("\\.ps\\'" "evince")
+     ("\\.\\(ods\\)\\|\\(odf\\)\\'" "libreoffice")
+     ("\\.\\(zip\\)\\|\\(rar\\)\\'" "file-roller")
+     ("\\.jar\\'" "java -jar")))
+ '(dired-isearch-filenames 'dwim)
+ '(dired-listing-switches "-al --block-size=M --group-directories-first")
+ '(diredp-hide-details-initially-flag nil)
+ '(ediff-merge-split-window-function 'split-window-horizontally)
+ '(ediff-split-window-function 'split-window-horizontally)
+ '(ediff-window-setup-function 'ediff-setup-windows-plain)
+ '(gptel-default-mode 'org-mode)
+ '(gptel-directives
+   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+     (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+     (writing . "You are a large language model and a writing assistant. Respond concisely.")
+     (chat . "You are a large language model and a conversation partner. Respond concisely.")
+     (commit . "Based on the code changes, give me a short but well written git commit message describing the change.  Adhere to common commit etiquette and formatting guidelines.  Prefer a bullet list as the body of the message.")))
+ '(helm-for-files-preferred-list
+   '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
+ '(helm-split-window-default-side 'right)
+ '(initial-major-mode 'org-mode)
+ '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
+ '(magit-diff-options '("--minimal" "--patience"))
+ '(magit-diff-refine-hunk 'all)
+ '(magit-log-arguments '("--graph" "--color" "--decorate" "-n100"))
+ '(magit-log-auto-more t)
+ '(magit-merge-arguments '("--no-ff"))
+ '(magit-mode-hook '(magit-load-config-extensions))
+ '(magit-process-log-max 50)
+ '(magit-process-popup-time -1)
+ '(magit-rebase-arguments '("--autostash"))
+ '(magit-remote-ref-format 'remote-slash-branch)
+ '(magit-repo-dirs '("~/repos"))
+ '(magit-repository-directories '("~/repos"))
+ '(magit-restore-window-configuration t)
+ '(magit-revert-buffers 'silent t)
+ '(magit-server-window-for-rebase 'pop-to-buffer)
+ '(magit-set-upstream-on-push t)
+ '(magit-tag-arguments '("--annotate"))
+ '(magit-use-overlays t)
+ '(org-babel-load-languages '((emacs-lisp . t) (python . t)))
+ '(package-selected-packages
+   '(iy-go-to-char iy-goto-char visual-regexp vertico-buffer consult-extra-project counsel-jq yaml-mode which-key vertico verb use-package undo-tree typescript-mode treemacs-projectile transpose-frame terraform-mode systemd string-inflection strace-mode solarized-theme smartparens sbt-mode rust-mode rg restclient rainbow-mode protobuf-mode plantuml-mode persistent-scratch pdf-tools ox-jira ormolu org-drill orderless nix-mode mvn move-text markdown-preview-mode marginalia magit lsp-ui lsp-metals lsp-haskell log4j-mode liso-theme kubernetes just-mode jsonnet-mode json-mode js2-refactor jq-mode itail indent-guide iedit ibuffer-vc ibuffer-projectile hledger-mode hl-anything groovy-mode graphviz-dot-mode gptel go-complete go-autocomplete git-link fullframe format-all flycheck-yamllint flycheck-haskell find-temp-file fasd expand-region evil-numbers eros embark-consult editorconfig dyalog-mode dumb-jump doom-themes dogears dockerfile-mode docker direnv dired-filter diff-hl dhall-mode deadgrep csv-mode company beacon annotate))
+ '(whitespace-action '(auto-cleanup)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -24,6 +82,9 @@
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
  '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
+ '(ace-jump-face-foreground ((t (:foreground "dark orange" :underline nil))))
+ '(agda2-highlight-datatype-face ((t (:foreground "deep sky blue"))))
+ '(agda2-highlight-function-face ((t (:foreground "deep sky blue"))))
  '(annotate-highlight-secondary ((t (:underline "dim gray"))))
  '(avy-lead-face ((t (:background "orange1" :foreground "black"))))
  '(avy-lead-face-0 ((t (:background "pale green" :foreground "black"))))
@@ -68,12 +129,19 @@
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
  '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
+ '(embark-keybinding ((t (:foreground "dark orange" :inherit success))))
  '(eshell-prompt ((t (:foreground "light sky blue" :weight bold))))
  '(flyspell-duplicate ((t (:underline "red"))))
  '(flyspell-incorrect ((t (:foreground "red" :underline "red"))))
  '(guide-key/highlight-command-face ((t (:foreground "spring green"))))
  '(guide-key/key-face ((t (:foreground "dark orange"))))
  '(guide-key/prefix-command-face ((t (:foreground "dark orange"))))
+ '(helm-candidate-number ((t (:inherit helm-source-header :height 0.7))))
+ '(helm-ff-directory ((t (:foreground "#8ac6f2"))))
+ '(helm-ff-executable ((t (:foreground "chartreuse2"))))
+ '(helm-selection ((t (:background "gray24" :weight bold))))
+ '(helm-source-header ((t (:foreground "DarkOrange2" :weight bold :height 1.3 :family "Sans Serif"))))
+ '(helm-visible-mark ((t (:background "dark orange" :foreground "black"))))
  '(hl-line ((t (:background "gray20"))))
  '(hl-paren-face ((t (:weight ultra-bold))) t)
  '(linum ((t (:inherit (shadow default) :height 0.9))))
@@ -111,62 +179,6 @@
  '(writegood-passive-voice-face ((t (:inherit font-lock-warning-face :background "LemonChiffon" :foreground "black"))))
  '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(async-shell-command-buffer 'new-buffer)
- '(custom-enabled-themes '(wombat))
- '(dired-auto-revert-buffer 'dired-directory-changed-p)
- '(dired-dwim-target t)
- '(dired-filter-saved-filters '(("custom-filters" (omit))))
- '(dired-guess-shell-alist-user
-   '(("\\.hp\\'" "hp2pretty" "hp2ps")
-     ("\\.\\(svg\\)\\|\\(png\\)\\|\\(jpg\\)\\'" "imv")
-     ("\\.\\(mp4\\)\\|\\(avi\\)\\|\\(mkv\\)\\|\\(m4v\\)\\'" "mpv")
-     ("\\.pdf\\'" "zathura" "pdftotext ? /dev/stdout" "evince")
-     ("\\.ps\\'" "evince")
-     ("\\.\\(ods\\)\\|\\(odf\\)\\'" "libreoffice")
-     ("\\.\\(zip\\)\\|\\(rar\\)\\'" "file-roller")
-     ("\\.jar\\'" "java -jar")))
- '(dired-isearch-filenames 'dwim)
- '(dired-listing-switches "-al --block-size=M --group-directories-first")
- '(diredp-hide-details-initially-flag nil)
- '(ediff-merge-split-window-function 'split-window-horizontally)
- '(ediff-split-window-function 'split-window-horizontally)
- '(ediff-window-setup-function 'ediff-setup-windows-plain)
- '(gptel-default-mode 'org-mode)
- '(gptel-directives
-   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
-     (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-     (writing . "You are a large language model and a writing assistant. Respond concisely.")
-     (chat . "You are a large language model and a conversation partner. Respond concisely.")
-     (commit . "Based on the code changes, give me a short but well written git commit message describing the change.  Adhere to common commit etiquette and formatting guidelines.  Prefer a bullet list as the body of the message.")))
- ;; '(helm-for-files-preferred-list
-   ;; '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
- ;; '(helm-split-window-default-side 'right)
- '(initial-major-mode 'org-mode)
- '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
- '(magit-diff-options '("--minimal" "--patience"))
- '(magit-diff-refine-hunk nil)
- '(magit-log-arguments '("--graph" "--color" "--decorate" "-n100"))
- '(magit-log-auto-more t)
- '(magit-merge-arguments '("--no-ff"))
- '(magit-mode-hook '(magit-load-config-extensions))
- '(magit-process-log-max 50)
- '(magit-process-popup-time -1)
- '(magit-rebase-arguments '("--autostash"))
- '(magit-remote-ref-format 'remote-slash-branch)
- '(magit-repo-dirs '("~/repos"))
- '(magit-repository-directories '("~/repos"))
- '(magit-restore-window-configuration t)
- '(magit-revert-buffers 'silent t)
- '(magit-server-window-for-rebase 'pop-to-buffer)
- '(magit-set-upstream-on-push t)
- '(magit-tag-arguments '("--annotate"))
- '(magit-use-overlays t)
- '(whitespace-action '(auto-cleanup)))
 
 ;; make unpure packages archives unavailable
 (setq package-archives nil)
@@ -1063,8 +1075,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :commands ()
   :bind (("C-c C-u" . string-inflection-all-cycle)))
 
-;; (use-package lua-mode
-;;   :ensure t)
+(use-package lua-mode
+  :ensure t)
 
 (use-package ibuffer
   :ensure t
@@ -1155,7 +1167,17 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package format-all
   :ensure t
   :bind
-  ("C-c C-r" . format-all-buffer))
+  ("C-c C-r" . format-all-buffer)
+  :config
+  (define-format-all-formatter jq
+    (:executable "jq")
+    (:install)
+    (:languages "JSON")
+    (:features)
+    (:format (format-all--buffer-easy executable ".")))
+  (setq-default format-all-formatters
+                '(("Nix" (nixfmt))
+                  ("JSON" (jq)))))
 
 ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
 (setq lsp-keymap-prefix "s-\\")
@@ -1325,6 +1347,7 @@ string). It returns t if a new completion is found, nil otherwise."
     :key "@gptelPerplexityApiKey@"
     :endpoint "/chat/completions"
     :stream t
+    ;; see https://docs.perplexity.ai/guides/model-cards
     :models '(llama-3.1-sonar-huge-128k-online
               llama-3.1-sonar-large-128k-chat))
 
@@ -1486,9 +1509,9 @@ string). It returns t if a new completion is found, nil otherwise."
   )
 
 (defun mh/embark-kagi-search (term)
-    (interactive "sSearch Term: ")
-    (browse-url-xdg-open
-     (format "http://kagi.com/search?q=%s" term)))
+  (interactive "sSearch Term: ")
+  (browse-url-xdg-open
+   (format "http://kagi.com/search?q=%s" term)))
 
 (use-package embark
   :ensure t
@@ -1575,5 +1598,37 @@ string). It returns t if a new completion is found, nil otherwise."
   (("C-c r" . vr/replace)
    ("C-c q" . vr/query-replace)
    ("C-c m" . vr/mc-mark)))
+
+(use-package ediff
+  :ensure t
+  :bind
+  (("M-s =" . mh/ediff-compare-with-kill))
+  :config
+  (defun mh/ediff-compare-with-kill ()
+    "Compare current buffer with kill ring using ediff."
+    (interactive)
+    (let ((cur-buffer (current-buffer))
+          (temp-buffer (generate-new-buffer "*Kill Ring Content*")))
+      (with-current-buffer temp-buffer
+        (yank)
+        (push-mark (point-min) t t))
+      (with-current-buffer temp-buffer
+        (setq reg-A-beg (region-beginning)
+              reg-A-end (region-end))
+        (set-buffer cur-buffer)
+        (setq reg-B-beg (region-beginning)
+              reg-B-end (region-end)))
+      (ediff-regions-internal
+       (get-buffer temp-buffer) reg-A-beg reg-A-end
+       (get-buffer cur-buffer) reg-B-beg reg-B-end
+       nil 'ediff-regions-wordwise 'word-mode nil))))
+
+(use-package web-mode
+  :ensure t
+  :mode
+  "\\.ftl\\'"
+  "\\.ftlh\\'"
+  :config
+  (setq web-mode-engines-alist '(("freemarker" . "\\.ftlh\\'"))))
 
 ;;;
