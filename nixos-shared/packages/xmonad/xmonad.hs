@@ -1,7 +1,7 @@
 import Control.Monad (filterM)
 import Data.Char (toLower)
 import Data.Functor (void, (<&>))
-import Data.List (foldl', isPrefixOf)
+import Data.List (foldl', isPrefixOf, isInfixOf)
 import Data.Map qualified as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
@@ -378,7 +378,7 @@ myKeys =
     ((myModShift, xK_u), scratchTermUpper),
     ((myModShift, xK_w), shiftNextScreen),
     ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
-    ((myModShiftCtrl, xK_h), spawn "env CM_LAUNCHER=rofi CM_HISTLENGTH=30 @clipmenu@/bin/clipmenu -i"),
+    ((myModShiftCtrl, xK_h), spawn "env CM_MAX_CLIPS=9999 CM_LAUNCHER=rofi CM_HISTLENGTH=30 @clipmenu@/bin/clipmenu -i"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     -- Copy to all, kill again
     ((myModKey, xK_a), windows copyToAll),
@@ -420,8 +420,8 @@ myKeysP =
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
     (myModKeyP "o i m", raise ((&&) <$> iclassName "alacritty" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
-    (myModKeyP "o m s", raise (iclassName "teams-for-linux")),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
+    (myModKeyP "o m s", raise (ititleContains "microsoft teams")),
     (myModKeyP "o s i", raise (iclassName "signal")),
     (myModKeyP "o s l", raise (iclassName "slack")),
     (myModKeyP "o s p", raise (iclassName "spotify")),
@@ -437,6 +437,7 @@ myKeysP =
   where
     iclassName cls = MH.className <&> (cls ==) . map toLower
     ititle n = MH.title <&> (n ==) . map toLower
+    ititleContains n =  (n `isInfixOf`) . map toLower <$> MH.title
 
 nextScreen' :: X ()
 nextScreen' = nextScreen >> spawn "@centerMouse@/bin/centerMouse"
