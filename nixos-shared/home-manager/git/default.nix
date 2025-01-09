@@ -80,7 +80,7 @@ in
           user = {
             name = userName;
             email = "markus.hauck@otto.de";
-            signingkey = "D05B45F58CF0C1A7EB22B7009455B3E4562B9C4F";
+            signingkey = "23AF17F2873DB4668901D7063FFAE18A1B582ED2";
           };
 
           commit = {

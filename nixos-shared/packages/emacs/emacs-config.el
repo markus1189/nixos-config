@@ -1346,8 +1346,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :custom
   (vertico-cycle t)
   :init
-  (vertico-mode)
-  (vertico-buffer-mode))
+  (vertico-mode))
 
 (use-package savehist
   :ensure t
