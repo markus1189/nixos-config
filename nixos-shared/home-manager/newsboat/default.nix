@@ -213,6 +213,10 @@ let
     { name = "bodyweightfitness"; }
     { name = "usenet"; }
     { name = "stocks"; }
+    {
+      name = "gridfinity";
+      threshold = 90;
+    }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
