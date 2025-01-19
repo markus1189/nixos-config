@@ -1357,7 +1357,9 @@ string). It returns t if a new completion is found, nil otherwise."
 
   (gptel-make-anthropic "Claude"
     :stream t
-    :key "@gptelAnthropicApiKey@"))
+    :key "@gptelAnthropicApiKey@")
+
+  (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.).")))
 
 (use-package diff-hl
   :ensure t
@@ -1562,7 +1564,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :init
   (recentf-mode 1)
   :config
-  (setq recentf-max-menu-items 99999))
+  (setq recentf-max-menu-items 10)
+  (setq recentf-max-saved-items nil))
 
 (use-package dogears
   :ensure t
