@@ -444,6 +444,10 @@ let
       title = "Salomon DE";
       id = "xb9ujr6s9d3ed1w1";
     }
+    {
+      title = "LOWA Newsletter";
+      id = "6zr0oawurrjiw4saxcnu";
+    }
   ];
 in {
   value = {
