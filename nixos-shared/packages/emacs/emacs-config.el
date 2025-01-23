@@ -1348,8 +1348,8 @@ string). It returns t if a new completion is found, nil otherwise."
     :endpoint "/chat/completions"
     :stream t
     ;; see https://docs.perplexity.ai/guides/model-cards
-    :models '(llama-3.1-sonar-huge-128k-online
-              llama-3.1-sonar-large-128k-chat))
+    :models '(sonar
+              sonar-pro))
 
   (gptel-make-gemini "Gemini" :key "@gptelGeminiApiKey@" :stream t)
 
@@ -1563,9 +1563,9 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :init
   (recentf-mode 1)
-  :config
-  (setq recentf-max-menu-items 10)
-  (setq recentf-max-saved-items nil))
+  (setq recentf-max-menu-items 20)
+  (setq recentf-max-saved-items nil)
+  (run-at-time nil (* 5 60) 'recentf-save-list))
 
 (use-package dogears
   :ensure t
