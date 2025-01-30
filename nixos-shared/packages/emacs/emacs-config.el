@@ -1349,7 +1349,8 @@ string). It returns t if a new completion is found, nil otherwise."
     :stream t
     ;; see https://docs.perplexity.ai/guides/model-cards
     :models '(sonar
-              sonar-pro))
+              sonar-pro
+              sonar-reasoning))
 
   (gptel-make-gemini "Gemini" :key "@gptelGeminiApiKey@" :stream t)
 
