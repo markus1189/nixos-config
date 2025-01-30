@@ -54,7 +54,7 @@ in {
         ddgr
         deluge
         xdragon
-        dstat
+        dool
         emacs
         entr
         envsubst
