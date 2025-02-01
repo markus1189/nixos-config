@@ -339,6 +339,17 @@ in {
           };
         };
       };
+
+      "dungeon crawl stone soup" = {
+        target = ".crawlrc";
+        text = ''
+          travel_delay = 1
+          default_manual_training = true
+          ai := autoinscribe
+          ai += of identify:@r1
+          ai += curing:@q1
+        '';
+      };
     };
   };
 
