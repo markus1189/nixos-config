@@ -343,8 +343,11 @@ in {
       "dungeon crawl stone soup" = {
         target = ".crawlrc";
         text = ''
-          travel_delay = 1
+          travel_delay = -1
+          show_travel_trail = true
+
           default_manual_training = true
+
           ai := autoinscribe
           ai += of identify:@r1
           ai += curing:@q1
