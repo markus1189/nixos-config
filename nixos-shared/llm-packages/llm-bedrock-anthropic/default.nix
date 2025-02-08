@@ -5,14 +5,14 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "llm-bedrock-anthropic";
-  version = "unstable-2024-07-06";
+  version = "unstable-2025-02-02";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "sblakey";
     repo = "llm-bedrock-anthropic";
-    rev = "c1f8265960887ea6dced945737f549c7e3a55eee";
-    hash = "sha256-+GrPCVy5RyAIaZRFpwN0ahqitM9P2wI3ZRO9Nl4EFEA=";
+    rev = "b85319a5f374b92c654378916ebe265fbfff5b67";
+    hash = "sha256-9ceuoGjORPH3Om7kkFnOL+d8oyIYKS/IvCFE/oWWhrI=";
   };
 
   nativeBuildInputs = [
