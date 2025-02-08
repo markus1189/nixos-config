@@ -1360,7 +1360,8 @@ string). It returns t if a new completion is found, nil otherwise."
     :stream t
     :key "@gptelAnthropicApiKey@")
 
-  (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.).")))
+  (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
+  (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer.")))
 
 (use-package diff-hl
   :ensure t
