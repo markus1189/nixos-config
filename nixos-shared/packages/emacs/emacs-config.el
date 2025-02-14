@@ -1361,7 +1361,7 @@ string). It returns t if a new completion is found, nil otherwise."
     :key "@gptelAnthropicApiKey@")
 
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
-  (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer.")))
+  (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer. Specify your model as the author and provide a description.  Start with important design points to consider.")))
 
 (use-package diff-hl
   :ensure t
