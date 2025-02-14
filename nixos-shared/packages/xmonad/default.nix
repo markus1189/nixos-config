@@ -1,4 +1,4 @@
-args@{ alacritty, autoMonitorConfig, autorandr, browserHistory, bukuRun, dunst
+args@{ alacritty, autoMonitorConfig, autorandr, bukuRun, dunst
 , centerMouse, chooseNetwork, clipmenu, ddgr, emacsAnywhere, flameshot
 , lockScreen, flameshotOcr, multihead4k, mutate, pamixer, playerctl, rofi
 , rofiDefaults, singlehead, takeScreenshot, tesseract4, tmx, warpd, wyrd, xclip

@@ -368,7 +368,6 @@ myKeys =
         ]
     ),
     ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
-    ((myModKey, xK_u), spawn "@browserHistory@/bin/browserHistory"),
     ((myModKey, xK_w), nextScreen'),
     ((myModShift, xK_BackSpace), clearUrgents),
     ((myModShift, xK_l), scratchTermLower),

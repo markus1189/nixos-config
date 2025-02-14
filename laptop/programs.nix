@@ -225,7 +225,6 @@ in {
         bind
         wxhexeditor
       ] ++ (with pkgs.myScripts; [
-        browserHistory
         gnuplot-quick
         isVpnActive
         multihead4k

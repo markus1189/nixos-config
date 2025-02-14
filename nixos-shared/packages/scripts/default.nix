@@ -4,7 +4,7 @@
 , oathToolkit, playerctl, procps, psmisc, pulseaudioFull, python3
 , python3Packages, rofi, rsstail, scrot, sqlite, stdenv, systemd, tmux
 , unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
-, xsv, zbar, zsh, writeShellApplication, flameshot, tesseract, gxmessage
+, zbar, zsh, writeShellApplication, flameshot, tesseract, gxmessage
 
 }:
 
@@ -500,26 +500,7 @@ rec {
     rofi -i -monitor -4 -disable-history "$@"
   '';
 
-  browserHistory = writeShellScript {
-    name = "browserHistory";
-    deps = [ sqlite xsv coreutils rofi xclip findutils ];
-    pure = true;
-  } ''
-    FIREFOX_HISTORY="$(find ~/.mozilla/ -name places.sqlite)"
-    CHROMIUM_HISTORY="$(find ~/.config/chromium -name History)"
-
-    cp "''${FIREFOX_HISTORY}" /tmp/firefox-history &
-    cp "''${CHROMIUM_HISTORY}" /tmp/chromium-history &
-
-    wait
-
-    {
-      sqlite3 -csv /tmp/chromium-history "SELECT title, url, visit_count, 'chromium' FROM urls ORDER BY visit_count DESC"
-      sqlite3 -csv /tmp/firefox-history "SELECT title, url, visit_count, 'firefox' FROM moz_places ORDER BY visit_count DESC"
-    } | xsv sort -NRs3 | rofi -dmenu -disable-history -i -monitor -4 | xsv select 2 | xclip -sel clipboard -i
-  '';
-
-  notifySendPb = pushBulletToken:
+    notifySendPb = pushBulletToken:
     writeShellScript {
       name = "notifySendPb";
       deps = [ curl jo ];
