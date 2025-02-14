@@ -42,7 +42,6 @@ rec {
         pdfminer
         praw
         psutil
-        s3fs
       ];
     in {
       visidata = builtins.trace
