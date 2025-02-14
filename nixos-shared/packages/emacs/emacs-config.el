@@ -1360,6 +1360,13 @@ string). It returns t if a new completion is found, nil otherwise."
     :stream t
     :key "@gptelAnthropicApiKey@")
 
+  (gptel-make-openai "DeepSeek"
+    :host "api.deepseek.com"
+    :endpoint "/chat/completions"
+    :stream t
+    :key "@gptelDeepSeekApiKey@"
+    :models '(deepseek-chat deepseek-coder))
+
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
   (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer. Specify your model as the author and provide a description.  Start with important design points to consider.")))
 

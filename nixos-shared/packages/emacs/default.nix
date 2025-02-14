@@ -12,6 +12,7 @@ let
     gptelGeminiApiKey = secrets.gptel.gemini;
     gptelOpenAiApiKey = secrets.gptel.openai;
     gptelAnthropicApiKey = secrets.gptel.anthropic;
+    gptelDeepSeekApiKey = secrets.gptel.deepseek;
   };
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
     mkdir -p $out/share/emacs/site-lisp
