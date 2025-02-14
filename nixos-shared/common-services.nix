@@ -16,7 +16,6 @@
     locate = {
       enable = true;
       interval = "hourly";
-      localuser = config.lib._custom_.userName;
     };
 
     sysstat = { enable = false; };
