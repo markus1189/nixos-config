@@ -31,6 +31,10 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
   '';
+  hurl-mode = runCommandLocal "hurl-mode" { } ''
+    mkdir -p $out/share/emacs/site-lisp
+    cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
+  '';
 in emacsWithPackages (epkgs:
   (with epkgs.melpaPackages; with epkgs;
     let
@@ -100,6 +104,7 @@ in emacsWithPackages (epkgs:
       # helm-swoop
       hl-anything
       hledger-mode
+      hurl-mode
       hydra
       ibuffer-vc
       ibuffer-projectile

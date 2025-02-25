@@ -52,6 +52,11 @@
     "type": "url",
     "url": "https://www.emacswiki.org/emacs/download/dired+.el"
   },
+  "emacs-hurl-mode": {
+    "sha256": "1aibnicrlsncs16nlcfgv1n84h5y3zb949ba5wzqpa4q6xsfn1lv",
+    "type": "url",
+    "url": "https://github.com/Orange-OpenSource/hurl/raw/refs/heads/master/contrib/emacs/hurl-mode.el"
+  },
   "gitignore-io": {
     "name": "gitignore-io",
     "sha256": "10k9p8yq0x9achgip63kk6b374q8hrdpydi6s1v1swnpd22r7bvf",
