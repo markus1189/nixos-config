@@ -1363,7 +1363,12 @@ string). It returns t if a new completion is found, nil otherwise."
     :models '(deepseek-chat deepseek-coder))
 
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
-  (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer. Specify your model as the author and provide a description.  Start with important design points to consider.")))
+  (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging that can be disabled via a boolean to do the following using a dom observer. Specify your model as the author and provide a description.  Start with important design points to consider."))
+  (add-to-list 'gptel-directives '(pareto . "You are a university professor at a top university. You have become an expert in the Pareto principle (80/20 rule). Please identify the 20% of the subject I'm asking about that will yield 80% of the best results. Use your academic resources to provide a well identified and focused learning program to master this subject."))
+  (add-to-list 'gptel-directives '(questions . "To start, ask me up to 5 questions to improve your understanding of what I'm trying to do here"))
+  (add-to-list 'gptel-directives '(brainstorm . "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time."))
+  )
+
 
 (use-package diff-hl
   :ensure t
