@@ -63,6 +63,22 @@
     "type": "url",
     "url": "https://www.gitignore.io/api/sbt,git,svn,vim,rust,java,linux,macos,maven,xcode,scala,emacs,gradle,eclipse,windows,haskell,intellij+all,purescript,node,go"
   },
+  "gptel": {
+    "branch": "master",
+    "date": "2025-02-24T21:00:01-08:00",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "hash": "sha256-dFQvQcRHOxQdU/lShk43F5nsQVprsyLxyfQ22RzNLE0=",
+    "leaveDotGit": false,
+    "owner": "karthink",
+    "path": "/nix/store/5hai2nbgjxk1j9xs1aqb9d4hiyy980hm-gptel",
+    "repo": "gptel",
+    "rev": "2bb081e55e33b3df2b60d51d988713d9470e7d6c",
+    "sha256": "0k9crlfdjdplr7qj5cvbb90yr68p6x78clpracfi8fs7qi0jym3l",
+    "type": "github",
+    "url": "https://github.com/karthink/gptel"
+  },
   "home-manager": {
     "branch": "master",
     "date": "2025-01-27T10:06:02+01:00",

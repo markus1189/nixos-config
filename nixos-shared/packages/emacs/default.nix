@@ -1,5 +1,5 @@
-{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, fasd
-, plantuml, pandoc, git, ndtSources }:
+{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, fasd, plantuml
+, pandoc, git, ndtSources }:
 
 let
   secrets = import ../../secrets.nix;
@@ -14,6 +14,7 @@ let
     gptelAnthropicApiKey = secrets.gptel.anthropic;
     gptelDeepSeekApiKey = secrets.gptel.deepseek;
   };
+
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
@@ -36,7 +37,8 @@ let
     cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
   '';
 in emacsWithPackages (epkgs:
-  (with epkgs.melpaPackages; with epkgs;
+  (with epkgs.melpaPackages;
+    with epkgs;
     let
       my_copilot = epkgs.callPackage
         ({ dash, editorconfig, f, fetchFromGitHub, nodejs, s, trivialBuild, }:
@@ -52,13 +54,17 @@ in emacsWithPackages (epkgs:
               platforms = [ "x86_64-darwin" "x86_64-linux" "x86_64-windows" ];
             };
           }) { };
+      my_gptel = epkgs.gptel.overrideAttrs (old: rec {
+        version = builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
+          (builtins.substring 0 16 ndtSources.gptel.date);
+        src = ndtSources.gptel.outPath;
+      });
     in [
       avy
       annotate
       beacon
       consult
       consult-project-extra
-      my_copilot
       company
       dash
       deadgrep
@@ -93,7 +99,6 @@ in emacsWithPackages (epkgs:
       go-complete
       go-autocomplete
       goto-chg
-      gptel
       groovy-mode
       graphviz-dot-mode
       haskell-mode
@@ -181,7 +186,7 @@ in emacsWithPackages (epkgs:
       yasnippet
 
       myEmacsConfig
-    ]) ++ (with epkgs.elpaPackages; [
+    ] ++ [ my_copilot my_gptel ]) ++ (with epkgs.elpaPackages; [
       # auctex
       #pabbrev
       undo-tree

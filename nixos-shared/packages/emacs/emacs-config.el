@@ -1342,15 +1342,10 @@ string). It returns t if a new completion is found, nil otherwise."
          ("C-c C-<return>" . gptel-send)
          ("C-c g" . gptel))
   :config
-  (gptel-make-openai "Perplexity"
-    :host "api.perplexity.ai"
+
+  (gptel-make-perplexity "Perplexity"
     :key "@gptelPerplexityApiKey@"
-    :endpoint "/chat/completions"
-    :stream t
-    ;; see https://docs.perplexity.ai/guides/model-cards
-    :models '(sonar
-              sonar-pro
-              sonar-reasoning))
+    :stream t)
 
   (gptel-make-gemini "Gemini" :key "@gptelGeminiApiKey@" :stream t)
 
