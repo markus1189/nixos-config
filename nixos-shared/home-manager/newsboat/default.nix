@@ -135,6 +135,14 @@ let
       owner = "martinvonz";
       repo = "jj";
     }
+    {
+      owner = "dunst-project";
+      repo = "dunst";
+    }
+    {
+      owner = "karthink";
+      repo = "gptel";
+    }
   ];
 
   subredditToRss = let
