@@ -225,6 +225,10 @@ let
       name = "gridfinity";
       threshold = 90;
     }
+    {
+      name = "promptengineering";
+      threshold = 75;
+    }
   ];
   fromYoutubeChannel = args: {
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=${args.id}";
