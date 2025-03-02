@@ -1368,8 +1368,99 @@ string). It returns t if a new completion is found, nil otherwise."
   (add-to-list 'gptel-directives '(questions . "To start, ask me up to 5 questions to improve your understanding of what I'm trying to do here"))
   (add-to-list 'gptel-directives '(brainstorm . "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time."))
   (add-to-list 'gptel-directives '(followup . "Finally, provide a numbered list of 3-5 actionable next steps I could take related to this response. These next steps should be diverse and may include, but are not limited to: further research questions, concrete actions, alternative perspectives to consider, potential challenges to anticipate, or resources to consult for further information.  Be specific and concise in each suggestion."))
-  )
 
+  (defun mh/add-gptel-tool (tool)
+    (add-to-list 'gptel-tools tool t (lambda (tool1 tool2) (string= (aref tool1 2) (aref tool2 2))))
+    gptel-tools)
+
+  (mapcar 'mh/add-gptel-tool
+          (list
+           (gptel-make-tool
+            :name "read_url_html"
+            :description "Fetch and read the contents of a URL.  Expected format of response is html."
+            :args (list '(:name "url"
+                                :type "string"
+                                :description "The URL to read that returns html"))
+            :category "web"
+            :function (lambda (url)
+                        (with-current-buffer (url-retrieve-synchronously url)
+                          (goto-char (point-min)) (forward-paragraph)
+                          (let ((dom (libxml-parse-html-region (point) (point-max))))
+                            (run-at-time 0 nil #'kill-buffer (current-buffer))
+                            (with-temp-buffer
+                              (shr-insert-document dom)
+                              (buffer-substring-no-properties (point-min) (point-max)))))))
+
+           (gptel-make-tool
+            :name "read_buffer"
+            :description "Return the contents of an Emacs buffer"
+            :args (list '(:name "buffer"
+                                :type "string"
+                                :description "The name of the buffer whose contents are to be retrieved"))
+            :category "emacs"
+            :function (lambda (buffer)
+                        (unless (buffer-live-p (get-buffer buffer))
+                          (error "Error: buffer %s is not live." buffer))
+                        (with-current-buffer  buffer
+                          (buffer-substring-no-properties (point-min) (point-max)))))
+
+           (gptel-make-tool
+            :name "list_directory_recursively"
+            :description "List the contents of a given directory recursively and return files."
+            :args (list '(:name "directory"
+                                :type "string"
+                                :description "The path to the directory to list files in (recursively)")
+                        '(:name "regexp"
+                                :type "string"
+                                :description "A valid emacs regular expression to match file names with"))
+            :category "filesystem"
+            :function (lambda (directory regexp)
+                        (encode-coding-string (mapconcat #'identity
+                                                         (directory-files-recursively directory regexp nil t)
+                                                         "\n") 'utf-8)))
+           (gptel-make-tool
+            :name "read_file"
+            :description "Read and display the contents of a file"
+            :args (list '(:name "filepath"
+                                :type "string"
+                                :description "Path to the file to read.  Supports relative paths and ~."))
+            :category "filesystem"
+            :function (lambda (filepath)
+                        (with-temp-buffer
+                          (insert-file-contents (expand-file-name filepath))
+                          (buffer-string))))
+           (gptel-make-tool
+            :name "rename_file"
+            :description "Rename a file from OLD-PATH to NEW-PATH."
+            :args (list '(:name "old-path"
+                                :type "string"
+                                :description "The current path of the file to rename.")
+                        '(:name "new-path"
+                                :type "string"
+                                :description "The new path of the file after renaming."))
+            :category "filesystem"
+            :function (lambda (old-path new-path)
+                        (if (file-exists-p old-path)
+                            (progn
+                              (f-move old-path new-path)
+                              (format "Successfully renamed file from %s to %s" old-path new-path))
+                          (format "Error: %s does not exist." old-path))))
+           (gptel-make-tool
+            :function (lambda (old-path new-path)
+                        (if (file-exists-p old-path)
+                            (progn
+                              (f-move old-path new-path)
+                              (format "Renamed file from %s to %s" old-path new-path))
+                          (format "Error: %s does not exist." old-path)))
+            :name "rename_file"
+            :description "Rename a file from OLD-PATH to NEW-PATH."
+            :args (list '(:name "old-path"
+                                :type "string"
+                                :description "The current path of the file to rename.")
+                        '(:name "new-path"
+                                :type "string"
+                                :description "The new path of the file after renaming."))
+            :category "filesystem"))))
 
 (use-package diff-hl
   :ensure t
