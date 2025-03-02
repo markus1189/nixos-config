@@ -168,6 +168,7 @@ in emacsWithPackages (epkgs:
       persistent-scratch
       pdf-tools
       rust-mode
+      rainbow-delimiters
       smartparens
       solarized-theme
       systemd

@@ -1735,4 +1735,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (setq web-mode-engines-alist '(("freemarker" . "\\.ftlh\\'"))))
 
+(use-package rainbow-delimiters
+  :ensure t
+  :hook (elisp-mode . rainbow-delimiters-mode))
+
 ;;;
