@@ -55,8 +55,9 @@ in emacsWithPackages (epkgs:
             };
           }) { };
       my_gptel = epkgs.gptel.overrideAttrs (old: rec {
-        version = builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
-          (builtins.substring 0 16 ndtSources.gptel.date);
+        version = builtins.replaceStrings [ ".00" ".0"] [ "." "."]
+          (builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
+            (builtins.substring 0 16 ndtSources.gptel.date));
         src = ndtSources.gptel.outPath;
       });
     in [
