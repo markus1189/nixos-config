@@ -1,19 +1,15 @@
 { lib
 , python3
 , fetchFromGitHub
+, source
 }:
 
 python3.pkgs.buildPythonPackage rec {
   pname = "llm-bedrock-anthropic";
-  version = "unstable-2025-02-02";
+  version = "unstable-2025-03-05";
   pyproject = true;
 
-  src = fetchFromGitHub {
-    owner = "sblakey";
-    repo = "llm-bedrock-anthropic";
-    rev = "b85319a5f374b92c654378916ebe265fbfff5b67";
-    hash = "sha256-9ceuoGjORPH3Om7kkFnOL+d8oyIYKS/IvCFE/oWWhrI=";
-  };
+  src = source;
 
   nativeBuildInputs = [
     python3.pkgs.setuptools
@@ -23,6 +19,7 @@ python3.pkgs.buildPythonPackage rec {
   propagatedBuildInputs = with python3.pkgs; [
     boto3
     pydantic
+    pillow
   ];
 
   pythonImportsCheck = [ ];

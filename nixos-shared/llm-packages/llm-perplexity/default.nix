@@ -1,21 +1,16 @@
 {
   lib,
   python3,
-  fetchFromGitHub,
-  openai
+  openai,
+  source
 }:
 
 python3.pkgs.buildPythonPackage rec {
   pname = "llm-perplexity";
-  version = "2025.1.1";
+  version = "0.42.42";
   pyproject = true;
 
-  src = fetchFromGitHub {
-    owner = "hex";
-    repo = "llm-perplexity";
-    rev = version;
-    hash = "sha256-OweM9Pf2RqIbmRfz9oZuTmu0lfEIQQJxgFcoU6GzKas=";
-  };
+  src = source;
 
   build-system = [
     python3.pkgs.setuptools

@@ -1,6 +1,6 @@
 { lib
 , python3
-, fetchFromGitHub
+, source
 }:
 
 python3.pkgs.buildPythonPackage rec {
@@ -8,12 +8,7 @@ python3.pkgs.buildPythonPackage rec {
   version = "0.9";
   pyproject = true;
 
-  src = fetchFromGitHub {
-    owner = "simonw";
-    repo = "llm-gemini";
-    rev = version;
-    hash = "sha256-XsQJByWZ9obwqlSmKZJx+RHWC/zxPYmjAsWx9Eh95gc=";
-  };
+  src = source;
 
   nativeBuildInputs = [
     python3.pkgs.setuptools
@@ -23,6 +18,7 @@ python3.pkgs.buildPythonPackage rec {
   propagatedBuildInputs = with python3.pkgs; [
     httpx
     ijson
+    llm
   ];
 
   passthru.optional-dependencies = with python3.pkgs; {

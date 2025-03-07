@@ -10,13 +10,10 @@ let
   };
   my-llm = rec {
     pyWithPackages = (pkgs.python3.withPackages (ps: [
-      ps.llm.overridePythonAttrs
-      (old: { doCheck = false; })
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { })
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { })
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-cerebras { })
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-deepseek { })
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-perplexity { })
+      (ps.llm.overridePythonAttrs (old: { doCheck = false; }))
+      (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { source = ndtSources.llm-bedrock-anthropic.outPath;})
+      # (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { source = ndtSources.llm-gemini.outPath;})
+      (pkgs.callPackage ../nixos-shared/llm-packages/llm-perplexity { source = ndtSources.llm-perplexity.outPath;})
     ]));
     llm = pkgs.runCommandNoCCLocal "llm" { } ''
       mkdir -p $out/bin
@@ -224,13 +221,9 @@ in {
         dateutils
         bind
         wxhexeditor
-      ] ++ (with pkgs.myScripts; [
-        gnuplot-quick
-        isVpnActive
-        multihead4k
-        tmx
-        ts
-      ]) ++ [
+      ]
+      ++ (with pkgs.myScripts; [ gnuplot-quick isVpnActive multihead4k tmx ts ])
+      ++ [
         # Go related stuff
         go
       ];
