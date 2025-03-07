@@ -13,6 +13,7 @@ let
     gptelOpenAiApiKey = secrets.gptel.openai;
     gptelAnthropicApiKey = secrets.gptel.anthropic;
     gptelDeepSeekApiKey = secrets.gptel.deepseek;
+    gptelXAIApiKey = secrets.gptel.xai;
   };
 
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''

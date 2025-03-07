@@ -1361,6 +1361,14 @@ string). It returns t if a new completion is found, nil otherwise."
     :stream t
     :key "@gptelDeepSeekApiKey@"
     :models '(deepseek-chat deepseek-coder))
+  (gptel-make-openai "xAI"
+    :host "api.x.ai"
+    :key "@gptelXAIApiKey@"
+    :endpoint "/v1/chat/completions"
+    :stream t
+    :models '(grok-2-latest
+              (grok-2-vision-latest :capabilities (media)
+                                    :mime-types ("image/jpg" "image/jpeg" "image/png"))))
 
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
   (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging enabled that can be disabled via a boolean.  For the debug logging, always use a consistent prefix to identify the script. If it makes sense, use a mutation observer on the dom. Start with important design points to consider and explain your plan before the implementation.  Write clean code and add important comments. Fill the metadata section of the userscript."))
