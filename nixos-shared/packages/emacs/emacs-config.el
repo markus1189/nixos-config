@@ -1450,12 +1450,31 @@ string). It returns t if a new completion is found, nil otherwise."
                                 :type "string"
                                 :description "The new path of the file after renaming."))
             :category "filesystem"
+            :confirm t
             :function (lambda (old-path new-path)
                         (if (file-exists-p old-path)
                             (progn
                               (f-move old-path new-path)
                               (format "Successfully renamed file from %s to %s" old-path new-path))
                           (format "Error: %s does not exist." old-path))))
+           (gptel-make-tool
+            :name "write_file"
+            :description "Write CONTENT to a file at FPATH"
+            :args (list '(:name "fpath"
+                                :type "string"
+                                :description "The path of the file to write to.")
+                        '(:name "content"
+                                :type "string"
+                                :description "Content of the file."))
+            :category "filesystem"
+            :confirm t
+            :function (lambda (fpath content)
+                        (if (file-exists-p fpath)
+                            (progn
+                              (f-write content 'utf-8 fpath)
+                              (format "Successfully wrote to file %s" fpath))
+                          (format "Error: %s does not exist." fpath))))
+
            (gptel-make-tool
             :function (lambda (old-path new-path)
                         (if (file-exists-p old-path)
@@ -1471,7 +1490,38 @@ string). It returns t if a new completion is found, nil otherwise."
                         '(:name "new-path"
                                 :type "string"
                                 :description "The new path of the file after renaming."))
-            :category "filesystem"))))
+            :category "filesystem")
+           (gptel-make-tool
+            :name "docker-ps"
+            :description "List all running Docker containers."
+            :args nil ;; No arguments needed for this command
+            :category "docker"
+            :function (lambda ()
+                        (with-temp-buffer
+                          (call-process "docker" nil t nil "ps")
+                          (buffer-string))))
+           (gptel-make-tool
+            :name "docker-inspect"
+            :description "Inspect a Docker container by its ID or name."
+            :args (list '(:name "container-id"
+                                :type "string"
+                                :description "The ID or name of the container to inspect."))
+            :category "docker"
+            :function (lambda (container-id)
+                        (with-temp-buffer
+                          (call-process "docker" nil t nil "inspect" container-id)
+                          (buffer-string))))
+           (gptel-make-tool
+            :name "docker-stop"
+            :description "Stop a Docker container by its ID or name."
+            :args (list '(:name "container-id"
+                                :type "string"
+                                :description "The ID or name of the container to stop."))
+            :category "docker"
+            :function (lambda (container-id)
+                        (with-temp-buffer
+                          (call-process "docker" nil t nil "stop" container-id)
+                          (buffer-string)))))))
 
 (use-package diff-hl
   :ensure t
