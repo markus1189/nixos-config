@@ -1358,12 +1358,27 @@ string). It returns t if a new completion is found, nil otherwise."
     :stream t
     :key "@gptelAnthropicApiKey@")
 
+  (gptel-make-anthropic "Claude-thinking" ;; Temporarily until gptel has support
+    :key "@gptelAnthropicApiKey@"
+    :stream t
+    :models '(claude-3-7-sonnet-20250219)
+    :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                         `(("x-api-key" . ,key)
+                           ("anthropic-version" . "2023-06-01")
+                           ("anthropic-beta" . "pdfs-2024-09-25")
+                           ("anthropic-beta" . "output-128k-2025-02-19")
+                           ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+    :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
+                                :max_tokens 4096))
+
   (gptel-make-openai "DeepSeek"
     :host "api.deepseek.com"
     :endpoint "/chat/completions"
     :stream t
     :key "@gptelDeepSeekApiKey@"
-    :models '(deepseek-chat deepseek-coder))
+    :models
+    '(deepseek-chat deepseek-coder))
+
   (gptel-make-openai "xAI"
     :host "api.x.ai"
     :key "@gptelXAIApiKey@"
