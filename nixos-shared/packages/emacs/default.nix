@@ -82,6 +82,7 @@ in emacsWithPackages (epkgs:
       dumb-jump
       dyalog-mode
       eat
+      elfeed
       embark
       embark-consult
       eros

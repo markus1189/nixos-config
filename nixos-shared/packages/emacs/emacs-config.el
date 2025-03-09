@@ -1815,4 +1815,30 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :hook (elisp-mode . rainbow-delimiters-mode))
 
-;;;
+(use-package elfeed
+  :ensure t
+  :bind
+  ("C-x w" . elfeed)
+  :hook
+  (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
+  :config
+  (defun mh/elfeed-extract-comments-link (_type xml entry)
+    "If ENTRY is tagged with special tag, prefer omments link from XML and store it as link."
+    (when (elfeed-tagged-p 'pref-comment entry)
+      (when-let ((comments-link (xml-query '(comments *) xml)))
+        (when (and comments-link (not (string-empty-p comments-link)))
+          (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
+          (setf (elfeed-entry-link entry) comments-link)))))
+
+  (setq elfeed-feeds
+        (let ((prefix "http://192.168.178.46:9999"))
+          (mapcar
+           (lambda (feed-spec)
+             (let* ((subreddit (plist-get feed-spec :subreddit))
+                    (threshold (or (plist-get feed-spec :threshold) 60))
+                    (tags (cons 'pref-comment (cons 'reddit (plist-get feed-spec :tags)))))
+               (cons (format "%s/?subreddit=%s&threshold=%d&view=rss"
+                             prefix subreddit threshold)
+                     tags)))
+           '((:subreddit "emacs"))))))
+;;
