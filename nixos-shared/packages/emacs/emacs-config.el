@@ -1343,8 +1343,8 @@ string). It returns t if a new completion is found, nil otherwise."
          ("C-c g" . gptel))
   :config
 
-  ;; (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "* ")
-  ;; (setf (alist-get 'org-mode gptel-response-prefix-alist) "** ")
+  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "@user\n")
+  (setf (alist-get 'org-mode gptel-response-prefix-alist) "@assistant\n")
 
   (gptel-make-perplexity "Perplexity"
     :key "@gptelPerplexityApiKey@"
