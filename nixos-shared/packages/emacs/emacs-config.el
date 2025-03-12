@@ -1089,6 +1089,7 @@ string). It returns t if a new completion is found, nil otherwise."
 ;;   :ensure t)
 
 (use-package json-mode
+  :bind (("C-c j" . (lambda () (interactive) (jsons-print-path-jq))))
   :ensure t)
 
 (use-package deadgrep
