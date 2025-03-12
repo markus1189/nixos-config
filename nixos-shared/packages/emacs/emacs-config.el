@@ -1344,6 +1344,8 @@ string). It returns t if a new completion is found, nil otherwise."
          ("C-c g" . gptel))
   :config
 
+  (setq gptel-use-tools nil)
+
   (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "@user\n")
   (setf (alist-get 'org-mode gptel-response-prefix-alist) "@assistant\n")
 
