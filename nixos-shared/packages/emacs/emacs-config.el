@@ -1821,7 +1821,12 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package elfeed
   :ensure t
   :bind
-  ("C-x w" . elfeed)
+  (("C-x w" . elfeed)
+   :map elfeed-search-mode-map
+   ("j" . #'next-line)
+   ("k" . #'previous-line)
+   ("l" . (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer)))))
+
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   :config
