@@ -413,6 +413,10 @@ let
       title = "UCWMsoao_uuuVkzuXDDMjFdg";
       id = "Adidas Terrex";
     }
+    {
+      title = "UCNJ1Ymd5yFuUPtn21xtRbbw";
+      id = "AI Explained";
+    }
   ];
   fromKtn = args: {
     url =
