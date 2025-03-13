@@ -784,7 +784,9 @@ Position the cursor at its beginning, according to the current mode."
 (use-package iedit
   :ensure t
   :demand t
-  :bind ("C-s-;" . iedit-mode))
+  :bind (("C-s-;" . iedit-mode)
+         :map iedit-mode-keymap
+         ("M-i" . iedit-restrict-function)))
 
 (use-package evil-numbers
   :ensure t
