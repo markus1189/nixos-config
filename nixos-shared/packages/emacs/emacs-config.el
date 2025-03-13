@@ -5,6 +5,10 @@
 
 (global-set-key (kbd "M-m") 'iy-go-to-char)
 
+(setq
+   split-width-threshold 0
+   split-height-threshold nil)
+
 (if window-system
     (progn
       (tool-bar-mode -1)
