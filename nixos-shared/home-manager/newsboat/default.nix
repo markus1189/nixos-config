@@ -410,12 +410,16 @@ let
       id = "UC33MjuRroWlm7vzWCEHKXMw";
     }
     {
-      title = "UCWMsoao_uuuVkzuXDDMjFdg";
-      id = "Adidas Terrex";
+      id = "UCWMsoao_uuuVkzuXDDMjFdg";
+      title = "Adidas Terrex";
     }
     {
-      title = "UCNJ1Ymd5yFuUPtn21xtRbbw";
-      id = "AI Explained";
+      id = "UCNJ1Ymd5yFuUPtn21xtRbbw";
+      title = "AI Explained";
+    }
+    {
+      title = "UCXUPKJO5MZQN11PqgIvyuvQ";
+      id = "Andrej Karpathy";
     }
   ];
   fromKtn = args: {
