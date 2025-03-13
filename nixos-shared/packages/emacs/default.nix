@@ -83,6 +83,8 @@ in emacsWithPackages (epkgs:
       dyalog-mode
       eat
       elfeed
+      elfeed-summary
+      elfeed-score
       embark
       embark-consult
       eros
