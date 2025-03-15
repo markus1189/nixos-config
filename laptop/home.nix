@@ -367,7 +367,7 @@ in {
     alacritty = {
       enable = true;
       settings = {
-        font.size = 7.5;
+        font.size = 9;
         window = {
           opacity = 0;
           blur = true;
