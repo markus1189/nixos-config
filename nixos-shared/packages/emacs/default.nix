@@ -158,6 +158,7 @@ in emacsWithPackages (epkgs:
       org-drill
       ormolu
       ox-jira
+      pcre2el
       plantuml-mode
       projectile
       protobuf-mode

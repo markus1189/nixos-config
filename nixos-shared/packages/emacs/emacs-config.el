@@ -2173,4 +2173,6 @@ string). It returns t if a new completion is found, nil otherwise."
   (define-key elfeed-search-mode-map "=" elfeed-score-map)
   (setq elfeed-search-print-entry-function #'elfeed-score-print-entry))
 
+(use-package pcre2el
+  :ensure t)
 ;;
