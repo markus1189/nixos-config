@@ -219,7 +219,7 @@ in {
           osd-duration=5000
           osd-font-size=40
 
-          hwdec=auto
+          hwdec=auto-safe
 
           volume-max=300
 
