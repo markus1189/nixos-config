@@ -3,6 +3,18 @@
 (require 'dired+) ;; added via load path...
 (require 'iy-go-to-char)
 
+;;; Code:
+
+(progn
+  (defun mh/secrets/pocket/consumerKey () "@pocketConsumerKey@")
+  (defun mh/secrets/pocket/accessToken () "@pocketAccessToken@")
+  (defun mh/secrets/gptel/perplexityApiKey () "@gptelPerplexityApiKey@")
+  (defun mh/secrets/gptel/geminiApiKey () "@gptelGeminiApiKey@")
+  (defun mh/secrets/gptel/openAiApiKey () "@gptelOpenAiApiKey@")
+  (defun mh/secrets/gptel/anthropicApiKey () "@gptelAnthropicApiKey@")
+  (defun mh/secrets/gptel/deepSeekApiKey () "@gptelDeepSeekApiKey@")
+  (defun mh/secrets/gptel/xaiApiKey () "@gptelXAIApiKey@"))
+
 (global-set-key (kbd "M-m") 'iy-go-to-char)
 
 (setq
@@ -1356,19 +1368,19 @@ string). It returns t if a new completion is found, nil otherwise."
   (setf (alist-get 'org-mode gptel-response-prefix-alist) "@assistant\n")
 
   (gptel-make-perplexity "Perplexity"
-    :key "@gptelPerplexityApiKey@"
+    :key 'mh/secrets/gptel/perplexityApiKey
     :stream t)
 
-  (gptel-make-gemini "Gemini" :key "@gptelGeminiApiKey@" :stream t)
+  (gptel-make-gemini "Gemini" :key 'mh/secrets/gptel/geminiApiKey :stream t)
 
-  (setq gptel-api-key "@gptelOpenAiApiKey@")
+  (setq gptel-api-key 'mh/secrets/gptel/openAiApiKey)
 
   (gptel-make-anthropic "Claude"
     :stream t
-    :key "@gptelAnthropicApiKey@")
+    :key 'mh/secrets/gptel/anthropicApiKey)
 
   (gptel-make-anthropic "Claude-thinking" ;; Temporarily until gptel has support
-    :key "@gptelAnthropicApiKey@"
+    :key 'mh/secrets/gptel/anthropicApiKey
     :stream t
     :models '(claude-3-7-sonnet-20250219)
     :header (lambda () (when-let* ((key (gptel--get-api-key)))
@@ -1384,13 +1396,13 @@ string). It returns t if a new completion is found, nil otherwise."
     :host "api.deepseek.com"
     :endpoint "/chat/completions"
     :stream t
-    :key "@gptelDeepSeekApiKey@"
+    :key 'mh/secrets/gptel/deepSeekApiKey
     :models
     '(deepseek-chat deepseek-coder))
 
   (gptel-make-openai "xAI"
     :host "api.x.ai"
-    :key "@gptelXAIApiKey@"
+    :key 'mh/secrets/gptel/xaiApiKey
     :endpoint "/v1/chat/completions"
     :stream t
     :models '(grok-2-latest
@@ -1831,12 +1843,55 @@ string). It returns t if a new completion is found, nil otherwise."
   (("C-x w" . elfeed)
    :map elfeed-search-mode-map
    ("j" . #'next-line)
-   ("k" . #'previous-line)
-   ("l" . (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer)))))
-
+   ("k" . #'previous-line))
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   :init
+  (defun mh/pocket-add-url-api (url)
+    "Add a URL to Pocket using the Pocket API."
+    (interactive)
+    (let* ((consumer-key (mh/secrets/pocket/consumerKey))
+           (access-token (mh/secrets/pocket/accessToken))
+           (request-data
+            `(("url" . ,url)
+              ("consumer_key" . ,consumer-key)
+              ("access_token" . ,access-token)))
+           (url-request-method "POST")
+           (url-request-extra-headers `(("Content-Type" . "application/json")
+                                        ("X-Accept" . "application/json")))
+           (url-request-data (json-encode request-data))
+           (response-buffer
+            (url-retrieve-synchronously
+             "https://getpocket.com/v3/add" t t 10)))
+      (with-current-buffer response-buffer
+        (goto-char (point-min))
+        (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
+            (let ((status (match-string 2)))
+              (if (string= status "200")
+                  (progn (message "URL added successfully to Pocket.")
+                         (message "Content: %s" (buffer-string))
+                         t)
+                (progn (message "Failed to add URL: %s" status) nil)))
+          (progn (message "Failed to get a response.")
+                 nil))
+        (kill-buffer))))
+    (defun mh/elfeed-pocket-add-url ()
+        "Add the selection to pocket."
+      (interactive)
+      (let ((buffer (current-buffer))
+            (entries (elfeed-search-selected)))
+        (cl-loop for entry in entries
+                 when (elfeed-entry-link entry)
+                 do (progn
+                      (when (mh/pocket-add-url-api it)
+                        (elfeed-untag entry 'unread))))
+        ;; `browse-url' could have switched to another buffer if eww or another
+        ;; internal browser is used, but the remainder of the functions needs to
+        ;; run in the elfeed buffer.
+        (with-current-buffer buffer
+          (mapc #'elfeed-search-update-entry entries)
+          (unless (or elfeed-search-remain-on-entry (use-region-p))
+            (forward-line)))))
   (defun mh/elfeed-extract-comments-link (_type xml entry)
     "If ENTRY is tagged with special tag, prefer omments link from XML and store it as link."
     (when (elfeed-tagged-p 'pref-comment entry)
@@ -1845,6 +1900,14 @@ string). It returns t if a new completion is found, nil otherwise."
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
   :config
+  (define-key elfeed-search-mode-map (kbd "l") (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer))))
+  (define-key elfeed-search-mode-map (kbd ", ,") (lambda ()
+                                                   (interactive)
+                                                   (mark-whole-buffer)
+                                                   (elfeed-search-untag-all-unread)
+                                                   (elfeed-search-update--force)))
+  (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url)
+
   (defface mh/elfeed-reddit-tag-face
     '((t :foreground "#1CE"))
     "Marks reddit tags.")
@@ -1854,10 +1917,19 @@ string). It returns t if a new completion is found, nil otherwise."
   (defface mh/elfeed-hackernews-tag-face
     '((t :foreground "#FC0"))
     "Marks hackernews tags.")
+  (defface mh/elfeed-github-tag-face
+    '((t :foreground "#AAA"))
+    "Marks github tags.")
+  (defface mh/elfeed-newsletter-tag-face
+    '((t :foreground "#0E9"))
+    "Marks newsletter tags.")
+
   (setq elfeed-search-face-alist '((unread elfeed-search-unread-title-face)
                                    (reddit mh/elfeed-reddit-tag-face)
                                    (youtube mh/elfeed-youtube-tag-face)
-                                   (hackernews mh/elfeed-hackernews-tag-face)))
+                                   (github mh/elfeed-github-tag-face)
+                                   (hackernews mh/elfeed-hackernews-tag-face)
+                                   (newsletter mh/elfeed-newsletter-tag-face)))
   (setq elfeed-search-title-max-width 120)
   (setq elfeed-feeds
         (append
@@ -2002,6 +2074,22 @@ string). It returns t if a new completion is found, nil otherwise."
              (:channelId "UCWMsoao_uuuVkzuXDDMjFdg" :title "Adidas Terrex")
              (:channelId "UCNJ1Ymd5yFuUPtn21xtRbbw" :title "AI Explained")
              (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy"))))
+         (mapcar
+          (lambda (feed-spec)
+            (let* ((id (plist-get feed-spec :id))
+                   (title (plist-get feed-spec :title))
+                   (tags (cons 'newsletter (plist-get feed-spec :tags))))
+              (cons (format "https://kill-the-newsletter.com/feeds/%s.xml" id) tags)))
+          '((:id "bgfqc0awgchwumud" :title "Bike Components")
+            (:id "o2bsigatmzdvp2t2" :title "Chaosium")
+            (:id "sbpv9agei99dsegl" :title "Tor.com")
+            (:id "appeyt9qbgbukkqh" :title "Money Stuff")
+            (:id "0edslwsaoudstyp9" :title "5-Bullet Friday")
+            (:id "tc8vjbiw33og592y" :title "Thinking About Things")
+            (:id "1ema4onuqfab8l4o" :title "Leuchtturm1917")
+            (:id "fxshdjutxkvhp4uq" :title "Lamy")
+            (:id "xb9ujr6s9d3ed1w1" :title "Salomon DE" :tags (running))
+            (:id "6zr0oawurrjiw4saxcnu" :title "LOWA Newsletter" :tags (running))))
          '("https://liore.com/rss/"
            "https://samcurry.net/api/feed.rss"
            "https://fantasy-faction.com/feed"
@@ -2103,6 +2191,7 @@ string). It returns t if a new completion is found, nil otherwise."
            "https://www.gridsagegames.com/blog/feed/"
            "https://brookseakin.com/feed/"
            ("https://hnrss.org/newest?points=150&comments=20&link=comments&count=25" hackernews)
+           ("https://hnrss.org/bestcomments" hackernews)
            "https://typesandkinds.wordpress.com/feed/"
            "https://www.jetpens.com/blog/feed"
            "https://feeds.feedburner.com/BlackCover"
@@ -2163,8 +2252,8 @@ string). It returns t if a new completion is found, nil otherwise."
            "https://chrispenner.ca/atom.xml"
            "https://blog.humblebundle.com/feed"))))
 
-(use-package elfeed-summary
-  :ensure t)
+;; (use-package elfeed-summary
+;;   :ensure t)
 
 (use-package elfeed-score
   :ensure t

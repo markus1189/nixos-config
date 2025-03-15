@@ -14,6 +14,8 @@ let
     gptelAnthropicApiKey = secrets.gptel.anthropic;
     gptelDeepSeekApiKey = secrets.gptel.deepseek;
     gptelXAIApiKey = secrets.gptel.xai;
+    pocketConsumerKey = secrets.pocket.consumer_key;
+    pocketAccessToken = secrets.pocket.access_token;
   };
 
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
