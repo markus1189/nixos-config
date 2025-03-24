@@ -238,6 +238,7 @@
          :map magit-process-mode-map
          ("k" . magit-process-kill))
   :init
+  (setq log-edit-maximum-comment-ring-size 9999)
   (defun mh/magit-log-edit-mode-hook ()
     ;; (flyspell-mode)
     (set-fill-column 72))
@@ -1575,6 +1576,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package savehist
   :ensure t
   :init
+  (add-to-list 'savehist-additional-variables 'log-edit-comment-ring)
   (savehist-mode))
 
 (use-package project
@@ -1847,6 +1849,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   :init
+  (setq mh/elfeed-search-stack '(reddit hackernews youtube news newsletter github nil))
+
   (defun mh/pocket-add-url-api (url)
     "Add a URL to Pocket using the Pocket API."
     (interactive)
@@ -1862,51 +1866,61 @@ string). It returns t if a new completion is found, nil otherwise."
            (url-request-data (json-encode request-data))
            (response-buffer
             (url-retrieve-synchronously
-             "https://getpocket.com/v3/add" t t 10)))
-      (with-current-buffer response-buffer
-        (goto-char (point-min))
-        (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
-            (let ((status (match-string 2)))
-              (if (string= status "200")
-                  (progn (message "URL added successfully to Pocket.")
-                         (message "Content: %s" (buffer-string))
-                         t)
-                (progn (message "Failed to add URL: %s" status) nil)))
-          (progn (message "Failed to get a response.")
-                 nil))
-        (kill-buffer))))
-    (defun mh/elfeed-pocket-add-url ()
-        "Add the selection to pocket."
-      (interactive)
-      (let ((buffer (current-buffer))
-            (entries (elfeed-search-selected)))
-        (cl-loop for entry in entries
-                 when (elfeed-entry-link entry)
-                 do (progn
-                      (when (mh/pocket-add-url-api it)
-                        (elfeed-untag entry 'unread))))
-        ;; `browse-url' could have switched to another buffer if eww or another
-        ;; internal browser is used, but the remainder of the functions needs to
-        ;; run in the elfeed buffer.
-        (with-current-buffer buffer
-          (mapc #'elfeed-search-update-entry entries)
-          (unless (or elfeed-search-remain-on-entry (use-region-p))
-            (forward-line)))))
+             "https://getpocket.com/v3/add" t t 1)))
+      (if response-buffer
+           (with-current-buffer response-buffer
+             (goto-char (point-min))
+             (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
+                 (let ((status (match-string 2)))
+                   (if (and (string= status "200") (re-search-forward "item_id"))
+                       (progn (message "URL added successfully to Pocket.")
+                              t)
+                     (progn (message "Failed to add URL: %s" status) nil)))
+               (progn (message "Failed to get a response.")
+                      nil))
+             (kill-buffer))
+        (progn (message "Failed") nil))))
+  (defun mh/elfeed-pocket-add-url ()
+    "Add the selection to pocket."
+    (interactive)
+    (let ((buffer (current-buffer))
+          (entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               when (elfeed-entry-link entry)
+               do (progn
+                    (when (or (mh/pocket-add-url-api it) (mh/pocket-add-url-api it) (mh/pocket-add-url-api it))
+                      (elfeed-untag entry 'unread)
+                      (elfeed-tag entry 'mh/pocketed))))
+      (with-current-buffer buffer
+        (mapc #'elfeed-search-update-entry entries)
+        (unless (or elfeed-search-remain-on-entry (use-region-p))
+          (forward-line)))))
+  :config
   (defun mh/elfeed-extract-comments-link (_type xml entry)
-    "If ENTRY is tagged with special tag, prefer omments link from XML and store it as link."
+    "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
     (when (elfeed-tagged-p 'pref-comment entry)
       (when-let ((comments-link (xml-query '(comments *) xml)))
         (when (and comments-link (not (string-empty-p comments-link)))
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
-  :config
-  (define-key elfeed-search-mode-map (kbd "l") (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer))))
-  (define-key elfeed-search-mode-map (kbd ", ,") (lambda ()
-                                                   (interactive)
-                                                   (mark-whole-buffer)
-                                                   (elfeed-search-untag-all-unread)
-                                                   (elfeed-search-update--force)))
-  (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url)
+
+  (defun mh/elfeed-search-stack-next ()
+    (interactive)
+    (letrec ((head (car (setq mh/elfeed-search-stack (-rotate -1 mh/elfeed-search-stack))))
+             (next-filter (if head (format "@6-months-ago +unread +%s" head) "@6-months-ago +unread")))
+      (elfeed-search-set-filter next-filter)
+      (if (and head (not (consp elfeed-search-entries))) (mh/elfeed-search-stack-next))))
+
+  (progn
+    (define-key elfeed-search-mode-map (kbd "l") (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer))))
+    (define-key elfeed-search-mode-map (kbd ", m") 'mh/elfeed-search-stack-next)
+    (define-key elfeed-search-mode-map (kbd ", ,") (lambda ()
+                                                     (interactive)
+                                                     (mark-whole-buffer)
+                                                     (elfeed-search-untag-all-unread)
+                                                     (elfeed-search-update--force)
+                                                     (mh/elfeed-search-stack-next)))
+    (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url))
 
   (defface mh/elfeed-reddit-tag-face
     '((t :foreground "#1CE"))
@@ -1942,58 +1956,72 @@ string). It returns t if a new completion is found, nil otherwise."
                 (cons (format "%s/?subreddit=%s&threshold=%d&view=rss"
                               serverUrl subreddit threshold)
                       tags)))
-            '((:subreddit "androidgaming")
+            '((:subreddit "DistributedSystems")
+              (:subreddit "ExperiencedDevs")
+              (:subreddit "ProgrammingLanguages")
+              (:subreddit "AdvancedRunning" :tags (sport))
+              (:subreddit "androidgaming")
+              (:subreddit "askelectronics")
+              (:subreddit "bodyweightfitness")
               (:subreddit "books")
+              (:subreddit "booksuggestions")
+              (:subreddit "commonplacebook" :tags (notes))
+              (:subreddit "bulletjournal" :tags (notes))
+              (:subreddit "cataclysmdda")
               (:subreddit "commandline")
               (:subreddit "compsci")
+              (:subreddit "cycling" :tags (sport))
+              (:subreddit "electronics")
               (:subreddit "emacs")
+              (:subreddit "esp32")
+              (:subreddit "eupersonalfinance" :threshold 80)
               (:subreddit "fantasy")
+              (:subreddit "flexibility")
+              (:subreddit "frankfurt")
+              (:subreddit "Foodforthought" :threshold 90)
               (:subreddit "functionalprogramming")
-              (:subreddit "DistributedSystems")
-              (:subreddit "ProgrammingLanguages")
-              (:subreddit "ExperiencedDevs")
+              (:subreddit "gadgets")
               (:subreddit "garminfenix")
               (:subreddit "geb")
+              (:subreddit "gridfinity" :threshold 90)
               (:subreddit "haskell")
               (:subreddit "internetisbeautiful")
-              (:subreddit "malazan")
-              (:subreddit "nixos")
-              (:subreddit "notebooks")
-              (:subreddit "planneraddicts")
-              (:subreddit "netsec")
-              (:subreddit "programmerhumor")
-              (:subreddit "scala" :threshold 100)
-              (:subreddit "ultrarunning")
-              (:subreddit "trailrunning")
-              (:subreddit "writingprompts" :threshold 80)
-              (:subreddit "startrek" :threshold 80)
               (:subreddit "ironsworn")
-              (:subreddit "starforged")
+              (:subreddit "kettlebell")
+              (:subreddit "malazan")
+              (:subreddit "netsec")
+              (:subreddit "nixos")
+              (:subreddit "notebooks" :tags (notes))
+              (:subreddit "NoteTaking" :tags (notes))
               (:subreddit "osr")
               (:subreddit "penandpaper")
+              (:subreddit "planneraddicts")
               (:subreddit "pretendingtobepeople")
+              (:subreddit "programmerhumor")
+              (:subreddit "promptengineering" :threshold 75)
+              (:subreddit "ReverseEngineering")
               (:subreddit "rpg")
               (:subreddit "rpgnews")
+              (:subreddit "rss")
+              (:subreddit "scala" :threshold 100)
               (:subreddit "solo_roleplaying")
-              (:subreddit "theglasscannonpodcast")
-              (:subreddit "traveller")
-              (:subreddit "swn")
-              (:subreddit "wwn")
-              (:subreddit "worldnews" :threshold 70)
-              (:subreddit "tools")
-              (:subreddit "esp32")
-              (:subreddit "usbchardware")
-              (:subreddit "askelectronics")
-              (:subreddit "gadgets")
-              (:subreddit "electronics")
-              (:subreddit "cataclysmdda")
-              (:subreddit "kettlebell")
-              (:subreddit "flexibility")
-              (:subreddit "bodyweightfitness")
-              (:subreddit "usenet")
+              (:subreddit "starforged")
+              (:subreddit "startrek" :threshold 80)
+              (:subreddit "singularity")
               (:subreddit "stocks")
-              (:subreddit "gridfinity" :threshold 90)
-              (:subreddit "promptengineering" :threshold 75))))
+              (:subreddit "swn")
+              (:subreddit "theglasscannonpodcast")
+              (:subreddit "tools")
+              (:subreddit "trailrunning" :tags (sport))
+              (:subreddit "traveller")
+              (:subreddit "ultrarunning" :tags (sport))
+              (:subreddit "usbchardware")
+              (:subreddit "usenet")
+              (:subreddit "worldnews" :threshold 70)
+              (:subreddit "writingprompts" :threshold 80)
+              (:subreddit "wwn")
+              (:subreddit "zwift"))))
+
          (mapcar
           (lambda (feed-spec)
             (let* ((owner (plist-get feed-spec :owner))
@@ -2020,6 +2048,7 @@ string). It returns t if a new completion is found, nil otherwise."
             (:owner "martinvonz" :repo "jj")
             (:owner "dunst-project" :repo "dunst")
             (:owner "karthink" :repo "gptel")))
+
          (mapcar
           (lambda (feed-spec)
             (let* ((channelId (plist-get feed-spec :channelId))
@@ -2029,18 +2058,18 @@ string). It returns t if a new completion is found, nil otherwise."
           (seq-filter
            (lambda (feed-spec) (not (or (plist-get feed-spec :disabled) nil)))
            '((:channelId "UCl_5s2WDFi38LiXUQA7CTWQ" :title "Chris Kaula" :disabled t)
-             (:channelId "UCt8REhn8USXlxhiTc9H_F3w" :title "Iron Home")
-             (:channelId "UCHMfbHsJZCqRtSCVLV-RnYA" :title "Daily MTB Rider")
+             (:channelId "UCt8REhn8USXlxhiTc9H_F3w" :title "Iron Home" :tags (rpg))
+             (:channelId "UCHMfbHsJZCqRtSCVLV-RnYA" :title "Daily MTB Rider" :tags (sport))
              (:channelId "UC4hJTeF0QvnsC7bIshU_K2w" :title "Aiko Sukdolak" :disabled t)
              (:channelId "UCDIr0UgrBJ3lGfs0eeKV6Tw" :title "Steve Mattheis")
-             (:channelId "UCI1aF4MNqSzKIS2t0KHS1gw" :title "Figboot on Pens")
-             (:channelId "UCJV7ONWjegVFOlHpAGgjGMQ" :title "Trond Westby")
-             (:channelId "UCKq3tXnvXnA0feJYmOx9MPw" :title "Stefano Ianiro Wildlife")
-             (:channelId "UCa51ED7iENUjtadDnqPuoWw" :title "SuperTragopan")
-             (:channelId "UCcGPU4A6xJ1OYOkvfMoo25w" :title "Simon Baxter")
+             (:channelId "UCI1aF4MNqSzKIS2t0KHS1gw" :title "Figboot on Pens" :tags (fp))
+             (:channelId "UCJV7ONWjegVFOlHpAGgjGMQ" :title "Trond Westby" :tags (photography))
+             (:channelId "UCKq3tXnvXnA0feJYmOx9MPw" :title "Stefano Ianiro Wildlife" :tags (photography))
+             (:channelId "UCa51ED7iENUjtadDnqPuoWw" :title "SuperTragopan" :tags (photography))
+             (:channelId "UCcGPU4A6xJ1OYOkvfMoo25w" :title "Simon Baxter" :tags (photography))
              (:channelId "UCimiUgDLbi6P17BdaCZpVbg" :title "exurb1a")
-             (:channelId "UCzbbkYQUqeGNKSRwoyWB9IA" :title "Simon Wantling")
-             (:channelId "UC8szqVDJF60HueoqJrD50qw" :title "GOLDEN TRAIL SERIES")
+             (:channelId "UCzbbkYQUqeGNKSRwoyWB9IA" :title "Simon Wantling" :tags (photography))
+             (:channelId "UC8szqVDJF60HueoqJrD50qw" :title "GOLDEN TRAIL SERIES" :tags (sport))
              (:channelId "UCDw36yB-ZXJ_FnqEH7o2HfQ" :title "Saul Pwanson - Visidata")
              (:channelId "UCqeVdbCP-fVjSGEVnY-3lWQ" :title "MotionTwin (Dead Cells)")
              (:channelId "UC9-y-6csu5WGm29I7JiwpnA" :title "Computerphile")
@@ -2073,7 +2102,10 @@ string). It returns t if a new completion is found, nil otherwise."
              (:channelId "UC33MjuRroWlm7vzWCEHKXMw" :title "obsessed mushroom pickers")
              (:channelId "UCWMsoao_uuuVkzuXDDMjFdg" :title "Adidas Terrex")
              (:channelId "UCNJ1Ymd5yFuUPtn21xtRbbw" :title "AI Explained")
-             (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy"))))
+             (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy")
+             (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing")
+             (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann"))))
+
          (mapcar
           (lambda (feed-spec)
             (let* ((id (plist-get feed-spec :id))
@@ -2090,170 +2122,213 @@ string). It returns t if a new completion is found, nil otherwise."
             (:id "fxshdjutxkvhp4uq" :title "Lamy")
             (:id "xb9ujr6s9d3ed1w1" :title "Salomon DE" :tags (running))
             (:id "6zr0oawurrjiw4saxcnu" :title "LOWA Newsletter" :tags (running))))
-         '("https://liore.com/rss/"
-           "https://samcurry.net/api/feed.rss"
-           "https://fantasy-faction.com/feed"
-           "https://jamierubin.net/feed/"
-           "https://fromthepencup.wordpress.com/feed/"
-           "https://semi-rad.com/feed/"
-           "https://www.irunfar.com/feed"
-           "https://www.quarks.de/feed/"
-           "https://xc-run.de/feed/"
-           "https://sabbatical.derfred.org?feed=rss2"
-           "https://kimi-schreiber.de/feed/"
-           "https://buttondown.email/hillelwayne/rss"
-           "https://terminaltrove.com/totw.xml"
-           "https://perishablepress.com/feed/atom/"
-           "https://rss.p.theconnman.com/r/netbrain/zwift"
-           "https://jillianhess.substack.com/feed"
-           "https://jcjc-dev.com/atom.xml"
-           "http://feeds.grack.com/grack"
-           "https://zwiftinsider.com/category/news/game-updates/feed/"
-           "https://trail-magazin.de/feed/"
-           "https://geekitguide.com/blog/feed"
-           "https://writingatlarge.com/feed/"
-           "https://www.werkzeug-abc.de/feed/"
-           "https://rssbay.net/feed?keyword=vorwerk+260&globalId=EBAY-DE&location=DE&category=30335&auction=1&buyitnow=1&condition=7000&time-frame-type=901&time-frame-value=24"
-           "https://lemmy.dbzer0.com/feeds/c/piracy.xml?sort=TopMonth"
-           "https://lemmy.world/feeds/c/homeimprovement.xml?sort=TopMonth"
-           "https://hackaday.com/blog/feed/"
-           "https://newsboat.org/news.atom"
-           "https://blog.fogus.me/feed/"
-           "https://wolles-elektronikkiste.de/rss"
-           "https://rediscoveranalog.com/feed"
-           "https://www.wellappointeddesk.com/feed"
-           "https://thepoorpenman.com/feed"
-           "https://community.topazlabs.com/c/releases/gigapixel-ai/66.rss"
-           "https://questingbeast.substack.com/feed"
-           "https://controlaltbackspace.org/feed.xml"
-           "https://www.dcrainmaker.com/feed/"
-           "https://ennie-awards.com/feed"
-           "https://hk-newsletter.de/feed"
-           "https://feeds.feedburner.com/AnnaHavron"
-           "https://analogoffice.net/feed.xml"
-           "https://seb.jambor.dev/feed.xml"
-           "https://bulletjournal.com/blogs/bulletjournalist.xml"
-           "https://blog.pragmaticengineer.com/feed/"
-           "https://www.trailandkale.com/feed/"
-           "https://www.takenote.space/blog-posts?format=rss"
-           "https://www.rennrad-news.de/news/rss"
-           "https://diaghilevsdice.blogspot.com/atom.xml"
-           "https://watcherdm.com/newsletter/rss"
-           "https://www.outsideonline.com/rss/all/rss.xml"
-           "https://www.enworld.org/ewr-porta/index.rss"
-           "https://www.reddit.com/search.rss?q=subreddit%3Arpg%20site%3Apodcast&sort=hot&t=week"
-           "https://news.goblingaming.co.uk/feed"
-           "https://lonedimension.wordpress.com/feed"
-           "https://theangrygm.com/feed"
-           "https://contributors.scala-lang.org/latest.rss"
-           "https://discourse.nixos.org/latest.rss"
-           "https://discourse.haskell.org/latest.rss"
-           "https://carlillustration.wordpress.com/tag/dungeon-world/feed"
-           "https://www.bastionland.com/feeds/posts/default"
-           "https://cannibalhalflinggaming.com/feed"
-           "https://takeonrules.com/index.xml"
-           "https://www.prismaticwasteland.com/blog?format=rss"
-           "https://questingblog.com/rss"
-           "https://thealexandrian.net/feed"
-           "https://elis.nu/blog/index.xml"
-           "https://matklad.github.io/feed.xml"
-           "https://blog.poisson.chat/rss.xml"
-           "https://algorithmsoup.wordpress.com/feed"
-           "https://www.thecramped.com/feed/"
-           "https://blog.sudo.ws/index.xml"
-           "https://fliek.com/blog/rss"
-           "https://www.mountainofink.com/?format=rss"
-           "https://blog.stephsmith.io/rss/"
-           "https://www.fotoforum.de/blog.rss"
-           "https://www.hgon-nabu-mtk.de/rss"
-           "https://hgon-kelkheim.de/feed/"
-           "https://calnewport.com/blog/feed"
-           "https://feeds.feedburner.com/MeltingAsphalt"
-           "https://improvephotography.com/feed/"
-           "https://pixls.us/feed.xml"
-           "https://feeds.feedburner.com/bmndr"
-           "https://labnotes.org/rss/"
-           "https://dariusforoux.com/feed/"
-           "https://thequilltolive.com/feed/"
-           "https://www.raptitude.com/feed/"
-           "https://mathwithbaddrawings.com/feed"
-           "https://photographylife.com/feed"
-           "https://calnewport.com/blog/feed"
-           "https://waitbutwhy.com/feed"
-           "https://failex.blogspot.com/feeds/posts/default"
-           "https://www.locusmap.app/feed/"
-           "https://nixos.org/blog/feed.xml"
-           "https://us10.campaign-archive2.com/feed?u=49a6a2e17b12be2c5c4dcb232&id=ffbbbbd930"
-           "https://www.instaclustr.com/blog/category/technical/feed/"
-           "https://www.drmaciver.com/blog/feed/"
-           "https://www.lihaoyi.com/feed.xml"
-           "https://feeds.feedburner.com/incodeblog"
-           "https://www.gridsagegames.com/blog/feed/"
-           "https://brookseakin.com/feed/"
+
+         '(("https://liore.com/rss/")
+           ("https://samcurry.net/api/feed.rss")
+           ("https://fantasy-faction.com/feed")
+           ("https://jamierubin.net/feed/")
+           ("https://fromthepencup.wordpress.com/feed/")
+           ("https://semi-rad.com/feed/")
+           ("https://www.irunfar.com/feed" sport)
+           ("https://www.quarks.de/feed/")
+           ("https://xc-run.de/feed/" sport)
+           ("https://sabbatical.derfred.org?feed=rss2")
+           ("https://kimi-schreiber.de/feed/")
+           ("https://buttondown.email/hillelwayne/rss")
+           ("https://terminaltrove.com/totw.xml")
+           ("https://perishablepress.com/feed/atom/")
+           ("https://rss.p.theconnman.com/r/netbrain/zwift")
+           ("https://jillianhess.substack.com/feed")
+           ("https://jcjc-dev.com/atom.xml")
+           ("http://feeds.grack.com/grack")
+           ("https://zwiftinsider.com/category/news/game-updates/feed/")
+           ("https://trail-magazin.de/feed/")
+           ("https://geekitguide.com/blog/feed")
+           ("https://writingatlarge.com/feed/")
+           ("https://www.werkzeug-abc.de/feed/")
+           ("https://rssbay.net/feed?keyword=vorwerk+260&globalId=EBAY-DE&location=DE&category=30335&auction=1&buyitnow=1&condition=7000&time-frame-type=901&time-frame-value=24")
+           ("https://lemmy.dbzer0.com/feeds/c/piracy.xml?sort=TopMonth")
+           ("https://lemmy.world/feeds/c/homeimprovement.xml?sort=TopMonth")
+           ("https://hackaday.com/blog/feed/")
+           ("https://newsboat.org/news.atom")
+           ("https://blog.fogus.me/feed/")
+           ("https://wolles-elektronikkiste.de/rss")
+           ("https://rediscoveranalog.com/feed")
+           ("https://www.wellappointeddesk.com/feed")
+           ("https://thepoorpenman.com/feed")
+           ("https://community.topazlabs.com/c/releases/gigapixel-ai/66.rss")
+           ("https://questingbeast.substack.com/feed")
+           ("https://controlaltbackspace.org/feed.xml")
+           ("https://www.dcrainmaker.com/feed/")
+           ("https://ennie-awards.com/feed")
+           ("https://hk-newsletter.de/feed")
+           ("https://feeds.feedburner.com/AnnaHavron")
+           ("https://analogoffice.net/feed.xml")
+           ("https://seb.jambor.dev/feed.xml")
+           ("https://bulletjournal.com/blogs/bulletjournalist.xml")
+           ("https://blog.pragmaticengineer.com/feed/")
+           ("https://www.trailandkale.com/feed/")
+           ("https://www.takenote.space/blog-posts?format=rss")
+           ("https://www.rennrad-news.de/news/rss")
+           ("https://diaghilevsdice.blogspot.com/atom.xml")
+           ("https://watcherdm.com/newsletter/rss")
+           ("https://www.outsideonline.com/rss/all/rss.xml")
+           ("https://www.enworld.org/ewr-porta/index.rss")
+           ("https://www.reddit.com/search.rss?q=subreddit%3Arpg%20site%3Apodcast&sort=hot&t=week")
+           ("https://lonedimension.wordpress.com/feed")
+           ("https://theangrygm.com/feed")
+           ("https://contributors.scala-lang.org/latest.rss")
+           ("https://discourse.nixos.org/latest.rss")
+           ("https://discourse.haskell.org/latest.rss")
+           ("https://carlillustration.wordpress.com/tag/dungeon-world/feed")
+           ("https://www.bastionland.com/feeds/posts/default")
+           ("https://cannibalhalflinggaming.com/feed")
+           ("https://takeonrules.com/index.xml")
+           ("https://www.prismaticwasteland.com/blog?format=rss")
+           ("https://questingblog.com/rss")
+           ("https://thealexandrian.net/feed")
+           ("https://elis.nu/blog/index.xml")
+           ("https://matklad.github.io/feed.xml")
+           ("https://blog.poisson.chat/rss.xml")
+           ("https://algorithmsoup.wordpress.com/feed")
+           ("https://www.thecramped.com/feed/")
+           ("https://blog.sudo.ws/index.xml")
+           ("https://fliek.com/blog/rss")
+           ("https://www.mountainofink.com/?format=rss")
+           ("https://blog.stephsmith.io/rss/")
+           ("https://www.fotoforum.de/blog.rss")
+           ("https://www.hgon-nabu-mtk.de/rss")
+           ("https://hgon-kelkheim.de/feed/")
+           ("https://calnewport.com/blog/feed")
+           ("https://feeds.feedburner.com/MeltingAsphalt")
+           ("https://improvephotography.com/feed/")
+           ("https://pixls.us/feed.xml")
+           ("https://feeds.feedburner.com/bmndr")
+           ("https://labnotes.org/rss/")
+           ("https://dariusforoux.com/feed/")
+           ("https://thequilltolive.com/feed/")
+           ("https://www.raptitude.com/feed/")
+           ("https://mathwithbaddrawings.com/feed")
+           ("https://photographylife.com/feed")
+           ("https://calnewport.com/blog/feed")
+           ("https://waitbutwhy.com/feed")
+           ("https://failex.blogspot.com/feeds/posts/default")
+           ("https://www.locusmap.app/feed/")
+           ("https://nixos.org/blog/feed.xml")
+           ("https://us10.campaign-archive2.com/feed?u=49a6a2e17b12be2c5c4dcb232&id=ffbbbbd930")
+           ("https://www.instaclustr.com/blog/category/technical/feed/")
+           ("https://www.drmaciver.com/blog/feed/")
+           ("https://www.lihaoyi.com/feed.xml")
+           ("https://feeds.feedburner.com/incodeblog")
+           ("https://www.gridsagegames.com/blog/feed/")
            ("https://hnrss.org/newest?points=150&comments=20&link=comments&count=25" hackernews)
            ("https://hnrss.org/bestcomments" hackernews)
-           "https://typesandkinds.wordpress.com/feed/"
-           "https://www.jetpens.com/blog/feed"
-           "https://feeds.feedburner.com/BlackCover"
-           "https://www.penaddict.com/blog?format=rss"
-           "https://meta.plasm.us/atom.xml"
-           "https://feeds.feedburner.com/incodeblog"
-           "https://dev.stephendiehl.com/fun/rss/atom.xml"
-           "https://nullprogram.com/feed/"
-           "https://www.masteringemacs.org/feed/"
-           "https://emacsredux.com/atom.xml"
-           "http://xahlee.info/emacs/emacs/blog.xml"
-           "https://apocalisp.wordpress.com/feed/"
-           "https://blog.8thlight.com/feed/atom.xml"
-           "https://blog.jessitron.com/feeds/posts/default"
-           "https://git-blame.blogspot.de/feeds/posts/default"
-           "https://corte.si/rss.xml"
-           "https://feeds.feedburner.com/buckblog"
-           "https://feeds.feedburner.com/ezyang"
-           "https://feeds.feedburner.com/GiantRobotsSmashingIntoOtherGiantRobots"
-           "https://feeds.feedburner.com/TomMoertelsBlog"
-           "https://highlyscalable.wordpress.com/feed/"
-           "https://izbicki.me/blog/feed"
-           "https://jeremykun.wordpress.com/feed/"
-           "https://www.commandlinefu.com/feed/tenup"
-           "https://www.haskellforall.com/feeds/posts/default"
-           "https://byorgey.github.io/blog/rss.xml"
-           "https://byorgey.wordpress.com/feed/"
-           "https://planet.haskell.org/rss20.xml"
-           "https://feeds2.feedburner.com/catonmat"
-           "https://themonadreader.wordpress.com/feed/"
-           "https://irreal.org/blog/?feed=rss2"
-           "https://www.haskellcast.com/feed.xml"
-           "https://whattheemacsd.com/atom.xml"
-           "https://jvns.ca/atom.xml"
-           "https://sachachua.com/blog/feed/"
-           "https://blog.zombiesrungame.com/rss/"
-           "https://japgolly.blogspot.com.au/feeds/posts/default"
-           "https://feeds.feedburner.com/codinghorror"
-           "http://lambda-the-ultimate.org/rss.xml"
-           "https://jaspervdj.be/rss.xml"
-           "https://joeyh.name/blog/index.rss"
-           "https://funktionale-programmierung.de/rss.xml"
-           "https://okmij.org/ftp/rss.xml"
-           "https://www.recordingthoughts.com/feed/"
-           "https://www.codecentric.de/rss/feed.xml"
-           "https://jeltsch.wordpress.com/feed/"
-           "https://feeds.feedburner.com/NotebookStories"
-           "https://meta.plasm.us/atom.xml"
-           "https://sysdig.com/blog/feed/"
-           "https://rachelbythebay.com/w/atom.xml"
-           "https://danluu.com/atom.xml"
-           "https://www.elidedbranches.com/atom.xml"
-           "https://us2.campaign-archive1.com/feed?u=ba834c562d82d9aba5eaf90ba&id=32cef9ab4e"
-           "https://lethalman.blogspot.com/feeds/posts/default/-/nixpills"
-           "https://begriffs.com/atom.xml"
-           "https://journal-lokal.de/category/hessen/rss"
-           "https://www.augenblicke-eingefangen.de/blog/?sRss=1"
-           "https://chrispenner.ca/atom.xml"
-           "https://blog.humblebundle.com/feed"))))
+           ("https://hnrss.org/newest?link=comment&comments=10" hackernews)
+           ("https://typesandkinds.wordpress.com/feed/")
+           ("https://feeds.feedburner.com/BlackCover")
+           ("https://www.penaddict.com/blog?format=rss")
+           ("https://meta.plasm.us/atom.xml")
+           ("https://feeds.feedburner.com/incodeblog")
+           ("https://nullprogram.com/feed/")
+           ("https://www.masteringemacs.org/feed/")
+           ("https://emacsredux.com/atom.xml")
+           ("http://xahlee.info/emacs/emacs/blog.xml")
+           ("https://apocalisp.wordpress.com/feed/")
+           ("https://blog.8thlight.com/feed/atom.xml")
+           ("https://blog.jessitron.com/feeds/posts/default")
+           ("https://git-blame.blogspot.de/feeds/posts/default")
+           ("https://corte.si/rss.xml")
+           ("https://feeds.feedburner.com/buckblog")
+           ("https://feeds.feedburner.com/ezyang")
+           ("https://feeds.feedburner.com/GiantRobotsSmashingIntoOtherGiantRobots")
+           ("https://feeds.feedburner.com/TomMoertelsBlog")
+           ("https://highlyscalable.wordpress.com/feed/")
+           ("https://izbicki.me/blog/feed")
+           ("https://jeremykun.wordpress.com/feed/")
+           ("https://www.commandlinefu.com/feed/tenup" programming)
+           ("https://www.haskellforall.com/feeds/posts/default" programming)
+           ("https://byorgey.github.io/blog/rss.xml" programming)
+           ("https://byorgey.wordpress.com/feed/" programming)
+           ("https://planet.haskell.org/rss20.xml" programming)
+           ("https://feeds2.feedburner.com/catonmat")
+           ("https://themonadreader.wordpress.com/feed/" programming)
+           ("https://irreal.org/blog/?feed=rss2" programming)
+           ("https://www.haskellcast.com/feed.xml" programming)
+           ("https://jvns.ca/atom.xml" programming)
+           ("https://sachachua.com/blog/feed/" emacs programming)
+           ("https://blog.zombiesrungame.com/rss/")
+           ("https://japgolly.blogspot.com.au/feeds/posts/default")
+           ("https://feeds.feedburner.com/codinghorror")
+           ("https://jaspervdj.be/rss.xml" programming)
+           ("https://joeyh.name/blog/index.rss")
+           ("https://funktionale-programmierung.de/rss.xml" programming)
+           ("https://okmij.org/ftp/rss.xml")
+           ("https://www.recordingthoughts.com/feed/")
+           ("https://www.codecentric.de/rss/feed.xml")
+           ("https://jeltsch.wordpress.com/feed/")
+           ("https://feeds.feedburner.com/NotebookStories")
+           ("https://meta.plasm.us/atom.xml")
+           ("https://sysdig.com/blog/feed/")
+           ("https://rachelbythebay.com/w/atom.xml")
+           ("https://danluu.com/atom.xml")
+           ("https://www.elidedbranches.com/atom.xml")
+           ("https://us2.campaign-archive1.com/feed?u=ba834c562d82d9aba5eaf90ba&id=32cef9ab4e")
+           ("https://lethalman.blogspot.com/feeds/posts/default/-/nixpills")
+           ("https://begriffs.com/atom.xml")
+           ("https://journal-lokal.de/category/hessen/rss" news)
+           ("https://chrispenner.ca/atom.xml")
+           ("https://blog.humblebundle.com/feed")
+           ("https://www.lebensmittelwarnung.de/___LMW-Redaktion/RSSNewsfeed/Functions/RssFeeds/rssnewsfeed_Alle_DE.xml?nn=314268&state=hessen" news)
+           ("https://www.tagesschau.de/inland/regional/hessen/index~rss2.xml" news)
+           ("https://tinyhack.com/feed/" hacking)
+           ("https://daniel.haxx.se/blog/feed/" programming)
+           ("https://wearetrailmix.substack.com/feed" sport))
 
-;; (use-package elfeed-summary
-;;   :ensure t)
+         '(("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fhofheim-ort74520%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fkelkheim-ort95937%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fr.de%2Frhein-main%2Fmain-taunus-kreis%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a%5Btitle%5D&url_pattern=.%2B&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fmobil.hessen.de%2Fpresse%3Fmin%3D%26max%3D%26tid1%255B2745%255D%3D2745%26keys%3D%26displayFirst%3Dlist_first&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a%5Btitle%5D&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.cke-richtext-content&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d\\TH%3Ai%3As\\Z&remove_styling=on&format=Atom" news)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hofheim.de%2Fneuigkeiten-und-ausschreibungen%2Faktuelles-aus-hofheim%2F&cookie=&title_cleanup=&entry_element_selector=.teaserbox&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.article&content_cleanup=script%2Cimg&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d&format=Atom" news)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.strava.com%2Fsegments%2F8923447&cookie=&title_cleanup=&entry_element_selector=.table-leaderboard+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" sport)
+           ("https://rss.bloat.cat/?action=display&bridge=GithubIssueBridge&context=Project+Issues&q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc&u=karthink&p=gptel&format=Atom" github)
+           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hgon.de%2Fentdecken%2F&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=img&title_selector=h3&category_selector=&author_selector=&time_selector=time.tagline&time_format=Y.m.d+&remove_styling=on&format=Atom")))))
+
+(use-package elfeed-summary
+  :ensure t
+  :config
+  (setq elfeed-summary-settings
+        '((group
+           (:title . "HackerNews")
+           (:elements
+            (query . hackernews)))
+          (group
+           (:title . "Reddit")
+           (:elements
+            (query . reddit)))
+          (group
+           (:title . "Youtube")
+           (:elements
+            (query . youtube)))
+          (group
+           (:title . "Newsletter")
+           (:elements
+            (query . newsletter)))
+          (group
+           (:title . "GitHub Releases")
+           (:elements
+            (query . github)))
+          (group
+           (:title . "Searches")
+           (:elements
+            (search
+             (:filter . "@7-days-ago +unread")
+             (:title . "Unread entries this week"))
+            (search
+             (:filter . "@6-months-ago emacs")
+             (:title . "Something about Emacs"))))
+          (group
+           (:title . "Auto-Tags")
+           (:elements (auto-tags))))))
 
 (use-package elfeed-score
   :ensure t
@@ -2263,5 +2338,8 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq elfeed-search-print-entry-function #'elfeed-score-print-entry))
 
 (use-package pcre2el
+  :ensure t)
+
+(use-package pocket-reader
   :ensure t)
 ;;

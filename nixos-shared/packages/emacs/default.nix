@@ -174,6 +174,7 @@ in emacsWithPackages (epkgs:
       strace-mode
       persistent-scratch
       pdf-tools
+      pocket-reader
       rust-mode
       rainbow-delimiters
       smartparens
