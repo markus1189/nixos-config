@@ -1576,8 +1576,9 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package savehist
   :ensure t
   :init
-  (add-to-list 'savehist-additional-variables 'log-edit-comment-ring)
-  (savehist-mode))
+  (savehist-mode)
+  :config
+  (add-to-list 'savehist-additional-variables 'log-edit-comment-ring))
 
 (use-package project
   :ensure t)
@@ -2121,7 +2122,8 @@ string). It returns t if a new completion is found, nil otherwise."
             (:id "1ema4onuqfab8l4o" :title "Leuchtturm1917")
             (:id "fxshdjutxkvhp4uq" :title "Lamy")
             (:id "xb9ujr6s9d3ed1w1" :title "Salomon DE" :tags (running))
-            (:id "6zr0oawurrjiw4saxcnu" :title "LOWA Newsletter" :tags (running))))
+            (:id "6zr0oawurrjiw4saxcnu" :title "LOWA Newsletter" :tags (running))
+            (:id "a5c6xo3x2mts4urw57pm" :title "Dungeon Crawler Carl")))
 
          '(("https://liore.com/rss/")
            ("https://samcurry.net/api/feed.rss")
@@ -2224,6 +2226,7 @@ string). It returns t if a new completion is found, nil otherwise."
            ("https://hnrss.org/newest?points=150&comments=20&link=comments&count=25" hackernews)
            ("https://hnrss.org/bestcomments" hackernews)
            ("https://hnrss.org/newest?link=comment&comments=10" hackernews)
+           ("https://hnrss.org/user?id=simonw" hackernews)
            ("https://typesandkinds.wordpress.com/feed/")
            ("https://feeds.feedburner.com/BlackCover")
            ("https://www.penaddict.com/blog?format=rss")
@@ -2282,7 +2285,8 @@ string). It returns t if a new completion is found, nil otherwise."
            ("https://www.tagesschau.de/inland/regional/hessen/index~rss2.xml" news)
            ("https://tinyhack.com/feed/" hacking)
            ("https://daniel.haxx.se/blog/feed/" programming)
-           ("https://wearetrailmix.substack.com/feed" sport))
+           ("https://wearetrailmix.substack.com/feed" sport)
+           ("https://simonwillison.net/atom/everything/" programming))
 
          '(("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fhofheim-ort74520%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
            ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fkelkheim-ort95937%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
