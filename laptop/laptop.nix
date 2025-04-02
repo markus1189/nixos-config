@@ -47,6 +47,8 @@ in rec {
     ../nixos-shared/my-agenix.nix
     ./codecentric.nix
     ../nixos-shared/nix-ld.nix
+    ../nixos-shared/rss-bridge.nix
+    ../nixos-shared/reddit-top-rss.nix
   ];
 
   documentation = {
