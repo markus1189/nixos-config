@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommandLocal, fetchurl, emacsPackagesFor, fasd, plantuml
+{ emacs, mutate, runCommandLocal, fetchurl, emacsWithPackages, fasd, plantuml
 , pandoc, git, ndtSources }:
 
 let
@@ -22,7 +22,6 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
   '');
-  emacsWithPackages = (emacsPackagesFor emacs).emacsWithPackages;
   quick-yes = runCommandLocal "install-quick-yes" { } ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
@@ -39,8 +38,9 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
   '';
-in emacsWithPackages (epkgs:
+in emacs.pkgs.withPackages (epkgs:
   (with epkgs.melpaPackages;
+    with epkgs.elpaPackages;
     with epkgs;
     let
       my_copilot = epkgs.callPackage
@@ -58,7 +58,7 @@ in emacsWithPackages (epkgs:
             };
           }) { };
       my_gptel = epkgs.gptel.overrideAttrs (old: rec {
-        version = builtins.replaceStrings [ ".00" ".0"] [ "." "."]
+        version = builtins.replaceStrings [ ".00" ".0" ] [ "." "." ]
           (builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
             (builtins.substring 0 16 ndtSources.gptel.date));
         src = ndtSources.gptel.outPath;
@@ -118,6 +118,7 @@ in emacsWithPackages (epkgs:
       hledger-mode
       hurl-mode
       hydra
+      ialign
       ibuffer-vc
       ibuffer-projectile
       iedit
@@ -143,6 +144,7 @@ in emacsWithPackages (epkgs:
       lsp-haskell
       lsp-metals
       lsp-treemacs
+      mcp
       which-key
       lsp-ui
       # helm-lsp
@@ -194,12 +196,9 @@ in emacsWithPackages (epkgs:
       web-mode
       yaml-mode
       yasnippet
-
-      myEmacsConfig
-    ] ++ [ my_copilot my_gptel ]) ++ (with epkgs.elpaPackages; [
-      # auctex
-      #pabbrev
+      # gptel-quick
       undo-tree
       csv-mode
       rainbow-mode
-    ]))
+      myEmacsConfig
+    ] ++ [ my_copilot my_gptel ]))
