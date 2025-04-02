@@ -1358,6 +1358,9 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package gptel
   :ensure t
+  :hook
+  (gptel-post-stream . gptel-auto-scroll)
+  (gptel-post-response-functions . gptel-end-of-response)
   :bind (
          ("C-c C-<return>" . gptel-send)
          ("C-c g" . gptel))
@@ -1725,7 +1728,13 @@ string). It returns t if a new completion is found, nil otherwise."
    ("C-s-." . embark-dwim)      ;; good alternative: M-.
    ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
    :map embark-general-map
-   ("k" . mh/embark-kagi-search))
+   ("k" . mh/embark-kagi-search)
+   :map embark-buffer-map
+   ("g" . gptel-context-add)
+   :map embark-file-map
+   ("g" . gptel-context-add-file)
+   :map embark-region-map
+   ("g" . gptel-context-add))
 
   :init
 
@@ -1786,7 +1795,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :bind (:map embark-identifier-map
               ("-" . #'string-inflection-all-cycle))
   :init
-  (add-to-list 'embark-repeat-actions #'stringInflectionAllCycle))
+  (add-to-list 'embark-repeat-actions #'string-inflection-all-cycle))
 
 (use-package eat
   :ensure t
@@ -1850,7 +1859,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   :init
-  (setq mh/elfeed-search-stack '(reddit hackernews youtube news newsletter github nil))
+  (setq mh/elfeed-search-stack '(hackernews youtube news newsletter github sport reddit nil))
 
   (defun mh/pocket-add-url-api (url)
     "Add a URL to Pocket using the Pocket API."
@@ -1948,7 +1957,7 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq elfeed-search-title-max-width 120)
   (setq elfeed-feeds
         (append
-         (let ((serverUrl "http://192.168.178.46:9999"))
+         (let ((serverUrl "http://localhost:9999"))
            (mapcar
             (lambda (feed-spec)
               (let* ((subreddit (plist-get feed-spec :subreddit))
@@ -2074,7 +2083,7 @@ string). It returns t if a new completion is found, nil otherwise."
              (:channelId "UCDw36yB-ZXJ_FnqEH7o2HfQ" :title "Saul Pwanson - Visidata")
              (:channelId "UCqeVdbCP-fVjSGEVnY-3lWQ" :title "MotionTwin (Dead Cells)")
              (:channelId "UC9-y-6csu5WGm29I7JiwpnA" :title "Computerphile")
-             (:channelId "UCIfRR1N2Gm1vjj9X955iWSQ" :title "NorCal Cycling")
+             (:channelId "UCIfRR1N2Gm1vjj9X955iWSQ" :title "NorCal Cycling" :tags (sport))
              (:channelId "UCvYwePdbWSEwUa-Pk02u3Zw" :title "Questing Beast")
              (:channelId "UCQs8-UJ7IHsrzhQ-OQOYBmg" :title "Seth Skorkowsky")
              (:channelId "UC6mIxFTvXkWQVEHPsEdflzQ" :title "Great Scott")
@@ -2098,14 +2107,17 @@ string). It returns t if a new completion is found, nil otherwise."
              (:channelId "UC2rzsm1Qi6N1X-wuOg_p0Ng" :title "Project Farm")
              (:channelId "UCo6hpY_BpeDt72PEJicyVOQ" :title "Techisode TV")
              (:channelId "UCgGbvwkKfnt1V-CvdzXo7OQ" :title "How-2-repair.com")
-             (:channelId "UCUwGYfvGvmqMnvQTOY8E_qg" :title "Göran Winblad - Running")
-             (:channelId "UCbBVRJq3H6yRvC9G6xBLJZw" :title "UTMB World Series")
+             (:channelId "UCUwGYfvGvmqMnvQTOY8E_qg" :title "Göran Winblad - Running" :tags (sport))
+             (:channelId "UCbBVRJq3H6yRvC9G6xBLJZw" :title "UTMB World Series" :tags (sport))
              (:channelId "UC33MjuRroWlm7vzWCEHKXMw" :title "obsessed mushroom pickers")
              (:channelId "UCWMsoao_uuuVkzuXDDMjFdg" :title "Adidas Terrex")
              (:channelId "UCNJ1Ymd5yFuUPtn21xtRbbw" :title "AI Explained")
              (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy")
-             (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing")
-             (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann"))))
+             (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing" :tags (sport))
+             (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann")
+             (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
+             (:channelId "UCrPpaC5uLPx03XHVCfufiTQ" :title "Tim Cannon" :tags (sport))
+             (:channelId "UCNS-y3tEoPmBy9Q-ZYJf9QQ" :title "Kelp and Fern" :tags (sport)))))
 
          (mapcar
           (lambda (feed-spec)
@@ -2143,7 +2155,7 @@ string). It returns t if a new completion is found, nil otherwise."
            ("https://jillianhess.substack.com/feed")
            ("https://jcjc-dev.com/atom.xml")
            ("http://feeds.grack.com/grack")
-           ("https://zwiftinsider.com/category/news/game-updates/feed/")
+           ("https://zwiftinsider.com/category/news/game-updates/feed/" sport)
            ("https://trail-magazin.de/feed/")
            ("https://geekitguide.com/blog/feed")
            ("https://writingatlarge.com/feed/")
@@ -2161,17 +2173,17 @@ string). It returns t if a new completion is found, nil otherwise."
            ("https://community.topazlabs.com/c/releases/gigapixel-ai/66.rss")
            ("https://questingbeast.substack.com/feed")
            ("https://controlaltbackspace.org/feed.xml")
-           ("https://www.dcrainmaker.com/feed/")
+           ("https://www.dcrainmaker.com/feed/" sport)
            ("https://ennie-awards.com/feed")
-           ("https://hk-newsletter.de/feed")
+           ("https://hk-newsletter.de/feed" news)
            ("https://feeds.feedburner.com/AnnaHavron")
            ("https://analogoffice.net/feed.xml")
            ("https://seb.jambor.dev/feed.xml")
            ("https://bulletjournal.com/blogs/bulletjournalist.xml")
            ("https://blog.pragmaticengineer.com/feed/")
-           ("https://www.trailandkale.com/feed/")
+           ("https://www.trailandkale.com/feed/" sport)
            ("https://www.takenote.space/blog-posts?format=rss")
-           ("https://www.rennrad-news.de/news/rss")
+           ("https://www.rennrad-news.de/news/rss" sport)
            ("https://diaghilevsdice.blogspot.com/atom.xml")
            ("https://watcherdm.com/newsletter/rss")
            ("https://www.outsideonline.com/rss/all/rss.xml")
@@ -2286,16 +2298,17 @@ string). It returns t if a new completion is found, nil otherwise."
            ("https://tinyhack.com/feed/" hacking)
            ("https://daniel.haxx.se/blog/feed/" programming)
            ("https://wearetrailmix.substack.com/feed" sport)
-           ("https://simonwillison.net/atom/everything/" programming))
+           ("https://simonwillison.net/atom/everything/" programming)
+           ("https://voidstarsec.com/blog/feeds/all.atom.xml" hacking))
 
-         '(("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fhofheim-ort74520%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fkelkheim-ort95937%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fr.de%2Frhein-main%2Fmain-taunus-kreis%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a%5Btitle%5D&url_pattern=.%2B&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fmobil.hessen.de%2Fpresse%3Fmin%3D%26max%3D%26tid1%255B2745%255D%3D2745%26keys%3D%26displayFirst%3Dlist_first&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a%5Btitle%5D&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.cke-richtext-content&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d\\TH%3Ai%3As\\Z&remove_styling=on&format=Atom" news)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hofheim.de%2Fneuigkeiten-und-ausschreibungen%2Faktuelles-aus-hofheim%2F&cookie=&title_cleanup=&entry_element_selector=.teaserbox&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.article&content_cleanup=script%2Cimg&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d&format=Atom" news)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.strava.com%2Fsegments%2F8923447&cookie=&title_cleanup=&entry_element_selector=.table-leaderboard+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" sport)
-           ("https://rss.bloat.cat/?action=display&bridge=GithubIssueBridge&context=Project+Issues&q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc&u=karthink&p=gptel&format=Atom" github)
-           ("https://rss.nixnet.services/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hgon.de%2Fentdecken%2F&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=img&title_selector=h3&category_selector=&author_selector=&time_selector=time.tagline&time_format=Y.m.d+&remove_styling=on&format=Atom")))))
+         '(("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fhofheim-ort74520%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fkelkheim-ort95937%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fr.de%2Frhein-main%2Fmain-taunus-kreis%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a%5Btitle%5D&url_pattern=.%2B&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fmobil.hessen.de%2Fpresse%3Fmin%3D%26max%3D%26tid1%255B2745%255D%3D2745%26keys%3D%26displayFirst%3Dlist_first&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a%5Btitle%5D&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.cke-richtext-content&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d\\TH%3Ai%3As\\Z&remove_styling=on&format=Atom" news)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hofheim.de%2Fneuigkeiten-und-ausschreibungen%2Faktuelles-aus-hofheim%2F&cookie=&title_cleanup=&entry_element_selector=.teaserbox&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.article&content_cleanup=script%2Cimg&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d&format=Atom" news)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.strava.com%2Fsegments%2F8923447&cookie=&title_cleanup=&entry_element_selector=.table-leaderboard+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" sport)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hgon.de%2Fentdecken%2F&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=img&title_selector=h3&category_selector=&author_selector=&time_selector=time.tagline&time_format=Y.m.d+&remove_styling=on&format=Atom")
+           ("http://localhost:9998/?action=display&bridge=GithubIssueBridge&context=Project+Issues&q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc&u=karthink&p=gptel&format=Atom" github)))))
 
 (use-package elfeed-summary
   :ensure t
@@ -2345,5 +2358,11 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package pocket-reader
+  :ensure t)
+
+(use-package ialign
+  :ensure t)
+
+(use-package mcp
   :ensure t)
 ;;
