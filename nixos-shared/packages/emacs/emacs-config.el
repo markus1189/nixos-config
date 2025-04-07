@@ -13,7 +13,8 @@
   (defun mh/secrets/gptel/openAiApiKey () "@gptelOpenAiApiKey@")
   (defun mh/secrets/gptel/anthropicApiKey () "@gptelAnthropicApiKey@")
   (defun mh/secrets/gptel/deepSeekApiKey () "@gptelDeepSeekApiKey@")
-  (defun mh/secrets/gptel/xaiApiKey () "@gptelXAIApiKey@"))
+  (defun mh/secrets/gptel/xaiApiKey () "@gptelXAIApiKey@")
+  (defun mh/secrets/gptel/openRouterApiKey () "@gptelOpenRouterApiKey@"))
 
 (global-set-key (kbd "M-m") 'iy-go-to-char)
 
@@ -1412,6 +1413,22 @@ string). It returns t if a new completion is found, nil otherwise."
     :models '(grok-2-latest
               (grok-2-vision-latest :capabilities (media)
                                     :mime-types ("image/jpg" "image/jpeg" "image/png"))))
+
+  (gptel-make-openai "OpenRouter"
+    :host "openrouter.ai"
+    :endpoint "/api/v1/chat/completions"
+    :stream t
+    :key 'mh/secrets/gptel/openRouterApiKey
+    :models '(openai/gpt-4o-mini
+              openai/gpt-4o
+              meta-llama/llama-3.3-70b-instruct
+              deepseek/deepseek-chat-v3-0324
+              deepseek/deepseek-r1
+              google/gemini-2.5-pro-preview-03-25
+              qwen/qwen-2.5-72b-instruct
+              qwen/qwq-32b
+              anthropic/claude-3.7-sonnet))
+
 
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
   (add-to-list 'gptel-directives '(userScript . "Write a greasemonkey userscript with debug logging enabled that can be disabled via a boolean.  For the debug logging, always use a consistent prefix to identify the script. If it makes sense, use a mutation observer on the dom. Start with important design points to consider and explain your plan before the implementation.  Write clean code and add important comments. Fill the metadata section of the userscript."))
