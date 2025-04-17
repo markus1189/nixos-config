@@ -2380,6 +2380,31 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package ialign
   :ensure t)
 
-(use-package mcp
-  :ensure t)
+(add-to-list 'load-path "@mcp_el@")
+(require 'mcp-hub)
+
+(setq mcp-hub-servers
+      '(
+        ;; ("mongodb-local" . (:command "docker" :args ("run" "--rm" "-i" "--network=host" "furey/mongodb-lens")))
+        ("filesystem" . (:command "docker" :args ("run" "--rm" "-i" "--mount" "type=bind,src=/tmp/filesystem-mcp-test,dst=/projects/filesystem-mcp-test" "mcp/filesystem" "/projects")))
+        ("sqlite" . (:command "docker" :args ("run" "--rm" "-i" "-v" "mcp-test:/mcp" "mcp/sqlite" "--db-path" "/mcp/test.db")))))
+
+
+(defun gptel-mcp-register-tool ()
+  (interactive)
+  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+    (mapcar #'(lambda (tool)
+                (apply #'gptel-make-tool
+                       tool))
+            tools)))
+
+(defun gptel-mcp-use-tool ()
+  (interactive)
+  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+    (mapcar #'(lambda (tool)
+                (let ((path (list (plist-get tool :category)
+                                  (plist-get tool :name))))
+                  (push (gptel-get-tool path)
+                        gptel-tools)))
+            tools)))
 ;;

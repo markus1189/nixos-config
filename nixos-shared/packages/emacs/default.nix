@@ -16,6 +16,7 @@ let
     gptelXAIApiKey = secrets.gptel.xai;
     pocketConsumerKey = secrets.pocket.consumer_key;
     pocketAccessToken = secrets.pocket.access_token;
+    mcp_el = ndtSources.mcp-el;
   };
 
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
@@ -144,7 +145,6 @@ in emacs.pkgs.withPackages (epkgs:
       lsp-haskell
       lsp-metals
       lsp-treemacs
-      mcp
       which-key
       lsp-ui
       # helm-lsp
