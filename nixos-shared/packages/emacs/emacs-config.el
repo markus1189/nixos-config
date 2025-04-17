@@ -2319,7 +2319,14 @@ string). It returns t if a new completion is found, nil otherwise."
       (cl-loop for entry in entries
                when (elfeed-entry-link entry)
                do (progn
-                    (when (or (mh/pocket-add-url-api it) (mh/pocket-add-url-api it) (mh/pocket-add-url-api it))
+                    (when (or
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it)
+                           (mh/pocket-add-url-api it))
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
