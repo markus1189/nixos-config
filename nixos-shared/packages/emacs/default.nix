@@ -14,6 +14,7 @@ let
     gptelAnthropicApiKey = secrets.gptel.anthropic;
     gptelDeepSeekApiKey = secrets.gptel.deepseek;
     gptelXAIApiKey = secrets.gptel.xai;
+    gptelOpenRouterApiKey = secrets.gptel.openrouter;
     pocketConsumerKey = secrets.pocket.consumer_key;
     pocketAccessToken = secrets.pocket.access_token;
     mcp_el = ndtSources.mcp-el;
