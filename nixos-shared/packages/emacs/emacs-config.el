@@ -1822,7 +1822,7 @@ string). It returns t if a new completion is found, nil otherwise."
                                 :description "The URL to read that returns html"))
             :category "web"
             :confirm t
-                        :function (lambda (url)
+            :function (lambda (url)
                         (with-current-buffer (url-retrieve-synchronously url)
                           (goto-char (point-min)) (forward-paragraph)
                           (let ((dom (libxml-parse-html-region (point) (point-max))))
@@ -1950,12 +1950,45 @@ string). It returns t if a new completion is found, nil otherwise."
             :function (lambda (container-id)
                         (with-temp-buffer
                           (call-process "docker" nil t nil "stop" container-id)
-                          (buffer-string)))))))
+                          (buffer-string))))
+           (gptel-make-tool
+            :name "read_memory"
+            :description "Access to your memory, use this any time you think it could be helpful, especially at the start of a conversation."
+            :args nil
+            :category "memory"
+            :function (lambda ()
+                        (with-temp-buffer
+                          (insert-file-contents (expand-file-name "~/.config/llm-memory.txt"))
+                          (buffer-string))))
+           (gptel-make-tool
+            :name "write_memory"
+            :description "Add a special insight or something you want to remember in the future to your memory."
+            :args (list '(:name "content"
+                                :type "string"
+                                :description "Content to memorize. Add a trailing newline to separate entries"))
+            :confirm t
+            :category "memory"
+            :function (lambda (content)
+                        (if (file-exists-p "~/.config/llm-memory.txt")
+                            (progn
+                              (f-append (s-append "\n" content) 'utf-8 "~/.config/llm-memory.txt")
+                              "Success")
+                          "Error: could not access memory."))))))
 
 (use-package diff-hl
   :ensure t
   :init
-  (global-diff-hl-mode))
+  (global-diff-hl-mode)
+  :config
+  (set-face-attribute 'diff-hl-change nil
+                      :background "orange1"
+                      :foreground "orange")
+  (set-face-attribute 'diff-hl-insert nil
+                      :background "SpringGreen3"
+                      :foreground "medium spring green")
+  (set-face-attribute 'diff-hl-delete nil
+                      :background "red3"
+                      :foreground "red1"))
 
 (use-package vertico
   :ensure t
