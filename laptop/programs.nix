@@ -9,11 +9,10 @@ let
     };
   };
   my-llm = rec {
-    pyWithPackages = (pkgs.python3.withPackages (ps: [
-      (ps.llm.overridePythonAttrs (old: { doCheck = false; }))
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-bedrock-anthropic { source = ndtSources.llm-bedrock-anthropic.outPath;})
-      # (pkgs.callPackage ../nixos-shared/llm-packages/llm-gemini { source = ndtSources.llm-gemini.outPath;})
-      (pkgs.callPackage ../nixos-shared/llm-packages/llm-perplexity { source = ndtSources.llm-perplexity.outPath;})
+    pyWithPackages = (pkgs.python3.withPackages (ps: with ps; [
+      llm
+      llm-anthropic
+      llm-gemini
     ]));
     llm = pkgs.runCommandNoCCLocal "llm" { } ''
       mkdir -p $out/bin
