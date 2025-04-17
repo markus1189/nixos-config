@@ -1,6 +1,6 @@
 { bat, buku, cacert, coreutils, curl, dbus, fzf, xdragon, dunst, emacs, feh, findutils
 , firefox, gawk, git, gnugrep, gnuplot, gnused, haskellPackages, i3lock
-, imagemagick, jo, jq, less, lib, libnotify, markus-wallpapers, nixos-artwork
+, imagemagick, jo, jq, less, lib, libnotify, markus-wallpapers, mozillavpn, nixos-artwork
 , oathToolkit, playerctl, procps, psmisc, pulseaudioFull, python3
 , python3Packages, rofi, rsstail, scrot, sqlite, stdenv, systemd, tmux
 , unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
@@ -98,15 +98,17 @@ rec {
 
   isVpnActive = writeShellScript {
     name = "isVpnActive";
-    deps = [ systemd procps gnugrep ];
+    deps = [ systemd procps gnugrep mozillavpn ];
     failFast = false;
   } ''
 
     OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep -q active && echo OVP)"
     WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep -q active && echo WGD)"
-    COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo lightgreen; else echo red; fi)
-    ICON=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" ]]; then echo ' '; else echo ''; fi)
-    LABEL="''${OPENVPN}''${WIREGUARD}"
+    MOZILLA="$(mozillavpn status | grep -q 'VPN state:.*on' && echo MOZ)"
+
+    COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" || -n "$MOZILLA" ]]; then echo lightgreen; else echo red; fi)
+    ICON=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" || -n "$MOZILLA" ]]; then echo ' '; else echo ''; fi)
+    LABEL="''${OPENVPN}''${WIREGUARD}''${MOZILLA}"
     echo "<fc=$COLOR>''${LABEL}''${ICON}</fc>"
   '';
 
