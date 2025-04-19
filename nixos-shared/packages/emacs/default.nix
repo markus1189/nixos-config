@@ -66,6 +66,7 @@ in emacs.pkgs.withPackages (epkgs:
         src = ndtSources.gptel.outPath;
       });
     in [
+      aidermacs
       avy
       annotate
       beacon
