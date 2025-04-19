@@ -58,7 +58,7 @@
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
  '(gptel-default-mode 'org-mode)
  '(gptel-directives
-   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+   '((default . "Use your memory about me when replying, and update it if I share something important.")
      (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
      (writing . "You are a large language model and a writing assistant. Respond concisely.")
      (chat . "You are a large language model and a conversation partner. Respond concisely.")
@@ -1369,8 +1369,8 @@ string). It returns t if a new completion is found, nil otherwise."
 
   (setq gptel-use-tools nil)
 
-  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "@user\n")
-  (setf (alist-get 'org-mode gptel-response-prefix-alist) "@assistant\n")
+  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "* user\n")
+  (setf (alist-get 'org-mode gptel-response-prefix-alist) "* assistant\n")
 
   (gptel-make-perplexity "Perplexity"
     :key 'mh/secrets/gptel/perplexityApiKey
@@ -1807,173 +1807,161 @@ string). It returns t if a new completion is found, nil otherwise."
   (add-to-list 'gptel-directives '(questions . "To start, ask me up to 5 questions to improve your understanding of what I'm trying to do here"))
   (add-to-list 'gptel-directives '(brainstorm . "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time."))
   (add-to-list 'gptel-directives '(followup . "Finally, provide a numbered list of 3-5 actionable next steps I could take related to this response. These next steps should be diverse and may include, but are not limited to: further research questions, concrete actions, alternative perspectives to consider, potential challenges to anticipate, or resources to consult for further information.  Be specific and concise in each suggestion."))
+  (add-to-list 'gptel-directives '(memory . "Use your memory about me when replying, and update it if I share something important."))
 
   (defun mh/add-gptel-tool (tool)
     (add-to-list 'gptel-tools tool t (lambda (tool1 tool2) (string= (aref tool1 2) (aref tool2 2))))
     gptel-tools)
 
-  (mapcar 'mh/add-gptel-tool
-          (list
-           (gptel-make-tool
-            :name "read_url_html"
-            :description "Fetch and read the contents of a URL.  Expected format of response is html."
-            :args (list '(:name "url"
-                                :type "string"
-                                :description "The URL to read that returns html"))
-            :category "web"
-            :confirm t
-            :function (lambda (url)
-                        (with-current-buffer (url-retrieve-synchronously url)
-                          (goto-char (point-min)) (forward-paragraph)
-                          (let ((dom (libxml-parse-html-region (point) (point-max))))
-                            (run-at-time 0 nil #'kill-buffer (current-buffer))
-                            (with-temp-buffer
-                              (shr-insert-document dom)
-                              (buffer-substring-no-properties (point-min) (point-max)))))))
+  (gptel-make-tool
+   :name "read_buffer"
+   :description "Return the contents of an Emacs buffer"
+   :args (list '(:name "buffer"
+                       :type string
+                       :schema
+                       :description "The name of the buffer whose contents are to be retrieved"))
+   :category "emacs"
+   :function (lambda (buffer)
+               (unless (buffer-live-p (get-buffer buffer))
+                 (error "Error: buffer %s is not live" buffer))
+               (with-current-buffer  buffer
+                 (buffer-substring-no-properties (point-min) (point-max)))))
 
-           (gptel-make-tool
-            :name "read_buffer"
-            :description "Return the contents of an Emacs buffer"
-            :args (list '(:name "buffer"
-                                :type "string"
-                                :description "The name of the buffer whose contents are to be retrieved"))
-            :category "emacs"
-            :function (lambda (buffer)
-                        (unless (buffer-live-p (get-buffer buffer))
-                          (error "Error: buffer %s is not live." buffer))
-                        (with-current-buffer  buffer
-                          (buffer-substring-no-properties (point-min) (point-max)))))
+  (gptel-make-tool
+   :name "list_directory_recursively"
+   :description "List the contents of a given directory recursively and return files."
+   :args (list '(:name "directory"
+                       :type string
+                       :description "The path to the directory to list files in (recursively)")
+               '(:name "regexp"
+                       :type string
+                       :description "A valid emacs regular expression to match file names with"))
+   :category "filesystem"
+   :function (lambda (directory regexp)
+               (encode-coding-string (mapconcat #'identity
+                                                (directory-files-recursively directory regexp nil t)
+                                                "\n") 'utf-8)))
+  (gptel-make-tool
+   :name "read_file"
+   :description "Read and display the contents of a file"
+   :args (list '(:name "filepath"
+                       :type string
+                       :description "Path to the file to read.  Supports relative paths and ~."))
+   :category "filesystem"
+   :function (lambda (filepath)
+               (with-temp-buffer
+                 (insert-file-contents (expand-file-name filepath))
+                 (buffer-string))))
+  (gptel-make-tool
+   :name "rename_file"
+   :description "Rename a file from OLD-PATH to NEW-PATH."
+   :args (list '(:name "old-path"
+                       :type string
+                       :description "The current path of the file to rename.")
+               '(:name "new-path"
+                       :type string
+                       :description "The new path of the file after renaming."))
+   :category "filesystem"
+   :confirm t
+   :function (lambda (old-path new-path)
+               (if (file-exists-p old-path)
+                   (progn
+                     (f-move old-path new-path)
+                     (format "Successfully renamed file from %s to %s" old-path new-path))
+                 (format "Error: %s does not exist." old-path))))
 
-           (gptel-make-tool
-            :name "list_directory_recursively"
-            :description "List the contents of a given directory recursively and return files."
-            :args (list '(:name "directory"
-                                :type "string"
-                                :description "The path to the directory to list files in (recursively)")
-                        '(:name "regexp"
-                                :type "string"
-                                :description "A valid emacs regular expression to match file names with"))
-            :category "filesystem"
-            :function (lambda (directory regexp)
-                        (encode-coding-string (mapconcat #'identity
-                                                         (directory-files-recursively directory regexp nil t)
-                                                         "\n") 'utf-8)))
-           (gptel-make-tool
-            :name "read_file"
-            :description "Read and display the contents of a file"
-            :args (list '(:name "filepath"
-                                :type "string"
-                                :description "Path to the file to read.  Supports relative paths and ~."))
-            :category "filesystem"
-            :function (lambda (filepath)
-                        (with-temp-buffer
-                          (insert-file-contents (expand-file-name filepath))
-                          (buffer-string))))
-           (gptel-make-tool
-            :name "rename_file"
-            :description "Rename a file from OLD-PATH to NEW-PATH."
-            :args (list '(:name "old-path"
-                                :type "string"
-                                :description "The current path of the file to rename.")
-                        '(:name "new-path"
-                                :type "string"
-                                :description "The new path of the file after renaming."))
-            :category "filesystem"
-            :confirm t
-            :function (lambda (old-path new-path)
-                        (if (file-exists-p old-path)
-                            (progn
-                              (f-move old-path new-path)
-                              (format "Successfully renamed file from %s to %s" old-path new-path))
-                          (format "Error: %s does not exist." old-path))))
-           (gptel-make-tool
-            :name "write_file"
-            :description "Write CONTENT to a file at FPATH"
-            :args (list '(:name "fpath"
-                                :type "string"
-                                :description "The path of the file to write to.")
-                        '(:name "content"
-                                :type "string"
-                                :description "Content of the file."))
-            :category "filesystem"
-            :confirm t
-            :function (lambda (fpath content)
-                        (if (file-exists-p fpath)
-                            (progn
-                              (f-write content 'utf-8 fpath)
-                              (format "Successfully wrote to file %s" fpath))
-                          (format "Error: %s does not exist." fpath))))
+  (gptel-make-tool
+   :name "write_file"
+   :description "Write CONTENT to a file at FPATH"
+   :args (list '(:name "fpath"
+                       :type string
+                       :description "The path of the file to write to.")
+               '(:name "content"
+                       :type string
+                       :description "Content of the file."))
+   :category "filesystem"
+   :confirm t
+   :function (lambda (fpath content)
+               (if (file-exists-p fpath)
+                   (progn
+                     (f-write content 'utf-8 fpath)
+                     (format "Successfully wrote to file %s" fpath))
+                 (format "Error: %s does not exist." fpath))))
 
-           (gptel-make-tool
-            :function (lambda (old-path new-path)
-                        (if (file-exists-p old-path)
-                            (progn
-                              (f-move old-path new-path)
-                              (format "Renamed file from %s to %s" old-path new-path))
-                          (format "Error: %s does not exist." old-path)))
-            :name "rename_file"
-            :description "Rename a file from OLD-PATH to NEW-PATH."
-            :args (list '(:name "old-path"
-                                :type "string"
-                                :description "The current path of the file to rename.")
-                        '(:name "new-path"
-                                :type "string"
-                                :description "The new path of the file after renaming."))
-            :category "filesystem")
-           (gptel-make-tool
-            :name "docker-ps"
-            :description "List all running Docker containers."
-            :args nil ;; No arguments needed for this command
-            :category "docker"
-            :function (lambda ()
-                        (with-temp-buffer
-                          (call-process "docker" nil t nil "ps")
-                          (buffer-string))))
-           (gptel-make-tool
-            :name "docker-inspect"
-            :description "Inspect a Docker container by its ID or name."
-            :args (list '(:name "container-id"
-                                :type "string"
-                                :description "The ID or name of the container to inspect."))
-            :category "docker"
-            :function (lambda (container-id)
-                        (with-temp-buffer
-                          (call-process "docker" nil t nil "inspect" container-id)
-                          (buffer-string))))
-           (gptel-make-tool
-            :name "docker-stop"
-            :description "Stop a Docker container by its ID or name."
-            :args (list '(:name "container-id"
-                                :type "string"
-                                :description "The ID or name of the container to stop."))
-            :category "docker"
-            :function (lambda (container-id)
-                        (with-temp-buffer
-                          (call-process "docker" nil t nil "stop" container-id)
-                          (buffer-string))))
-           (gptel-make-tool
-            :name "read_memory"
-            :description "Access to your memory, use this any time you think it could be helpful, especially at the start of a conversation."
-            :args nil
-            :category "memory"
-            :function (lambda ()
-                        (with-temp-buffer
-                          (insert-file-contents (expand-file-name "~/.config/llm-memory.txt"))
-                          (buffer-string))))
-           (gptel-make-tool
-            :name "write_memory"
-            :description "Add a special insight or something you want to remember in the future to your memory."
-            :args (list '(:name "content"
-                                :type "string"
-                                :description "Content to memorize. Add a trailing newline to separate entries"))
-            :confirm t
-            :category "memory"
-            :function (lambda (content)
-                        (if (file-exists-p "~/.config/llm-memory.txt")
-                            (progn
-                              (f-append (s-append "\n" content) 'utf-8 "~/.config/llm-memory.txt")
-                              "Success")
-                          "Error: could not access memory."))))))
+  (gptel-make-tool
+   :function (lambda (old-path new-path)
+               (if (file-exists-p old-path)
+                   (progn
+                     (f-move old-path new-path)
+                     (format "Renamed file from %s to %s" old-path new-path))
+                 (format "Error: %s does not exist." old-path)))
+   :name "rename_file"
+   :confirm t
+   :description "Rename a file from OLD-PATH to NEW-PATH."
+   :args (list '(:name "old-path"
+                       :type string
+                       :description "The current path of the file to rename.")
+               '(:name "new-path"
+                       :type string
+                       :description "The new path of the file after renaming."))
+   :category "filesystem")
+
+  (defvar mh/llm-memory-file (expand-file-name "~/Syncthing/Inbox/llm-memory.txt")
+    "The file used to store LLM memory.")
+
+  (gptel-make-tool
+   :name "read_memory"
+   :description "Retrieves and returns the entire current content of your persistent memory. Use this to recall information saved previously, especially at the beginning of a conversation or when context from past interactions is needed."
+   :args nil
+   :confirm nil
+   :category "memory"
+   :function (lambda ()
+               (if (file-exists-p mh/llm-memory-file)
+                   (with-temp-buffer
+                     (insert-file-contents mh/llm-memory-file)
+                     (buffer-string))
+                 (error "Memory storage inaccessible.  Cannot read"))))
+
+  (gptel-make-tool
+   :name "write_memory"
+   :description "Appends the provided text as a new entry to your persistent memory. Ensures separation from previous entries. Use this to save specific facts, user preferences, summaries, or instructions for future reference."
+   :args (list '(:name "memory"
+                       :type string
+                         :description "Content to append to memory. Will be added as a distinct entry."
+                       :minLength 1))
+   :confirm t
+   :category "memory"
+   :function (lambda (content)
+               (if content
+                   (if (file-exists-p mh/llm-memory-file)
+                       (progn
+
+                         (with-temp-buffer
+                           (insert-file-contents mh/llm-memory-file)
+                           (unless (or (zerop (point-max))
+                                       (eq (char-before (point-max)) ?\n))
+                             (goto-char (point-max))
+                             (insert "\n")))
+                         (append-to-file content nil mh/llm-memory-file)
+                         "Success: Information appended to memory.")
+                     (error "Memory storage inaccessible.  Cannot write"))
+                 "Content argumentis required")))
+
+  (gptel-make-tool
+   :name "replace_memory"
+     :description "Completely replaces the *entire* content of your persistent memory  with the provided text. WARNING: All previously stored information will be permanentlyerased. Use this to reset memory, load a specific state, or start freshwith a clean slate."
+   :args (list '(:name "memory"
+                       :type string
+                       :description "New content to completely overwrite the memory  with."
+                       :minLength 0)) ; Allow empty memory
+   :confirm t
+   :category "memory"
+   :function (lambda (content)
+               (if content
+                   (progn
+                     (write-region content nil mh/llm-memory-file nil 0) ; Use write-region for overwriting
+                     "Success: Memory replaced.")
+                 "Error:Content argument is required"))))
 
 (use-package diff-hl
   :ensure t
@@ -2280,6 +2268,13 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   :init
+  (defun mh/elfeed-extract-comments-link (_type xml entry)
+    "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
+    (when (elfeed-tagged-p 'pref-comment entry)
+      (when-let ((comments-link (xml-query '(comments *) xml)))
+        (when (and comments-link (not (string-empty-p comments-link)))
+          (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
+          (setf (elfeed-entry-link entry) comments-link)))))
   (setq mh/elfeed-search-stack '(hackernews youtube news newsletter github sport analog programming reddit nil))
 
   (defun mh/pocket-add-url-api (url)
@@ -2334,14 +2329,6 @@ string). It returns t if a new completion is found, nil otherwise."
         (unless (or elfeed-search-remain-on-entry (use-region-p))
           (forward-line)))))
   :config
-  (defun mh/elfeed-extract-comments-link (_type xml entry)
-    "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
-    (when (elfeed-tagged-p 'pref-comment entry)
-      (when-let ((comments-link (xml-query '(comments *) xml)))
-        (when (and comments-link (not (string-empty-p comments-link)))
-          (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
-          (setf (elfeed-entry-link entry) comments-link)))))
-
   (defun mh/elfeed-search-stack-next ()
     (interactive)
     (letrec ((head (car (setq mh/elfeed-search-stack (-rotate -1 mh/elfeed-search-stack))))
@@ -2403,8 +2390,8 @@ string). It returns t if a new completion is found, nil otherwise."
               (:subreddit "bodyweightfitness")
               (:subreddit "books")
               (:subreddit "booksuggestions")
-              (:subreddit "commonplacebook" :tags (notes))
-              (:subreddit "bulletjournal" :tags (notes))
+              (:subreddit "commonplacebook" :tags (analog))
+              (:subreddit "bulletjournal" :tags (analog))
               (:subreddit "cataclysmdda")
               (:subreddit "commandline")
               (:subreddit "compsci")
@@ -2429,8 +2416,8 @@ string). It returns t if a new completion is found, nil otherwise."
               (:subreddit "malazan")
               (:subreddit "netsec")
               (:subreddit "nixos" :tags (programming))
-              (:subreddit "notebooks" :tags (notes))
-              (:subreddit "NoteTaking" :tags (notes))
+              (:subreddit "notebooks" :tags (analog))
+              (:subreddit "NoteTaking" :tags (analog))
               (:subreddit "osr")
               (:subreddit "penandpaper")
               (:subreddit "planneraddicts")
@@ -2530,7 +2517,7 @@ string). It returns t if a new completion is found, nil otherwise."
              (:channelId "UChY9Cgv-iyPDvf1Bkyx20OQ" :title "My Mate Vince")
              (:channelId "UCSoOJTknGqXQSeamRjEE8aA" :title "TechDregs")
              (:channelId "UCNQJqvSXfDBOd9spve8doWw" :title "Worm Girl CDDA")
-             (:channelId "UCt1ES-_FMXQfM3JeO_FrOXw" :title "ParkNotes")
+             (:channelId "UCt1ES-_FMXQfM3JeO_FrOXw" :title "ParkNotes" :tags (analog))
              (:channelId "UCSHZfmwfiIxCpKrQFrr7YyQ" :title "The Bad Spot")
              (:channelId "UC2rzsm1Qi6N1X-wuOg_p0Ng" :title "Project Farm")
              (:channelId "UCo6hpY_BpeDt72PEJicyVOQ" :title "Techisode TV")
@@ -2804,7 +2791,7 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (setq mcp-hub-servers
       '(
-        ;; ("mongodb-local" . (:command "docker" :args ("run" "--rm" "-i" "--network=host" "furey/mongodb-lens")))
+        ("mongodb-local" . (:command "docker" :args ("run" "--rm" "-i" "--network=host" "furey/mongodb-lens")))
         ("filesystem" . (:command "docker" :args ("run" "--rm" "-i" "--mount" "type=bind,src=/tmp/filesystem-mcp-test,dst=/projects/filesystem-mcp-test" "mcp/filesystem" "/projects")))
         ("sqlite" . (:command "docker" :args ("run" "--rm" "-i" "-v" "mcp-test:/mcp" "mcp/sqlite" "--db-path" "/mcp/test.db")))))
 
@@ -2825,5 +2812,19 @@ string). It returns t if a new completion is found, nil otherwise."
                                   (plist-get tool :name))))
                   (push (gptel-get-tool path)
                         gptel-tools)))
+            tools)))
+
+(defun gptel-mcp-close-use-tool ()
+  (interactive)
+  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+    (mapcar #'(lambda (tool)
+                (let ((path (list (plist-get tool :category)
+                                  (plist-get tool :name))))
+                  (setq gptel-tools
+                        (cl-remove-if #'(lambda (tool)
+                                          (equal path
+                                                 (list (gptel-tool-category tool)
+                                                       (gptel-tool-name tool))))
+                                      gptel-tools))))
             tools)))
 ;;
