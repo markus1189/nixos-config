@@ -58,7 +58,7 @@
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
  '(gptel-default-mode 'org-mode)
  '(gptel-directives
-   '((default . "Use your memory about me when replying, and update it if I share something important.")
+   '((default . "Use your memory about me when replying, and update it with my confirmation if I share something important.")
      (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
      (writing . "You are a large language model and a writing assistant. Respond concisely.")
      (chat . "You are a large language model and a conversation partner. Respond concisely.")
@@ -1807,7 +1807,7 @@ string). It returns t if a new completion is found, nil otherwise."
   (add-to-list 'gptel-directives '(questions . "To start, ask me up to 5 questions to improve your understanding of what I'm trying to do here"))
   (add-to-list 'gptel-directives '(brainstorm . "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time."))
   (add-to-list 'gptel-directives '(followup . "Finally, provide a numbered list of 3-5 actionable next steps I could take related to this response. These next steps should be diverse and may include, but are not limited to: further research questions, concrete actions, alternative perspectives to consider, potential challenges to anticipate, or resources to consult for further information.  Be specific and concise in each suggestion."))
-  (add-to-list 'gptel-directives '(memory . "Use your memory about me when replying, and update it if I share something important."))
+  (add-to-list 'gptel-directives '(memory . "Use your memory about me when replying, and update it with my confirmation if I share something important."))
 
   (defun mh/add-gptel-tool (tool)
     (add-to-list 'gptel-tools tool t (lambda (tool1 tool2) (string= (aref tool1 2) (aref tool2 2))))
@@ -1924,7 +1924,7 @@ string). It returns t if a new completion is found, nil otherwise."
 
   (gptel-make-tool
    :name "write_memory"
-   :description "Appends the provided text as a new entry to your persistent memory. Ensures separation from previous entries. Use this to save specific facts, user preferences, summaries, or instructions for future reference."
+   :description "Appends the provided text as a new entry to your persistent memory. Ensures separation from previous entries. Use this to save specific facts, user preferences, summaries, or instructions for future reference. Consult the user before doing this unless explicitly asked to do it."
    :args (list '(:name "memory"
                        :type string
                          :description "Content to append to memory. Will be added as a distinct entry."
@@ -2560,7 +2560,8 @@ string). It returns t if a new completion is found, nil otherwise."
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hofheim.de%2Fneuigkeiten-und-ausschreibungen%2Faktuelles-aus-hofheim%2F&cookie=&title_cleanup=&entry_element_selector=.teaserbox&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.article&content_cleanup=script%2Cimg&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d&format=Atom" news)
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.strava.com%2Fsegments%2F8923447&cookie=&title_cleanup=&entry_element_selector=.table-leaderboard+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" sport)
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.hgon.de%2Fentdecken%2F&cookie=&title_cleanup=&entry_element_selector=article&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=img&title_selector=h3&category_selector=&author_selector=&time_selector=time.tagline&time_format=Y.m.d+&remove_styling=on&format=Atom")
-           ("http://localhost:9998/?action=display&bridge=GithubIssueBridge&context=Project+Issues&q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc&u=karthink&p=gptel&format=Atom" github))
+           ("http://localhost:9998/?action=display&bridge=GithubIssueBridge&context=Project+Issues&q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc&u=karthink&p=gptel&format=Atom" github)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.eppsteiner-zeitung.de%2Fnachrichten%2Fstadtleben&cookie=&title_cleanup=&entry_element_selector=.field-title+a&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.pane-content&content_cleanup=span.kicker&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" news))
 
          '(("https://liore.com/rss/")
            ("https://samcurry.net/api/feed.rss")
