@@ -213,7 +213,7 @@ in rec {
       };
     };
 
-   mozillavpn.enable = true;
+   # mozillavpn.enable = true;
   };
 
   users.extraUsers.${config.lib._custom_.userName} = {

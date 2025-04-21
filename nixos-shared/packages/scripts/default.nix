@@ -98,13 +98,13 @@ rec {
 
   isVpnActive = writeShellScript {
     name = "isVpnActive";
-    deps = [ systemd procps gnugrep mozillavpn ];
+    deps = [ systemd procps gnugrep ];
     failFast = false;
   } ''
 
     OPENVPN="$(systemctl is-active 'openvpn-*.service' | grep -q active && echo OVP)"
     WIREGUARD="$(systemctl is-active 'wg-quick-*.service' | grep -q active && echo WGD)"
-    MOZILLA="$(mozillavpn status | grep -q 'VPN state:.*on' && echo MOZ)"
+    MOZILLA="" # broken
 
     COLOR=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" || -n "$MOZILLA" ]]; then echo lightgreen; else echo red; fi)
     ICON=$(if [[ -n "$OPENVPN" || -n "$WIREGUARD" || -n "$MOZILLA" ]]; then echo ' '; else echo ''; fi)
