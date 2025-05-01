@@ -1367,7 +1367,8 @@ string). It returns t if a new completion is found, nil otherwise."
   (gptel-post-response-functions . gptel-end-of-response)
   :bind (
          ("C-c C-<return>" . gptel-send)
-         ("C-c g" . gptel))
+         ("C-c g g" . gptel)
+         ("C-c g o" . 'mh/gptel-ocr-screenshot))
   :config
 
   (setq gptel-use-tools nil)
