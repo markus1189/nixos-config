@@ -2176,6 +2176,7 @@ etc. This is a single, standalone request, no follow-up needed."
    ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
    :map embark-general-map
    ("k" . mh/embark-kagi-search)
+   ("g" . gptel-context-add)
    :map embark-buffer-map
    ("g" . gptel-context-add)
    :map embark-file-map
