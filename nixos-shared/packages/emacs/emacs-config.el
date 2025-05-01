@@ -1257,6 +1257,9 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package org
   :ensure t
+  :init
+  (eval-after-load "org"
+    '(require 'ox-md nil t))
   :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 
 (use-package transpose-frame
