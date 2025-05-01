@@ -2384,7 +2384,14 @@ etc. This is a single, standalone request, no follow-up needed."
                                                      (elfeed-search-untag-all-unread)
                                                      (elfeed-search-update--force)
                                                      (mh/elfeed-search-stack-next)))
-    (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url))
+    (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url)
+    (define-key elfeed-search-mode-map (kbd "SPC") (lambda()
+                                                    (interactive)
+                                                    (delete-other-windows)
+                                                    (split-window-right)
+                                                    (other-window 1)
+                                                    (elfeed-search-show-entry (elfeed-search-selected :ignore-region))
+                                                    (other-window 1))))
 
   (defface mh/elfeed-reddit-tag-face
     '((t :foreground "#1CE"))
