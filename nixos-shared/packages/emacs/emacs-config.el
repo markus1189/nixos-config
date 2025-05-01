@@ -1738,6 +1738,7 @@ etc. This is a single, standalone request, no follow-up needed."
               qwen/qwen-plus
               qwen/qwen-max
               openai/o3-mini
+              (openai/o3 :capabilities (media) :mime-types ("image/jpg" "image/jpeg" "image/png"))
               google/gemini-2.0-flash-thinking-exp:free
               deepseek/deepseek-chat:free
               deepseek/deepseek-chat
