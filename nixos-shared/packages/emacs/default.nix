@@ -179,6 +179,7 @@ in emacs.pkgs.withPackages (epkgs:
       persistent-scratch
       pdf-tools
       pocket-reader
+      posframe
       rust-mode
       rainbow-delimiters
       smartparens
