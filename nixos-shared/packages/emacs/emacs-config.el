@@ -2776,7 +2776,9 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://varoa.net/feed.xml" programming)
            ("https://www.geoffreylitt.com/feed.xml" programming)
            ("https://www.gleech.org/feed.xml")
-           ("https://jmswrnr.com/feed" hacking))))
+           ("https://jmswrnr.com/feed" hacking)
+           ("https://terminaltrove.com/blog.xml" programming)
+           ("https://newsletter.pessimistsarchive.org/feed"))))
            ;; ^^^^ feeds
   )
 
