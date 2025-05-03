@@ -2486,6 +2486,7 @@ etc. This is a single, standalone request, no follow-up needed."
               (:subreddit "theglasscannonpodcast")
               (:subreddit "tools")
               (:subreddit "trailrunning" :tags (sport))
+              (:subreddit "ultramarathon" :tags (sport))
               (:subreddit "traveller")
               (:subreddit "ultrarunning" :tags (sport))
               (:subreddit "usbchardware")
