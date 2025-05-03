@@ -2,6 +2,7 @@
 (require 'quick-yes) ;; added via load path...
 (require 'dired+) ;; added via load path...
 (require 'iy-go-to-char)
+(require 'dired-x)
 
 ;;; Code:
 
