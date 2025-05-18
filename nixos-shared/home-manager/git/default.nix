@@ -15,6 +15,8 @@ let
     ${lib.readFile ndtSources.gitignore-io}
     *~undo-tree~
     .direnv
+    .metals
+    .aider*
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
