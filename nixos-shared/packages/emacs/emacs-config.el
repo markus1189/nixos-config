@@ -1374,7 +1374,8 @@ string). It returns t if a new completion is found, nil otherwise."
 
   (defun mh/gptel-ocr-screenshot ()
     (interactive)
-    (let ((gptel-model 'gpt-4.1-nano)
+    (let ((buf-name "*gptel-ocr-screenshot*")
+          (gptel-model 'gpt-4.1-nano)
           (gptel-backend (gptel-get-backend "ChatGPT"))
           (gptel-context--alist nil)
           (gptel-post-request-hook nil)
@@ -1389,8 +1390,8 @@ string). It returns t if a new completion is found, nil otherwise."
                              nil
                              "^\\([^.]\\|\\.[^.]\\|\\.\\..\\)"))))))
           )
-      (add-hook 'gptel-post-request-hook (lambda () (switch-to-buffer "*gptel-ocr-screenshot*")))
-      (with-current-buffer "*gptel-ocr-screenshot*") (erase-buffer)
+      (add-hook 'gptel-post-request-hook (lambda () (switch-to-buffer buf-name)))
+      (with-current-buffer buf-name (erase-buffer))
       (and
        (gptel-context--add-binary-file path)
        (gptel-request
@@ -1458,7 +1459,9 @@ etc. This is a single, standalone request, no follow-up needed."
     :endpoint "/api/v1/chat/completions"
     :stream t
     :key 'mh/secrets/gptel/openRouterApiKey
-    :models '(google/gemini-2.0-flash-001
+    :models '((openai/gpt-4.1 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
+              openai/gpt-4.1-nano
+              google/gemini-2.0-flash-001
               openai/gpt-4o-mini
               google/gemini-2.5-pro-exp-03-25:free
               deepseek/deepseek-chat-v3-0324:free
@@ -2316,7 +2319,7 @@ etc. This is a single, standalone request, no follow-up needed."
         (when (and comments-link (not (string-empty-p comments-link)))
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
-  (setq mh/elfeed-search-stack '(hackernews youtube news newsletter github sport analog programming reddit nil))
+  (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog programming reddit nil))
 
   (defun mh/pocket-add-url-api (url)
     "Add a URL to Pocket using the Pocket API."
@@ -2416,6 +2419,8 @@ etc. This is a single, standalone request, no follow-up needed."
                                    (youtube mh/elfeed-youtube-tag-face)
                                    (github mh/elfeed-github-tag-face)
                                    (hackernews mh/elfeed-hackernews-tag-face)
+                                   (hackernews2 mh/elfeed-hackernews-tag-face)
+                                   (hackernews3 mh/elfeed-hackernews-tag-face)
                                    (newsletter mh/elfeed-newsletter-tag-face)))
   (setq elfeed-search-title-max-width 120)
   (setq elfeed-feeds
@@ -2616,7 +2621,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://samcurry.net/api/feed.rss")
            ("https://fantasy-faction.com/feed")
            ("https://jamierubin.net/feed/" analog)
-           ("https://fromthepencup.wordpress.com/feed/")
+           ("https://fromthepencup.wordpress.com/feed/" analog)
            ("https://semi-rad.com/feed/" sport)
            ("https://www.irunfar.com/feed" sport)
            ("https://www.quarks.de/feed/")
@@ -2644,7 +2649,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://wolles-elektronikkiste.de/rss")
            ("https://rediscoveranalog.com/feed" analog)
            ("https://www.wellappointeddesk.com/feed")
-           ("https://thepoorpenman.com/feed")
+           ("https://thepoorpenman.com/feed" analog)
            ("https://community.topazlabs.com/c/releases/gigapixel-ai/66.rss")
            ("https://questingbeast.substack.com/feed")
            ("https://controlaltbackspace.org/feed.xml")
@@ -2654,7 +2659,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://feeds.feedburner.com/AnnaHavron")
            ("https://analogoffice.net/feed.xml")
            ("https://seb.jambor.dev/feed.xml")
-           ("https://bulletjournal.com/blogs/bulletjournalist.xml")
+           ("https://bulletjournal.com/blogs/bulletjournalist.xml" analog)
            ("https://blog.pragmaticengineer.com/feed/")
            ("https://www.trailandkale.com/feed/" sport)
            ("https://www.takenote.space/blog-posts?format=rss" analog)
@@ -2716,7 +2721,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://hnrss.org/user?id=simonw" hackernews)
            ("https://typesandkinds.wordpress.com/feed/")
            ("https://feeds.feedburner.com/BlackCover")
-           ("https://www.penaddict.com/blog?format=rss")
+           ("https://www.penaddict.com/blog?format=rss" analog)
            ("https://meta.plasm.us/atom.xml")
            ("https://feeds.feedburner.com/incodeblog")
            ("https://nullprogram.com/feed/")
@@ -2781,7 +2786,13 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://www.gleech.org/feed.xml")
            ("https://jmswrnr.com/feed" hacking)
            ("https://terminaltrove.com/blog.xml" programming)
-           ("https://newsletter.pessimistsarchive.org/feed"))))
+           ("https://newsletter.pessimistsarchive.org/feed")
+           ("https://forum.rclone.org/t/rclone-insufficient-authentication-google-photos/50892.rss")
+           ("https://www.oreilly.com/radar/topics/ai-ml/feed/")
+           ("https://www.oreilly.com/radar/topics/programming/feed/")
+           ("https://www.oreilly.com/radar/topics/radar-trends/feed/")
+           ("https://feeds.leonid.codes/hacker_news.rss" hackernews2)
+           ("https://gophersignal.com/rss#/" hackernews3))))
            ;; ^^^^ feeds
   )
 
