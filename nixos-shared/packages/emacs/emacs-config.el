@@ -2311,7 +2311,7 @@ etc. This is a single, standalone request, no follow-up needed."
         (when (and comments-link (not (string-empty-p comments-link)))
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
-  (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog programming reddit nil))
+  (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
 
   (defun mh/pocket-add-url-api (url)
     "Add a URL to Pocket using the Pocket API."
@@ -2433,8 +2433,8 @@ etc. This is a single, standalone request, no follow-up needed."
               (:subreddit "androidgaming")
               (:subreddit "askelectronics")
               (:subreddit "bodyweightfitness")
-              (:subreddit "books")
-              (:subreddit "booksuggestions")
+              (:subreddit "books" :tags (reading))
+              (:subreddit "booksuggestions" :tags (reading))
               (:subreddit "commonplacebook" :tags (analog))
               (:subreddit "bulletjournal" :tags (analog))
               (:subreddit "cataclysmdda")
@@ -2518,7 +2518,8 @@ etc. This is a single, standalone request, no follow-up needed."
             (:owner "ast-grep" :repo "ast-grep")
             (:owner "martinvonz" :repo "jj")
             (:owner "dunst-project" :repo "dunst")
-            (:owner "karthink" :repo "gptel")))
+            (:owner "karthink" :repo "gptel")
+            (:owner "aider-ai" :repo "aider")))
 
          (mapcar
           (lambda (feed-spec)
@@ -2692,7 +2693,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://feeds.feedburner.com/bmndr")
            ("https://labnotes.org/rss/")
            ("https://dariusforoux.com/feed/")
-           ("https://thequilltolive.com/feed/")
+           ("https://thequilltolive.com/feed/" reading)
            ("https://www.raptitude.com/feed/")
            ("https://mathwithbaddrawings.com/feed")
            ("https://photographylife.com/feed")
@@ -2784,7 +2785,9 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://www.oreilly.com/radar/topics/programming/feed/")
            ("https://www.oreilly.com/radar/topics/radar-trends/feed/")
            ("https://feeds.leonid.codes/hacker_news.rss" hackernews2)
-           ("https://gophersignal.com/rss#/" hackernews3))))
+           ("https://gophersignal.com/rss#/" hackernews3)
+           ("https://github.blog/changelog/feed/" github)
+           ("https://aider.chat/feed.xml" programming))))
            ;; ^^^^ feeds
   )
 
