@@ -1357,7 +1357,6 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :hook
   (gptel-post-stream . gptel-auto-scroll)
-  (gptel-post-response-functions . gptel-end-of-response)
   :bind (
          ("C-c C-<return>" . gptel-send)
          ("C-c g g" . gptel)
@@ -1382,8 +1381,8 @@ string). It returns t if a new completion is found, nil otherwise."
                              nil
                              "^\\([^.]\\|\\.[^.]\\|\\.\\..\\)"))))))
           )
-      (add-hook 'gptel-post-request-hook (lambda () (switch-to-buffer buf-name)))
-      (with-current-buffer buf-name (erase-buffer))
+      (add-hook 'gptel-post-request-hook (lambda () (switch-to-buffer (get-buffer-create buf-name))))
+      (with-current-buffer (get-buffer-create buf-name) (erase-buffer))
       (and
        (gptel-context--add-binary-file path)
        (gptel-request
@@ -1462,6 +1461,7 @@ etc. This is a single, standalone request, no follow-up needed."
               deepseek/deepseek-r1:free
               google/gemini-flash-1.5-8b
               google/gemini-2.0-flash-exp:free
+              google/gemini-2.5-pro-preview
               deepseek/deepseek-chat-v3-0324
               anthropic/claude-3.5-sonnet
               google/gemini-flash-1.5
