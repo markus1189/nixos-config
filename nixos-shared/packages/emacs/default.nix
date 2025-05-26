@@ -173,7 +173,7 @@ in emacs.pkgs.withPackages (epkgs:
       rg
       s
       sbt-mode
-      scala-mode
+      scala-ts-mode
       string-inflection
       strace-mode
       persistent-scratch

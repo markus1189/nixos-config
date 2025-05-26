@@ -635,15 +635,7 @@ Position the cursor at its beginning, according to the current mode."
   :bind (("C-M-w" . er/expand-region)
          ("C-!" . er/contract-region)))
 
-(use-package scala-mode
-  :config
-  (defun mh/scala-mode-sbt-previous-or-ask (ask-p)
-    (interactive "P")
-    (if ask-p
-        (call-interactively 'sbt-command)
-      (sbt-run-previous-command)))
-  :bind
-  (("C-s-r" . mh/scala-mode-sbt-previous-or-ask))
+(use-package scala-ts-mode
   :ensure t)
 
 (use-package sbt-mode
