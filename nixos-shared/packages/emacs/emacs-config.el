@@ -639,6 +639,9 @@ Position the cursor at its beginning, according to the current mode."
 (use-package scala-ts-mode
   :ensure t)
 
+(use-package scala-mode
+  :ensure t)
+
 (use-package sbt-mode
   :ensure t)
 
