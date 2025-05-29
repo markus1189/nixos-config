@@ -386,11 +386,11 @@ in rec {
       package = pkgs.wireshark;
     };
 
-    obs-studio = {
-      enable = true;
-      enableVirtualCamera = true;
-      plugins = [ pkgs.obs-studio-plugins.obs-backgroundremoval ];
-    };
+    # obs-studio = {
+    #   enable = true;
+    #   enableVirtualCamera = true;
+    #   plugins = [ pkgs.obs-studio-plugins.obs-backgroundremoval ];
+    # };
   };
 
   environment = {
