@@ -17,6 +17,7 @@ let
     gptelOpenRouterApiKey = secrets.gptel.openrouter;
     pocketConsumerKey = secrets.pocket.consumer_key;
     pocketAccessToken = secrets.pocket.access_token;
+    raindropTestToken = secrets.raindrop.test_token;
     mcp_el = ndtSources.mcp-el;
   };
 

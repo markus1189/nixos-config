@@ -9,6 +9,7 @@
 (progn
   (defun mh/secrets/pocket/consumerKey () "@pocketConsumerKey@")
   (defun mh/secrets/pocket/accessToken () "@pocketAccessToken@")
+  (defun mh/secrets/raindrop/testToken () "@raindropTestToken@")
   (defun mh/secrets/gptel/perplexityApiKey () "@gptelPerplexityApiKey@")
   (defun mh/secrets/gptel/geminiApiKey () "@gptelGeminiApiKey@")
   (defun mh/secrets/gptel/openAiApiKey () "@gptelOpenAiApiKey@")
@@ -2313,6 +2314,35 @@ etc. This is a single, standalone request, no follow-up needed."
           (setf (elfeed-entry-link entry) comments-link)))))
   (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
 
+  (defun mh/raindrop-add-url-api (url)
+    "Add a URL to Raindrop"
+    (interactive)
+    (let* ((bearer-token (format "Bearer %s" (mh/secrets/raindrop/testToken)))
+           (request-data
+            `(("link" . ,url)
+              ("pleaseParse" . #s(hash-table))))
+           (url-request-method "POST")
+           (url-request-extra-headers `(("Content-Type" . "application/json")
+                                        ("X-Accept" . "application/json")
+                                        ("Authorization" . ,bearer-token)))
+           (url-request-data (json-encode request-data))
+           (response-buffer
+            (url-retrieve-synchronously
+             "https://api.raindrop.io/rest/v1/raindrop" t t 1)))
+      (if response-buffer
+          (with-current-buffer response-buffer
+            (goto-char (point-min))
+            (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
+                (let ((status (match-string 2)))
+                  (if (and (string= status "200") (re-search-forward "_id"))
+                      (progn (message "URL added successfully to Pocket.")
+                             t)
+                    (progn (message "Failed to add URL: %s" status) nil)))
+              (progn (message "Failed to get a response.")
+                     nil))
+            (kill-buffer))
+        (progn (message "Failed") nil))))
+
   (defun mh/pocket-add-url-api (url)
     "Add a URL to Pocket using the Pocket API."
     (interactive)
@@ -2350,14 +2380,22 @@ etc. This is a single, standalone request, no follow-up needed."
       (cl-loop for entry in entries
                when (elfeed-entry-link entry)
                do (progn
-                    (when (or
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it)
-                           (mh/pocket-add-url-api it))
+                    (when (and (or
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it)
+                               (mh/pocket-add-url-api it))
+                              (or
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)
+                               (mh/raindrop-add-url-api it)))
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
