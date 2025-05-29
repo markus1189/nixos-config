@@ -7,8 +7,6 @@
 ;;; Code:
 
 (progn
-  (defun mh/secrets/pocket/consumerKey () "@pocketConsumerKey@")
-  (defun mh/secrets/pocket/accessToken () "@pocketAccessToken@")
   (defun mh/secrets/raindrop/testToken () "@raindropTestToken@")
   (defun mh/secrets/gptel/perplexityApiKey () "@gptelPerplexityApiKey@")
   (defun mh/secrets/gptel/geminiApiKey () "@gptelGeminiApiKey@")
@@ -1977,7 +1975,7 @@ etc. This is a single, standalone request, no follow-up needed."
             (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
                 (let ((status (match-string 2)))
                   (if (and (string= status "200") (re-search-forward "_id"))
-                      (progn (message "URL added successfully to Pocket.")
+                      (progn (message "URL added successfully.")
                              t)
                     (progn (message "Failed to add URL: %s" status) nil)))
               (progn (message "Failed to get a response.")
@@ -1985,59 +1983,17 @@ etc. This is a single, standalone request, no follow-up needed."
             (kill-buffer))
         (progn (message "Failed") nil))))
 
-  (defun mh/pocket-add-url-api (url)
-    "Add a URL to Pocket using the Pocket API."
-    (interactive)
-    (let* ((consumer-key (mh/secrets/pocket/consumerKey))
-           (access-token (mh/secrets/pocket/accessToken))
-           (request-data
-            `(("url" . ,url)
-              ("consumer_key" . ,consumer-key)
-              ("access_token" . ,access-token)))
-           (url-request-method "POST")
-           (url-request-extra-headers `(("Content-Type" . "application/json")
-                                        ("X-Accept" . "application/json")))
-           (url-request-data (json-encode request-data))
-           (response-buffer
-            (url-retrieve-synchronously
-             "https://getpocket.com/v3/add" t t 1)))
-      (if response-buffer
-          (with-current-buffer response-buffer
-            (goto-char (point-min))
-            (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
-                (let ((status (match-string 2)))
-                  (if (and (string= status "200") (re-search-forward "item_id"))
-                      (progn (message "URL added successfully to Pocket.")
-                             t)
-                    (progn (message "Failed to add URL: %s" status) nil)))
-              (progn (message "Failed to get a response.")
-                     nil))
-            (kill-buffer))
-        (progn (message "Failed") nil))))
-  (defun mh/elfeed-pocket-add-url ()
-    "Add the selection to pocket."
+  (defun mh/elfeed-raindrop-add-url ()
+    "Add the elfeed selection to raindrop."
     (interactive)
     (let ((buffer (current-buffer))
           (entries (elfeed-search-selected)))
       (cl-loop for entry in entries
                when (elfeed-entry-link entry)
                do (progn
-                    (when (and (or
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it)
-                               (mh/pocket-add-url-api it))
-                              (or
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)
-                               (mh/raindrop-add-url-api it)))
+                    (when (or
+                           (mh/raindrop-add-url-api it)
+                           (mh/raindrop-add-url-api it))
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
@@ -2061,7 +2017,7 @@ etc. This is a single, standalone request, no follow-up needed."
                                                      (elfeed-search-untag-all-unread)
                                                      (elfeed-search-update--force)
                                                      (mh/elfeed-search-stack-next)))
-    (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-pocket-add-url)
+    (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-raindrop-add-url)
     (define-key elfeed-search-mode-map (kbd "SPC") (lambda()
                                                     (interactive)
                                                     (delete-other-windows)
@@ -2516,9 +2472,6 @@ etc. This is a single, standalone request, no follow-up needed."
   (setq elfeed-search-print-entry-function #'elfeed-score-print-entry))
 
 (use-package pcre2el
-  :ensure t)
-
-(use-package pocket-reader
   :ensure t)
 
 (use-package ialign
