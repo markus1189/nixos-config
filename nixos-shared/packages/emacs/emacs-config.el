@@ -349,6 +349,10 @@
           ("gitorious" git-link-gitorious)
           ("gitlab" git-link-gitlab))))
 
+(use-package git-timemachine
+  :ensure t
+  :bind (("C-x v t" . git-timemachine)))
+
 (use-package nix-mode
   :ensure t)
 

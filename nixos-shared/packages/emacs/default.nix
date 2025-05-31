@@ -106,6 +106,7 @@ in emacs.pkgs.withPackages (epkgs:
       flycheck-yamllint
       fullframe
       git-link
+      git-timemachine
       go-mode
       go-complete
       go-autocomplete
