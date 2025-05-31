@@ -1954,13 +1954,14 @@ etc. This is a single, standalone request, no follow-up needed."
           (setf (elfeed-entry-link entry) comments-link)))))
   (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
 
-  (defun mh/raindrop-add-url-api (url)
+  (defun mh/raindrop-add-url-api (url tags)
     "Add a URL to Raindrop"
     (interactive)
     (let* ((bearer-token (format "Bearer %s" (mh/secrets/raindrop/testToken)))
            (request-data
             `(("link" . ,url)
-              ("pleaseParse" . #s(hash-table))))
+              ("pleaseParse" . #s(hash-table))
+              ("tags" . ,tags)))
            (url-request-method "POST")
            (url-request-extra-headers `(("Content-Type" . "application/json")
                                         ("X-Accept" . "application/json")
@@ -1990,10 +1991,11 @@ etc. This is a single, standalone request, no follow-up needed."
           (entries (elfeed-search-selected)))
       (cl-loop for entry in entries
                when (elfeed-entry-link entry)
-               do (progn
+               do (let
+                      ((tags (delete 'unread (elfeed-entry-tags entry))))
                     (when (or
-                           (mh/raindrop-add-url-api it)
-                           (mh/raindrop-add-url-api it))
+                           (mh/raindrop-add-url-api it tags)
+                           (mh/raindrop-add-url-api it tags))
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
