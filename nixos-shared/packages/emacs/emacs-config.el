@@ -2429,7 +2429,8 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://feeds.leonid.codes/hacker_news.rss" hackernews2)
            ("https://gophersignal.com/rss#/" hackernews3)
            ("https://github.blog/changelog/feed/" github)
-           ("https://aider.chat/feed.xml" programming))))
+           ("https://aider.chat/feed.xml" programming)
+           ("https://hamatti.org/feed/feed.xml" programming))))
            ;; ^^^^ feeds
   )
 
