@@ -2088,9 +2088,7 @@ Provides more detailed messages on failure."
                when (elfeed-entry-link entry)
                do (let
                       ((tags (delete 'unread (elfeed-entry-tags entry))))
-                    (when (or
-                           (mh/raindrop-add-url-api it tags)
-                           (mh/raindrop-add-url-api it tags))
+                    (when (mh/raindrop-add-url-api it tags)
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
