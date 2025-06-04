@@ -1461,7 +1461,8 @@ etc. This is a single, standalone request, no follow-up needed."
     :stream t
     :key 'mh/secrets/gptel/openRouterApiKey
     :models '((openai/gpt-4.1 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
-              openai/gpt-4.1-mini
+              (openai/gpt-4.1-mini  :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
+              (openai/gpt-4.1-nano  :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
               ;;
               openai/gpt-4o
               openai/gpt-4o-mini
