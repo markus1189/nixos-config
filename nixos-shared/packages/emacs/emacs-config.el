@@ -2296,9 +2296,9 @@ Provides more detailed messages on failure."
              (:channelId "UCVbn813ctsoChuTT4LuLqrA" :title "Jetpens")
              (:channelId "UCsZNco1cxrspWzlPX3Kim9g" :title "Basti HW")
              (:channelId "UC_zyfHGL6MWzm36l9TEWFRg" :title "Sally McRae")
-             (:channelId "UCTo55-kBvyy5Y1X_DTgrTOQ" :title "MKMe Lab")
-             (:channelId "UChwnFBBtasi2kn2TDK5OsWg" :title "Buy it Fix it")
-             (:channelId "UChY9Cgv-iyPDvf1Bkyx20OQ" :title "My Mate Vince")
+             (:channelId "UCTo55-kBvyy5Y1X_DTgrTOQ" :title "MKMe Lab" :tags (electronics))
+             (:channelId "UChwnFBBtasi2kn2TDK5OsWg" :title "Buy it Fix it" :tags (electronics))
+             (:channelId "UChY9Cgv-iyPDvf1Bkyx20OQ" :title "My Mate Vince" :tags (electronics))
              (:channelId "UCSoOJTknGqXQSeamRjEE8aA" :title "TechDregs")
              (:channelId "UCNQJqvSXfDBOd9spve8doWw" :title "Worm Girl CDDA")
              (:channelId "UCt1ES-_FMXQfM3JeO_FrOXw" :title "ParkNotes" :tags (analog))
@@ -2317,7 +2317,9 @@ Provides more detailed messages on failure."
              (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
              (:channelId "UCrPpaC5uLPx03XHVCfufiTQ" :title "Tim Cannon" :tags (sport))
              (:channelId "UCNS-y3tEoPmBy9Q-ZYJf9QQ" :title "Kelp and Fern" :tags (sport))
-             (:channelId "UCIX0OOS3khVxwpxuoqkLWMw" :title "Pfefferminz Film" :tags (sport)))))
+             (:channelId "UCIX0OOS3khVxwpxuoqkLWMw" :title "Pfefferminz Film" :tags (sport))
+             (:channelId "UCTjmLCEVb9r1OpFDJMMWyIw" :title "StezStix Fix?" :tags (electronics))
+             (:channelId "UClsFdM0HzTdF1JYoraQ0aUw" :title "Brick Experiment Channel"))))
 
          (mapcar
           (lambda (feed-spec)
