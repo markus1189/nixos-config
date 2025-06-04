@@ -3,6 +3,12 @@
 let
   secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
+
+  nixpkgsMasterSrc = builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
+  };
+
+  nixpkgsMaster = import nixpkgsMasterSrc {};
 in {
   home = {
     stateVersion = "18.09";
@@ -423,9 +429,8 @@ in {
       enable = true;
       enableBashIntegration = true;
       nix-direnv = {
-        # broken version check https://github.com/nix-community/nix-direnv/issues/582
-        # Needs nix-direnv 3.1.0
-        enable = false;
+        enable = true;
+        package = nixpkgsMaster.nix-direnv;
       };
       enableZshIntegration = true;
     };
