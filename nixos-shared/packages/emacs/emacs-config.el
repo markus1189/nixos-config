@@ -755,6 +755,9 @@ Position the cursor at its beginning, according to the current mode."
 (use-package ox-jira
   :ensure t)
 
+(use-package ox-clip
+  :ensure t)
+
 (use-package multiple-cursors
   :ensure t
   :init
@@ -1641,7 +1644,74 @@ etc. This is a single, standalone request, no follow-up needed."
                    (progn
                      (write-region content nil mh/llm-memory-file nil 0) ; Use write-region for overwriting
                      "Success: Memory replaced.")
-                 "Error:Content argument is required"))))
+                 "Error:Content argument is required")))
+  (gptel-make-tool
+   :name "get_current_datetime"
+   :description "Returns the current date and time in ISO 8601 format."
+   :args nil
+   :confirm nil
+   :category "utility"
+   :function (lambda ()
+               (format-time-string "%Y-%m-%dT%H:%M:%S%z")))
+
+  (gptel-make-tool
+   :name "move_item"
+   :description "Move a file or directory from OLD-PATH to NEW-PATH."
+   :args (list '(:name "old_path"
+                       :type string
+                       :description "The current path of the file or directory to move.")
+               '(:name "new_path"
+                       :type string
+                       :description "The new path for the file or directory."))
+   :category "filesystem"
+   :confirm t
+   :function (lambda (old_path new_path)
+               (let ((expanded_old_path (expand-file-name old_path))
+                     (expanded_new_path (expand-file-name new_path)))
+                 (if (not (file-exists-p expanded_old_path))
+                     (format "Error: Source path %s does not exist." expanded_old_path)
+                   (if (file-exists-p expanded_new_path)
+                       (format "Error: Target path %s already exists. Please use a different target path or delete it first." expanded_new_path)
+                     (progn
+                       (f-move expanded_old_path expanded_new_path) ; f-move is from f.el
+                       (format "Successfully moved %s to %s" expanded_old_path expanded_new_path)))))))
+
+  (gptel-make-tool
+   :name "execute_bash_command"
+   :description (concat "Executes an arbitrary bash command and returns its exit status, standard output, and standard error. "
+                        "CRITICAL SAFETY PROTOCOL: Before you decide to use this tool, you MUST explicitly ask the user for their permission to execute *any* bash command for the current task, explain why it's necessary, and what kind of command you are considering. "
+                        "Only proceed to formulate and call this tool if they explicitly agree. "
+                        "When calling the tool, state the exact command you intend to run. "
+                        "Use with EXTREME CAUTION as this can modify your system or expose sensitive data."
+                        "When using `rm' or `mv' always add the `-v' flag.")
+   :args (list '(:name "command"
+                       :type string
+                       :description "The bash command to execute. This should only be formulated after user pre-approval."))
+   :category "system"
+   :confirm t
+   :function (lambda (command_string)
+               (let ((output_buffer_name "*gptel-bash-output*")
+                     (output_buffer (get-buffer-create "*gptel-bash-output*"))
+                     (exit-status nil)
+                     result)
+                 (unwind-protect
+                     (progn
+                       (with-current-buffer output_buffer (erase-buffer))
+                       (setq exit-status (call-process-shell-command
+                                          (format "(%s) 2>&1" command_string)
+                                          nil
+                                          output_buffer
+                                          nil))
+                       (with-current-buffer output_buffer
+                         (setq result (format "Exit Status: %s\nOutput (stdout & stderr):\n%s"
+                                              exit-status
+                                              (s-trim (buffer-string))))))
+                   (when (buffer-live-p output_buffer)
+                     (kill-buffer output_buffer)))
+                 result)))
+
+  ;; Tools end
+  )
 
 (use-package diff-hl
   :ensure t
@@ -1956,10 +2026,13 @@ etc. This is a single, standalone request, no follow-up needed."
         (when (and comments-link (not (string-empty-p comments-link)))
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
+
   (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
 
   (defun mh/raindrop-add-url-api (url tags)
-    "Add a URL to Raindrop"
+    "Add a URL to Raindrop.io API.
+Returns t on success, nil on failure.
+Provides more detailed messages on failure."
     (interactive)
     (let* ((bearer-token (format "Bearer %s" (mh/secrets/raindrop/testToken)))
            (request-data
@@ -1971,22 +2044,40 @@ etc. This is a single, standalone request, no follow-up needed."
                                         ("X-Accept" . "application/json")
                                         ("Authorization" . ,bearer-token)))
            (url-request-data (json-encode request-data))
-           (response-buffer
-            (url-retrieve-synchronously
-             "https://api.raindrop.io/rest/v1/raindrop" t t 1)))
-      (if response-buffer
-          (with-current-buffer response-buffer
-            (goto-char (point-min))
-            (if (re-search-forward "^\\(HTTP/[0-9.]+ \\([0-9]+\\) .*\\)$" nil t)
-                (let ((status (match-string 2)))
-                  (if (and (string= status "200") (re-search-forward "_id"))
-                      (progn (message "URL added successfully.")
-                             t)
-                    (progn (message "Failed to add URL: %s" status) nil)))
-              (progn (message "Failed to get a response.")
-                     nil))
-            (kill-buffer))
-        (progn (message "Failed") nil))))
+           (response-buffer nil)
+           (success nil))
+      (unwind-protect
+          (progn
+            (setq response-buffer
+                  (url-retrieve-synchronously
+                   "https://api.raindrop.io/rest/v1/raindrop" t t 1))
+            (if response-buffer
+                (with-current-buffer response-buffer
+                  (goto-char (point-min))
+                  (if (re-search-forward "^HTTP/[0-9.]+ \\([0-9]+\\) \\(.*\\)$" nil t)
+                      (let ((status-code (string-to-number (match-string 1)))
+                            (status-message (match-string 2)))
+                        (if (= status-code 200)
+                            (progn
+                              (re-search-forward "\n\n" nil t)
+                              (let ((json-response-string (buffer-substring-no-properties (point) (point-max))))
+                                (condition-case err
+                                    (let ((json-data (json-read-from-string json-response-string)))
+                                      (if (and (eq (cdr (assoc 'result json-data)) t)
+                                               (assoc '_id (cdr (assoc 'item json-data))))
+                                          (progn
+                                            (message "Raindrop: URL added successfully (%s)." url)
+                                            (setq success t))
+                                        (message "Raindrop: API reported success but response format unexpected for %s. Body: %s" url json-response-string)))
+                                  (error
+                                   (message "Raindrop: Failed to parse JSON response for %s. Error: %s. Body: %s" url err json-response-string)))))
+                          (message "Raindrop: API request failed for %s. Status: %d %s. Body: %s"
+                                   url status-code status-message (buffer-string))))
+                    (message "Raindrop: Could not parse HTTP status from response for %s. Buffer: %s" url (buffer-string))))
+              (message "Raindrop: Failed to retrieve response from API for %s." url)))
+        (when response-buffer
+          (kill-buffer response-buffer)))
+      success))
 
   (defun mh/elfeed-raindrop-add-url ()
     "Add the elfeed selection to raindrop."
@@ -2047,6 +2138,9 @@ etc. This is a single, standalone request, no follow-up needed."
   (defface mh/elfeed-newsletter-tag-face
     '((t :foreground "#0E9"))
     "Marks newsletter tags.")
+  (defface mh/elfeed-special-tag-face
+    '((t :foreground "#A0A"))
+    "Marks special tags.")
 
   (setq elfeed-search-face-alist '((unread elfeed-search-unread-title-face)
                                    (reddit mh/elfeed-reddit-tag-face)
@@ -2055,7 +2149,8 @@ etc. This is a single, standalone request, no follow-up needed."
                                    (hackernews mh/elfeed-hackernews-tag-face)
                                    (hackernews2 mh/elfeed-hackernews-tag-face)
                                    (hackernews3 mh/elfeed-hackernews-tag-face)
-                                   (newsletter mh/elfeed-newsletter-tag-face)))
+                                   (newsletter mh/elfeed-newsletter-tag-face)
+                                   (qtl mh/elfeed-special-tag-face)))
   (setq elfeed-search-title-max-width 120)
   (setq elfeed-feeds
         (append
@@ -2335,7 +2430,7 @@ etc. This is a single, standalone request, no follow-up needed."
            ("https://feeds.feedburner.com/bmndr")
            ("https://labnotes.org/rss/")
            ("https://dariusforoux.com/feed/")
-           ("https://thequilltolive.com/feed/" reading)
+           ("https://thequilltolive.com/feed/" reading qtl)
            ("https://www.raptitude.com/feed/")
            ("https://mathwithbaddrawings.com/feed")
            ("https://photographylife.com/feed")

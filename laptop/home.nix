@@ -422,7 +422,11 @@ in {
     direnv = {
       enable = true;
       enableBashIntegration = true;
-      nix-direnv.enable = true;
+      nix-direnv = {
+        # broken version check https://github.com/nix-community/nix-direnv/issues/582
+        # Needs nix-direnv 3.1.0
+        enable = false;
+      };
       enableZshIntegration = true;
     };
 

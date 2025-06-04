@@ -166,6 +166,7 @@ in emacs.pkgs.withPackages (epkgs:
       org-drill
       ormolu
       ox-jira
+      ox-clip
       pcre2el
       plantuml-mode
       projectile
