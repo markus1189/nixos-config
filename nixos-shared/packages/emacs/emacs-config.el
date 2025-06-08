@@ -2019,7 +2019,10 @@ etc. This is a single, standalone request, no follow-up needed."
    ("k" . #'previous-line))
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
+
   :init
+  (add-hook 'elfeed-new-entry-hook
+            (elfeed-make-tagger :entry-title "llm|LLM|gemini|Gemini|claude|Claude|Anthropic|anthropic|OpenAI|openai"))
   (defun mh/elfeed-extract-comments-link (_type xml entry)
     "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
     (when (elfeed-tagged-p 'pref-comment entry)
