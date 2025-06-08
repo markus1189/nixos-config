@@ -2031,7 +2031,7 @@ etc. This is a single, standalone request, no follow-up needed."
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
 
-  (setq mh/elfeed-search-stack '(hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
+  (setq mh/elfeed-search-stack '(llm hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
 
   (defun mh/raindrop-add-url-api (url tags)
     "Add a URL to Raindrop.io API.
@@ -2452,7 +2452,7 @@ Provides more detailed messages on failure."
            ("https://hnrss.org/newest?points=150&comments=20&link=comments&count=25" hackernews)
            ("https://hnrss.org/bestcomments" hackernews)
            ("https://hnrss.org/newest?link=comment&comments=10" hackernews)
-           ("https://hnrss.org/user?id=simonw" hackernews)
+           ("https://hnrss.org/user?id=simonw" hackernews llm)
            ("https://typesandkinds.wordpress.com/feed/")
            ("https://feeds.feedburner.com/BlackCover")
            ("https://www.penaddict.com/blog?format=rss" analog)
@@ -2512,7 +2512,7 @@ Provides more detailed messages on failure."
            ("https://tinyhack.com/feed/" hacking)
            ("https://daniel.haxx.se/blog/feed/" programming)
            ("https://wearetrailmix.substack.com/feed" sport)
-           ("https://simonwillison.net/atom/everything/" programming)
+           ("https://simonwillison.net/atom/everything/" programming llm)
            ("https://voidstarsec.com/blog/feeds/all.atom.xml" hacking)
            ("https://goodmovie.substack.com/feed")
            ("https://varoa.net/feed.xml" programming)
