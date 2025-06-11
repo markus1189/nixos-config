@@ -2,33 +2,16 @@
 
 let
   ndtSources = import ../ndt/sources.nix { };
-  nixpkgs2305 = import ndtSources.nixpkgs-2305 {
-    config = {
-      allowUnfreePredicate = pkg:
-        builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
-    };
-  };
-  my-llm = rec {
-    pyWithPackages = (pkgs.python3.withPackages (ps: with ps; [
-      llm
-      llm-anthropic
-      llm-gemini
-    ]));
-    llm = pkgs.runCommandNoCCLocal "llm" { } ''
-      mkdir -p $out/bin
-      ln -s ${pyWithPackages}/bin/llm $out/bin/llm
-    '';
-  }.llm;
 in {
   nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
 
   environment = {
     systemPackages = with pkgs;
       [
-        my-llm
         #
         ack
         actkbd
+        aider-chat-full
         alsa-oss
         alsa-utils
         ammonite
@@ -92,6 +75,7 @@ in {
         k9s
         libnotify
         # libreoffice
+        llm
         libxml2
         lsb-release
         lsof

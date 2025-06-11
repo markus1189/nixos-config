@@ -47,7 +47,7 @@ in emacs.pkgs.withPackages (epkgs:
     with epkgs;
     let
       my_copilot = epkgs.callPackage
-        ({ dash, editorconfig, f, fetchFromGitHub, nodejs, s, trivialBuild, }:
+        ({ dash, editorconfig, f, fetchFromGitHub, nodejs, s, trivialBuild }:
           trivialBuild {
             pname = "copilot";
             version = ndtSources.copilot-emacs.date;
@@ -67,6 +67,8 @@ in emacs.pkgs.withPackages (epkgs:
         src = ndtSources.gptel.outPath;
       });
     in [
+      (treesit-grammars.with-all-grammars)
+
       aidermacs
       avy
       annotate
@@ -114,11 +116,6 @@ in emacs.pkgs.withPackages (epkgs:
       groovy-mode
       graphviz-dot-mode
       haskell-mode
-      # helm
-      # helm-flyspell
-      # helm-projectile
-      # helm-rg
-      # helm-swoop
       hl-anything
       hledger-mode
       hurl-mode
@@ -137,9 +134,6 @@ in emacs.pkgs.withPackages (epkgs:
       just-mode
       jump-char
       jq-mode
-      (kubernetes.overrideAttrs
-        (old: { buildInputs = old.buildInputs ++ [ git ]; }))
-      # kubel
       lua-mode
       log4j-mode
       liso-theme
@@ -151,7 +145,6 @@ in emacs.pkgs.withPackages (epkgs:
       lsp-treemacs
       which-key
       lsp-ui
-      # helm-lsp
       dap-mode
       ##########
       markdown-mode
@@ -197,12 +190,10 @@ in emacs.pkgs.withPackages (epkgs:
       verb
       vertico
       visual-regexp
-      # wgrep-helm
       which-key
       web-mode
       yaml-mode
       yasnippet
-      # gptel-quick
       undo-tree
       csv-mode
       rainbow-mode

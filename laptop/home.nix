@@ -8,7 +8,7 @@ let
     url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   };
 
-  nixpkgsMaster = import nixpkgsMasterSrc {};
+  nixpkgsMaster = import nixpkgsMasterSrc { };
 in {
   home = {
     stateVersion = "18.09";
@@ -358,6 +358,23 @@ in {
           ai += of identify:@r1
           ai += curing:@q1
         '';
+      };
+
+      "aider" = {
+        target = ".aider.conf.yml";
+        text = pkgs.lib.strings.toJSON {
+          read = [ "CONVENTIONS.md" ];
+          auto-commits = false;
+          watch-files = true;
+          notifications = true;
+          gitignore = false; # in global gitignore
+          check-update = false; # only via nixpkgs
+        };
+      };
+
+      "aider-conventions" = {
+        target = ".aider/CONVENTIONS.md";
+        text = builtins.readFile ./AIDER-CONVENTIONS.md;
       };
     };
   };
