@@ -1,9 +1,14 @@
 { pkgs, ... }:
 
-let
-  ndtSources = import ../ndt/sources.nix { };
+let ndtSources = import ../ndt/sources.nix { };
 in {
-  nixpkgs = { config = { firefox = { enableOfficialBranding = true; }; }; };
+  nixpkgs = {
+    config = {
+      allowUnfreePredicate = pkg:
+        builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
+      firefox = { enableOfficialBranding = true; };
+    };
+  };
 
   environment = {
     systemPackages = with pkgs;
@@ -27,6 +32,7 @@ in {
         cabal-install
         chromedriver
         chromium
+        claude-code
         cloc
         coreutils
         discord
