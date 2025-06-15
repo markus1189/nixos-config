@@ -376,6 +376,27 @@ in {
         target = ".aider/CONVENTIONS.md";
         text = builtins.readFile ./AIDER-CONVENTIONS.md;
       };
+
+      "claude-code" = {
+        target = ".claude/settings.json";
+        text = pkgs.lib.strings.toJSON {
+          includeCoAuthoredBy = false;
+          permissions = {
+            allow = [
+              "Bash(grep *)"
+              "Bash(rg *)"
+              "WebFetch(domain:hackage.haskell.org)"
+            ];
+          };
+          preferredNotifChannel = "terminal_bell";
+          autoUpdaterStatus = "disabled";
+        };
+      };
+
+      "claude-md" = {
+        target = ".claude/CLAUDE.md";
+        text = builtins.readFile ../nixos-shared/claude/CLAUDE-global.md;
+      };
     };
   };
 
