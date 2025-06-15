@@ -1370,6 +1370,8 @@ string). It returns t if a new completion is found, nil otherwise."
          ("C-c C-<return>" . gptel-send)
          ("C-c g g" . gptel)
          ("C-c g o" . 'mh/gptel-ocr-screenshot))
+  :init
+  (require 'gptel-integrations)
   :config
 
   (defun mh/gptel-ocr-screenshot ()
