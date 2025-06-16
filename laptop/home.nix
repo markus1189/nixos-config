@@ -383,8 +383,8 @@ in {
           includeCoAuthoredBy = false;
           permissions = {
             allow = [
-              "Bash(grep *)"
-              "Bash(rg *)"
+              "Bash(grep:*)"
+              "Bash(rg:*)"
               "WebFetch(domain:hackage.haskell.org)"
             ];
           };
