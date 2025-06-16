@@ -1,14 +1,20 @@
 { pkgs, ... }:
 
-let ndtSources = import ../ndt/sources.nix { };
-in {
-  nixpkgs = {
+let
+  ndtSources = import ../ndt/sources.nix { };
+  nixpkgsMasterSrc = builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
+  };
+
+  nixpkgsMaster = import nixpkgsMasterSrc {
     config = {
       allowUnfreePredicate = pkg:
         builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
       firefox = { enableOfficialBranding = true; };
     };
   };
+in {
+  nixpkgs = { };
 
   environment = {
     systemPackages = with pkgs;
@@ -32,7 +38,7 @@ in {
         cabal-install
         chromedriver
         chromium
-        claude-code
+        (nixpkgsMaster.claude-code)
         cloc
         coreutils
         discord
