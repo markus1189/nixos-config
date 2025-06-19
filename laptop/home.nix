@@ -386,6 +386,8 @@ in {
               "Bash(grep:*)"
               "Bash(rg:*)"
               "WebFetch(domain:hackage.haskell.org)"
+              "Bash(./gradlew test:*)"
+              "Bash(notify-send:*)"
             ];
           };
           preferredNotifChannel = "terminal_bell";
