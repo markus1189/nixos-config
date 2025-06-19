@@ -17,6 +17,7 @@ let
     .direnv
     .metals
     .aider*
+    .claude
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
