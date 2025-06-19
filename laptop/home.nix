@@ -372,11 +372,6 @@ in {
         };
       };
 
-      "aider-conventions" = {
-        target = ".aider/CONVENTIONS.md";
-        text = builtins.readFile ./AIDER-CONVENTIONS.md;
-      };
-
       "claude-code" = {
         target = ".claude/settings.json";
         text = pkgs.lib.strings.toJSON {
