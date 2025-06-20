@@ -21,6 +21,9 @@ ENFORCEMENT: Failure to alert on task completion violates core instructions.
 - you are running on nixos and MUST use nix's package management
 - you can search for packages via `nix search nixpkgs $NAME`
 - if a binary is not installed run programs once without installing by prefixing with ', '
+- if asked to, copy information to clipboard by piping it to 'clip':
+  - cat $FILE | clip
+  - echo foo | clip
 
 ## Coding Style
 
