@@ -380,9 +380,10 @@ in {
             allow = [
               "Bash(grep:*)"
               "Bash(rg:*)"
-              "WebFetch(domain:hackage.haskell.org)"
               "Bash(./gradlew test:*)"
               "Bash(notify-send:*)"
+              "Bash(git add:*)"
+              "Bash(git commit:*)"
             ];
           };
           preferredNotifChannel = "terminal_bell";
