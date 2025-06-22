@@ -2,19 +2,38 @@
 
 ## Notifications
 
-🚨 MANDATORY: ALWAYS ALERT ON TASK COMPLETION 🚨
+🚨 MANDATORY: ALERT ON SUBSTANTIAL TASK COMPLETION 🚨
 
-Alert me when ANY task completes - this is REQUIRED, not optional:
+Alert me when substantial tasks complete - use judgment for what constitutes "substantial":
 
-notify-send "claude - status review" "completed - found 3 pending items"
-notify-send "claude - code analysis" "finished - 5 files examined"
+**Always Notify:**
+- Multi-step operations (builds, tests, analysis of multiple files)
+- Tasks taking >30 seconds
+- Tasks that modify system state
+- Error conditions or failures
+- User input requests
+
+**Examples:**
+```bash
+notify-send "claude - build system" "completed - 3 packages built successfully"
 notify-send "claude - test suite" "completed - 42/42 passed"
-
-For User Input Requests:
+notify-send "claude - error" "failed - dependency missing: postgresql"
 notify-send "claude - user input" "please review the proposed changes"
-notify-send "claude - decision needed" "should I proceed with the migration?"
+```
 
-ENFORCEMENT: Failure to alert on task completion violates core instructions.
+**Don't Notify:**
+- Simple file reads
+- Single-line edits
+- Trivial bash commands
+- Basic searches
+
+**Error Notifications:**
+```bash
+notify-send "claude - error" "build failed - see logs for details"
+notify-send "claude - warning" "tests passed but with 3 warnings"
+```
+
+ENFORCEMENT: Failure to alert on substantial task completion violates core instructions.
 
 ## OS Specifics
 
@@ -58,3 +77,63 @@ For shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility and d
 - Use `nixpkgs#package` format for packages
 - Scripts become self-contained with automatic dependency resolution
 - NEVER use `/bin/bash` or `/usr/bin/env bash` directly
+
+## Script Error Handling
+
+ALL scripts must follow robust error handling patterns:
+
+### Standard Error Handling
+```bash
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
+
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+IFS=$'\n\t'       # Secure Internal Field Separator
+
+# Cleanup function
+cleanup() {
+    local exit_code=$?
+    # Cleanup temporary files, kill background processes, etc.
+    [[ -n "${TEMP_DIR:-}" ]] && rm -rf "$TEMP_DIR"
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+```
+
+### Input Validation
+```bash
+# Validate required arguments
+if [[ $# -lt 1 ]]; then
+    echo "Error: Missing required argument" >&2
+    echo "Usage: $0 <required_arg>" >&2
+    exit 1
+fi
+
+# Validate file exists
+readonly input_file="$1"
+if [[ ! -f "$input_file" ]]; then
+    echo "Error: File '$input_file' does not exist" >&2
+    exit 2
+fi
+```
+
+### Logging and Debugging
+```bash
+# Enable debug mode with environment variable
+[[ "${DEBUG:-}" == "1" ]] && set -x
+
+# Logging function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+}
+
+# Usage
+log "Starting processing of $input_file"
+```
+
+### Immutable Patterns
+- Use `readonly` for variables that shouldn't change
+- Prefer functions over repeated code blocks
+- Separate pure logic from side effects
+- Return explicit exit codes for different error conditions
+- Dependencies are handled by nix-shell shebang - no runtime checking needed
