@@ -2261,8 +2261,7 @@ Provides more detailed messages on failure."
          (mapcar
           (lambda (feed-spec)
             (let* ((channelId (plist-get feed-spec :channelId))
-                   (tags (cons 'youtube (plist-get feed-spec :tags)))
-                   (disabled (or (plist-get feed-spec :disabled) t) ))
+                   (tags (cons 'youtube (plist-get feed-spec :tags))))
               (cons (format "https://www.youtube.com/feeds/videos.xml?channel_id=%s" channelId) tags)))
           (seq-filter
            (lambda (feed-spec) (not (or (plist-get feed-spec :disabled) nil)))
