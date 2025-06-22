@@ -29,4 +29,32 @@ ENFORCEMENT: Failure to alert on task completion violates core instructions.
 
 - no matter the language, prefer an immutable coding style when possible
 - keep "effects" separated from pure logic as would be the case in haskell
-- for scripts you MUST NOT use '/bin/bash', use '/usr/bin/env bash' instead
+
+## Shell Scripts
+
+For shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility and dependency management:
+
+### Basic Pattern
+```bash
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
+```
+
+### With Specific Dependencies
+```bash
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#git nixpkgs#curl --command bash
+```
+
+### For Other Languages
+```python
+#!/usr/bin/env nix
+#! nix shell nixpkgs#python3 nixpkgs#python3Packages.requests --command python
+```
+
+### Key Rules:
+- Use two separate lines (OS limitation prevents single line)
+- Specify all dependencies explicitly in the shebang
+- Use `nixpkgs#package` format for packages
+- Scripts become self-contained with automatic dependency resolution
+- NEVER use `/bin/bash` or `/usr/bin/env bash` directly
