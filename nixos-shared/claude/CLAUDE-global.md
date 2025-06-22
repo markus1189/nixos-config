@@ -29,3 +29,4 @@ ENFORCEMENT: Failure to alert on task completion violates core instructions.
 
 - no matter the language, prefer an immutable coding style when possible
 - keep "effects" separated from pure logic as would be the case in haskell
+- for scripts you MUST NOT use '/bin/bash', use '/usr/bin/env bash' instead
