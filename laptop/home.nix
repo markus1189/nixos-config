@@ -395,6 +395,11 @@ in {
         target = ".claude/CLAUDE.md";
         text = builtins.readFile ../nixos-shared/claude/CLAUDE-global.md;
       };
+
+      "claude-ai-comments" = {
+        target = ".claude/commands/ai-comments.md";
+        text = builtins.readFile ../nixos-shared/claude/commands/ai-comments.md;
+      };
     };
   };
 
