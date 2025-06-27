@@ -2527,6 +2527,7 @@ Provides more detailed messages on failure."
            ("https://github.blog/changelog/feed/" github)
            ("https://aider.chat/feed.xml" programming)
            ("https://hamatti.org/feed/feed.xml" programming)
+           ("https://harper.blog/index.xml" programming)
            ("https://lucumr.pocoo.org/feed.atom" llm programming)
            ("https://claudelog.com/rss.xml" llm programming))))
            ;; ^^^^ feeds
