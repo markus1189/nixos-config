@@ -400,6 +400,11 @@ in {
         target = ".claude/commands/ai-comments.md";
         text = builtins.readFile ../nixos-shared/claude/commands/ai-comments.md;
       };
+
+      "claude-ai-bug-hunt" = {
+        target = ".claude/commands/bug-hunt.md";
+        text = builtins.readFile ../nixos-shared/claude/commands/bug-hunt.md;
+      };
     };
   };
 
