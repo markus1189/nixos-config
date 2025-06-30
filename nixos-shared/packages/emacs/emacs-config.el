@@ -2229,7 +2229,8 @@ Provides more detailed messages on failure."
               (:subreddit "worldnews" :threshold 70)
               (:subreddit "writingprompts" :threshold 80)
               (:subreddit "wwn")
-              (:subreddit "zwift"))))
+              (:subreddit "zwift")
+              (:subreddit "ai_agents"))))
 
          (mapcar
           (lambda (feed-spec)
