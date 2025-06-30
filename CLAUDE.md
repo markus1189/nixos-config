@@ -72,48 +72,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Emacs Elfeed RSS Feed Management
 
-RSS feeds are configured in `nixos-shared/packages/emacs/emacs-config.el` around line 2230-2530. The configuration supports multiple feed types:
+RSS feeds are configured in `nixos-shared/packages/emacs/emacs-config.el`. The configuration supports multiple feed types organized in distinct sections.
+
+### Quick Commands for RSS Feed Management
+
+```bash
+# Search for specific feed sections
+rg ":subreddit" nixos-shared/packages/emacs/emacs-config.el
+rg "channelId" nixos-shared/packages/emacs/emacs-config.el
+rg "owner.*repo" nixos-shared/packages/emacs/emacs-config.el
+```
 
 ### Adding RSS Feeds
 
-#### Reddit Feeds
-Add to the `:subreddit` list:
+#### Reddit Feeds (Alphabetical Order)
+**Location**: Search for `:subreddit` - typically around line 2180-2230
+**Insertion**: Add in alphabetical order within the `:subreddit` list
+
 ```elisp
-(:subreddit "subredditname" :tags (optional-tag1 optional-tag2))
-(:subreddit "subredditname" :threshold 80)  ; Custom score threshold
+(:subreddit "ai_agents")                        ; Basic reddit feed
+(:subreddit "programming" :threshold 70)        ; Custom score threshold
+(:subreddit "running" :tags (sport))           ; With tags
 ```
 
-#### Regular RSS/Atom Feeds
-Add to the main feeds list:
+#### Regular RSS/Atom Feeds (Alphabetical Order) 
+**Location**: Search for `("https://` - typically around line 2350-2530
+**Insertion**: Add in alphabetical order by domain name
+
 ```elisp
 ("https://example.com/feed.xml" tag1 tag2)
-("https://example.com/rss" programming)
+("https://simonwillison.net/atom/everything/" programming llm)
 ```
 
-#### YouTube Channel Feeds
-Add to the `:channelId` list:
+#### YouTube Channel Feeds (Alphabetical by Title)
+**Location**: Search for `:channelId` - typically around line 2270-2320
+**Insertion**: Add alphabetically by title
+
 ```elisp
 (:channelId "UCchannelid" :title "Channel Name" :tags (tag1 tag2))
 ```
 
-#### GitHub Release Feeds
-Add to the `:owner/:repo` list:
+#### GitHub Release Feeds (Alphabetical by Repo)
+**Location**: Search for `:owner.*:repo` - typically around line 2240-2260
+**Insertion**: Add alphabetically by repository name
+
 ```elisp
 (:owner "username" :repo "reponame" :tags (github))
 ```
 
 #### Newsletter Feeds (Kill The Newsletter)
-Add to the `:id` list for kill-the-newsletter.com integration:
+**Location**: Search for `:id` - typically around line 2330-2340
+**Insertion**: Add alphabetically by title
+
 ```elisp
 (:id "newsletter-id" :title "Newsletter Name" :tags (newsletter))
 ```
 
-### Tag System
-Common tags used: `programming`, `sport`, `analog`, `electronics`, `reading`, `news`, `hackernews`, `github`, `newsletter`, `youtube`, `reddit`
+### Workflow for Adding Feeds
 
-### Feed Processing
-- Reddit feeds use a local server (localhost:9999) with threshold-based filtering
+1. **Search for the correct section**:
+   ```bash
+   rg ":subreddit" nixos-shared/packages/emacs/emacs-config.el  # For Reddit
+   ```
+
+2. **Add feed in alphabetical order** within the appropriate list
+
+3. **Commit with standard format**:
+   ```bash
+   git add nixos-shared/packages/emacs/emacs-config.el
+   git commit -m "elfeed: add [feed-type] [feed-name]"
+   ```
+   Examples:
+   - `elfeed: add r/ai_agents`
+   - `elfeed: add simonwillison.net RSS feed`
+   - `elfeed: add youtube channel TechName`
+
+### Tag System Reference
+Common tags: `programming`, `sport`, `analog`, `electronics`, `reading`, `news`, `hackernews`, `github`, `newsletter`, `youtube`, `reddit`, `llm`, `hacking`
+
+### Feed Processing Notes
+- Reddit feeds use localhost:9999 server with threshold-based filtering
+- Thresholds filter posts by score (default varies by subreddit)
 - All feeds support optional tagging for organization
+- YouTube feeds auto-tag with `youtube`
+- GitHub feeds auto-tag with `github`
 
 ## Emacs Package Management
 
