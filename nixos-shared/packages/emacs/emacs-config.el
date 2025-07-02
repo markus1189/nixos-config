@@ -2513,6 +2513,7 @@ Provides more detailed messages on failure."
            ("https://wearetrailmix.substack.com/feed" sport)
            ("https://simonwillison.net/atom/everything/" programming llm)
            ("https://voidstarsec.com/blog/feeds/all.atom.xml" hacking)
+           ("https://blog.vbang.dk/feed.xml")
            ("https://goodmovie.substack.com/feed")
            ("https://varoa.net/feed.xml" programming)
            ("https://www.geoffreylitt.com/feed.xml" programming)
