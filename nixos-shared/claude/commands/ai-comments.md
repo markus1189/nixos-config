@@ -1,6 +1,6 @@
 # Instructions For AI Comments Handling
 
-Your task is to search the code for any 'AI:' comments, use pattern `\bAI:\b` for exact case matching with optional whitespace.
+Your task is to search the code for any 'AI:' comments, use pattern `AI:` for exact case matching with optional whitespace.
 
 For each found comment:
 
