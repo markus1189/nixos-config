@@ -372,7 +372,22 @@ in {
         };
       };
 
-      "claude-code" = {
+      "claude-code" = let
+        notifier = pkgs.writers.writePython3Bin "claude-code-notifier" {
+          flakeIgnore = [ "E501" ];
+        } ''
+          import json
+          import sys
+          import subprocess
+
+          input = json.load(sys.stdin)
+
+          title = input.get("title", "<no-title>")
+          message = input.get("message", "<no-message>")
+
+          subprocess.run(["${pkgs.dunst}/bin/dunstify", "--urgency=critical", title, message])
+        '';
+      in {
         target = ".claude/settings.json";
         text = pkgs.lib.strings.toJSON {
           includeCoAuthoredBy = false;
@@ -388,6 +403,15 @@ in {
           };
           preferredNotifChannel = "terminal_bell";
           autoUpdaterStatus = "disabled";
+          hooks = {
+            Notification = [{
+              matcher = "";
+              hooks = [{
+                type = "command";
+                command = "${notifier}/bin/claude-code-notifier";
+              }];
+            }];
+          };
         };
       };
 
