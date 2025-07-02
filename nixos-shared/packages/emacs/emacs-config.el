@@ -2464,6 +2464,7 @@ Provides more detailed messages on failure."
            ("https://apocalisp.wordpress.com/feed/")
            ("https://blog.8thlight.com/feed/atom.xml")
            ("https://blog.jessitron.com/feeds/posts/default")
+           ("https://blog.mgdproductions.com/rss/" hacking)
            ("https://git-blame.blogspot.de/feeds/posts/default")
            ("https://corte.si/rss.xml")
            ("https://feeds.feedburner.com/buckblog")
