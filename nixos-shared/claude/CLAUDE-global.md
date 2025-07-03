@@ -1,40 +1,5 @@
 # Global Claude Memory File
 
-## Notifications
-
-🚨 MANDATORY: ALERT ON SUBSTANTIAL TASK COMPLETION 🚨
-
-Alert me when substantial tasks complete - use judgment for what constitutes "substantial":
-
-**Always Notify:**
-- Multi-step operations (builds, tests, analysis of multiple files)
-- Tasks taking >30 seconds
-- Tasks that modify system state
-- Error conditions or failures
-- User input requests
-
-**Examples:**
-```bash
-notify-send "claude - build system" "completed - 3 packages built successfully"
-notify-send "claude - test suite" "completed - 42/42 passed"
-notify-send "claude - error" "failed - dependency missing: postgresql"
-notify-send "claude - user input" "please review the proposed changes"
-```
-
-**Don't Notify:**
-- Simple file reads
-- Single-line edits
-- Trivial bash commands
-- Basic searches
-
-**Error Notifications:**
-```bash
-notify-send "claude - error" "build failed - see logs for details"
-notify-send "claude - warning" "tests passed but with 3 warnings"
-```
-
-ENFORCEMENT: Failure to alert on substantial task completion violates core instructions.
-
 ## OS Specifics
 
 - you are running on nixos and MUST use nix's package management
@@ -46,12 +11,20 @@ ENFORCEMENT: Failure to alert on substantial task completion violates core instr
 
 ## Coding Style
 
-- no matter the language, prefer an immutable coding style when possible
+- no matter the language, prefer an immutable coding style
 - keep "effects" separated from pure logic as would be the case in haskell
 
-## Shell Scripts
+## Shell Scripts and Throwaway Scripts for you
 
-For shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility and dependency management:
+If you want to create a temporary script to execute, use:
+
+```bash
+mktemp claude.XXXXXX.txt
+```
+
+Instead of '.txt' you can use the specific extension of the script to write, e.g. '.py' for python.
+
+To write shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility and dependency management:
 
 ### Basic Pattern
 ```bash
@@ -66,9 +39,30 @@ For shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility and d
 ```
 
 ### For Other Languages
+Writing a python script with the 'prettytable' package available:
+
 ```python
-#!/usr/bin/env nix
-#! nix shell nixpkgs#python3 nixpkgs#python3Packages.requests --command python
+#! /usr/bin/env nix
+#! nix shell --impure --expr ``
+#! nix with import <nixpkgs>{};
+#! nix pkgs.python3.withPackages (ps: with ps; [prettytable])
+#! nix ``
+#! nix --command python
+
+print("Hello World")
+```
+
+Writing a haskell script:
+
+```haskell
+#! /usr/bin/env nix
+#! nix shell --impure --expr ``
+#! nix with import <nixpkgs>{};
+#! nix pkgs.haskellPackages.ghcWithPackages (ps: with ps; [wreq])
+#! nix ``
+#! nix --command runhaskell
+
+main = putStrLn "Hello World"
 ```
 
 ### Key Rules:
