@@ -2386,6 +2386,7 @@ Provides more detailed messages on failure."
            ("https://community.topazlabs.com/c/releases/gigapixel-ai/66.rss")
            ("https://questingbeast.substack.com/feed")
            ("https://controlaltbackspace.org/feed.xml")
+           ("https://www.dbreunig.com/feed.xml")
            ("https://www.dcrainmaker.com/feed/" sport)
            ("https://ennie-awards.com/feed")
            ("https://hk-newsletter.de/feed" news)
