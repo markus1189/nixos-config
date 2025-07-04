@@ -19,7 +19,7 @@
 If you want to create a temporary script to execute, use:
 
 ```bash
-mktemp claude.XXXXXX.txt
+mktemp -t claude.XXXXXX.txt
 ```
 
 Instead of '.txt' you can use the specific extension of the script to write, e.g. '.py' for python.
@@ -42,12 +42,8 @@ To write shell scripts, ALWAYS use Nix shell shebangs to ensure reproducibility 
 Writing a python script with the 'prettytable' package available:
 
 ```python
-#! /usr/bin/env nix
-#! nix shell --impure --expr ``
-#! nix with import <nixpkgs>{};
-#! nix pkgs.python3.withPackages (ps: with ps; [prettytable])
-#! nix ``
-#! nix --command python
+#!/usr/bin/env nix
+#! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.python3.withPackages (ps: with ps; [prettytable])`` --command python
 
 print("Hello World")
 ```
@@ -55,12 +51,8 @@ print("Hello World")
 Writing a haskell script:
 
 ```haskell
-#! /usr/bin/env nix
-#! nix shell --impure --expr ``
-#! nix with import <nixpkgs>{};
-#! nix pkgs.haskellPackages.ghcWithPackages (ps: with ps; [wreq])
-#! nix ``
-#! nix --command runhaskell
+#!/usr/bin/env nix
+#! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.haskellPackages.ghcWithPackages (ps: with ps; [wreq])`` --command runhaskell
 
 main = putStrLn "Hello World"
 ```
