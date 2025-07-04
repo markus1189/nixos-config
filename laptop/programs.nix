@@ -62,6 +62,7 @@ in {
         fortune
         gcc
         gdb
+        gemini-cli
         ghc
         gimp
         glxinfo
