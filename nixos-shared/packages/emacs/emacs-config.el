@@ -2300,6 +2300,7 @@ Provides more detailed messages on failure."
              (:channelId "UCTo55-kBvyy5Y1X_DTgrTOQ" :title "MKMe Lab" :tags (electronics))
              (:channelId "UChwnFBBtasi2kn2TDK5OsWg" :title "Buy it Fix it" :tags (electronics))
              (:channelId "UChY9Cgv-iyPDvf1Bkyx20OQ" :title "My Mate Vince" :tags (electronics))
+             (:channelId "UCqZQlzSHbVJrwrn5XvzrzcA" :title "NBC Sports" :tags (sport))
              (:channelId "UCSoOJTknGqXQSeamRjEE8aA" :title "TechDregs")
              (:channelId "UCNQJqvSXfDBOd9spve8doWw" :title "Worm Girl CDDA")
              (:channelId "UCt1ES-_FMXQfM3JeO_FrOXw" :title "ParkNotes" :tags (analog))
