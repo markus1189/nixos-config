@@ -114,7 +114,7 @@ in emacs.pkgs.withPackages (epkgs:
       go-autocomplete
       goto-chg
       groovy-mode
-      graphviz-dot-mode
+      # graphviz-dot-mode
       haskell-mode
       hl-anything
       hledger-mode
