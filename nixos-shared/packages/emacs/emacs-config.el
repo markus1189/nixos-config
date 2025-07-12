@@ -2252,6 +2252,7 @@ Provides more detailed messages on failure."
             (:owner "tmux" :repo "tmux")
             (:owner "kmonad" :repo "kmonad")
             (:owner "saulpw" :repo "visidata")
+            (:owner "kopecmaciej" :repo "vi-mongo")
             (:owner "johnwarne" :repo "reddit-top-rss")
             (:owner "mbnuqw" :repo "sidebery")
             (:owner "ast-grep" :repo "ast-grep")
