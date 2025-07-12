@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Host Configurations
 - `xps/` - XPS laptop configuration
-- `nuc/` - NUC home server configuration  
+- `nuc/` - NUC home server configuration
 - `p1/` - P1 ThinkPad configuration
 - `laptop/` - General laptop configuration files
 
@@ -85,6 +85,8 @@ rg "owner.*repo" nixos-shared/packages/emacs/emacs-config.el
 
 ### Adding RSS Feeds
 
+ALWAYS make sure that the feed you are adding does not yet exist!
+
 #### Reddit Feeds (Alphabetical Order)
 **Location**: Search for `:subreddit` - typically around line 2180-2230
 **Insertion**: Add in alphabetical order within the `:subreddit` list
@@ -95,7 +97,7 @@ rg "owner.*repo" nixos-shared/packages/emacs/emacs-config.el
 (:subreddit "running" :tags (sport))           ; With tags
 ```
 
-#### Regular RSS/Atom Feeds (Alphabetical Order) 
+#### Regular RSS/Atom Feeds (Alphabetical Order)
 **Location**: Search for `("https://` - typically around line 2350-2530
 **Insertion**: Add in alphabetical order by domain name
 
@@ -175,7 +177,7 @@ go-mode
 
 Packages are sourced from:
 - `epkgs.melpaPackages` - MELPA packages
-- `epkgs.elpaPackages` - GNU ELPA packages  
+- `epkgs.elpaPackages` - GNU ELPA packages
 - `epkgs` - Other package sources
 
 #### 2. Configure Package in Emacs Config
