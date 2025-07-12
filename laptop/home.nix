@@ -382,10 +382,10 @@ in {
 
           input = json.load(sys.stdin)
 
-          title = input.get("title", "<no-title>")
-          message = input.get("message", "<no-message>")
+          title = input.get("title")
+          message = input.get("message")
 
-          subprocess.run(["${pkgs.dunst}/bin/dunstify", "--urgency=critical", title, message])
+          subprocess.run(["${pkgs.dunst}/bin/dunstify", title, message])
         '';
       in {
         target = ".claude/settings.json";
@@ -411,6 +411,11 @@ in {
                 command = "${notifier}/bin/claude-code-notifier";
               }];
             }];
+          };
+          env = {
+            BASH_DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; # default = 2 min
+            BASH_MAX_TIMEOUT_MS = 30 * 60 * 1000;
+            MAX_MCP_OUTPUT_TOKENS = 50 * 1000; # default = 25,000
           };
         };
       };
