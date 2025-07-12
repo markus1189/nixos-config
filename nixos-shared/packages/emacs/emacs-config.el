@@ -2206,6 +2206,7 @@ Provides more detailed messages on failure."
               (:subreddit "planneraddicts")
               (:subreddit "pretendingtobepeople")
               (:subreddit "programmerhumor")
+              (:subreddit "ProgressionFantasy")
               (:subreddit "promptengineering" :threshold 75)
               (:subreddit "ReverseEngineering")
               (:subreddit "rpg")
