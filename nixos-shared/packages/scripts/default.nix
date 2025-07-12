@@ -757,7 +757,7 @@ rec {
           ACCESS_TOKEN="$(curl -s \
                            --fail \
                            -X POST \
-                           --url "https://iam.viessmann.com/idp/v2/token" \
+                           --url "https://iam.viessmann-climatesolutions.com/idp/v2/token" \
                            -H "Content-Type: application/x-www-form-urlencoded" \
                            -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
 
@@ -765,7 +765,7 @@ rec {
            --fail \
            -X GET \
            -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
-           --url "https://api.viessmann.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
+           --url "https://api.viessmann-climatesolutions.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
           jq '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
       }
 
