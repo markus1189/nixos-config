@@ -401,8 +401,6 @@ in {
               "Bash(git commit:*)"
             ];
           };
-          preferredNotifChannel = "terminal_bell";
-          autoUpdaterStatus = "disabled";
           hooks = {
             Notification = [{
               matcher = "";
@@ -492,6 +490,7 @@ in {
       shellAliases = {
         "aws-vault" =
           "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
+        "claude-yolo" = "claude --dangerously-skip-permissions";
       };
 
       initExtra = ''
