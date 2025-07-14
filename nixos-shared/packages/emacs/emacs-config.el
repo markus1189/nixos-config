@@ -2197,6 +2197,7 @@ Provides more detailed messages on failure."
               (:subreddit "internetisbeautiful")
               (:subreddit "ironsworn")
               (:subreddit "kettlebell")
+              (:subreddit "litrpg")
               (:subreddit "malazan")
               (:subreddit "netsec")
               (:subreddit "nixos" :tags (programming))
