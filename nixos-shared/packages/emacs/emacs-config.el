@@ -2175,6 +2175,7 @@ Provides more detailed messages on failure."
               (:subreddit "commonplacebook" :tags (analog))
               (:subreddit "bulletjournal" :tags (analog))
               (:subreddit "cataclysmdda")
+              (:subreddit "claudeai")
               (:subreddit "claudecode")
               (:subreddit "commandline")
               (:subreddit "compsci")
