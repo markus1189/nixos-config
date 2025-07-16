@@ -382,10 +382,9 @@ in {
 
           input = json.load(sys.stdin)
 
-          title = input.get("title")
-          message = input.get("message")
+          message = input.get("message") or "<no-message>"
 
-          subprocess.run(["${pkgs.dunst}/bin/dunstify", title, message])
+          subprocess.run(["${pkgs.dunst}/bin/dunstify", "Claude-Code", message])
         '';
       in {
         target = ".claude/settings.json";
