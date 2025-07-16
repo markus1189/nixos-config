@@ -123,3 +123,81 @@ log "Starting processing of $input_file"
 - Separate pure logic from side effects
 - Return explicit exit codes for different error conditions
 - Dependencies are handled by nix-shell shebang - no runtime checking needed
+
+## Sourcegraph CLI (src) Usage
+
+The Sourcegraph CLI (`src`) is available for searching code across repositories. Key usage patterns:
+
+### Basic Search Syntax
+```bash
+src search 'search-term'                    # Basic search
+src search 'search-term lang:python'        # Filter by language
+src search 'search-term type:file'          # Search file names only
+src search 'search-term repo:owner/repo'    # Search specific repository
+```
+
+### Advanced Filtering
+```bash
+# Language filters
+src search 'function lang:python'           # Python files only
+src search 'function lang:shell'            # Shell scripts only
+src search 'function lang:javascript'       # JavaScript files
+
+# File type filters
+src search 'config type:file'               # Search filenames
+src search 'bug type:commit'                # Search commit messages
+src search 'TODO type:diff'                 # Search diffs
+
+# Repository filters
+src search 'r:github.com/user/repo function'  # Specific repo
+src search 'repo:has.path(Dockerfile) nginx'  # Repos with Dockerfile
+
+# Time filters
+src search 'bug after:2023-01-01'           # Recent commits
+src search 'fix before:2023-12-31'          # Older commits
+```
+
+### Regex and Pattern Matching
+```bash
+# Regex patterns (use .* for wildcards)
+src search 'dunstify.*--action'             # Match dunstify with --action flag
+src search 'function.*\(.*\).*{'            # Function definitions
+src search 'import.*pandas'                 # Import statements
+
+# Case sensitivity
+src search 'Error case:yes'                 # Case sensitive
+src search 'error case:no'                  # Case insensitive (default)
+```
+
+### Common Search Patterns
+```bash
+# Find configuration files
+src search 'nginx lang:conf'
+src search 'database type:file file:\.env$'
+
+# Find function definitions
+src search 'def.*function_name lang:python'
+src search 'function.*function_name lang:javascript'
+
+# Find imports/includes
+src search 'import.*library_name'
+src search '#include.*header.h'
+
+# Find TODO/FIXME comments
+src search 'TODO|FIXME'
+src search 'XXX|HACK'
+```
+
+### Output and Formatting
+```bash
+src search -json 'search-term'              # JSON output
+src search 'search-term' | head -20         # Limit results
+```
+
+### Key Rules
+- Always wrap the entire search query in single quotes
+- Use `.*` for wildcard matching in regex patterns
+- Combine filters with spaces (they act as AND)
+- Use `lang:` for programming language filtering
+- Use `type:` to specify what to search (file, commit, diff, etc.)
+- Use `repo:` or `r:` for repository filtering
