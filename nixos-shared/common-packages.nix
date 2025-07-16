@@ -34,7 +34,7 @@
         nix-prefetch-git
         nix-prefetch-github
         nix-index
-        nixfmt
+        nixfmt-rfc-style
         nixpkgs-lint
         nixpkgs-fmt
         niv

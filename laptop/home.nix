@@ -492,7 +492,7 @@ in {
         "claude-yolo" = "claude --dangerously-skip-permissions";
       };
 
-      initExtra = ''
+      initContent = ''
         source ${pkgs.ndtSources.zsh-histdb}/sqlite-history.zsh
         autoload -Uz add-zsh-hook
       '';

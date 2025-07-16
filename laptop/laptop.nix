@@ -64,7 +64,7 @@ in rec {
       options = "--delete-older-than 5d";
     };
 
-    useSandbox = true;
+    settings.sandbox = true;
 
     nixPath = with config.lib._custom_; [
       "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
@@ -166,13 +166,6 @@ in rec {
       enable = true;
 
       displayManager = {
-        autoLogin = {
-          enable = true;
-          user = config.lib._custom_.userName;
-        };
-
-        defaultSession = "none+xmonad";
-
         lightdm = { enable = true; };
 
         sessionCommands = ''
@@ -194,17 +187,28 @@ in rec {
 
       synaptics = { enable = false; };
 
-      libinput = {
-        enable = true;
-        touchpad = {
-          tapping = false;
-          disableWhileTyping = true;
-          naturalScrolling = false;
-        };
-      };
+      # libinput configuration moved to services.libinput
     };
 
     clipmenu = { enable = true; };
+
+    libinput = {
+      enable = true;
+      touchpad = {
+        tapping = false;
+        disableWhileTyping = true;
+        naturalScrolling = false;
+      };
+    };
+
+    displayManager = {
+      autoLogin = {
+        enable = true;
+        user = config.lib._custom_.userName;
+      };
+
+      defaultSession = "none+xmonad";
+    };
 
     pipewire = {
       audio.enable = true;
@@ -280,7 +284,7 @@ in rec {
     #   '';
     # };
 
-    opengl.driSupport32Bit = true;
+    graphics.enable32Bit = true;
 
     uinput.enable = true; # For Multimedia buttons on QuietComfort
   };
