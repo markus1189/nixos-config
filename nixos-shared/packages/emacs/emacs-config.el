@@ -2369,6 +2369,7 @@ Provides more detailed messages on failure."
            ("https://buttondown.email/hillelwayne/rss")
            ("https://terminaltrove.com/totw.xml" programming)
            ("https://perishablepress.com/feed/atom/")
+           ("https://www.raptitude.com/feed/")
            ("https://rss.p.theconnman.com/r/netbrain/zwift")
            ("https://jillianhess.substack.com/feed" analog)
            ("https://jcjc-dev.com/atom.xml")
