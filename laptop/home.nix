@@ -431,6 +431,11 @@ in {
         target = ".claude/commands/bug-hunt.md";
         text = builtins.readFile ../nixos-shared/claude/commands/bug-hunt.md;
       };
+
+      "claude-ai-restwerte" = {
+        target = ".claude/commands/restwerte.md";
+        text = builtins.readFile ../nixos-shared/claude/commands/restwerte.md;
+      };
     };
   };
 
