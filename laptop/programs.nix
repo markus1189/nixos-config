@@ -8,17 +8,21 @@ let
 
   nixpkgsMaster = import nixpkgsMasterSrc {
     config = {
-      allowUnfreePredicate = pkg:
-        builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
-      firefox = { enableOfficialBranding = true; };
+      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
+      firefox = {
+        enableOfficialBranding = true;
+      };
     };
   };
-in {
+in
+{
   nixpkgs = { };
 
   environment = {
-    systemPackages = (with nixpkgsMaster; [ claude-code gemini-cli ])
-      ++ (with pkgs;
+    systemPackages =
+      (with nixpkgsMaster; [ claude-code ])
+      ++ (
+        with pkgs;
         [
           #
           ack
@@ -194,39 +198,50 @@ in {
           zlib
           zoom-us
           zsh
-        ] ++ (with pkgs.pythonPackages;
-          [
-            # pygments
-          ]) ++ (with pkgs.haskellPackages; [
-            cabal2nix
-            # hasktags
-            hlint
-            # idris
-            # pkgs.stack
-            (pkgs.ormolu)
-            xmobar
-          ]) ++ (with pkgs.xorg; [ xbacklight xev xkill ])
-        ++ (with pkgs.nodePackages; [ js-yaml ]) ++ [
+        ]
+        ++ (with pkgs.pythonPackages; [
+          # pygments
+        ])
+        ++ (with pkgs.haskellPackages; [
+          cabal2nix
+          # hasktags
+          hlint
+          # idris
+          # pkgs.stack
+          (pkgs.ormolu)
+          xmobar
+        ])
+        ++ (with pkgs.xorg; [
+          xbacklight
+          xev
+          xkill
+        ])
+        ++ (with pkgs.nodePackages; [ js-yaml ])
+        ++ [
           # photography related stuff
           darktable
           hugin
           geeqie
-        ] ++ [
+        ]
+        ++ [
           # evaluation phase
           lnav # log file viewer
           pdd
           dateutils
           bind
           wxhexeditor
-        ] ++ (with pkgs.myScripts; [
+        ]
+        ++ (with pkgs.myScripts; [
           gnuplot-quick
           isVpnActive
           multihead4k
           tmx
           ts
-        ]) ++ [
+        ])
+        ++ [
           # Go related stuff
           go
-        ]);
+        ]
+      );
   };
 }
