@@ -618,18 +618,17 @@ rec {
     systemd-cat -tlog-args -- bash -c 'echo $@'
   '';
 
-  addToPocketScript = { consumer_key, access_token }:
+  addToRaindropScript = { access_token }:
     writeShellScript {
-      name = "add-to-pocket";
-      deps = [ curl gnugrep jo ];
+      name = "add-to-raindrop";
+      deps = [ curl gnugrep jo coreutils gnused ];
       pure = true;
     } ''
       URL="''${1}"
       GIVEN_TAGS="''${2}"
       TAGS="''${GIVEN_TAGS},newsboat"
 
-      script_pocket_consumer_key=${consumer_key}
-      script_pocket_access_token=${access_token}
+      script_raindrop_access_token=${access_token}
 
       if echo "''${URL}" | grep 'youtube.com/watch'; then
           TAGS="$TAGS,youtube,video"
@@ -658,9 +657,12 @@ rec {
           TAGS="$TAGS,comic"
       fi
 
+      # Convert comma-separated tags to JSON array
+      TAG_ARRAY=$(echo "$TAGS" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | tr '\n' ',' | sed 's/,$//')
+
       main() {
         unset c
-        until curl --cacert "${cacert}/etc/ssl/certs/ca-bundle.crt" -s --fail -XPOST https://getpocket.com/v3/add -H 'content-type: application/json' -d "$(jo url="''${1}" consumer_key="''${script_pocket_consumer_key}" access_token="''${script_pocket_access_token}" tags="''${TAGS}")"; do
+        until curl --cacert "${cacert}/etc/ssl/certs/ca-bundle.crt" -s --fail -XPOST https://api.raindrop.io/rest/v1/raindrop -H "Authorization: Bearer ''${script_raindrop_access_token}" -H 'content-type: application/json' -d "$(jo link="''${1}" tags="[''${TAG_ARRAY}]" pleaseParse="{}")"; do
           ((c++)) && ((c==6)) && break
           sleep 1
         done
@@ -671,7 +673,7 @@ rec {
       main "$1"
     '';
 
-  mkRsstailToPocketUnit = { consumer_key, access_token }:
+  mkRsstailToRaindropUnit = { access_token }:
     { key, url, intervalSeconds ? 300 }:
     let
       name = "rsstail-${key}-script";
@@ -686,10 +688,10 @@ rec {
           | ${gnugrep}/bin/grep --line-buffered '^Link: ' \
           | ${gawk}/bin/awk '{print $2; system("")}' \
           | while read i; do
-              echo [rsstail-${key}]: Adding to pocket: "$i"
+              echo [rsstail-${key}]: Adding to raindrop: "$i"
               ${
-                addToPocketScript { inherit consumer_key access_token; }
-              }/bin/add-to-pocket "$i" "rsstail"
+                addToRaindropScript { inherit access_token; }
+              }/bin/add-to-raindrop "$i" "rsstail"
             done
       '';
     in {

@@ -36,8 +36,8 @@ in {
             myScripts.telegramSendPhoto secrets.telegramBotToken;
           telegramPhotosLastYear =
             myScripts.telegramPhotosLastYear secrets.telegramBotToken;
-          mkRsstailToPocketUnitWithSecrets =
-            myScripts.mkRsstailToPocketUnit secrets.pocket;
+          mkRsstailToRaindropUnitWithSecrets =
+            myScripts.mkRsstailToRaindropUnit { access_token = secrets.raindrop.test_token; };
           viessmannOutsideTemperature =
             myScripts.viessmannOutsideTemperature {
               botToken = secrets.telegramBotToken;

@@ -31,7 +31,7 @@ in {
   systemd.user = {
     startServices = true;
     services = let
-      rsstail = pkgs.mkRsstailToPocketUnitWithSecrets;
+      rsstail = pkgs.mkRsstailToRaindropUnitWithSecrets;
       otherServices = {
         garminConnectSync = garmin.service;
       };
