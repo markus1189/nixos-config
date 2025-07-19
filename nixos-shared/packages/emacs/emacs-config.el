@@ -2019,8 +2019,8 @@ etc. This is a single, standalone request, no follow-up needed."
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
 
   :init
-  (add-hook 'elfeed-new-entry-hook
-            (elfeed-make-tagger :entry-title "llm|LLM|gemini|Gemini|claude|Claude|Anthropic|anthropic|OpenAI|openai"))
+  ;; (add-hook 'elfeed-new-entry-hook
+  ;;           (elfeed-make-tagger :entry-title "llm|LLM|gemini|Gemini|claude|Claude|Anthropic|anthropic|OpenAI|openai"))
   (defun mh/elfeed-extract-comments-link (_type xml entry)
     "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
     (when (elfeed-tagged-p 'pref-comment entry)
@@ -2412,6 +2412,7 @@ Provides more detailed messages on failure."
            ("https://lonedimension.wordpress.com/feed")
            ("https://theangrygm.com/feed")
            ("https://contributors.scala-lang.org/latest.rss")
+           ("https://crawshaw.io/atom.xml" programming)
            ("https://discourse.nixos.org/latest.rss" programming)
            ("https://discourse.haskell.org/latest.rss")
            ("https://carlillustration.wordpress.com/tag/dungeon-world/feed")
