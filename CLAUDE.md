@@ -110,6 +110,11 @@ ALWAYS make sure that the feed you are adding does not yet exist!
 **Location**: Search for `:channelId` - typically around line 2270-2320
 **Insertion**: Add alphabetically by title
 
+**Getting Channel ID**: Use yt-dlp to extract channel ID from YouTube URL:
+```bash
+yt-dlp --print "%(channel_id)s" --playlist-end 1 "https://www.youtube.com/@channelname"
+```
+
 ```elisp
 (:channelId "UCchannelid" :title "Channel Name" :tags (tag1 tag2))
 ```
