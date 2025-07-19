@@ -324,13 +324,7 @@ myKeys =
   [ ((myModCtrl, xK_Return), windows W.swapMaster),
     ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
-    ( (myModKey, xK_BackSpace),
-      submap . M.fromList $
-        [ ((0, xK_BackSpace), focusUrgent),
-          ((0, xK_s), layoutScreens 2 (dragPane Horizontal 0.5 0.5)),
-          ((0, xK_r), rescreen)
-        ]
-    ),
+    ( (myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
