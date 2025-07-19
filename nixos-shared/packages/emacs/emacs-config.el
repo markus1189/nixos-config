@@ -2283,6 +2283,7 @@ Provides more detailed messages on failure."
              (:channelId "UCcGPU4A6xJ1OYOkvfMoo25w" :title "Simon Baxter" :tags (photography))
              (:channelId "UCimiUgDLbi6P17BdaCZpVbg" :title "exurb1a")
              (:channelId "UCzbbkYQUqeGNKSRwoyWB9IA" :title "Simon Wantling" :tags (photography))
+             (:channelId "UCRHCA0iiOZ_tbOowedaeK-A" :title "Skyrunning Federation" :tags (sport))
              (:channelId "UC8szqVDJF60HueoqJrD50qw" :title "GOLDEN TRAIL SERIES" :tags (sport))
              (:channelId "UCDw36yB-ZXJ_FnqEH7o2HfQ" :title "Saul Pwanson - Visidata")
              (:channelId "UCqeVdbCP-fVjSGEVnY-3lWQ" :title "MotionTwin (Dead Cells)")
