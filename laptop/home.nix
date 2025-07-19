@@ -436,6 +436,11 @@ in {
         target = ".claude/commands/restwerte.md";
         text = builtins.readFile ../nixos-shared/claude/commands/restwerte.md;
       };
+
+      "claude-ai-software-review" = {
+        target = ".claude/commands/software-review-framework.md";
+        text = builtins.readFile ../nixos-shared/claude/commands/software-review-framework.md;
+      };
     };
   };
 
