@@ -2500,6 +2500,7 @@ Provides more detailed messages on failure."
            ("https://joeyh.name/blog/index.rss")
            ("https://funktionale-programmierung.de/rss.xml" programming)
            ("https://okmij.org/ftp/rss.xml")
+           ("https://www.oneusefulthing.org/feed" llm)
            ("https://www.recordingthoughts.com/feed/")
            ("https://www.codecentric.de/rss/feed.xml")
            ("https://jeltsch.wordpress.com/feed/")
