@@ -89,7 +89,7 @@ import XMonad
     (.|.),
     (<+>),
     (=?),
-    (|||),
+    (|||), xK_Super_L,
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
@@ -163,6 +163,7 @@ import XMonad.Util.NamedScratchpad
     namedScratchpadManageHook,
   )
 import XMonad.Util.Run (spawnPipe)
+import XMonad.Actions.CycleRecentWS (cycleRecentNonEmptyWS)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -344,8 +345,7 @@ myKeys =
     ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
-    ((myModKey, xK_Tab), toggleWS' ["NSP"]),
-    -- ((myModKey, xK_a), spawn "@ddgr@/bin/ddgr --gb --ducky $(@rofi@/bin/rofi -p ddgr -dmenu -lines 0)"),
+    ((myModKey, xK_Tab), cycleRecentNonEmptyWS [xK_Super_L] xK_Tab xK_grave),
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
