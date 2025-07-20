@@ -393,10 +393,12 @@ in {
           permissions = {
             allow = [
               "Bash(grep:*)"
+              "Bash(mktemp:*)"
               "Bash(rg:*)"
               "Bash(./gradlew test:*)"
               "Bash(notify-send:*)"
               "Bash(git add:*)"
+              "Bash(git fetch:*)"
               "Bash(git commit:*)"
             ];
           };
