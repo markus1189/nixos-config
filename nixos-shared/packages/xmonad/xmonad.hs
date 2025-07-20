@@ -1,7 +1,7 @@
 import Control.Monad (filterM)
 import Data.Char (toLower)
 import Data.Functor (void, (<&>))
-import Data.List (foldl', isPrefixOf, isInfixOf)
+import Data.List (foldl', isInfixOf, isPrefixOf)
 import Data.Map qualified as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
@@ -41,7 +41,6 @@ import XMonad
     mod1Mask,
     mod4Mask,
     moveResizeWindow,
-    rescreen,
     resource,
     runQuery,
     sendMessage,
@@ -60,8 +59,8 @@ import XMonad
     xK_F11,
     xK_F12,
     xK_F2,
-    xK_F9,
     xK_Return,
+    xK_Super_L,
     xK_Tab,
     xK_a,
     xK_b,
@@ -76,7 +75,6 @@ import XMonad
     xK_o,
     xK_p,
     xK_q,
-    xK_r,
     xK_s,
     xK_semicolon,
     xK_space,
@@ -89,10 +87,11 @@ import XMonad
     (.|.),
     (<+>),
     (=?),
-    (|||), xK_Super_L,
+    (|||),
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
-import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
+import XMonad.Actions.CycleRecentWS (cycleWindowSets, recentWS)
+import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen)
 import XMonad.Actions.FlexibleManipulate qualified as Flex
 import XMonad.Actions.Submap (submap)
 import XMonad.Actions.WindowBringer (bringWindow)
@@ -121,11 +120,9 @@ import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
 import XMonad.Layout.BinarySpacePartition (emptyBSP)
-import XMonad.Layout.DragPane (DragType (Horizontal), dragPane)
 import XMonad.Layout.FocusTracking (focusTracking)
 import XMonad.Layout.Grid (Grid (..))
 import XMonad.Layout.IM (Property (Role), withIM)
-import XMonad.Layout.LayoutScreens (layoutScreens)
 import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
 import XMonad.Layout.MultiToggle.Instances
   ( StdTransformers (FULL, NOBORDERS),
@@ -163,7 +160,6 @@ import XMonad.Util.NamedScratchpad
     namedScratchpadManageHook,
   )
 import XMonad.Util.Run (spawnPipe)
-import XMonad.Actions.CycleRecentWS (cycleRecentNonEmptyWS)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
@@ -325,7 +321,7 @@ myKeys =
   [ ((myModCtrl, xK_Return), windows W.swapMaster),
     ((myModCtrl, xK_e), spawn "@emacsAnywhere@/bin/emacsAnywhere"),
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
-    ( (myModKey, xK_BackSpace), focusUrgent),
+    ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
@@ -345,7 +341,7 @@ myKeys =
     ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
-    ((myModKey, xK_Tab), cycleRecentNonEmptyWS [xK_Super_L] xK_Tab xK_grave),
+    ((myModKey, xK_Tab), cycleWindowSets (recentWS ((&&) <$> ((/= "NSP") . W.tag) <*> (not . null . W.stack))) [xK_Super_L] xK_Tab xK_grave),
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
@@ -428,7 +424,7 @@ myKeysP =
   where
     iclassName cls = MH.className <&> (cls ==) . map toLower
     ititle n = MH.title <&> (n ==) . map toLower
-    ititleContains n =  (n `isInfixOf`) . map toLower <$> MH.title
+    ititleContains n = (n `isInfixOf`) . map toLower <$> MH.title
 
 nextScreen' :: X ()
 nextScreen' = nextScreen >> spawn "@centerMouse@/bin/centerMouse"
