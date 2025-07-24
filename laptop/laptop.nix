@@ -6,9 +6,9 @@ let
   secrets = import ../nixos-shared/secrets.nix;
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
-  myWallpaper =
-    "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/wallpapers/nineish-dark-gray-2020-07-02/contents/images/nix-wallpaper-nineish-dark-gray.png";
-in rec {
+  myWallpaper = "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/wallpapers/nineish-dark-gray-2020-07-02/contents/images/nix-wallpaper-nineish-dark-gray.png";
+in
+rec {
   lib = {
     _custom_ = {
       userName = "markus";
@@ -84,7 +84,9 @@ in rec {
     keyMap = "us";
   };
 
-  i18n = { defaultLocale = "en_US.UTF-8"; };
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+  };
 
   networking = {
     extraHosts = ''
@@ -111,23 +113,29 @@ in rec {
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
-    overlays = ((import ../nixos-shared/shared-overlays.nix).overlays ++ [
-      (self: super: {
-        darktable = builtins.trace "INFO: Using latest darktable via overlay"
-          super.darktable.overrideAttrs (old: rec {
-            name = "darktable-${self.ndtSources.darktable.rev}";
-            version = self.ndtSources.darktable.rev;
-            src = self.ndtSources.darktable.outPath;
-            patches = [ ];
-            dontVersionCheck = true;
-            postPatch = ''
-              patchShebangs tools/generate_styles_string.sh
-            '';
-          });
-      })
-    ]);
+    overlays = (
+      (import ../nixos-shared/shared-overlays.nix).overlays
+      ++ [
+        (self: super: {
+          darktable =
+            builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs
+              (old: rec {
+                name = "darktable-${self.ndtSources.darktable.rev}";
+                version = self.ndtSources.darktable.rev;
+                src = self.ndtSources.darktable.outPath;
+                patches = [ ];
+                dontVersionCheck = true;
+                postPatch = ''
+                  patchShebangs tools/generate_styles_string.sh
+                '';
+              });
+        })
+      ]
+    );
 
-    config = { allowUnfree = true; };
+    config = {
+      allowUnfree = true;
+    };
   };
 
   services = {
@@ -137,7 +145,9 @@ in rec {
 
     tlp = {
       enable = false;
-      settings = { USB_BLACKLIST = "046d:c52b"; };
+      settings = {
+        USB_BLACKLIST = "046d:c52b";
+      };
     };
 
     x11vnc = {
@@ -153,20 +163,30 @@ in rec {
 
     dbus.enable = true;
 
-    physlock = { enable = true; };
+    physlock = {
+      enable = true;
+    };
 
     printing = {
       enable = true;
-      drivers = [ pkgs.gutenprint pkgs.foo2zjs pkgs.hplipWithPlugin ];
+      drivers = [
+        pkgs.gutenprint
+        pkgs.foo2zjs
+        pkgs.hplipWithPlugin
+      ];
     };
 
-    tuptime = { enable = true; };
+    tuptime = {
+      enable = true;
+    };
 
     xserver = {
       enable = true;
 
       displayManager = {
-        lightdm = { enable = true; };
+        lightdm = {
+          enable = true;
+        };
 
         sessionCommands = ''
           ${usrPkgs.singlehead}/bin/singlehead
@@ -185,12 +205,16 @@ in rec {
         };
       };
 
-      synaptics = { enable = false; };
+      synaptics = {
+        enable = false;
+      };
 
       # libinput configuration moved to services.libinput
     };
 
-    clipmenu = { enable = true; };
+    clipmenu = {
+      enable = true;
+    };
 
     libinput = {
       enable = true;
@@ -215,12 +239,14 @@ in rec {
       pulse.enable = true;
       extraConfig.pipewire = {
         "99-disable-bell" = {
-          "context.properties" = { "module.x11.bell" = false; };
+          "context.properties" = {
+            "module.x11.bell" = false;
+          };
         };
       };
     };
 
-   # mozillavpn.enable = true;
+    # mozillavpn.enable = true;
   };
 
   users.extraUsers.${config.lib._custom_.userName} = {
@@ -247,18 +273,21 @@ in rec {
   fonts = {
     fontDir.enable = true;
     enableGhostscriptFonts = true;
-    packages = with pkgs; [
-      corefonts
-      google-fonts
-      inconsolata
-      iosevka
-      powerline-fonts
-      source-code-pro
-      source-sans-pro
-      source-serif-pro
-      ubuntu_font_family
-      unifont
-    ] ++ builtins.filter pkgs.lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
+    packages =
+      with pkgs;
+      [
+        corefonts
+        google-fonts
+        inconsolata
+        iosevka
+        powerline-fonts
+        source-code-pro
+        source-sans-pro
+        source-serif-pro
+        ubuntu_font_family
+        unifont
+      ]
+      ++ builtins.filter pkgs.lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
 
     fontconfig = {
       antialias = true;
@@ -344,62 +373,64 @@ in rec {
       interface = config.lib._custom_.wirelessInterface;
     };
 
-    zsh = let
-      modifiedZbell = pkgs.writeText "modified-zbell.sh" ''
-        #!/usr/bin/env zsh
-        [[ -o interactive ]] || return
+    zsh =
+      let
+        modifiedZbell = pkgs.writeText "modified-zbell.sh" ''
+          #!/usr/bin/env zsh
+          [[ -o interactive ]] || return
 
-        # get $EPOCHSECONDS. builtins are faster than date(1)
-        zmodload zsh/datetime || return
+          # get $EPOCHSECONDS. builtins are faster than date(1)
+          zmodload zsh/datetime || return
 
-        autoload -Uz add-zsh-hook || return
+          autoload -Uz add-zsh-hook || return
 
-        (( ''${+zbell_duration} )) || zbell_duration=15
+          (( ''${+zbell_duration} )) || zbell_duration=15
 
-        (( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim vi emacs less)
+          (( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim vi emacs less)
 
-        zbell_timestamp=$EPOCHSECONDS
-
-        # right before we begin to execute something, store the time it started at
-        zbell_begin() {
           zbell_timestamp=$EPOCHSECONDS
-          zbell_lastcmd=$1
-        }
 
-        # when it finishes, if it's been running longer than $zbell_duration,
-        # and we dont have an ignored command in the line, then print a bell.
-        zbell_end() {
-                LAST_EC=$?
-          ran_long=$(( $EPOCHSECONDS - $zbell_timestamp >= $zbell_duration ))
+          # right before we begin to execute something, store the time it started at
+          zbell_begin() {
+            zbell_timestamp=$EPOCHSECONDS
+            zbell_lastcmd=$1
+          }
 
-          has_ignored_cmd=0
-          for cmd in ''${(s:;:)zbell_lastcmd//|/;}; do
-            words=(''${(z)cmd})
-            util=''${words[1]}
-            if (( ''${zbell_ignore[(i)$util]} <= ''${#zbell_ignore} )); then
-              has_ignored_cmd=1
-              break
+          # when it finishes, if it's been running longer than $zbell_duration,
+          # and we dont have an ignored command in the line, then print a bell.
+          zbell_end() {
+                  LAST_EC=$?
+            ran_long=$(( $EPOCHSECONDS - $zbell_timestamp >= $zbell_duration ))
+
+            has_ignored_cmd=0
+            for cmd in ''${(s:;:)zbell_lastcmd//|/;}; do
+              words=(''${(z)cmd})
+              util=''${words[1]}
+              if (( ''${zbell_ignore[(i)$util]} <= ''${#zbell_ignore} )); then
+                has_ignored_cmd=1
+                break
+              fi
+            done
+
+            if (( ! $has_ignored_cmd )) && (( ran_long )); then
+                          if [[ "$LAST_EC" == 0 ]]; then
+                            ${pkgs.libnotify}/bin/notify-send -u low "Command finished [$LAST_EC]" "$zbell_lastcmd"
+                          else
+                            ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
+                          fi
+              print -n "\a"
             fi
-          done
+          }
 
-          if (( ! $has_ignored_cmd )) && (( ran_long )); then
-                        if [[ "$LAST_EC" == 0 ]]; then
-                          ${pkgs.libnotify}/bin/notify-send -u low "Command finished [$LAST_EC]" "$zbell_lastcmd"
-                        else
-                          ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
-                        fi
-            print -n "\a"
-          fi
-        }
-
-        add-zsh-hook preexec zbell_begin
-        add-zsh-hook precmd zbell_end
-      '';
-    in {
-      interactiveShellInit = ''
-        source ${modifiedZbell}
-      '';
-    };
+          add-zsh-hook preexec zbell_begin
+          add-zsh-hook precmd zbell_end
+        '';
+      in
+      {
+        interactiveShellInit = ''
+          source ${modifiedZbell}
+        '';
+      };
 
     wireshark = {
       enable = true;
@@ -434,96 +465,99 @@ in rec {
       }
     '';
 
-    shellAliases = (with pkgs; {
-      "..." = "cd ../..";
-      ".." = "cd ..";
-      cdpr = ''
-        if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo "Not a git repository"; fi'';
-      clipout = "${xclip}/bin/xclip -o -selection clipboard";
-      clip = "${xclip}/bin/xclip -i -selection clipboard";
-      ff = "${emacs}/bin/emacsclient -n -c";
-      FF = "${emacs}/bin/emacsclient -n";
-      magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
-      cdt = "cd $(${coreutils}/bin/mktemp -d)";
-      pwdc = "pwd | clip";
-      wpa_cli =
-        "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
-    });
+    shellAliases = (
+      with pkgs;
+      {
+        "..." = "cd ../..";
+        ".." = "cd ..";
+        cdpr = ''if git rev-parse --show-toplevel &> /dev/null; then cd $(git rev-parse --show-toplevel); else echo "Not a git repository"; fi'';
+        clipout = "${xclip}/bin/xclip -o -selection clipboard";
+        clip = "${xclip}/bin/xclip -i -selection clipboard";
+        ff = "${emacs}/bin/emacsclient -n -c";
+        FF = "${emacs}/bin/emacsclient -n";
+        magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
+        cdt = "cd $(${coreutils}/bin/mktemp -d)";
+        pwdc = "pwd | clip";
+        wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
+      }
+    );
 
-    etc = let
-      youtube-downloader-config-shared = ''
-        -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
-        --restrict-filenames
-        --embed-subs
-      '';
-    in {
-      "yt-dlp.conf".text = youtube-downloader-config-shared;
+    etc =
+      let
+        youtube-downloader-config-shared = ''
+          -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
+          --restrict-filenames
+          --embed-subs
+        '';
+      in
+      {
+        "yt-dlp.conf".text = youtube-downloader-config-shared;
 
-      "X11/Xresources".text = ''
-        Xcursor.theme: Adwaita
+        "X11/Xresources".text = ''
+          Xcursor.theme: Adwaita
 
-        URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
-        URxvt*cursorColor: #Ffe7ba
-        URxvt*background:  #000000
-        URxvt*foreground:  #f1f1f1
-        URxvt*color0:      #363636
-        URxvt*color1:      #Ee4000
-        URxvt*color2:      #aece92
-        URxvt*color3:      #Ffd700
-        URxvt*color4:      #4f94cd
-        URxvt*color5:      #963c59
-        URxvt*color6:      #7ccd7c
-        URxvt*color7:      #bebebe
-        URxvt*color8:      #666666
-        URxvt*color9:      #cf6171
-        URxvt*color10:     #00fa9a
-        URxvt*color11:     #Eec900
-        URxvt*color12:     #E9967a
-        URxvt*color13:     #Ffa500
-        URxvt*color14:     #00ffff
-        URxvt*color15:     #ffffff
-        URxvt*underlineColor: #bebebe
+          URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
+          URxvt*cursorColor: #Ffe7ba
+          URxvt*background:  #000000
+          URxvt*foreground:  #f1f1f1
+          URxvt*color0:      #363636
+          URxvt*color1:      #Ee4000
+          URxvt*color2:      #aece92
+          URxvt*color3:      #Ffd700
+          URxvt*color4:      #4f94cd
+          URxvt*color5:      #963c59
+          URxvt*color6:      #7ccd7c
+          URxvt*color7:      #bebebe
+          URxvt*color8:      #666666
+          URxvt*color9:      #cf6171
+          URxvt*color10:     #00fa9a
+          URxvt*color11:     #Eec900
+          URxvt*color12:     #E9967a
+          URxvt*color13:     #Ffa500
+          URxvt*color14:     #00ffff
+          URxvt*color15:     #ffffff
+          URxvt*underlineColor: #bebebe
 
-        URxvt.urgentOnBell: true
-        URxvt*transparent: true
-        URxvt*saveLines: 3141592
-        URxvt*shading: 15
+          URxvt.urgentOnBell: true
+          URxvt*transparent: true
+          URxvt*saveLines: 3141592
+          URxvt*shading: 15
 
-        URxvt*termName: rxvt
-        URxvt*scrollBar_right: false
-        URxvt*scrollBar: false
+          URxvt*termName: rxvt
+          URxvt*scrollBar_right: false
+          URxvt*scrollBar: false
 
-        URxvt*iso14755: False
+          URxvt*iso14755: False
 
-        URxvt.perl-ext-common: default,url-select,font-size,clipboard,color-themes
+          URxvt.perl-ext-common: default,url-select,font-size,clipboard,color-themes
 
-        URxvt.keysym.M-u: perl:url-select:select_next
-        URxvt.url-select.launcher: firefox
-        URxvt.url-select.underline: false
+          URxvt.keysym.M-u: perl:url-select:select_next
+          URxvt.url-select.launcher: firefox
+          URxvt.url-select.underline: false
 
-        URxvt.resize-font.smaller: C-Down
-        URxvt.resize-font.bigger: C-Up
+          URxvt.resize-font.smaller: C-Down
+          URxvt.resize-font.bigger: C-Up
 
-        URxvt.keysym.C-plus: font-size:increase
-        URxvt.keysym.C-equal: font-size:reset
-        URxvt.keysym.C-minus: font-size:decrease
+          URxvt.keysym.C-plus: font-size:increase
+          URxvt.keysym.C-equal: font-size:reset
+          URxvt.keysym.C-minus: font-size:decrease
 
-        URxvt.clipboard.autocopy: true
-        URxvt.keysym.M-c: perl:clipboard:copy
-        URxvt.keysym.M-v: perl:clipboard:paste
-        URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
-        URxvt.clipboard.copycmd:  xclip -i -selection clipboard
-        URxvt.clipboard.pastecmd: xclip -o -selection clipboard
+          URxvt.clipboard.autocopy: true
+          URxvt.keysym.M-c: perl:clipboard:copy
+          URxvt.keysym.M-v: perl:clipboard:paste
+          URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
+          URxvt.clipboard.copycmd:  xclip -i -selection clipboard
+          URxvt.clipboard.pastecmd: xclip -o -selection clipboard
 
-        ! ------------------------------------------------------------------------------
-        ! ROFI Color theme
-        ! ------------------------------------------------------------------------------
-        rofi.color-enabled: true
-        rofi.color-window: #393939, #393939, #f3843d
-        rofi.color-normal: #393939, #ffffff, #393939, #f3843d, #000000
-        rofi.color-active: #393939, #f3843d, #393939, #f3843d, #000000
-        rofi.color-urgent: #393939, #f3843d, #393939, #f3843d, #ffc39c
-      '';
-    };
+          ! ------------------------------------------------------------------------------
+          ! ROFI Color theme
+          ! ------------------------------------------------------------------------------
+          rofi.color-enabled: true
+          rofi.color-window: #393939, #393939, #f3843d
+          rofi.color-normal: #393939, #ffffff, #393939, #f3843d, #000000
+          rofi.color-active: #393939, #f3843d, #393939, #f3843d, #000000
+          rofi.color-urgent: #393939, #f3843d, #393939, #f3843d, #ffc39c
+        '';
+      };
   };
 }
