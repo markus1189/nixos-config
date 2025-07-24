@@ -202,3 +202,179 @@ For packages not in standard repositories, custom packages are defined at the to
 
 ### External Sources
 Some packages come from `ndtSources` (managed via niv in `ndt/sources.nix`). These are typically Git repositories or specific versions not available in standard package repositories.
+
+## Autorandr Profile Management
+
+Autorandr profiles in NixOS home-manager configurations require careful setup to ensure proper display detection and switching. This section documents the proven workflow for adding new autorandr profiles.
+
+### Workflow for Adding New Autorandr Profiles
+
+#### 1. Manual Configuration Phase
+First, configure your displays manually to the desired layout:
+
+1. **Set up displays manually**:
+   - Use xrandr, GUI tools, or other display management tools
+   - Configure resolution, positioning, primary display, etc.
+   - Ensure the setup works correctly
+
+2. **Save temporary profile**:
+   ```bash
+   autorandr --save temp_profilename
+   ```
+
+3. **Extract configuration data**:
+   ```bash
+   # Get display fingerprints (EDID values)
+   autorandr --fingerprint
+   
+   # View the generated config
+   cat ~/.config/autorandr/temp_profilename/config
+   cat ~/.config/autorandr/temp_profilename/setup
+   ```
+
+#### 2. NixOS Integration Steps
+
+Add the profile to your host's `home.nix` file in the `programs.autorandr.profiles` section:
+
+```nix
+"profilename" = {
+  fingerprint = {
+    # Only include connected displays - exclude disconnected ones
+    "DP-2" = "00ffffffffffff0010acefa04c523430..."; # Full EDID from setup file
+    "DP-3" = "00ffffffffffff0010acf4a04c523430..."; # Full EDID from setup file  
+    "eDP-1" = internalDisplay; # Use existing variable if available
+  };
+
+  config = {
+    "DP-1".enable = false; # Explicitly disable unused ports
+    "DP-2" = {
+      enable = true;
+      crtc = 2; # CRITICAL: Include CRTC assignment from working config
+      position = "1920x0";
+      mode = "1920x1600";
+      rate = "59.95";
+    };
+    "DP-3" = {
+      primary = true;
+      enable = true;
+      crtc = 0; # CRITICAL: Include CRTC assignment from working config
+      position = "0x0";
+      mode = "1920x1600";
+      rate = "59.95";
+    };
+    "eDP-1".enable = false; # Internal display off for docking station setup
+  };
+};
+```
+
+#### 3. Key Configuration Points
+
+**CRTC Assignments**: The most critical element for working profiles. Extract from your temporary config:
+```bash
+# Look for lines like these in temp config:
+# output DP-3
+# crtc 0        <- This number goes in your nix config
+# output DP-2  
+# crtc 2        <- This number goes in your nix config
+```
+
+**Fingerprint Management**:
+- Only include displays that are actually connected in your target setup
+- Do NOT include `"DP-1" = "*";` if DP-1 is disconnected - this prevents profile detection
+- Use exact EDID values from the setup file, not wildcards
+
+**Display Properties**:
+- Copy exact values for mode, rate, and position from working config
+- Include primary display designation
+- Explicitly disable unused displays
+
+#### 4. Testing and Verification
+
+1. **Apply configuration**:
+   ```bash
+   home-manager switch
+   ```
+
+2. **Verify profile detection**:
+   ```bash
+   autorandr  # Should show your profile as "(detected)"
+   ```
+
+3. **Test profile switching**:
+   ```bash
+   autorandr --dry-run profilename  # Shows what commands would run
+   autorandr --load profilename     # Actually applies the profile
+   ```
+
+4. **Compare configurations** (if issues):
+   ```bash
+   # Save current working setup as temp profile
+   autorandr --save temp_working
+   
+   # Compare with generated profile
+   diff -u ~/.config/autorandr/profilename/config ~/.config/autorandr/temp_working/config
+   diff -u ~/.config/autorandr/profilename/setup ~/.config/autorandr/temp_working/setup
+   ```
+
+#### 5. Common Issues and Solutions
+
+**Profile not detected**:
+- Check fingerprint section only includes connected displays
+- Remove entries for disconnected displays (like `"DP-1" = "*";`)
+- Verify EDID values match exactly
+
+**Profile loads but displays wrong**:
+- Missing CRTC assignments - add `crtc = N;` to each display config
+- Wrong positioning or mode values - copy exact values from working setup
+
+**Home-manager build fails**:
+- Syntax errors in nix configuration
+- Missing quotes around EDID strings
+- Malformed display configuration
+
+#### 6. Cleanup
+
+After successful configuration, remove temporary profiles:
+```bash
+autorandr --remove temp_profilename
+```
+
+### Example: Complete Working Profile
+
+Here's a complete example of a working dual-monitor profile:
+
+```nix
+"homeoffice" = {
+  fingerprint = {
+    "DP-2" = "00ffffffffffff0010acefa04c5234300a1e010380582578eeee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197322000a20202020202001fa020322f14d9005040302071601141f12135a230907078301000067030c0010003844023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a134c00a0f040176030203a00706f3100001a000000000000000000000000000000000000000000d8";
+    "DP-3" = "00ffffffffffff0010acf4a04c5234300a1e0104b55825783eee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197328000a202020202020016902031af14d9005040302071601141f12135a2309070783010000023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a4c9a00a0f0402e6030203a00706f3100001a134c00a0f040176030203a00706f3100001a0000000000000000000000000000000000000000ea";
+    "eDP-1" = internalDisplay;
+  };
+
+  config = {
+    "DP-1".enable = false;
+    "DP-2" = {
+      enable = true;
+      crtc = 2;
+      position = "1920x0";
+      mode = "1920x1600";
+      rate = "59.95";
+    };
+    "DP-3" = {
+      primary = true;
+      enable = true;
+      crtc = 0;
+      position = "0x0";
+      mode = "1920x1600";
+      rate = "59.95";
+    };
+    "eDP-1".enable = false;
+  };
+};
+```
+
+This example shows:
+- Only connected displays (DP-2, DP-3, eDP-1) in fingerprints
+- Proper CRTC assignments (0 and 2)
+- Exact EDID fingerprints from working setup
+- Complete display configuration with positioning and modes
