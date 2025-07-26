@@ -424,26 +424,33 @@ in {
         text = builtins.readFile ../nixos-shared/claude/CLAUDE-global.md;
       };
 
-      "claude-ai-comments" = {
-        target = ".claude/commands/ai-comments.md";
-        text = builtins.readFile ../nixos-shared/claude/commands/ai-comments.md;
-      };
+    } // (
+      # Helper function to automatically discover and configure markdown files
+      let
+        autoConfigMarkdownFiles = sourceDir: targetSubdir: namePrefix:
+          let
+            files = builtins.readDir sourceDir;
+            isMarkdownFile = name: type: type == "regular" && pkgs.lib.strings.hasSuffix ".md" name;
+            markdownFiles = pkgs.lib.attrsets.filterAttrs isMarkdownFile files;
 
-      "claude-ai-bug-hunt" = {
-        target = ".claude/commands/bug-hunt.md";
-        text = builtins.readFile ../nixos-shared/claude/commands/bug-hunt.md;
-      };
+            makeEntry = filename: {
+              target = ".claude/${targetSubdir}/${filename}";
+              text = builtins.readFile (sourceDir + "/${filename}");
+            };
 
-      "claude-ai-restwerte" = {
-        target = ".claude/commands/restwerte.md";
-        text = builtins.readFile ../nixos-shared/claude/commands/restwerte.md;
-      };
+            entries = pkgs.lib.attrsets.mapAttrs' (filename: _:
+              pkgs.lib.attrsets.nameValuePair "${namePrefix}-${pkgs.lib.strings.removeSuffix ".md" filename}" (makeEntry filename)
+            ) markdownFiles;
+          in entries;
 
-      "claude-ai-software-review" = {
-        target = ".claude/commands/software-review-framework.md";
-        text = builtins.readFile ../nixos-shared/claude/commands/software-review-framework.md;
-      };
-    };
+        # Auto-configure command files
+        commandEntries = autoConfigMarkdownFiles ../nixos-shared/claude/commands "commands" "claude";
+
+        # Auto-configure docs files
+        docsEntries = autoConfigMarkdownFiles ../nixos-shared/claude/docs "user-docs" "claude-docs";
+
+      in commandEntries // docsEntries
+    );
   };
 
   manual = {
