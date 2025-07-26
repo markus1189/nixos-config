@@ -57,9 +57,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Making Changes
 1. Edit configuration files in appropriate host directory or `nixos-shared/`
-2. Test changes with `nixos-rebuild test` before switching
-3. Use `nixos-rebuild switch` or host-specific `activate.sh` scripts
-4. Secrets should be added to `secrets.nix` (encrypted) with structure matching `secrets.dummy.nix`
+2. **Validate syntax**: Check Nix file syntax with `nix-instantiate --parse <file>.nix`
+3. Test changes with `nixos-rebuild test` before switching
+4. Use `nixos-rebuild switch` or host-specific `activate.sh` scripts
+5. Secrets should be added to `secrets.nix` (encrypted) with structure matching `secrets.dummy.nix`
+
+### Syntax Validation
+Before building configurations, validate Nix syntax:
+```bash
+# Check syntax of a specific file
+nix-instantiate --parse laptop/home.nix
+
+# Successful validation returns no output
+# Syntax errors show line numbers and error details
+```
 
 ### Adding New Packages
 - System packages: Add to `nixos-shared/common-packages.nix`
