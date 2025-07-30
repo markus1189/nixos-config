@@ -400,6 +400,9 @@ in {
               "Bash(git add:*)"
               "Bash(git fetch:*)"
               "Bash(git commit:*)"
+              "Bash(git diff:*)"
+              "Bash(git log:*)"
+              "Bash(git branch:*)"
             ];
           };
           hooks = {
