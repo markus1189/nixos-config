@@ -354,9 +354,14 @@ myKeys =
     ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
+    -- Tabbing
+    --- Next like this
     ((myModShift, xK_Tab), nextMatchWithThis Forward MH.className),
     ((myModShift, xK_grave), nextMatchWithThis Backward MH.className),
-    ((myModKey, xK_Tab), cycleWindowSets (recentNonVisibleWS isWindowSpaceInteresting) [xK_Super_L] xK_Tab xK_grave),
+    --- Switching
+    ((myModShiftCtrl, xK_Tab), cycleWindowSets (recentNonVisibleWS isWindowSpaceInteresting) [xK_Super_L] xK_Tab xK_grave),
+    ((myModKey, xK_Tab), toggleWS' ["NSP"]),
+    --
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
     ((myModKey, xK_e), swapNextScreen),
