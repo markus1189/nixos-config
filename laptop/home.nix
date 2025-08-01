@@ -411,7 +411,11 @@ in {
               hooks = [{
                 type = "command";
                 command = "${notifier}/bin/claude-code-notifier";
-              }];
+              }
+                       {
+                         type = "command";
+                         command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/new-notification-010-352755.wav}";
+                       }];
             }];
           };
           env = {
