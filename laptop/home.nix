@@ -430,18 +430,17 @@ in
                     ];
                   }
                 ];
-                PostToolUse = [
+                PreToolUse = [
                   {
-                    matcher = "Bash";
+                    matcher = "Task|WebSearch";
                     hooks = [
                       {
                         type = "command";
-                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav} >/dev/null 2>&1 &";
                       }
                     ];
-                  }
-                  {
-                    matcher = "Read|Write|Edit|MultiEdit";
+                  }{
+                    matcher = "Read|List|Glob|Grep|WebFetch";
                     hooks = [
                       {
                         type = "command";
@@ -449,14 +448,32 @@ in
                       }
                     ];
                   }
+                  {
+                    matcher = "Bash|Write|Edit|MultiEdit|TodoWrite";
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
+                      }
+                    ];
+                  }
                 ];
                 SessionStart = [
                   {
-                    matcher = "";
+                    matcher = "startup|resume";
                     hooks = [
                       {
                         type = "command";
                         command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/communication-channel-519.wav} >/dev/null 2>&1 &";
+                      }
+                    ];
+                  }
+                  {
+                    matcher = "clear";
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/graceful-285.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
@@ -467,6 +484,16 @@ in
                       {
                         type = "command";
                         command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/for-sure-576.wav} >/dev/null 2>&1 &";
+                      }
+                    ];
+                  }
+                ];
+                SubagentStop = [
+                  {
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/time-is-now-585.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
