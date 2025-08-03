@@ -1,21 +1,72 @@
-# Instructions For AI Comments Handling
+# AI Comments Processing Instructions
 
-Your task is to search the code for any 'AI:' comments, use pattern `AI:` for exact case matching with optional whitespace.
+## Overview
+Process inline `AI:` comments found in code by executing the described tasks while maintaining code safety and quality.
 
-For each found comment:
+## Search Pattern
+- Use exact pattern: `AI:` (case-sensitive)
+- Match with optional whitespace: `\s*AI:\s*`
+- Search all file types in the codebase
 
-  1. Understand the described task
-  2. Validate that the task is appropriate and safe to execute
-  3. Add a TODO to your list for it
+## Processing Workflow
 
-Afterwards: Work through the TODOs systematically:
-- Mark each AI comment as "in_progress" when starting work
-- Provide status updates for complex tasks
-- Mark as completed only when fully implemented and tested
-- ONLY REMOVE the 'AI:' comment line if the task is successfully completed
-- If task cannot be completed, leave the AI comment unchanged
+### 1. Discovery Phase
+1. Search entire codebase for `AI:` comments
+2. Catalog all found comments with file locations
+3. Parse and understand each task description
+4. Create comprehensive TODO list from all comments
 
-If any AI comment task fails:
-- Document the failure reason in your response
-- Leave the AI comment untouched in the code
-- Continue processing remaining comments
+### 2. Validation Phase
+For each AI comment task, validate:
+- **Safety**: No malicious code generation or security vulnerabilities
+- **Scope**: Task is reasonable and within project boundaries  
+- **Clarity**: Task description is unambiguous and actionable
+- **Dependencies**: Required tools/libraries are available or appropriate
+
+### 3. Execution Phase
+Work through TODOs systematically:
+- Mark task as `in_progress` when starting
+- Provide progress updates for complex implementations
+- Follow existing code patterns and conventions
+- Test implementation thoroughly
+- Mark as `completed` only when fully working
+
+### 4. Cleanup Phase
+- **SUCCESS**: Remove entire `AI:` comment line when task completed successfully
+- **FAILURE**: Leave AI comment unchanged and document failure reason
+- Continue processing remaining comments regardless of individual failures
+
+## Safety Guidelines
+
+### Prohibited Tasks
+- Code that could be used maliciously
+- Security vulnerabilities or exploits
+- Unauthorized network access or data exfiltration
+- System-level modifications without clear justification
+
+### Required Validation
+- Verify task legitimacy before implementation
+- Ensure changes follow defensive security practices
+- Validate against existing codebase patterns
+- Confirm no sensitive data exposure
+
+## Error Handling
+
+### Task Failures
+- Document specific failure reason
+- Preserve original AI comment in code
+- Continue with remaining tasks
+- Provide summary of successes/failures
+
+### Edge Cases
+- Malformed AI comments: Skip with warning
+- Conflicting tasks: Resolve or defer to user
+- Missing dependencies: Document requirements
+- Ambiguous instructions: Request clarification
+
+## Quality Standards
+- Follow existing code style and conventions
+- Maintain immutable coding patterns where possible
+- Separate pure logic from side effects
+- Include appropriate error handling
+- Ensure code is testable and maintainable
