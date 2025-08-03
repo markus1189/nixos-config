@@ -430,22 +430,33 @@ in
                     ];
                   }
                 ];
-                PreToolUse = [
+                PostToolUse = [
                   {
                     matcher = "Bash";
                     hooks = [
                       {
                         type = "command";
-                        command = "${pkgs.writeShellScript "git-commit-sound-hook" ''
-                          #!/bin/bash
-                          # Read hook input from stdin
-                          input=$(${pkgs.coreutils}/bin/cat)
-
-                          # Check if this is a git commit command
-                          if echo "$input" | ${pkgs.gnugrep}/bin/grep -q '"command".*git commit'; then
-                            ${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/hollow-582.wav} >/dev/null 2>&1 &
-                          fi
-                        ''}";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
+                      }
+                    ];
+                  }
+                  {
+                    matcher = "Read|Write|Edit|MultiEdit";
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/come-here-notification.wav} >/dev/null 2>&1 &";
+                      }
+                    ];
+                  }
+                ];
+                SessionStart = [
+                  {
+                    matcher = "";
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/communication-channel-519.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
