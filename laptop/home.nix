@@ -425,7 +425,7 @@ in
                       }
                       {
                         type = "command";
-                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/just-maybe-577.wav}";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/just-maybe-577.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
@@ -455,7 +455,7 @@ in
                     hooks = [
                       {
                         type = "command";
-                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/for-sure-576.wav}";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/for-sure-576.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
