@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # Simply install just the packages
@@ -43,9 +48,9 @@
 
   # Android integration features
   android-integration = {
-    termux-open.enable = true;        # Open files/URLs in Android apps
-    termux-open-url.enable = true;    # Open URLs via Android VIEW intent  
-    xdg-open.enable = true;           # Provides xdg-open compatibility
+    termux-open.enable = true; # Open files/URLs in Android apps
+    termux-open-url.enable = true; # Open URLs via Android VIEW intent
+    xdg-open.enable = true; # Provides xdg-open compatibility
     termux-setup-storage.enable = true; # Storage permission and symlinks
   };
 
@@ -58,7 +63,12 @@
     useGlobalPkgs = true;
 
     config =
-      { config, lib, pkgs, ... }:
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       {
         # Read the changelog before changing this value
         home = {
@@ -85,7 +95,7 @@
             starship
             gh
             wget
-            
+
             # Additional essential tools
             jq               # JSON processor
             visidata         # Interactive data exploration
@@ -102,10 +112,105 @@
           ];
 
           activation = {
-            copyFont = lib.hm.dag.entryAfter ["writeBoundary"] ''
+            copyFont = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
               $DRY_RUN_CMD install $VERBOSE_ARG -D "${pkgs.fira-code}/share/fonts/truetype/FiraCode-VF.ttf" ${config.home.homeDirectory}/.termux/font.ttf
             '';
           };
+
+          file =
+            {
+              "visidatarc" = {
+                target = ".visidatarc";
+                text = ''
+                  import json
+
+                  options.disp_date_fmt = '%Y-%m-%d %H:%M:%S.%f%z'
+                  options.disp_float_fmt = '{:.04f}'
+
+                  Sheet.bindkey(ALT + '.', 'repeat-input')
+                  Sheet.bindkey('z' + ALT + '.', 'repeat-last')
+
+                  def mh_utc_from_unix(seconds):
+                    return datetime.datetime.utcfromtimestamp(seconds).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+                  def mh_fromjson(s):
+                    return json.loads(s)
+                '';
+              };
+
+              "claude-code" = {
+                target = ".claude/settings.json";
+                text = pkgs.lib.strings.toJSON {
+                  includeCoAuthoredBy = false;
+                  cleanupPeriodDays = 3650;
+                  env = {
+                    ACTIVE_CLAUDE_CODE_SESSION = "true";
+                  };
+                  permissions = {
+                    allow = [
+                      "Bash(grep:*)"
+                      "Bash(mktemp:*)"
+                      "Bash(rg:*)"
+                      "Bash(git add:*)"
+                      "Bash(git fetch:*)"
+                      "Bash(git commit:*)"
+                      "Bash(git diff:*)"
+                      "Bash(git log:*)"
+                      "Bash(git branch:*)"
+                    ];
+                  };
+                  env = {
+                    BASH_DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; # default = 2 min
+                    BASH_MAX_TIMEOUT_MS = 30 * 60 * 1000;
+                    MAX_MCP_OUTPUT_TOKENS = 50 * 1000; # default = 25,000
+                  };
+                };
+              };
+
+              "claude-md" = {
+                target = ".claude/CLAUDE.md";
+                text = builtins.readFile ../nixos-shared/claude/CLAUDE-global.md;
+              };
+            }
+            // (
+              # Helper function to automatically discover and configure markdown files
+              let
+                autoConfigMarkdownFiles =
+                  sourceDir: targetSubdir: namePrefix:
+                  let
+                    files = builtins.readDir sourceDir;
+                    isMarkdownFile = name: type: type == "regular" && pkgs.lib.strings.hasSuffix ".md" name;
+                    markdownFiles = pkgs.lib.attrsets.filterAttrs isMarkdownFile files;
+
+                    makeEntry = filename: {
+                      target = ".claude/${targetSubdir}/${filename}";
+                      text = builtins.readFile (sourceDir + "/${filename}");
+                    };
+
+                    entries = pkgs.lib.attrsets.mapAttrs' (
+                      filename: _:
+                      pkgs.lib.attrsets.nameValuePair "${namePrefix}-${pkgs.lib.strings.removeSuffix ".md" filename}" (
+                        makeEntry filename
+                      )
+                    ) markdownFiles;
+                  in
+                  entries;
+
+                # Auto-configure command files
+                commandEntries = autoConfigMarkdownFiles ../nixos-shared/claude/commands "commands" "claude";
+
+                # Auto-configure docs files
+                docsEntries = autoConfigMarkdownFiles ../nixos-shared/claude/docs "user-docs" "claude-docs";
+
+              in
+              commandEntries // docsEntries
+            );
+        };
+
+        manual = {
+          html.enable = true;
+          json.enable = true;
+          manpages.enable = true;
         };
 
         programs.zsh = {
@@ -113,7 +218,7 @@
           enableCompletion = true;
           autosuggestion.enable = true;
           syntaxHighlighting.enable = true;
-          
+
           history = {
             save = 100000;
             size = 100000;
@@ -122,15 +227,15 @@
             ignoreSpace = true;
             extended = true;
           };
-          
+
           shellAliases = {
             ll = "ls -l";
             la = "ls -la";
             ".." = "cd ..";
             z = "fasd_cd -d";
           };
-          
-          initContent = ''
+
+          initExtra = ''
             # Initialize fasd
             eval "$(fasd --init auto)"
           '';
