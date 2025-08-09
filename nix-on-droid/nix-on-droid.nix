@@ -60,6 +60,7 @@
             comma
             claude-code
             fasd
+            fzf
             git
             openssh
             starship
@@ -99,6 +100,11 @@
             # Initialize fasd
             eval "$(fasd --init auto)"
           '';
+        };
+
+        programs.fzf = {
+          enable = true;
+          enableZshIntegration = true;
         };
 
         programs.starship = {
