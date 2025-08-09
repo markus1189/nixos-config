@@ -22,7 +22,7 @@
       pkgs = import nixpkgs { 
         system = "aarch64-linux";
         config = {
-          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code"];
+          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "unrar"];
         };
       };
       modules = [ ./nix-on-droid.nix ];
