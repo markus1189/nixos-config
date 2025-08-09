@@ -66,19 +66,25 @@
 
           # insert home-manager config
           packages = with pkgs; [
+            ast-grep
             awscli2
             aws-vault
             comma
             claude-code
+            curl
             fasd
             fzf
             git
+            httpie
+            htop
             magic-wormhole
             openssh
             pass
             rclone
+            ripgrep
             starship
             gh
+            wget
           ];
 
           activation = {
