@@ -219,9 +219,9 @@ in
         ++ (with pkgs.nodePackages; [ js-yaml ])
         ++ [
           # photography related stuff
-          darktable
+          # darktable # libsoup problem
           hugin
-          geeqie
+          # geeqie # libsoup, but pr open
         ]
         ++ [
           # evaluation phase

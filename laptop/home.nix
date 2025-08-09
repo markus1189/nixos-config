@@ -468,7 +468,7 @@ in
                     hooks = [
                       {
                         type = "command";
-                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/communication-channel-519.wav} >/dev/null 2>&1 &";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/involved-notification.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
@@ -477,7 +477,7 @@ in
                     hooks = [
                       {
                         type = "command";
-                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/graceful-285.wav} >/dev/null 2>&1 &";
+                        command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/pull-out-551.wav} >/dev/null 2>&1 &";
                       }
                     ];
                   }
