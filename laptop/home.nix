@@ -399,6 +399,10 @@ in
             target = ".claude/settings.json";
             text = pkgs.lib.strings.toJSON {
               includeCoAuthoredBy = false;
+              cleanupPeriodDays = 3650;
+              env = {
+                ACTIVE_CLAUDE_CODE_SESSION = "true";
+              };
               permissions = {
                 allow = [
                   "Bash(grep:*)"
