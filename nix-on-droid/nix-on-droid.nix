@@ -70,6 +70,7 @@
             fasd
             fzf
             git
+            magic-wormhole
             openssh
             starship
             gh
