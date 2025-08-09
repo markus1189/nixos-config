@@ -40,6 +40,14 @@
   # Set your time zone
   time.timeZone = "Europe/Berlin";
 
+  # Android integration features
+  android-integration = {
+    termux-open.enable = true;        # Open files/URLs in Android apps
+    termux-open-url.enable = true;    # Open URLs via Android VIEW intent  
+    xdg-open.enable = true;           # Provides xdg-open compatibility
+    termux-setup-storage.enable = true; # Storage permission and symlinks
+  };
+
   # Set default shell
   user.shell = "${pkgs.zsh}/bin/zsh";
 
