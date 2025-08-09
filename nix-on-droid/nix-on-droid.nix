@@ -66,6 +66,8 @@
 
           # insert home-manager config
           packages = with pkgs; [
+            awscli2
+            aws-vault
             comma
             claude-code
             fasd
@@ -73,6 +75,8 @@
             git
             magic-wormhole
             openssh
+            pass
+            rclone
             starship
             gh
           ];
