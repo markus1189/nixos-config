@@ -59,6 +59,7 @@
           packages = with pkgs; [
             comma
             claude-code
+            fasd
             git
             openssh
             starship
@@ -91,7 +92,13 @@
             ll = "ls -l";
             la = "ls -la";
             ".." = "cd ..";
+            z = "fasd_cd -d";
           };
+          
+          initExtra = ''
+            # Initialize fasd
+            eval "$(fasd --init auto)"
+          '';
         };
 
         programs.starship = {
