@@ -15,15 +15,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `nuc/` - NUC home server configuration
 - `p1/` - P1 ThinkPad configuration
 - `laptop/` - General laptop configuration files
+- `nix-on-droid/` - Nix-on-Droid configuration for Android/Termux
 
 ### Flake Operations
 - `nix flake update` - Update flake inputs
 - `nixos-rebuild switch --flake .#nixos-p1` - Build using flake configuration
 
+### Nix-on-Droid Operations
+- `nix-on-droid switch --flake ./nix-on-droid` - Switch to nix-on-droid configuration
+- `nix-on-droid build --flake ./nix-on-droid` - Build without switching
+- Configuration entry point: `nix-on-droid/nix-on-droid.nix`
+
 ## Architecture Overview
 
 ### Configuration Structure
 - **Host-specific configs**: Each machine has its own directory (`xps/`, `nuc/`, `p1/`) containing `configuration.nix` and `hardware-configuration.nix`
+- **Nix-on-Droid config**: `nix-on-droid/` contains Android/Termux configuration with flake-based setup including home-manager integration
 - **Shared modules**: `nixos-shared/` contains common configuration imported by all hosts:
   - `common-packages.nix` - System-wide packages
   - `common-programs.nix` - Program configurations

@@ -8,12 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 To activate the configuration after changes:
 ```bash
-nix-on-droid switch --flake ~/.config/nix-on-droid
+nix-on-droid switch --flake ~/repos/nixos-config/nix-on-droid
 ```
 
 To check configuration without activating:
 ```bash
-nix-on-droid build --flake ~/.config/nix-on-droid
+nix-on-droid build --flake ~/repos/nixos-config/nix-on-droid
 ```
 
 To update flake inputs:
