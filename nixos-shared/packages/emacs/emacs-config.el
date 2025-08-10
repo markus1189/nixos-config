@@ -2429,6 +2429,7 @@ Provides more detailed messages on failure."
            ("https://pixls.us/feed.xml")
            ("https://feeds.feedburner.com/bmndr")
            ("https://labnotes.org/rss/")
+           ("https://lastweekin.ai/feed")
            ("https://dariusforoux.com/feed/")
            ("https://thequilltolive.com/feed/" reading qtl)
            ("https://www.raptitude.com/feed/")
