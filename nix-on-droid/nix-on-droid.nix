@@ -273,6 +273,19 @@
             allow-loopback-pinentry
           '';
         };
+
+        programs.git = {
+          enable = true;
+          userName = "Markus Hauck";
+          userEmail = "markus1189@gmail.com";
+          
+          extraConfig = {
+            init.defaultBranch = "main";
+            pull.rebase = true;
+            push.default = "simple";
+            rebase.autostash = true;
+          };
+        };
       };
   };
 }
