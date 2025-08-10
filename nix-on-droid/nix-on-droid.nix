@@ -268,7 +268,7 @@
           enableSshSupport = true;
           defaultCacheTtl = 36000;
           maxCacheTtl = 86400;
-          pinentryPackage = pkgs.pinentry-tty;
+          pinentry.package = pkgs.pinentry-tty;
           extraConfig = ''
             allow-loopback-pinentry
           '';
