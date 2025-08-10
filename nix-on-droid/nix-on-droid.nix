@@ -9,7 +9,7 @@
   # Simply install just the packages
   environment.packages = with pkgs; [
     # User-facing stuff that you really really want to have
-    vim # or some other editor, e.g. nano or neovim
+    # vim configured via home-manager programs.vim
 
     # Some common stuff that people expect to have
     procps
@@ -84,7 +84,6 @@
             curl
             fasd
             fzf
-            git
             httpie
             htop
             magic-wormhole
@@ -285,6 +284,148 @@
             push.default = "simple";
             rebase.autostash = true;
           };
+        };
+
+        programs.vim = {
+          enable = true;
+          defaultEditor = true;
+          
+          extraConfig = ''
+            " Line numbers
+            set number
+            set relativenumber
+            
+            " Indentation
+            set expandtab
+            set tabstop=2
+            set shiftwidth=2
+            set softtabstop=2
+            set autoindent
+            set smartindent
+            
+            " Search
+            set hlsearch
+            set incsearch
+            set ignorecase
+            set smartcase
+            
+            " Display
+            set nowrap
+            set scrolloff=8
+            set sidescrolloff=8
+            set cursorline
+            set showmatch
+            
+            " Files and backups
+            set nobackup
+            set nowritebackup
+            set noswapfile
+            
+            " Command line
+            set wildmenu
+            set wildmode=longest:full,full
+            
+            " Mouse support
+            set mouse=a
+            
+            " Performance
+            set lazyredraw
+            
+            " Status line
+            set laststatus=2
+            set ruler
+            
+            " Colors and syntax
+            syntax on
+            set t_Co=256
+            set background=dark
+            
+            " Better completion
+            set completeopt=menuone,noinsert,noselect
+            
+            " Persistent undo
+            set undofile
+            set undodir=~/.vim/undodir
+            if !isdirectory(&undodir)
+              call mkdir(&undodir, 'p')
+            endif
+            
+            " Key mappings
+            let mapleader = " "
+            
+            " Better window navigation
+            nnoremap <C-h> <C-w>h
+            nnoremap <C-j> <C-w>j
+            nnoremap <C-k> <C-w>k
+            nnoremap <C-l> <C-w>l
+            
+            " Clear search highlighting
+            nnoremap <leader>h :nohlsearch<CR>
+            
+            " Quick save and quit
+            nnoremap <leader>w :w<CR>
+            nnoremap <leader>q :q<CR>
+            nnoremap <leader>x :x<CR>
+            
+            " Toggle paste mode
+            set pastetoggle=<F2>
+            
+            " Better indenting in visual mode
+            vnoremap < <gv
+            vnoremap > >gv
+            
+            " Move lines up/down
+            nnoremap <A-j> :m .+1<CR>==
+            nnoremap <A-k> :m .-2<CR>==
+            inoremap <A-j> <Esc>:m .+1<CR>==gi
+            inoremap <A-k> <Esc>:m .-2<CR>==gi
+            vnoremap <A-j> :m '>+1<CR>gv=gv
+            vnoremap <A-k> :m '<-2<CR>gv=gv
+            
+            " Better search behavior
+            nnoremap n nzzzv
+            nnoremap N Nzzzv
+            
+            " Keep cursor centered when joining lines
+            nnoremap J mzJ`z
+            
+            " Better redo
+            nnoremap U <C-r>
+            
+            " File navigation
+            nnoremap <leader>e :Explore<CR>
+            
+            " Buffer navigation
+            nnoremap <leader>bn :bnext<CR>
+            nnoremap <leader>bp :bprev<CR>
+            nnoremap <leader>bd :bdelete<CR>
+            
+            " Highlight trailing whitespace
+            highlight ExtraWhitespace ctermbg=red guibg=red
+            match ExtraWhitespace /\s\+$/
+            autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+            autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+            autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+            autocmd BufWinLeave * call clearmatches()
+            
+            " Auto-remove trailing whitespace
+            autocmd BufWritePre * :%s/\s\+$//e
+            
+            " Remember cursor position
+            autocmd BufReadPost *
+              \ if line("'\"") > 0 && line("'\"") <= line("$") |
+              \   exe "normal! g`\"" |
+              \ endif
+            
+            " Auto-create directories when saving files
+            autocmd BufWritePre * call mkdir(expand('<afile>:p:h'), 'p')
+            
+            " Better file type detection
+            filetype plugin indent on
+            
+            " Color scheme (works well in most terminals)
+            colorscheme desert
+          '';
         };
       };
   };
