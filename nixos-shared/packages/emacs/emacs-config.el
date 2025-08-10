@@ -2353,6 +2353,7 @@ Provides more detailed messages on failure."
            ("https://xc-run.de/feed/" sport)
            ("https://sabbatical.derfred.org?feed=rss2")
            ("https://kimi-schreiber.de/feed/")
+           ("https://buttondown.com/cassidoo/rss")
            ("https://buttondown.email/hillelwayne/rss")
            ("https://terminaltrove.com/totw.xml" programming)
            ("https://perishablepress.com/feed/atom/")
