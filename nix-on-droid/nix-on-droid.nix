@@ -251,8 +251,27 @@
           enableZshIntegration = true;
         };
 
+        programs.direnv = {
+          enable = true;
+          nix-direnv = {
+            enable = true;
+          };
+          enableZshIntegration = true;
+        };
+
         services.ssh-agent = {
           enable = true;
+        };
+
+        services.gpg-agent = {
+          enable = true;
+          enableSshSupport = true;
+          defaultCacheTtl = 36000;
+          maxCacheTtl = 86400;
+          pinentryPackage = pkgs.pinentry-tty;
+          extraConfig = ''
+            allow-loopback-pinentry
+          '';
         };
       };
   };
