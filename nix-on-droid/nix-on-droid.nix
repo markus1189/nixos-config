@@ -232,6 +232,7 @@
             la = "ls -la";
             ".." = "cd ..";
             z = "fasd_cd -d";
+            c = "env SHELL=bash claude";
           };
 
           initExtra = ''
