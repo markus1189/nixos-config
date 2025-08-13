@@ -613,6 +613,7 @@ in
 
         shellAliases = {
           "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
+          "c" = "claude";
           "claude-yolo" = "claude --dangerously-skip-permissions";
         };
 
