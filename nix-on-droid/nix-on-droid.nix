@@ -108,6 +108,7 @@
             which            # Command location finder
             less             # Text pager
             unrar            # RAR archive extractor
+            nixpkgs-review
           ];
 
           activation = {
