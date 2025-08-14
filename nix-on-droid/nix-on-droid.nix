@@ -280,11 +280,17 @@
           userName = "Markus Hauck";
           userEmail = "markus1189@gmail.com";
           
+          aliases = {
+            co = "checkout";
+            s = "status";
+          };
+          
           extraConfig = {
             init.defaultBranch = "main";
             pull.rebase = true;
             push.default = "simple";
             rebase.autostash = true;
+            help.autocorrect = 1;
           };
         };
 
