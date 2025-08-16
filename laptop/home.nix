@@ -417,6 +417,17 @@ in
                   "Bash(git log:*)"
                   "Bash(git branch:*)"
                 ];
+                deny = [
+                  "Bash(rm -rf:*)"
+                  "Bash(rm --recursive --force:*)"
+                  "Bash(rm -r -f:*)"
+                  "Bash(rm -f -r:*)"
+                  "Bash(rm --recursive -f:*)"
+                  "Bash(rm -r --force:*)"
+                  "Bash(rm --force --recursive:*)"
+                  "Bash(rm --force -r:*)"
+                  "Bash(rm -fr:*)"
+                ];
               };
               hooks = {
                 Notification = [
