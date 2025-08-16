@@ -1,16 +1,34 @@
 # Claude Instructions
 
-## Core Rules
-- **Challenge vague requests**: "make it faster" → "reduce API response time to <100ms"
-- **Edit over create**: modify existing files instead of writing new ones
+## Core Principles
+- **Clarify ambiguous requests**: "make it faster" → "reduce API response time to <100ms"
+- **Prefer modification**: Edit existing files when the change fits naturally
+- **Create when justified**: New files for distinct concerns, tests, or when editing would bloat existing code
 - **Immutable patterns**: `readonly` vars, pure functions, explicit state changes
-- **Fail explicitly**: return clear exit codes, descriptive error messages
-- **Separate concerns**: pure logic isolated from side effects
+- **Fail explicitly**: Clear exit codes, descriptive error messages
+- **Separate concerns**: Pure logic isolated from side effects
 
-## NixOS Environment
+## Decision Framework
+**Create new files when**:
+- Adding a distinct feature/module
+- Writing tests for existing code
+- Configuration requires separate files
+- Existing file would become unwieldy (>500 lines)
+
+**Edit existing files when**:
+- Fixing bugs or improving existing functionality
+- Adding related functionality to appropriate modules
+- Updating configuration values
+
+## Environment Support
+**Primary (NixOS)**:
 - Search: `nix search nixpkgs $NAME`
 - One-time: `, command`
 - **Always use Nix shebangs** - never `/bin/bash`
+
+**Fallback (standard)**:
+- Use system package manager or existing tools
+- Standard shebangs when Nix unavailable
 
 ## Script Templates
 
