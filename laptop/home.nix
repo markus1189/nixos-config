@@ -443,7 +443,8 @@ in
                         command = "${pkgs.alsa-utils}/bin/aplay ${../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav} >/dev/null 2>&1 &";
                       }
                     ];
-                  }{
+                  }
+                  {
                     matcher = "Read|List|Glob|Grep|WebFetch";
                     hooks = [
                       {
