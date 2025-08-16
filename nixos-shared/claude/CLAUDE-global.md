@@ -13,8 +13,11 @@
 - **Always use Nix shebangs** - never `/bin/bash`
 
 ## Script Templates
+
+With nix --expr, you MUST use `` not " in the shebang.
+
 ```bash
-# Temp file: mktemp -t claude.XXXXXX.$EXT
+# Temp file: mktemp -t claude-code.XXXXXX.$EXT
 
 # Bash (robust)
 #!/usr/bin/env nix
@@ -22,7 +25,7 @@
 set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Python with deps (use `` not ")
+# Python with deps
 #!/usr/bin/env nix
 #! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.python3.withPackages (ps: [ps.requests])`` --command python
 

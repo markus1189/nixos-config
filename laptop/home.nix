@@ -428,6 +428,9 @@ in
                   "Bash(rm --force -r:*)"
                   "Bash(rm -fr:*)"
                 ];
+                additionalDirectories = [
+                  "/tmp/claude-code"
+                ];
               };
               hooks = {
                 Notification = [
