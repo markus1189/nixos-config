@@ -2304,6 +2304,7 @@ Provides more detailed messages on failure."
              (:channelId "UCWMsoao_uuuVkzuXDDMjFdg" :title "Adidas Terrex")
              (:channelId "UCNJ1Ymd5yFuUPtn21xtRbbw" :title "AI Explained")
              (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy")
+             (:channelId "UC-mexo-76-J1MlQM8NkWCYw" :title "Armin Ronacher")
              (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing" :tags (sport))
              (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann")
              (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
