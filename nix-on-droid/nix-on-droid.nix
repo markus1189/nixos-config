@@ -109,6 +109,7 @@
             less             # Text pager
             unrar            # RAR archive extractor
             nixpkgs-review
+            w3m
           ];
 
           activation = {
