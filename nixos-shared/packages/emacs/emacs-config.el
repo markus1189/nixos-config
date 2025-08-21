@@ -2261,6 +2261,7 @@ Provides more detailed messages on failure."
              (:channelId "UCHMfbHsJZCqRtSCVLV-RnYA" :title "Daily MTB Rider" :tags (sport))
              (:channelId "UC4hJTeF0QvnsC7bIshU_K2w" :title "Aiko Sukdolak" :disabled t)
              (:channelId "UCDIr0UgrBJ3lGfs0eeKV6Tw" :title "Steve Mattheis")
+             (:channelId "UCSwcJXQWE6GWu9IKc0QwO5g" :title "Embrace the Red" :tags (hacking))
              (:channelId "UCI1aF4MNqSzKIS2t0KHS1gw" :title "Figboot on Pens" :tags (fp))
              (:channelId "UCJV7ONWjegVFOlHpAGgjGMQ" :title "Trond Westby" :tags (photography))
              (:channelId "UCKq3tXnvXnA0feJYmOx9MPw" :title "Stefano Ianiro Wildlife" :tags (photography))
