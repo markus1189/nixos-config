@@ -408,12 +408,10 @@ in
                   "Bash(grep:*)"
                   "Bash(mktemp:*)"
                   "Bash(rg:*)"
-                  "Bash(./gradlew test:*)"
-                  "Bash(notify-send:*)"
                   "Bash(git add:*)"
                   "Bash(git fetch:*)"
-                  "Bash(git commit:*)"
                   "Bash(git diff:*)"
+                  "Bash(git show:*)"
                   "Bash(git log:*)"
                   "Bash(git branch:*)"
                 ];
