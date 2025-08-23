@@ -51,3 +51,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #!/usr/bin/env nix
 #! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
+
+## Shell Rules
+
+- NEVER use `rm -rf`, it will be denied.  You can use `rm -r` without force
