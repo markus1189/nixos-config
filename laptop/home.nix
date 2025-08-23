@@ -403,6 +403,22 @@ in
               env = {
                 ACTIVE_CLAUDE_CODE_SESSION = "true";
               };
+
+              statusLine = {
+                "type" = "command";
+                "command" =
+                  let
+                    name = "claude-code-statusline";
+                    script = pkgs.writeShellApplication {
+                      inherit name;
+                      runtimeInputs = with pkgs; [ coreutils jq ];
+                      text = builtins.readFile ../nixos-shared/claude/claude-code-statusline.sh;
+                    };
+                  in
+                  "${script}/bin/${name}";
+                "padding" = 0;
+              };
+
               permissions = {
                 allow = [
                   "Bash(grep:*)"
