@@ -10,6 +10,7 @@ get_duration() { echo "$input" | jq -r '.cost.total_duration_ms'; }
 get_lines_added() { echo "$input" | jq -r '.cost.total_lines_added'; }
 get_lines_removed() { echo "$input" | jq -r '.cost.total_lines_removed'; }
 get_transcript_path() { echo "$input" | jq -r '.transcript_path'; }
+get_transcript_id() { basename "$(get_transcript_path)" ".jsonl"; }
 
 get_context_size() {
     if test -f "$(get_transcript_path)" ; then
@@ -24,7 +25,7 @@ get_context_size() {
         )
     }
 ' "$(get_transcript_path)" |
-            jq -s 'sort_by(.timestamp) | last | .context_length or 0'
+            jq -s 'sort_by(.timestamp) | last | .context_length // 0'
     else
         echo "n/a"
     fi
@@ -34,4 +35,4 @@ get_git_branch() {
     git branch --quiet --show-current 2>/dev/null || echo "n/a"
 }
 
-echo -e "\033[1m$(get_model_name) | \033[38;5;121m$(get_version) | \033[38;5;153m$(get_git_branch) | \033[38;5;214m$(get_cost)$ | \033[38;5;215m$(get_context_size) | \033[38;5;225m$(get_project_dir)\033[0m"
+echo -e "\033[1m$(get_model_name)\033[0m | \033[1m\033[38;5;121m$(get_version)\033[0m | \033[1m\033[38;5;153m$(get_git_branch)\033[0m | \033[1m\033[38;5;214m$(get_cost)$\033[0m | \033[1m\033[38;5;225m$(get_project_dir)\033[0m | \033[1m\033[38;5;215m$(get_context_size)\033[0m | \033[1m\033[38;5;229m$(get_transcript_id)\033[0m"
