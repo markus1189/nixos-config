@@ -137,7 +137,7 @@ get_git_status() {
 }
 
 get_context_with_bar() {
-    local context diff
+    local context diff formatted_context
     context=$(get_context_size)
     diff=$(get_context_diff)
     
@@ -152,6 +152,13 @@ get_context_with_bar() {
         return
     fi
 
+    # Format context with kt suffix for consistency
+    if [ "$context" -ge 1000 ]; then
+        formatted_context=$(printf "%.1fkt" "$(echo "scale=1; $context / 1000" | bc)")
+    else
+        formatted_context="${context}"
+    fi
+
     local filled=$(( context / 20000 ))  # Scale for ~200k max context
     if [ $filled -gt 10 ]; then filled=10; fi
     if [ $filled -lt 0 ]; then filled=0; fi
@@ -161,9 +168,9 @@ get_context_with_bar() {
     for ((i=filled+1; i<=10; i++)); do bar+="○"; done
 
     if [ -n "$diff" ]; then
-        echo "${context}[${bar}]${diff}"
+        echo "${formatted_context}[${bar}]${diff}"
     else
-        echo "${context}[${bar}]"
+        echo "${formatted_context}[${bar}]"
     fi
 }
 
