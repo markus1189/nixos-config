@@ -202,8 +202,8 @@ readonly RESET='\033[0m'
 readonly BLACK_FG='\033[30m'
 
 # Color functions
-bg_color() { echo -n "\033[48;2;${1}m"; }
-fg_color() { echo -n "\033[38;2;${1}m"; }
+bg_color() { printf "\033[48;2;%sm" "$1"; }
+fg_color() { printf "\033[38;2;%sm" "$1"; }
 segment() { echo -n "$(bg_color "$1")${BLACK_FG} $2 ${RESET}"; }
 separator() { echo -n "$(fg_color "$1")$(bg_color "$2")${RESET}"; }
 
