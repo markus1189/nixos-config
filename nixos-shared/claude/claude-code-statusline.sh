@@ -31,6 +31,45 @@ get_context_size() {
     fi
 }
 
+get_context_diff() {
+    if test -f "$(get_transcript_path)" ; then
+        local sizes
+        sizes=$(jq -r '
+    select(.message.usage and (.isSidechain == true | not)) |
+    {
+        timestamp: .timestamp,
+        context_length: (
+            (.message.usage.input_tokens // 0) +
+            (.message.usage.cache_read_input_tokens // 0) +
+            (.message.usage.cache_creation_input_tokens // 0)
+        )
+    }
+' "$(get_transcript_path)" | jq -s -r 'sort_by(.timestamp) | map(.context_length) | .[-2:] | @tsv')
+        
+        if [ -n "$sizes" ]; then
+            local prev current diff
+            read -r prev current <<< "$sizes"
+            
+            if [ -n "$prev" ] && [ -n "$current" ] && [ "$prev" != "null" ] && [ "$current" != "null" ] && [[ "$prev" =~ ^[0-9]+$ ]] && [[ "$current" =~ ^[0-9]+$ ]]; then
+                diff=$((current - prev))
+                if [ $diff -gt 0 ]; then
+                    echo "+$diff"
+                elif [ $diff -lt 0 ]; then
+                    echo "$diff"
+                else
+                    echo ""
+                fi
+            else
+                echo ""
+            fi
+        else
+            echo ""
+        fi
+    else
+        echo ""
+    fi
+}
+
 get_git_branch() {
     git branch --quiet --show-current 2>/dev/null || echo "n/a"
 }
@@ -68,16 +107,18 @@ get_git_status() {
 }
 
 get_context_with_bar() {
-    local context
+    local context diff
     context=$(get_context_size)
+    diff=$(get_context_diff)
+    
     if [ "$context" = "n/a" ]; then
-        echo "n/a[░░░░░░░░░░]"
+        echo "n/a[○○○○○○○○○○]"
         return
     fi
 
     # Handle non-numeric context gracefully
     if [[ ! "$context" =~ ^[0-9]+$ ]]; then
-        echo "n/a[░░░░░░░░░░]"
+        echo "n/a[○○○○○○○○○○]"
         return
     fi
 
@@ -89,7 +130,11 @@ get_context_with_bar() {
     for ((i=1; i<=filled; i++)); do bar+="●"; done
     for ((i=filled+1; i<=10; i++)); do bar+="○"; done
 
-    echo "${context}[${bar}]"
+    if [ -n "$diff" ]; then
+        echo "${context}[${bar}]${diff}"
+    else
+        echo "${context}[${bar}]"
+    fi
 }
 
 get_context_color() {
@@ -106,4 +151,37 @@ get_context_color() {
     fi
 }
 
-echo -e "\033[48;2;255;120;120m\033[30m $(get_model_name) \033[0m\033[38;2;255;120;120m\033[48;2;255;180;100m\033[0m\033[48;2;255;180;100m\033[30m $(get_version) \033[0m\033[38;2;255;180;100m\033[48;2;120;220;120m\033[0m\033[48;2;120;220;120m\033[30m $(get_git_branch)$(get_git_status) \033[0m\033[38;2;120;220;120m\033[48;2;100;180;255m\033[0m\033[48;2;100;180;255m\033[30m $(get_project_dir) \033[0m\033[38;2;100;180;255m\033[48;2;180;140;255m\033[0m\033[48;2;180;140;255m\033[30m $(get_cost)$ \033[0m\033[38;2;180;140;255m\033[48;2;$(get_context_color)m\033[0m\033[48;2;$(get_context_color)m\033[30m $(get_context_with_bar) \033[0m\033[38;2;$(get_context_color)m\033[48;2;255;140;180m\033[0m\033[48;2;255;140;180m\033[30m $(get_transcript_id) \033[0m\033[38;2;255;140;180m\033[0m"
+# Color definitions (RGB values)
+readonly RED="255;120;120"
+readonly ORANGE="255;180;100"
+readonly GREEN="120;220;120"
+readonly BLUE="100;180;255"
+readonly PURPLE="180;140;255"
+readonly PINK="255;140;180"
+
+# ANSI escape sequences
+readonly RESET='\033[0m'
+readonly BLACK_FG='\033[30m'
+
+# Color functions
+bg_color() { echo -n "\033[48;2;${1}m"; }
+fg_color() { echo -n "\033[38;2;${1}m"; }
+segment() { echo -n "$(bg_color "$1")${BLACK_FG} $2 ${RESET}"; }
+separator() { echo -n "$(fg_color "$1")$(bg_color "$2")${RESET}"; }
+
+# Build statusline with readable segments
+echo -en "$(segment "$RED" "$(get_model_name)")"
+echo -en "$(separator "$RED" "$ORANGE")"
+echo -en "$(segment "$ORANGE" "$(get_version)")"
+echo -en "$(separator "$ORANGE" "$GREEN")"
+echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
+echo -en "$(separator "$GREEN" "$BLUE")"
+echo -en "$(segment "$BLUE" "$(get_project_dir)")"
+echo -en "$(separator "$BLUE" "$PURPLE")"
+echo -en "$(segment "$PURPLE" "$(get_cost)$")"
+echo -en "$(separator "$PURPLE" "$(get_context_color)")"
+echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
+echo -en "$(separator "$(get_context_color)" "$PINK")"
+echo -en "$(segment "$PINK" "$(get_transcript_id)")"
+echo -en "$(fg_color "$PINK")"
+echo
