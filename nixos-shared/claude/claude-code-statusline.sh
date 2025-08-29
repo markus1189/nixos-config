@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 input=$(cat)
 
-get_model_name() { echo "$input" | jq -r '.model.display_name'; }
+get_model_name() { 
+    local model_name
+    model_name=$(echo "$input" | jq -r '.model.display_name')
+    if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
+        echo "${model_name}🪨"
+    else
+        echo "$model_name"
+    fi
+}
 get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
 get_project_dir() { echo "$input" | jq -r '.workspace.project_dir' | sed "s|^$HOME|~|"; }
 get_version() { echo "$input" | jq -r '.version'; }
@@ -27,7 +35,7 @@ get_context_size() {
 ' "$(get_transcript_path)" |
             jq -s 'sort_by(.timestamp) | last | .context_length // 0'
     else
-        echo "n/a"
+        echo "⌀"
     fi
 }
 
@@ -101,7 +109,7 @@ get_agent_tokens() {
 }
 
 get_git_branch() {
-    git branch --quiet --show-current 2>/dev/null || echo "n/a"
+    git branch --quiet --show-current 2>/dev/null || echo "⌀"
 }
 
 get_git_status() {
@@ -141,14 +149,14 @@ get_context_with_bar() {
     context=$(get_context_size)
     diff=$(get_context_diff)
     
-    if [ "$context" = "n/a" ]; then
-        echo "n/a[○○○○○○○○○○]"
+    if [ "$context" = "⌀" ]; then
+        echo "⌀[○○○○○○○○○○]"
         return
     fi
 
     # Handle non-numeric context gracefully
     if [[ ! "$context" =~ ^[0-9]+$ ]]; then
-        echo "n/a[○○○○○○○○○○]"
+        echo "⌀[○○○○○○○○○○]"
         return
     fi
 
@@ -177,8 +185,8 @@ get_context_with_bar() {
 get_context_color() {
     local context
     context=$(get_context_size)
-    if [ "$context" = "n/a" ]; then
-        echo "180;140;255"  # Default purple (matching cost)
+    if [ "$context" = "⌀" ]; then
+        echo "180;140;255"  # Default purple
     elif [ "$context" -gt 150000 ]; then
         echo "255;120;120"  # Red for high usage
     elif [ "$context" -gt 100000 ]; then
