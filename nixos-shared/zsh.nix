@@ -45,18 +45,6 @@ in {
       enableBashCompletion = true;
       enableGlobalCompInit = false;
       autosuggestions.enable = true;
-      promptInit = ''
-        PROMPT=""
-        PROMPT="%{$fg_bold[blue]%}%2c > %{$reset_color%}"
-
-        RPROMPT=""
-        RPROMPT+="%{$fg_bold[blue]%}%n@%m%{$reset_color%} "
-        RPROMPT+="%{$fg_bold[yellow]%}%j%{$reset_color%} "
-        RPROMPT+="%{$fg_bold[yellow]%}$SHLVL:$(ps --no-headers -o comm $PPID)%{$reset_color%} "
-        RPROMPT+="%{$fg_bold[green]%}%h%{$reset_color%} "
-        RPROMPT+="%{$fg_bold[magenta]%}%(?..[%?] )%{$reset_color%}"
-        RPROMPT+="%{$fg_bold[yellow]%}%D{%H:%M:%S}%{$reset_color%}"
-      '';
 
       syntaxHighlighting = {
         enable = true;

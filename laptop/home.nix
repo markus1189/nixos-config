@@ -594,6 +594,7 @@ in
       passDir = "$HOME/.local/share/password-store";
     in
     {
+      starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
       alacritty = {
         enable = true;
         settings = {
