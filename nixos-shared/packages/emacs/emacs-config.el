@@ -2331,7 +2331,8 @@ Provides more detailed messages on failure."
             (:id "fxshdjutxkvhp4uq" :title "Lamy")
             (:id "xb9ujr6s9d3ed1w1" :title "Salomon DE" :tags (running))
             (:id "6zr0oawurrjiw4saxcnu" :title "LOWA Newsletter" :tags (running))
-            (:id "a5c6xo3x2mts4urw57pm" :title "Dungeon Crawler Carl")))
+            (:id "a5c6xo3x2mts4urw57pm" :title "Dungeon Crawler Carl")
+            (:id "ueir6fz8b6s958hcgjlp" :title "A. Hawthorne")))
 
          '(("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fhofheim-ort74520%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.fnp.de%2Flokales%2Fmain-taunus%2Fkelkheim-ort95937%2F&cookie=&title_cleanup=&entry_element_selector=.id-LinkOverlay&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=article&content_cleanup=script%2C+.id-Story-interactionBar%2C+.id-StoryElement-inArticleReco%2C+.id-DonaldBreadcrumb&title_selector=h1&category_selector=&author_selector=.id-Story-authors-link&time_selector=time&time_format=Y-m-d+H%3Ai&remove_styling=on&format=Atom" news)
