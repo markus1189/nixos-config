@@ -145,9 +145,8 @@ get_git_status() {
 }
 
 get_context_with_bar() {
-    local context diff formatted_context
+    local context formatted_context
     context=$(get_context_size)
-    diff=$(get_context_diff)
     
     if [ "$context" = "⌀" ]; then
         echo "⌀[○○○○○○○○○○]"
@@ -175,11 +174,7 @@ get_context_with_bar() {
     for ((i=1; i<=filled; i++)); do bar+="●"; done
     for ((i=filled+1; i<=10; i++)); do bar+="○"; done
 
-    if [ -n "$diff" ]; then
-        echo "${formatted_context}[${bar}]${diff}"
-    else
-        echo "${formatted_context}[${bar}]"
-    fi
+    echo "${formatted_context}[${bar}]"
 }
 
 get_context_color() {
