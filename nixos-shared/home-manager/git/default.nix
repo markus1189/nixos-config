@@ -18,6 +18,7 @@ let
     .metals
     .aider*
     .claude
+    CLAUDE.md
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
