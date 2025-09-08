@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 input=$(cat)
 
-get_model_name() { 
+get_model_name() {
     local model_name
     model_name=$(echo "$input" | jq -r '.model.display_name')
     if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
@@ -53,11 +53,11 @@ get_context_diff() {
         )
     }
 ' "$(get_transcript_path)" | jq -s -r 'sort_by(.timestamp) | map(.context_length) | .[-2:] | @tsv')
-        
+
         if [ -n "$sizes" ]; then
             local prev current diff
             read -r prev current <<< "$sizes"
-            
+
             if [ -n "$prev" ] && [ -n "$current" ] && [ "$prev" != "null" ] && [ "$current" != "null" ] && [[ "$prev" =~ ^[0-9]+$ ]] && [[ "$current" =~ ^[0-9]+$ ]]; then
                 diff=$((current - prev))
                 if [ $diff -gt 0 ]; then
@@ -90,7 +90,7 @@ get_agent_count() {
 get_agent_tokens() {
     if test -f "$(get_transcript_path)" ; then
         local total
-        total=$(jq -r 'select(.isSidechain == true and .type == "assistant" and .message.usage) | 
+        total=$(jq -r 'select(.isSidechain == true and .type == "assistant" and .message.usage) |
             (.message.usage.input_tokens // 0) + (.message.usage.output_tokens // 0)' \
             "$(get_transcript_path)" | \
             awk '{sum+=$1} END {print sum+0}')
@@ -147,7 +147,7 @@ get_git_status() {
 get_context_with_bar() {
     local context formatted_context
     context=$(get_context_size)
-    
+
     if [ "$context" = "⌀" ]; then
         echo "⌀[○○○○○○○○○○]"
         return
@@ -182,9 +182,9 @@ get_context_color() {
     context=$(get_context_size)
     if [ "$context" = "⌀" ]; then
         echo "180;140;255"  # Default purple
-    elif [ "$context" -gt 150000 ]; then
+    elif [ "$context" -gt 120000 ]; then
         echo "255;120;120"  # Red for high usage
-    elif [ "$context" -gt 100000 ]; then
+    elif [ "$context" -gt 80000 ]; then
         echo "255;180;100"  # Orange for medium usage
     else
         echo "120;220;120"  # Green for low usage
