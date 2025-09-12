@@ -119,6 +119,11 @@ ALWAYS make sure that the feed you are adding does not yet exist!
 **Location**: Search for `("https://` - typically around line 2350-2530
 **Insertion**: Add in alphabetical order by domain name
 
+**WebFetch Usage**: Before adding, use WebFetch to analyze the website:
+- Extract the proper site title for consistent naming
+- Identify content topics to assign relevant tags
+- Verify the RSS/Atom feed URL is functional
+
 ```elisp
 ("https://example.com/feed.xml" tag1 tag2)
 ("https://simonwillison.net/atom/everything/" programming llm)
@@ -133,6 +138,11 @@ ALWAYS make sure that the feed you are adding does not yet exist!
 yt-dlp --print "%(channel_id)s" --playlist-end 1 "https://www.youtube.com/@channelname"
 ```
 
+**WebFetch Usage**: Use WebFetch to analyze the YouTube channel:
+- Extract the proper channel title for consistent naming
+- Identify channel content themes to assign relevant tags
+- Verify the channel is active and matches expected content type
+
 ```elisp
 (:channelId "UCchannelid" :title "Channel Name" :tags (tag1 tag2))
 ```
@@ -140,6 +150,11 @@ yt-dlp --print "%(channel_id)s" --playlist-end 1 "https://www.youtube.com/@chann
 #### GitHub Release Feeds (Alphabetical by Repo)
 **Location**: Search for `:owner.*:repo` - typically around line 2240-2260
 **Insertion**: Add alphabetically by repository name
+
+**WebFetch Usage**: Use WebFetch to analyze the GitHub repository:
+- Extract repository description and primary language
+- Identify project type to assign relevant tags beyond `github`
+- Verify the repository is actively maintained and has releases
 
 ```elisp
 (:owner "username" :repo "reponame" :tags (github))
@@ -155,14 +170,23 @@ yt-dlp --print "%(channel_id)s" --playlist-end 1 "https://www.youtube.com/@chann
 
 ### Workflow for Adding Feeds
 
-1. **Search for the correct section**:
+1. **Extract feed information using WebFetch**:
+   For RSS/Atom feeds and websites, use WebFetch to determine proper titles and relevant tags:
+   ```bash
+   # Use WebFetch to analyze the website and extract:
+   # - Proper site/blog title for consistent naming
+   # - Content topics to determine appropriate tags
+   # - Verify RSS/Atom feed URL is correct
+   ```
+
+2. **Search for the correct section**:
    ```bash
    rg ":subreddit" nixos-shared/packages/emacs/emacs-config.el  # For Reddit
    ```
 
-2. **Add feed in alphabetical order** within the appropriate list
+3. **Add feed in alphabetical order** within the appropriate list
 
-3. **Commit with standard format**:
+4. **Commit with standard format**:
    ```bash
    git add nixos-shared/packages/emacs/emacs-config.el
    git commit -m "elfeed: add [feed-type] [feed-name]"
