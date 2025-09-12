@@ -442,6 +442,10 @@ rec {
     #   enableVirtualCamera = true;
     #   plugins = [ pkgs.obs-studio-plugins.obs-backgroundremoval ];
     # };
+
+    sysdig = {
+      enable = true;
+    };
   };
 
   environment = {
