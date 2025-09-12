@@ -75,6 +75,7 @@ import XMonad
     xK_o,
     xK_p,
     xK_q,
+    xK_r,
     xK_s,
     xK_semicolon,
     xK_space,
@@ -87,7 +88,7 @@ import XMonad
     (.|.),
     (<+>),
     (=?),
-    (|||),
+    (|||), xK_Insert,
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
 import XMonad.Actions.CycleRecentWS (cycleWindowSets, recentWS)
@@ -336,6 +337,7 @@ myKeys =
     ((myModCtrl, xK_l), spawn "@lockScreen@/bin/lockScreen"),
     ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
+    ((myModKey, xK_Insert), spawn "@recordScript@ toggle"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),

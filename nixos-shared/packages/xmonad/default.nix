@@ -1,7 +1,47 @@
-args@{ alacritty, autoMonitorConfig, autorandr, bukuRun, dunst
-, centerMouse, chooseNetwork, clipmenu, ddgr, emacsAnywhere, flameshot
-, lockScreen, flameshotOcr, multihead4k, mutate, pamixer, playerctl, rofi
-, rofiDefaults, singlehead, takeScreenshot, tesseract4, tmx, warpd, wyrd, xclip
-, xdotool, xkill, xmobar, xmobarLower, xmobarUpper, xmonadReset, zsh }:
+args@{
+  alacritty,
+  autoMonitorConfig,
+  autorandr,
+  bukuRun,
+  coreutils,
+  curl,
+  dunst,
+  centerMouse,
+  chooseNetwork,
+  clipmenu,
+  ddgr,
+  emacsAnywhere,
+  ffmpeg,
+  flameshot,
+  libnotify,
+  lockScreen,
+  flameshotOcr,
+  jq,
+  multihead4k,
+  mutate,
+  pamixer,
+  playerctl,
+  pulseaudio,
+  rofi,
+  rofiDefaults,
+  singlehead,
+  takeScreenshot,
+  tesseract4,
+  tmx,
+  warpd,
+  wyrd,
+  xclip,
+  xdotool,
+  xkill,
+  xmobar,
+  xmobarLower,
+  xmobarUpper,
+  xmonadReset,
+  zsh,
+  # custom script
+  recordScript,
+}:
 
-mutate ./xmonad.hs (builtins.removeAttrs args [ "mutate" ])
+mutate ./xmonad.hs (
+  builtins.removeAttrs args [ "mutate" ] // { recordScript = "${recordScript}/bin/recordScript"; }
+)
