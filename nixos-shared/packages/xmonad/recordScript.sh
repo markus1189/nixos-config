@@ -1,6 +1,7 @@
 readonly AUDIO_FILE="/tmp/kmonad-record-script.wav"
 readonly PID_FILE="/tmp/kmonad-record-script.pid"
 readonly NOTIFICATION_ID_FILE="/tmp/kmonad-record-script-notification.id"
+readonly WINDOW_ID_FILE="/tmp/kmonad-record-script-window.id"
 
 if [[ -z "${OPENAI_API_KEY:-}" ]]; then
     echo "Error: OPENAI_API_KEY environment variable is not set" >&2
@@ -31,11 +32,15 @@ send_notification() {
 }
 
 cleanup_temp_files() {
-    rm -f "$AUDIO_FILE" "$PID_FILE" "$NOTIFICATION_ID_FILE"
+    rm -f "$AUDIO_FILE" "$PID_FILE" "$NOTIFICATION_ID_FILE" "$WINDOW_ID_FILE"
 }
 
 activate_recording() {
     rm "${AUDIO_FILE}" || true
+    
+    # Capture the currently focused window ID
+    xdotool getwindowfocus > "$WINDOW_ID_FILE"
+    
     local mic_device
     mic_device=$(get_mic_device)
     ffmpeg -y -loglevel quiet -f pulse -i "$mic_device" -codec:a pcm_s16le -ar 16000 -ac 1 "$AUDIO_FILE" &
@@ -67,7 +72,12 @@ transcribe_recording() {
 
     echo "$transcription" | xclip -i -selection clipboard
     send_notification "Copied $(echo "$transcription" | wc -w) words"
-    if [[ -n "$transcription" ]]; then
+    if [[ -n "$transcription" && -f "$WINDOW_ID_FILE" ]]; then
+        # Focus the original window and paste the transcription
+        local window_id
+        window_id=$(cat "$WINDOW_ID_FILE")
+        xdotool windowfocus "$window_id"
+        sleep 0.1
         # Use primary selection + middle click for reliable Unicode support
         echo -n "$transcription" | xclip -selection primary
         sleep 0.1
