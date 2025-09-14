@@ -52,6 +52,12 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
 
+## Screenshot Analysis
+When the user references screenshots or recent images:
+1. Use `find ~/Screenshots -mtime -1 -type f | sort -r` as a starting point to locate recent screenshots
+2. Adapt the find command as needed (adjust time range or file types based on context)
+3. Read the most relevant screenshot using the Read tool and analyze its contents
+
 ## Shell Rules
 
 - NEVER use `rm -rf`, it will be denied.  You can use `rm -r` without force
