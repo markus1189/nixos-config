@@ -4,7 +4,7 @@
 , oathToolkit, playerctl, procps, psmisc, pulseaudioFull, python3
 , python3Packages, rofi, rsstail, scrot, sqlite, stdenv, systemd, tmux
 , unixtools, wmctrl, wpa_supplicant, writeScriptBin, xclip, xdotool, xorg, xsel
-, zbar, zsh, writeShellApplication, flameshot, tesseract, gxmessage
+, zbar, zsh, writeShellApplication, flameshot, tesseract, gxmessage, bluez
 
 }:
 
@@ -131,6 +131,44 @@ rec {
     if xdotool search 'is sharing' &> /dev/null || xdotool search 'as_toolbar' &> /dev/null; then
       echo "<fc=red>⏺SHARING⏺</fc> "
     fi
+  '';
+
+  btHeadphoneBattery = writeShellScript {
+    name = "btHeadphoneBattery";
+    deps = [ bluez gnused gnugrep ];
+    failFast = false;
+  } ''
+    readonly HEADPHONE_MAC="04:52:C7:34:62:44"
+
+    # Check if headphones are connected
+    if ! bluetoothctl info "$HEADPHONE_MAC" 2>/dev/null | grep -q "Connected: yes"; then
+        exit 0
+    fi
+
+    # Extract battery percentage
+    battery_info=$(bluetoothctl info "$HEADPHONE_MAC" 2>/dev/null | grep "Battery Percentage:")
+    if [[ -z "$battery_info" ]]; then
+        exit 0
+    fi
+
+    # Parse battery percentage from format like "Battery Percentage: 0x50 (80)"
+    battery_hex=$(echo "$battery_info" | sed -n 's/.*Battery Percentage: 0x\([0-9a-fA-F]*\).*/\1/p')
+    if [[ -z "$battery_hex" ]]; then
+        exit 0
+    fi
+
+    battery_percent=$((16#$battery_hex))
+
+    # Color code based on battery level
+    if [[ $battery_percent -gt 70 ]]; then
+        color="<fc=lightgreen>"
+    elif [[ $battery_percent -ge 30 ]]; then
+        color="<fc=orange>"
+    else
+        color="<fc=red>"
+    fi
+
+    echo "''${color} 󰂯 ''${battery_percent}%</fc>"
   '';
 
   togglTimer = togglApiToken:
