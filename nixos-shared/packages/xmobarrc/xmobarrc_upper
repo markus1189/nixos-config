@@ -72,7 +72,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 300
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
                     , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
-                    , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 300
+                    , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 60
                     , Run StdinReader
                     ]
        , sepChar = "%"
