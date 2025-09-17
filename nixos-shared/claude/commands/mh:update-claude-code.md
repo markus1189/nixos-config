@@ -22,7 +22,7 @@ Let me start by creating a todo list and following the systematic update process
 - Must be on latest upstream master FIRST
 - Unfree license requires `NIXPKGS_ALLOW_UNFREE=1`
 - Follow nixpkgs commit format: `claude-code: old-version -> new-version`
-- Include changelog entries in commit message
+- Include relevant changelog entries if found, otherwise just changelog link (no generic sentences)
 - **Format changed files** - Run `nix fmt` on modified .nix files before committing
 
 **Key Files:**
