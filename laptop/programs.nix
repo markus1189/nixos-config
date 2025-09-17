@@ -219,7 +219,7 @@ in
         ++ (with pkgs.nodePackages; [ js-yaml ])
         ++ [
           # photography related stuff
-          # darktable # libsoup problem
+          darktable
           hugin
           # geeqie # libsoup, but pr open
         ]
