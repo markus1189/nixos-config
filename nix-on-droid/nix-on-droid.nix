@@ -251,9 +251,10 @@
             ".." = "cd ..";
             z = "fasd_cd -d";
             c = "env SHELL=bash claude";
+            cy = "env SHELL=bash claude --dangerously-skip-permissions";
           };
 
-          initExtra = ''
+          initContent = ''
             # Initialize fasd
             eval "$(fasd --init auto)"
           '';
