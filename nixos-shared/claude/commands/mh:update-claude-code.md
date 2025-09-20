@@ -17,6 +17,7 @@ Let me start by creating a todo list and following the systematic update process
 5. **Build and Test** - Verify the package works correctly
 6. **Commit Changes** - Follow nixpkgs commit format with changelog
 7. **Push Branch** - Ready for PR creation
+8. **Create PR** - Use dry-run first, then create and open
 
 **Critical Requirements:**
 - Must be on latest upstream master FIRST
@@ -30,4 +31,6 @@ Let me start by creating a todo list and following the systematic update process
 - `pkgs/by-name/cl/claude-code/package-lock.json` - npm dependencies
 - `pkgs/by-name/cl/claude-code/update.sh` - Automated update script
 
-Let me start the process...
+**PR Creation Process (MANDATORY):**
+1. When PR is ready, run `gh pr create --dry-run --fill --template PULL_REQUEST_TEMPLATE.md` and ask user if this is okay (MISSION CRITICAL)
+2. If user agrees, run without --dry-run to create PR and use xdg-open to open it
