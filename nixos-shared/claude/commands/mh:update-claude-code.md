@@ -32,5 +32,4 @@ Let me start by creating a todo list and following the systematic update process
 - `pkgs/by-name/cl/claude-code/update.sh` - Automated update script
 
 **PR Creation Process (MANDATORY):**
-1. When PR is ready, run `gh pr create --dry-run --fill --template PULL_REQUEST_TEMPLATE.md` and ask user if this is okay (MISSION CRITICAL)
-2. If user agrees, run without --dry-run to create PR and use xdg-open to open it
+When PR is ready, run `gh pr create --dry-run --fill --template PULL_REQUEST_TEMPLATE.md` and ask user if this is okay (MISSION CRITICAL)
