@@ -442,9 +442,6 @@ in
                   "Bash(rm --force -r:*)"
                   "Bash(rm -fr:*)"
                 ];
-                additionalDirectories = [
-                  "/tmp/claude-code"
-                ];
               };
               hooks = {
                 Notification = [
@@ -628,31 +625,7 @@ in
 
       bash.enable = true;
 
-      zsh = {
-        enable = true;
-        history = rec {
-          expireDuplicatesFirst = true;
-          extended = true;
-          ignoreDups = true;
-          ignorePatterns = [ "rm *" ];
-          ignoreSpace = true;
-          save = 999999999;
-          size = save;
-          share = true;
-        };
-
-        shellAliases = {
-          "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
-          "c" = "claude";
-          "cy" = "claude --dangerously-skip-permissions";
-          "claude-yolo" = "claude --dangerously-skip-permissions";
-        };
-
-        initContent = ''
-          source ${pkgs.ndtSources.zsh-histdb}/sqlite-history.zsh
-          autoload -Uz add-zsh-hook
-        '';
-      };
+      zsh = (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix { inherit pkgs passDir; }).value;
 
       direnv = {
         enable = true;

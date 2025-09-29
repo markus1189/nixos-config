@@ -20,6 +20,7 @@ in {
   };
 
   programs = {
+    starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
     newsboat =
       (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix {
         inherit secrets;
