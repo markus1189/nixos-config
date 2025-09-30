@@ -11,6 +11,23 @@ let
 in {
   home = {
     stateVersion = "18.09";
+
+    file =
+      let
+        claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
+          enableSoundHooks = false;
+          enableDenyRules = true;
+          additionalAllowedCommands = [
+            "Bash(git commit:*)"
+            "Bash(git show:*)"
+          ];
+        };
+      in
+      {
+        "claude-code" = claudeConfig.settings;
+        "claude-md" = claudeConfig.globalClaudeMd;
+      }
+      // claudeConfig.markdownFiles;
   };
 
   manual = {
