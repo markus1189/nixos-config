@@ -13,7 +13,22 @@ Then automatically creates a Splid expense entry using the extracted information
 ## Usage
 
 ```
-/splid-expense
+/splid-expense [TYPE]
+```
+
+**Arguments:**
+- `TYPE` (optional): Expense type - determines who pays whom
+  - `expense` - Primary user pays for secondary user (default if omitted)
+  - `refund` - Secondary user pays for primary user
+  - `split` - 50/50 split between both
+  - `50/50 for both` - Alternative way to specify split
+
+**Examples:**
+```
+/splid-expense                # Default: expense type
+/splid-expense split          # 50/50 split
+/splid-expense 50/50 for both # 50/50 split (natural language)
+/splid-expense refund         # Refund type
 ```
 
 ## Implementation
@@ -44,9 +59,30 @@ echo "Please analyze this screenshot to extract the expense title and total amou
 3. Creates Splid expense entry using `/home/markus/src/scripts/splid-claude.sh`
 4. Confirms successful creation
 
-## Example
+## Examples
 
+**Default expense:**
+```
+/splid-expense
+```
 For an Amazon cart with wallpaper, kitchen toys, and tablet holder totaling €49.97:
 - Title: "Möbel-Tapete, Kochspielzeug, Tablet-Halterung"
 - Amount: €49.97
-- Creates expense where MARKUS pays for HEIKE
+- Creates: Primary user pays €49.97 for secondary user
+
+**50/50 split:**
+```
+/splid-expense split
+/splid-expense 50/50 for both
+```
+For an anti-slip carpet runner totaling €23.99:
+- Title: "50/50: Antirutsch Teppich Läufer"
+- Amount: €23.99
+- Creates: Primary user pays €23.99, split equally between both users
+
+**Refund:**
+```
+/splid-expense refund
+```
+- Title: "Gutschrift: [extracted title]"
+- Creates: Secondary user pays for primary user
