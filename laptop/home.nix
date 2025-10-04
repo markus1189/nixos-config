@@ -389,6 +389,18 @@ in
           };
         };
 
+        "emacs-dired-desktop" = {
+          target = ".local/share/applications/emacs-dired.desktop";
+          text = ''
+            [Desktop Entry]
+            Name=Emacs (Dired)
+            Exec=emacsclient -c %u
+            Type=Application
+            MimeType=inode/directory;
+            NoDisplay=true
+          '';
+        };
+
       }
       // claudeConfig.markdownFiles;
   };
@@ -720,6 +732,7 @@ in
         };
         defaultApplications = {
           "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+          "inode/directory" = [ "emacs-dired.desktop" ];
           "x-scheme-handler/tg" = [ "telegramdesktop.desktop" ];
           "x-scheme-handler/msteams" = [ "teams.desktop" ];
         };
