@@ -52,7 +52,7 @@ in
         fortune
         gcc
         gdb
-        gemini-cli
+        gemini-cli-bin
         ghc
         gimp
         glxinfo
