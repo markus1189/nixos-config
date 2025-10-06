@@ -2271,6 +2271,7 @@ Provides more detailed messages on failure."
              (:channelId "UCzbbkYQUqeGNKSRwoyWB9IA" :title "Simon Wantling" :tags (photography))
              (:channelId "UCRHCA0iiOZ_tbOowedaeK-A" :title "Skyrunning Federation" :tags (sport))
              (:channelId "UC8szqVDJF60HueoqJrD50qw" :title "GOLDEN TRAIL SERIES" :tags (sport))
+             (:channelId "UC6107grRI4m0o2-emgoDnAA" :title "SmarterEveryDay" :tags (science engineering))
              (:channelId "UCDw36yB-ZXJ_FnqEH7o2HfQ" :title "Saul Pwanson - Visidata")
              (:channelId "UCqeVdbCP-fVjSGEVnY-3lWQ" :title "MotionTwin (Dead Cells)")
              (:channelId "UC9-y-6csu5WGm29I7JiwpnA" :title "Computerphile")
