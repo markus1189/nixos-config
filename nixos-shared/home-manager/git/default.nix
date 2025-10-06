@@ -19,6 +19,7 @@ let
     .aider*
     .claude
     CLAUDE.md
+    .worktrees
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
