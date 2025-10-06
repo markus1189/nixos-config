@@ -333,7 +333,7 @@
   ("C-c Y" . git-link)
   :config
   (defun mh/git-link-github (hostname dirname filename branch commit start end)
-    (format "https://%s/%s/blob/%s/%s"
+    (format "%s/%s/blob/%s/%s"
             hostname
             dirname
             commit
