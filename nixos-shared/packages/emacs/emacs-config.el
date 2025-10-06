@@ -2309,11 +2309,13 @@ Provides more detailed messages on failure."
              (:channelId "UC-mexo-76-J1MlQM8NkWCYw" :title "Armin Ronacher")
              (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing" :tags (sport))
              (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann")
+             (:channelId "UC_x36zCEGilGpB1m-V4gmjg" :title "IndyDevDan" :tags (gamedev programming))
              (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
              (:channelId "UCrPpaC5uLPx03XHVCfufiTQ" :title "Tim Cannon" :tags (sport))
              (:channelId "UCNS-y3tEoPmBy9Q-ZYJf9QQ" :title "Kelp and Fern" :tags (sport))
              (:channelId "UCIX0OOS3khVxwpxuoqkLWMw" :title "Pfefferminz Film" :tags (sport))
              (:channelId "UCTjmLCEVb9r1OpFDJMMWyIw" :title "StezStix Fix?" :tags (electronics))
+             (:channelId "UC5Y03h8JAslS5HEuvQNdVWw" :title "VoteSport" :tags (sport))
              (:channelId "UClsFdM0HzTdF1JYoraQ0aUw" :title "Brick Experiment Channel"))))
 
          (mapcar
