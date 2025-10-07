@@ -21,9 +21,9 @@ Let me start by creating a todo list and following the systematic update process
 
 **Critical Requirements:**
 - Must be on latest upstream master FIRST
-- Unfree license requires `NIXPKGS_ALLOW_UNFREE=1`
+- Unfree license requires `NIXPKGS_ALLOW_UNFREE=1` or `env NIXPKGS_ALLOW_UNFREE=1` prefix for commands
 - Follow nixpkgs commit format: `claude-code: old-version -> new-version`
-- Include relevant changelog entries if found, otherwise just changelog link (no generic sentences)
+- **NEVER include npm diff links** - Only use changelog link: `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
 - **Format changed files** - Run `nix fmt` on modified .nix files before committing
 
 **Update Command (RECOMMENDED):**
@@ -34,15 +34,16 @@ Use the maintainer update script which handles BOTH packages automatically:
 
 **Alternative - Manual nix-update:**
 ```bash
-NIXPKGS_ALLOW_UNFREE=1 nix-shell -p nix-update --run 'nix-update --build --commit claude-code'
+env NIXPKGS_ALLOW_UNFREE=1 nix-shell -p nix-update --run 'nix-update --build --commit claude-code'
 ```
 ⚠️ Note: This updates ONLY the claude-code CLI package. VSCode extension must be updated separately (see below).
+⚠️ Important: nix-update will add npm diff link to commit message - this MUST be replaced with changelog link before pushing!
 
 **Build Verification (CRITICAL):**
 After update, **ALL changed packages MUST build successfully**. For claude-code updates:
 ```bash
-NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
-NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
+env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
+env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 ```
 Check `git status` to identify all modified packages and build each one.
 
@@ -57,25 +58,31 @@ Check `git status` to identify all modified packages and build each one.
   1. Edit `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix`
   2. Update version to match claude-code version
   3. Set hash to empty string `""`
-  4. Build to get correct hash: `NIXPKGS_ALLOW_UNFREE=1 nix-build --expr 'with import ./. { config.allowUnfree = true; }; vscode-extensions.anthropic.claude-code'`
-  5. Copy the correct hash from error message (format: `sha256-...`)
+  4. Build to get correct hash: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code 2>&1`
+  5. Copy the correct hash from the error message line starting with "got:" (format: `sha256-...`)
   6. Update the hash in the file
-  7. Rebuild to verify it works
-  8. Add to commit with `git add` and amend: `git commit --amend --no-edit`
+  7. Rebuild to verify: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code`
+  8. Add to commit and amend (after verifying authorship): `git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix && git commit --amend --no-edit`
 
-**Commit Amending:**
-After updating the VSCode extension, verify authorship before amending:
+**Fixing Commit Message (REQUIRED):**
+nix-update adds npm diff link which MUST be replaced with changelog link:
 ```bash
-git log -1 --format='%an %ae'  # Check it's your commit
-git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
-git commit --amend --no-edit
+git commit --amend -m "$(cat <<'EOF'
+claude-code: OLD-VERSION -> NEW-VERSION
+
+https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+EOF
+)"
 ```
+Replace OLD-VERSION and NEW-VERSION with actual version numbers.
 
 **Push Branch:**
-If branch already exists and you amended the commit, use force-with-lease:
+After amending, force push is required:
 ```bash
-git push --force-with-lease origin claude-code-<version>
+git push -f origin claude-code-OLD-VERSION-to-NEW-VERSION
 ```
+Use actual version numbers in branch name.
 
 **PR Creation Process (MANDATORY):**
-When PR is ready, run `gh pr create --dry-run --fill --template PULL_REQUEST_TEMPLATE.md` and ask user if this is okay (MISSION CRITICAL)
+When PR is ready, run `gh pr create --dry-run --fill --base master` and ask user if this is okay (MISSION CRITICAL).
+Note: Do NOT use --template flag as it's not needed with --fill.
