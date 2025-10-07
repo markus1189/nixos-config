@@ -2317,6 +2317,7 @@ Provides more detailed messages on failure."
              (:channelId "UCIX0OOS3khVxwpxuoqkLWMw" :title "Pfefferminz Film" :tags (sport))
              (:channelId "UCTjmLCEVb9r1OpFDJMMWyIw" :title "StezStix Fix?" :tags (electronics))
              (:channelId "UC5Y03h8JAslS5HEuvQNdVWw" :title "VoteSport" :tags (sport))
+             (:channelId "UCHnyfMqiRRG1u-2MsSQLbXA" :title "Veritasium" :tags (science engineering))
              (:channelId "UClsFdM0HzTdF1JYoraQ0aUw" :title "Brick Experiment Channel"))))
 
          (mapcar
