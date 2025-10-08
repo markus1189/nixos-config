@@ -31,6 +31,9 @@ let
   # Auto-configure command files
   commandEntries = autoConfigMarkdownFiles ../../claude/commands "commands" "claude";
 
+  # Auto-configure agent files
+  agentEntries = autoConfigMarkdownFiles ../../claude/agents "agents" "claude";
+
   # Auto-configure docs files
   docsEntries = autoConfigMarkdownFiles ../../claude/docs "user-docs" "claude-docs";
 
@@ -195,5 +198,5 @@ in
     text = builtins.readFile ../../claude/CLAUDE-global.md;
   };
 
-  markdownFiles = commandEntries // docsEntries;
+  markdownFiles = commandEntries // agentEntries // docsEntries;
 }
