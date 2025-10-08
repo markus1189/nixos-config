@@ -37,6 +37,9 @@ let
   # Auto-configure docs files
   docsEntries = autoConfigMarkdownFiles ../../claude/docs "user-docs" "claude-docs";
 
+  # Auto-configure output-styles files
+  outputStylesEntries = autoConfigMarkdownFiles ../../claude/output-styles "output-styles" "claude-output-styles";
+
 in
 {
   settings = {
@@ -198,5 +201,5 @@ in
     text = builtins.readFile ../../claude/CLAUDE-global.md;
   };
 
-  markdownFiles = commandEntries // agentEntries // docsEntries;
+  markdownFiles = commandEntries // agentEntries // docsEntries // outputStylesEntries;
 }
