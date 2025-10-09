@@ -8,7 +8,7 @@
         format = "[$time]($style) ";
       };
       cmd_duration = {
-        show_notifications = true;
+        show_notifications = false; # Custom zsh functionality shows exit code already
       };
       status = {
         disabled = false;
