@@ -1,7 +1,7 @@
 # Claude Instructions
 
 ## Core Principles
-- **Clarify ambiguous requests**: "make it faster" → "reduce API response time to <100ms"
+- **Clarify ambiguous requests**: "make it faster" → "reduce API response time to less than 100ms"
 - **Prefer modification**: Edit existing files when the change fits naturally
 - **Create when justified**: New files for distinct concerns, tests, or when editing would bloat existing code
 - **Immutable patterns**: `readonly` vars, pure functions, explicit state changes
