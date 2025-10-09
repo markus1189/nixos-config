@@ -1,4 +1,4 @@
-# Claude Instructions
+# Coding Agent/Claude/Gemini Instructions
 
 ## Core Principles
 - **Clarify ambiguous requests**: "make it faster" → "reduce API response time to less than 100ms"
