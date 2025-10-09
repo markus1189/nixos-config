@@ -35,6 +35,10 @@ in
       {
         "claude-code" = claudeConfig.settings;
         "claude-md" = claudeConfig.globalClaudeMd;
+        "copilot-instructions-global" = {
+          target = ".copilot/copilot-instructions.md";
+          inherit (claudeConfig.globalClaudeMd) text;
+        };
 
         "visidatarc" = {
           target = ".visidatarc";
