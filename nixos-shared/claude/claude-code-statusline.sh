@@ -1,14 +1,37 @@
 #!/usr/bin/env bash
 input=$(cat)
 
-get_model_name() {
-    local model_name
-    model_name=$(echo "$input" | jq -r '.model.display_name')
-    if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
-        echo "${model_name}🪨"
+get_output_style() {
+    local style
+    style=$(echo "$input" | jq -r '.output_style.name // "default"')
+    if [ "$style" = "default" ] || [ "$style" = "null" ] || [ -z "$style" ]; then
+        echo ""
     else
-        echo "$model_name"
+        echo "$style"
     fi
+}
+
+get_model_name() {
+    local model_name style_suffix bedrock_suffix
+    model_name=$(echo "$input" | jq -r '.model.display_name')
+
+    # Add output style if not default
+    local output_style
+    output_style=$(get_output_style)
+    if [ -n "$output_style" ]; then
+        style_suffix=" ($output_style)"
+    else
+        style_suffix=""
+    fi
+
+    # Add Bedrock emoji if applicable
+    if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
+        bedrock_suffix="🪨"
+    else
+        bedrock_suffix=""
+    fi
+
+    echo "${model_name}${style_suffix}${bedrock_suffix}"
 }
 get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
 get_project_dir() { echo "$input" | jq -r '.workspace.project_dir' | sed "s|^$HOME|~|"; }
