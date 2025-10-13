@@ -32,7 +32,10 @@
 
 ## Script Templates
 
-With nix --expr, you MUST use `` not " in the shebang.
+**Nix shebang syntax rules:**
+  - `--expr` requires double backticks: `--expr ``code here`` --command`
+  - Simple packages use hash syntax: `nixpkgs#package --command`
+  - Prefer simple syntax when possible (no withPackages needed)
 
 ```bash
 # Temp file: mktemp -t claude-code.XXXXXX.$EXT
