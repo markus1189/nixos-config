@@ -2311,6 +2311,7 @@ Provides more detailed messages on failure."
              (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy")
              (:channelId "UC-mexo-76-J1MlQM8NkWCYw" :title "Armin Ronacher")
              (:channelId "UCw7R5moYo-DNLw4BKjFX3bg" :title "Bradford Redpath Zwift Racing" :tags (sport))
+             (:channelId "UCSxPE9PHHxQUEt6ajGmQyMA" :title "Brian Casel" :tags (business entrepreneurship))
              (:channelId "UCgcykADGx7tXw7m0NOoUNwA" :title "Ida-Sophie Hegemann")
              (:channelId "UC_x36zCEGilGpB1m-V4gmjg" :title "IndyDevDan" :tags (gamedev programming))
              (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
