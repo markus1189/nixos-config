@@ -2386,6 +2386,7 @@ Provides more detailed messages on failure."
            ("https://hackaday.com/blog/feed/")
            ("https://newsboat.org/news.atom")
            ("https://blog.fogus.me/feed/")
+           ("https://blog.fsck.com/feed/feed.xml" programming ai)
            ("https://wolles-elektronikkiste.de/rss")
            ("https://rediscoveranalog.com/feed" analog)
            ("https://www.wellappointeddesk.com/feed")
