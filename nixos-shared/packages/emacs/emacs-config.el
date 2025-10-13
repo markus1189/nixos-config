@@ -2513,6 +2513,7 @@ Provides more detailed messages on failure."
            ("https://meta.plasm.us/atom.xml")
            ("https://sysdig.com/blog/feed/")
            ("https://rachelbythebay.com/w/atom.xml")
+           ("https://racheldelafuente.com/blog/feed/" analog reading)
            ("https://danluu.com/atom.xml")
            ("https://www.elidedbranches.com/atom.xml")
            ("https://us2.campaign-archive1.com/feed?u=ba834c562d82d9aba5eaf90ba&id=32cef9ab4e")
