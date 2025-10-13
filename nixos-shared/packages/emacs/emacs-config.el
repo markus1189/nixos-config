@@ -2193,6 +2193,7 @@ Provides more detailed messages on failure."
               (:subreddit "nixos" :tags (programming))
               (:subreddit "notebooks" :tags (analog))
               (:subreddit "NoteTaking" :tags (analog))
+              (:subreddit "oneui")
               (:subreddit "osr")
               (:subreddit "penandpaper")
               (:subreddit "ProgressionFantasy")
