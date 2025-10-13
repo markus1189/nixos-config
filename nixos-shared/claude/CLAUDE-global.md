@@ -64,3 +64,10 @@ When the user references screenshots or recent images:
 ## Shell Rules
 
 - NEVER use `rm -rf`, it will be denied.  You can use `rm -r` without force
+
+## Presenting Options
+
+When offering multiple choices or options to the user, always prefix
+each with a clear identifier (numbers, letters, or short labels) so
+they can easily reference their selection (e.g., "1. Option A",
+"2. Option B" or "a) First choice", "b) Second choice")
