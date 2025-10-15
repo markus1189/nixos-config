@@ -338,6 +338,7 @@ myKeys =
     ((myModKey, xK_BackSpace), focusUrgent),
     ((myModKey, xK_F1), spawn "@autorandr@/bin/autorandr --load mobile"),
     ((myModKey, xK_Insert), spawn "@recordScript@ toggle"),
+    ((0, xF86Search), spawn "@recordScript@ toggle"),
     -- Dunst
     ((myModKey, xK_F10), spawn "@dunst@/bin/dunstctl set-paused toggle"),
     ((controlMask, xK_grave), spawn "@dunst@/bin/dunstctl close"),
@@ -410,6 +411,7 @@ myKeys =
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
     scratchTermRight = namedScratchpadAction myScratchPads "right"
+    -- use xev to find keysym
     xF86AudioLowerVolume = 0x1008ff11
     xF86AudioMute = 0x1008ff12
     xF86AudioRaiseVolume = 0x1008ff13
@@ -419,6 +421,7 @@ myKeys =
     xF86AudioNext = 0x1008ff17
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
+    xF86Search = 0x1008ff1b
 
 -- use "xprop"
 myKeysP :: [(String, X ())]
