@@ -77,7 +77,7 @@
           # insert home-manager config
           packages = with pkgs; [
             ast-grep
-            awscli2
+            #awscli2
             aws-vault
             comma
             claude-code
