@@ -27,17 +27,18 @@ Let me start by creating a todo list and following the systematic update process
 - **Format changed files** - Run `nix fmt` on modified .nix files before committing
 
 **Update Command (RECOMMENDED):**
-Use the maintainer update script which handles BOTH packages automatically:
+Use nix-update directly with explicit version:
+```bash
+env NIXPKGS_ALLOW_UNFREE=1 nix-shell -p nix-update --run 'nix-update --build --commit --version X.Y.Z claude-code'
+```
+Replace X.Y.Z with the target version number (e.g., 2.0.17).
+⚠️ Important: nix-update will add npm diff link to commit message - this MUST be replaced with changelog link before pushing!
+
+**Alternative - Maintainer update script:**
 ```bash
 ./pkgs/by-name/cl/claude-code/update.sh
 ```
-
-**Alternative - Manual nix-update:**
-```bash
-env NIXPKGS_ALLOW_UNFREE=1 nix-shell -p nix-update --run 'nix-update --build --commit claude-code'
-```
-⚠️ Note: This updates ONLY the claude-code CLI package. VSCode extension must be updated separately (see below).
-⚠️ Important: nix-update will add npm diff link to commit message - this MUST be replaced with changelog link before pushing!
+⚠️ Note: This script may fail due to NIX_PATH issues. If it fails, use the manual nix-update method above.
 
 **Build Verification (CRITICAL):**
 After update, **ALL changed packages MUST build successfully**. For claude-code updates:
@@ -53,16 +54,20 @@ Check `git status` to identify all modified packages and build each one.
 - `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix` - VSCode extension (MUST update manually!)
 
 **IMPORTANT: VSCode Extension Update:**
-- If using the `update.sh` script (recommended), the VSCode extension is updated automatically ✅
-- If using manual `nix-update`, you MUST manually update the VSCode extension:
+The VSCode extension is NOT automatically updated by nix-update. You MUST manually update it:
   1. Edit `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix`
   2. Update version to match claude-code version
   3. Set hash to empty string `""`
-  4. Build to get correct hash: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code 2>&1`
-  5. Copy the correct hash from the error message line starting with "got:" (format: `sha256-...`)
+  4. Build to get correct hash: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code 2>&1 | grep -A 2 "got:"`
+  5. Copy the correct hash from the "got:" line (format: `sha256-...`)
   6. Update the hash in the file
   7. Rebuild to verify: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code`
-  8. Add to commit and amend (after verifying authorship): `git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix && git commit --amend --no-edit`
+  8. Add to commit and amend (after verifying authorship with `git log -1 --format='%an %ae'`):
+     ```bash
+     git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix && git commit --amend --no-edit
+     ```
+
+Note: If using the `update.sh` script, it may attempt to update the VSCode extension automatically, but this often fails due to NIX_PATH issues.
 
 **Fixing Commit Message (REQUIRED):**
 nix-update adds npm diff link which MUST be replaced with changelog link:
