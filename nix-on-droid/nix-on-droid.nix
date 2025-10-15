@@ -182,6 +182,9 @@
           };
 
           initContent = ''
+            # Use emacs mode for line editing
+            bindkey -e
+
             # Initialize fasd
             eval "$(fasd --init auto)"
           '';
