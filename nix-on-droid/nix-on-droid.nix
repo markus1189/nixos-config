@@ -102,7 +102,6 @@
             dog              # Modern DNS lookup tool
             nmap             # Network discovery and security auditing
             tmux             # Terminal multiplexer
-            gdu              # Fast disk usage analyzer
             tree             # Directory tree visualization
             file             # File type identification
             which            # Command location finder
