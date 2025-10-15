@@ -25,6 +25,29 @@ nix flake update
 
 Available tools: `git`, `gh` (GitHub CLI)
 
+## Android Storage Access
+
+The `~/storage` directory provides symbolic links to standard Android storage locations:
+
+### Standard Android Folders
+- `~/storage/dcim` → Camera photos and videos (DCIM)
+- `~/storage/pictures` → Pictures folder
+- `~/storage/downloads` → Downloads folder
+- `~/storage/documents` → Documents folder
+- `~/storage/music` → Music folder
+- `~/storage/movies` → Movies folder
+- `~/storage/audiobooks` → Audiobooks folder
+- `~/storage/podcasts` → Podcasts folder
+
+### Termux-Specific Storage
+- `~/storage/external-0` → Termux app-specific files (/storage/emulated/0/Android/data/com.termux.nix/files)
+- `~/storage/media-0` → Termux media storage (/storage/emulated/0/Android/media/com.termux.nix)
+
+### General Access
+- `~/storage/shared` → Root of shared storage (/storage/emulated/0)
+
+All paths are symlinks created by Nix-on-Droid to provide easy access to Android's shared storage from the Termux environment.
+
 # Architecture
 
 This is a Nix-on-Droid configuration for setting up a development environment on Android via Termux.
