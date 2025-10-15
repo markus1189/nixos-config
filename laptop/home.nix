@@ -19,6 +19,7 @@ in
       dunst
       ndt
       # jrnl fails at tests (2022-02-18)
+      myScripts.mpv-watch-later-overview
     ];
 
     file =

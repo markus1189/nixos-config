@@ -53,6 +53,7 @@
   zbar,
   zsh,
   writeShellApplication,
+  writers,
   flameshot,
   tesseract,
   gxmessage,
@@ -1204,4 +1205,6 @@ rec {
           --preview-window '~4,+{2}+4/3,<80(up)'
     '';
   };
+
+  mpv-watch-later-overview = writers.writePython3Bin "mpv-watch-later-overview" { } (builtins.readFile ./mpv-watch-later-overview.py);
 }
