@@ -17,7 +17,6 @@ Examples:
 
 import sys
 import json
-import os
 import re
 from pathlib import Path
 from datetime import datetime
@@ -63,7 +62,8 @@ def parse_conversation(jsonl_path: Path) -> List[Dict[str, Any]]:
                 try:
                     messages.append(json.loads(line))
                 except json.JSONDecodeError as e:
-                    print(f"Warning: Failed to parse line: {e}", file=sys.stderr)
+                    print(f"Warning: Failed to parse line: {e}",
+                          file=sys.stderr)
 
     return messages
 
@@ -73,7 +73,7 @@ def format_timestamp(ts_str: str) -> str:
     try:
         dt = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
         return dt.strftime('%Y-%m-%d %H:%M:%S')
-    except:
+    except Exception:
         return ts_str
 
 
@@ -171,9 +171,11 @@ def format_message_content(content: Any, indent: int = 0) -> str:
                     tool_name = item.get('name', 'unknown')
                     tool_id = item.get('id', '')
                     tool_input = item.get('input', {})
-                    output.append(f"{prefix}**[Tool Use: {tool_name}]** `{tool_id}`")
+                    output.append(
+                        f"{prefix}**[Tool Use: {tool_name}]** `{tool_id}`")
                     output.append(f"{prefix}```json")
-                    output.append(f"{prefix}{json.dumps(tool_input, indent=2)}")
+                    output.append(
+                        f"{prefix}{json.dumps(tool_input, indent=2)}")
                     output.append(f"{prefix}```")
 
                 elif content_type == 'tool_result':
@@ -181,7 +183,8 @@ def format_message_content(content: Any, indent: int = 0) -> str:
                     result_content = item.get('content', '')
                     is_error = item.get('is_error', False)
                     status = "ERROR" if is_error else "Result"
-                    output.append(f"{prefix}**[Tool {status}]** `{tool_use_id}`")
+                    output.append(
+                        f"{prefix}**[Tool {status}]** `{tool_use_id}`")
                     output.append(f"{prefix}```")
                     output.append(f"{prefix}{result_content}")
                     output.append(f"{prefix}```")
@@ -223,11 +226,14 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
     if session_info:
         output.append("## Session Info")
         output.append("")
-        output.append(f"- **Session ID:** `{session_info.get('sessionId', 'N/A')}`")
+        session_id = session_info.get('sessionId', 'N/A')
+        output.append(f"- **Session ID:** `{session_id}`")
         output.append(f"- **Version:** {session_info.get('version', 'N/A')}")
-        output.append(f"- **Working Directory:** `{session_info.get('cwd', 'N/A')}`")
+        cwd = session_info.get('cwd', 'N/A')
+        output.append(f"- **Working Directory:** `{cwd}`")
         if session_info.get('gitBranch'):
-            output.append(f"- **Git Branch:** `{session_info.get('gitBranch')}`")
+            branch = session_info.get('gitBranch')
+            output.append(f"- **Git Branch:** `{branch}`")
         output.append("")
 
     output.append("---")
@@ -271,12 +277,16 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
                 output.append("<details>")
                 output.append("<summary>Token Usage</summary>")
                 output.append("")
-                output.append(f"- Input tokens: {usage.get('input_tokens', 0)}")
-                output.append(f"- Output tokens: {usage.get('output_tokens', 0)}")
+                input_tok = usage.get('input_tokens', 0)
+                output.append(f"- Input tokens: {input_tok}")
+                output_tok = usage.get('output_tokens', 0)
+                output.append(f"- Output tokens: {output_tok}")
                 if usage.get('cache_read_input_tokens'):
-                    output.append(f"- Cache read: {usage.get('cache_read_input_tokens', 0)}")
+                    cache_read = usage.get('cache_read_input_tokens', 0)
+                    output.append(f"- Cache read: {cache_read}")
                 if usage.get('cache_creation_input_tokens'):
-                    output.append(f"- Cache creation: {usage.get('cache_creation_input_tokens', 0)}")
+                    cache_create = usage.get('cache_creation_input_tokens', 0)
+                    output.append(f"- Cache creation: {cache_create}")
                 output.append("</details>")
 
             output.append("")
@@ -287,9 +297,9 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
             output.append(f"### [{i}] System Message ({subtype})")
             output.append(f"*{timestamp}* • `{uuid}`")
             output.append("")
-            output.append(f"```")
+            output.append("```")
             output.append(content)
-            output.append(f"```")
+            output.append("```")
             output.append("")
 
         else:
@@ -304,7 +314,10 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
     return "\n".join(output)
 
 
-def search_conversations(pattern: str, search_user: bool = True, search_assistant: bool = True) -> List[Tuple[Path, str, str, str]]:
+def search_conversations(
+        pattern: str,
+        search_user: bool = True,
+        search_assistant: bool = True) -> List[Tuple[Path, str, str, str]]:
     """
     Search for pattern in conversations.
 
@@ -336,20 +349,24 @@ def search_conversations(pattern: str, search_user: bool = True, search_assistan
                     try:
                         if re.search(pattern, text, re.IGNORECASE):
                             snippet = get_snippet(text, pattern)
-                            timestamp = format_timestamp(msg.get('timestamp', ''))
-                            result_text = f"[USER {timestamp}] {snippet}"
+                            ts = format_timestamp(msg.get('timestamp', ''))
+                            result_text = f"[USER {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
-                            results.append((jsonl_file, session_id, 'user', result_text))
+                            results.append(
+                                (jsonl_file, session_id, 'user',
+                                 result_text))
                     except re.error:
                         # Fallback to literal string search
                         if pattern.lower() in text.lower():
                             snippet = get_snippet(text, pattern)
-                            timestamp = format_timestamp(msg.get('timestamp', ''))
-                            result_text = f"[USER {timestamp}] {snippet}"
+                            ts = format_timestamp(msg.get('timestamp', ''))
+                            result_text = f"[USER {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
-                            results.append((jsonl_file, session_id, 'user', result_text))
+                            results.append(
+                                (jsonl_file, session_id, 'user',
+                                 result_text))
 
                 elif msg_type == 'assistant' and search_assistant:
                     message = msg.get('message', {})
@@ -359,22 +376,26 @@ def search_conversations(pattern: str, search_user: bool = True, search_assistan
                     try:
                         if re.search(pattern, text, re.IGNORECASE):
                             snippet = get_snippet(text, pattern)
-                            timestamp = format_timestamp(msg.get('timestamp', ''))
-                            result_text = f"[ASSISTANT {timestamp}] {snippet}"
+                            ts = format_timestamp(msg.get('timestamp', ''))
+                            result_text = f"[ASSISTANT {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
-                            results.append((jsonl_file, session_id, 'assistant', result_text))
+                            results.append(
+                                (jsonl_file, session_id, 'assistant',
+                                 result_text))
                     except re.error:
                         # Fallback to literal string search
                         if pattern.lower() in text.lower():
                             snippet = get_snippet(text, pattern)
-                            timestamp = format_timestamp(msg.get('timestamp', ''))
-                            result_text = f"[ASSISTANT {timestamp}] {snippet}"
+                            ts = format_timestamp(msg.get('timestamp', ''))
+                            result_text = f"[ASSISTANT {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
-                            results.append((jsonl_file, session_id, 'assistant', result_text))
+                            results.append(
+                                (jsonl_file, session_id, 'assistant',
+                                 result_text))
 
-        except Exception as e:
+        except Exception:
             # Skip files that can't be parsed
             continue
 
@@ -385,7 +406,8 @@ def cmd_view(conv_id: str):
     """View command: convert conversation to markdown."""
     jsonl_path = find_conversation_file(conv_id)
     if not jsonl_path:
-        print(f"Error: Could not find conversation matching '{conv_id}'", file=sys.stderr)
+        print(f"Error: Could not find conversation matching '{conv_id}'",
+              file=sys.stderr)
         sys.exit(1)
 
     print(f"Found: {jsonl_path}", file=sys.stderr)
