@@ -28,6 +28,29 @@ let
     in
     entries;
 
+  # Helper function to automatically discover and symlink subdirectories (for skills)
+  autoConfigSkillDirs =
+    sourceDir: targetSubdir: namePrefix:
+    let
+      entries = builtins.readDir sourceDir;
+      isDirectory = name: type: type == "directory";
+      skillDirs = pkgs.lib.attrsets.filterAttrs isDirectory entries;
+
+      makeEntry = dirname: {
+        target = ".claude/${targetSubdir}/${dirname}";
+        source = sourceDir + "/${dirname}";
+        recursive = true;
+      };
+
+      dirEntries = pkgs.lib.attrsets.mapAttrs' (
+        dirname: _:
+        pkgs.lib.attrsets.nameValuePair "${namePrefix}-${dirname}" (
+          makeEntry dirname
+        )
+      ) skillDirs;
+    in
+    dirEntries;
+
   # Auto-configure command files
   commandEntries = autoConfigMarkdownFiles ../../claude/commands "commands" "claude";
 
@@ -39,6 +62,9 @@ let
 
   # Auto-configure output-styles files
   outputStylesEntries = autoConfigMarkdownFiles ../../claude/output-styles "output-styles" "claude-output-styles";
+
+  # Auto-configure skills directories (symlink entire directories with all contents)
+  skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
 
 in
 {
@@ -201,5 +227,5 @@ in
     text = builtins.readFile ../../claude/CLAUDE-global.md;
   };
 
-  markdownFiles = commandEntries // agentEntries // docsEntries // outputStylesEntries;
+  markdownFiles = commandEntries // agentEntries // docsEntries // outputStylesEntries // skillsEntries;
 }
