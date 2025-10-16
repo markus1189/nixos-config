@@ -189,7 +189,7 @@ in
 
       env = {
         ACTIVE_CLAUDE_CODE_SESSION = "true";
-        BASH_DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; # default = 2 min
+        BASH_DEFAULT_TIMEOUT_MS = 1 * 60 * 1000; # default = 2 min, background them faster since 2.0.19
         BASH_MAX_TIMEOUT_MS = 30 * 60 * 1000;
         MAX_MCP_OUTPUT_TOKENS = 50 * 1000; # default = 25,000
       };
