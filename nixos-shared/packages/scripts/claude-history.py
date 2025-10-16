@@ -22,6 +22,20 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 
+try:
+    from colorama import Fore, Back, Style, init
+    init(autoreset=True)
+    HAS_COLOR = True
+except ImportError:
+    # Fallback if colorama is not available
+    HAS_COLOR = False
+
+    class MockColor:
+        def __getattr__(self, name):
+            return ''
+
+    Fore = Back = Style = MockColor()
+
 
 def get_all_conversation_files() -> List[Path]:
     """Get all conversation JSONL files."""
@@ -68,11 +82,14 @@ def parse_conversation(jsonl_path: Path) -> List[Dict[str, Any]]:
     return messages
 
 
-def format_timestamp(ts_str: str) -> str:
+def format_timestamp(ts_str: str, colored: bool = True) -> str:
     """Format ISO timestamp to readable string."""
     try:
         dt = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
-        return dt.strftime('%Y-%m-%d %H:%M:%S')
+        ts = dt.strftime('%Y-%m-%d %H:%M:%S')
+        if colored and HAS_COLOR:
+            return f"{Fore.CYAN}{ts}{Style.RESET_ALL}"
+        return ts
     except Exception:
         return ts_str
 
@@ -143,7 +160,8 @@ def get_snippet(text: str, pattern: str, context_chars: int = 100) -> str:
         return snippet
 
 
-def format_message_content(content: Any, indent: int = 0) -> str:
+def format_message_content(
+        content: Any, indent: int = 0, colored: bool = True) -> str:
     """Format message content (can be string or list of content blocks)."""
     prefix = "  " * indent
     output = []
@@ -162,7 +180,14 @@ def format_message_content(content: Any, indent: int = 0) -> str:
 
                 elif content_type == 'thinking':
                     thinking = item.get('thinking', '')
-                    output.append(f"{prefix}**[Thinking]**")
+                    if colored and HAS_COLOR:
+                        thinking_label = (
+                            f"{Fore.MAGENTA}**[Thinking]**"
+                            f"{Style.RESET_ALL}"
+                        )
+                    else:
+                        thinking_label = "**[Thinking]**"
+                    output.append(f"{prefix}{thinking_label}")
                     output.append(f"{prefix}```")
                     output.append(f"{prefix}{thinking}")
                     output.append(f"{prefix}```")
@@ -171,8 +196,15 @@ def format_message_content(content: Any, indent: int = 0) -> str:
                     tool_name = item.get('name', 'unknown')
                     tool_id = item.get('id', '')
                     tool_input = item.get('input', {})
-                    output.append(
-                        f"{prefix}**[Tool Use: {tool_name}]** `{tool_id}`")
+                    if colored and HAS_COLOR:
+                        label = (
+                            f"{Fore.YELLOW}**[Tool Use: {tool_name}]**"
+                            f"{Style.RESET_ALL} "
+                            f"{Fore.BLUE}`{tool_id}`{Style.RESET_ALL}"
+                        )
+                    else:
+                        label = f"**[Tool Use: {tool_name}]** `{tool_id}`"
+                    output.append(f"{prefix}{label}")
                     output.append(f"{prefix}```json")
                     output.append(
                         f"{prefix}{json.dumps(tool_input, indent=2)}")
@@ -183,14 +215,29 @@ def format_message_content(content: Any, indent: int = 0) -> str:
                     result_content = item.get('content', '')
                     is_error = item.get('is_error', False)
                     status = "ERROR" if is_error else "Result"
-                    output.append(
-                        f"{prefix}**[Tool {status}]** `{tool_use_id}`")
+                    if colored and HAS_COLOR:
+                        color = Fore.RED if is_error else Fore.GREEN
+                        label = (
+                            f"{color}**[Tool {status}]**"
+                            f"{Style.RESET_ALL} "
+                            f"{Fore.BLUE}`{tool_use_id}`{Style.RESET_ALL}"
+                        )
+                    else:
+                        label = f"**[Tool {status}]** `{tool_use_id}`"
+                    output.append(f"{prefix}{label}")
                     output.append(f"{prefix}```")
                     output.append(f"{prefix}{result_content}")
                     output.append(f"{prefix}```")
 
                 else:
-                    output.append(f"{prefix}**[{content_type}]**")
+                    if colored and HAS_COLOR:
+                        type_label = (
+                            f"{Fore.CYAN}**[{content_type}]**"
+                            f"{Style.RESET_ALL}"
+                        )
+                    else:
+                        type_label = f"**[{content_type}]**"
+                    output.append(f"{prefix}{type_label}")
                     output.append(f"{prefix}```json")
                     output.append(f"{prefix}{json.dumps(item, indent=2)}")
                     output.append(f"{prefix}```")
@@ -201,7 +248,8 @@ def format_message_content(content: Any, indent: int = 0) -> str:
     return "\n".join(output)
 
 
-def generate_markdown(messages: List[Dict[str, Any]]) -> str:
+def generate_markdown(
+        messages: List[Dict[str, Any]], colored: bool = True) -> str:
     """Generate markdown from parsed messages."""
     output = []
 
@@ -216,29 +264,75 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
             session_info = msg
 
     # Header
-    output.append("# Claude Code Conversation")
+    if colored and HAS_COLOR:
+        title = (
+            f"{Fore.GREEN}# Claude Code Conversation{Style.RESET_ALL}"
+        )
+    else:
+        title = "# Claude Code Conversation"
+    output.append(title)
     output.append("")
 
     if summary:
-        output.append(f"**Summary:** {summary}")
+        if colored and HAS_COLOR:
+            summary_text = (
+                f"{Fore.YELLOW}**Summary:**{Style.RESET_ALL} {summary}"
+            )
+        else:
+            summary_text = f"**Summary:** {summary}"
+        output.append(summary_text)
         output.append("")
 
     if session_info:
-        output.append("## Session Info")
+        if colored and HAS_COLOR:
+            section_header = (
+                f"{Fore.GREEN}## Session Info{Style.RESET_ALL}"
+            )
+        else:
+            section_header = "## Session Info"
+        output.append(section_header)
         output.append("")
         session_id = session_info.get('sessionId', 'N/A')
-        output.append(f"- **Session ID:** `{session_id}`")
-        output.append(f"- **Version:** {session_info.get('version', 'N/A')}")
-        cwd = session_info.get('cwd', 'N/A')
-        output.append(f"- **Working Directory:** `{cwd}`")
-        if session_info.get('gitBranch'):
-            branch = session_info.get('gitBranch')
-            output.append(f"- **Git Branch:** `{branch}`")
+        if colored and HAS_COLOR:
+            output.append(
+                f"- **Session ID:** "
+                f"{Fore.BLUE}`{session_id}`{Style.RESET_ALL}"
+            )
+            version = session_info.get('version', 'N/A')
+            output.append(
+                f"- **Version:** "
+                f"{Fore.BLUE}{version}{Style.RESET_ALL}"
+            )
+            cwd = session_info.get('cwd', 'N/A')
+            output.append(
+                f"- **Working Directory:** "
+                f"{Fore.BLUE}`{cwd}`{Style.RESET_ALL}"
+            )
+            if session_info.get('gitBranch'):
+                branch = session_info.get('gitBranch')
+                output.append(
+                    f"- **Git Branch:** "
+                    f"{Fore.BLUE}`{branch}`{Style.RESET_ALL}"
+                )
+        else:
+            output.append(f"- **Session ID:** `{session_id}`")
+            output.append(
+                f"- **Version:** {session_info.get('version', 'N/A')}"
+            )
+            cwd = session_info.get('cwd', 'N/A')
+            output.append(f"- **Working Directory:** `{cwd}`")
+            if session_info.get('gitBranch'):
+                branch = session_info.get('gitBranch')
+                output.append(f"- **Git Branch:** `{branch}`")
         output.append("")
 
     output.append("---")
     output.append("")
-    output.append("## Conversation")
+    if colored and HAS_COLOR:
+        conv_header = f"{Fore.GREEN}## Conversation{Style.RESET_ALL}"
+    else:
+        conv_header = "## Conversation"
+    output.append(conv_header)
     output.append("")
 
     # Process messages chronologically
@@ -248,27 +342,45 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
         if msg_type == 'summary' or msg_type == 'file-history-snapshot':
             continue
 
-        timestamp = format_timestamp(msg.get('timestamp', ''))
+        timestamp = format_timestamp(msg.get('timestamp', ''), colored)
         uuid = msg.get('uuid', '')
+        if colored and HAS_COLOR:
+            uuid_colored = f"{Fore.BLUE}`{uuid}`{Style.RESET_ALL}"
+        else:
+            uuid_colored = f"`{uuid}`"
 
         if msg_type == 'user':
-            output.append(f"### [{i}] User Message")
-            output.append(f"*{timestamp}* • `{uuid}`")
+            if colored and HAS_COLOR:
+                msg_header = (
+                    f"{Fore.CYAN}### [{i}] User Message"
+                    f"{Style.RESET_ALL}"
+                )
+            else:
+                msg_header = f"### [{i}] User Message"
+            output.append(msg_header)
+            output.append(f"*{timestamp}* • {uuid_colored}")
             output.append("")
 
             message = msg.get('message', {})
             content = message.get('content', '')
-            output.append(format_message_content(content))
+            output.append(format_message_content(content, colored=colored))
             output.append("")
 
         elif msg_type == 'assistant':
-            output.append(f"### [{i}] Assistant Message")
-            output.append(f"*{timestamp}* • `{uuid}`")
+            if colored and HAS_COLOR:
+                msg_header = (
+                    f"{Fore.MAGENTA}### [{i}] Assistant Message"
+                    f"{Style.RESET_ALL}"
+                )
+            else:
+                msg_header = f"### [{i}] Assistant Message"
+            output.append(msg_header)
+            output.append(f"*{timestamp}* • {uuid_colored}")
             output.append("")
 
             message = msg.get('message', {})
             content = message.get('content', [])
-            output.append(format_message_content(content))
+            output.append(format_message_content(content, colored=colored))
 
             # Usage stats if available
             usage = message.get('usage', {})
@@ -294,8 +406,15 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
         elif msg_type == 'system':
             subtype = msg.get('subtype', '')
             content = msg.get('content', '')
-            output.append(f"### [{i}] System Message ({subtype})")
-            output.append(f"*{timestamp}* • `{uuid}`")
+            if colored and HAS_COLOR:
+                msg_header = (
+                    f"{Fore.YELLOW}### [{i}] System Message "
+                    f"({subtype}){Style.RESET_ALL}"
+                )
+            else:
+                msg_header = f"### [{i}] System Message ({subtype})"
+            output.append(msg_header)
+            output.append(f"*{timestamp}* • {uuid_colored}")
             output.append("")
             output.append("```")
             output.append(content)
@@ -303,8 +422,15 @@ def generate_markdown(messages: List[Dict[str, Any]]) -> str:
             output.append("")
 
         else:
-            output.append(f"### [{i}] {msg_type.title()}")
-            output.append(f"*{timestamp}* • `{uuid}`")
+            if colored and HAS_COLOR:
+                msg_header = (
+                    f"{Fore.WHITE}### [{i}] {msg_type.title()}"
+                    f"{Style.RESET_ALL}"
+                )
+            else:
+                msg_header = f"### [{i}] {msg_type.title()}"
+            output.append(msg_header)
+            output.append(f"*{timestamp}* • {uuid_colored}")
             output.append("")
             output.append("```json")
             output.append(json.dumps(msg, indent=2))
@@ -406,14 +532,26 @@ def cmd_view(conv_id: str):
     """View command: convert conversation to markdown."""
     jsonl_path = find_conversation_file(conv_id)
     if not jsonl_path:
-        print(f"Error: Could not find conversation matching '{conv_id}'",
-              file=sys.stderr)
+        if HAS_COLOR:
+            error_msg = (
+                f"{Fore.RED}Error: Could not find conversation matching "
+                f"'{conv_id}'{Style.RESET_ALL}"
+            )
+        else:
+            error_msg = (
+                f"Error: Could not find conversation matching '{conv_id}'"
+            )
+        print(error_msg, file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found: {jsonl_path}", file=sys.stderr)
+    if HAS_COLOR:
+        found_msg = f"{Fore.GREEN}Found: {jsonl_path}{Style.RESET_ALL}"
+    else:
+        found_msg = f"Found: {jsonl_path}"
+    print(found_msg, file=sys.stderr)
 
     messages = parse_conversation(jsonl_path)
-    markdown = generate_markdown(messages)
+    markdown = generate_markdown(messages, colored=HAS_COLOR)
     print(markdown)
 
 
@@ -431,14 +569,33 @@ def cmd_search(pattern: str, args: List[str]):
         search_user = True
         search_assistant = True
 
-    print(f"Searching for: '{pattern}'", file=sys.stderr)
+    if HAS_COLOR:
+        search_msg = (
+            f"{Fore.CYAN}Searching for: '{pattern}'{Style.RESET_ALL}"
+        )
+    else:
+        search_msg = f"Searching for: '{pattern}'"
+    print(search_msg, file=sys.stderr)
     results = search_conversations(pattern, search_user, search_assistant)
 
     if not results:
-        print("No matches found.", file=sys.stderr)
+        if HAS_COLOR:
+            no_match_msg = (
+                f"{Fore.YELLOW}No matches found.{Style.RESET_ALL}"
+            )
+        else:
+            no_match_msg = "No matches found."
+        print(no_match_msg, file=sys.stderr)
         sys.exit(0)
 
-    print(f"Found {len(results)} match(es):\n", file=sys.stderr)
+    if HAS_COLOR:
+        found_msg = (
+            f"{Fore.GREEN}Found {len(results)} match(es):"
+            f"{Style.RESET_ALL}\n"
+        )
+    else:
+        found_msg = f"Found {len(results)} match(es):\n"
+    print(found_msg, file=sys.stderr)
 
     # Group results by session
     sessions = {}
@@ -449,7 +606,13 @@ def cmd_search(pattern: str, args: List[str]):
 
     # Output results
     for session_id, matches in sessions.items():
-        print(f"\n{session_id}")
+        if HAS_COLOR:
+            session_header = (
+                f"\n{Fore.BLUE}{session_id}{Style.RESET_ALL}"
+            )
+        else:
+            session_header = f"\n{session_id}"
+        print(session_header)
         for msg_type, snippet in matches:
             print(f"  {snippet}")
 
