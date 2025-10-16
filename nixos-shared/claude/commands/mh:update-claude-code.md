@@ -8,9 +8,16 @@ I'll help you update the claude-code package in nixpkgs following the proper pro
 
 Arguments: $ARGUMENTS
 
+**FIRST STEP - ALWAYS SWITCH TO MASTER:**
+Before doing ANYTHING else, you MUST:
+1. Switch to master branch: `git checkout master`
+2. Fetch and pull latest: `git fetch upstream && git pull upstream master`
+
+DO NOT assume you are already on master or that you are in the middle of an update. ALWAYS start fresh from master.
+
 Let me start by creating a todo list and following the systematic update process:
 
-1. **Prepare Repository** - Ensure we're on master and up to date with upstream
+1. **Prepare Repository** - Switch to master and update with upstream
 2. **Check Current and Latest Versions** - Compare nixpkgs version with npm registry
 3. **Create Branch** - Only after confirming a new version exists
 4. **Run Update Command** - Use nix-update via maintainer script
@@ -20,7 +27,7 @@ Let me start by creating a todo list and following the systematic update process
 8. **Create PR** - Use dry-run first, then create and open
 
 **Critical Requirements:**
-- Must be on latest upstream master FIRST
+- MUST switch to master branch FIRST - never assume you're already on the right branch
 - Unfree license requires `NIXPKGS_ALLOW_UNFREE=1` or `env NIXPKGS_ALLOW_UNFREE=1` prefix for commands
 - Follow nixpkgs commit format: `claude-code: old-version -> new-version`
 - **NEVER include npm diff links** - Only use changelog link: `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
