@@ -1207,4 +1207,6 @@ rec {
   };
 
   mpv-watch-later-overview = writers.writePython3Bin "mpv-watch-later-overview" { } (builtins.readFile ./mpv-watch-later-overview.py);
+
+  claude-history = writers.writePython3Bin "claude-history" { } (builtins.readFile ./claude-history.py);
 }
