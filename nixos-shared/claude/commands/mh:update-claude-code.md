@@ -24,7 +24,6 @@ Let me start by creating a todo list and following the systematic update process
 5. **Build and Test** - Verify the package works correctly
 6. **Commit Changes** - Follow nixpkgs commit format with changelog
 7. **Push Branch** - Ready for PR creation
-8. **Create PR** - Use dry-run first, then create and open
 
 **Critical Requirements:**
 - MUST switch to master branch FIRST - never assume you're already on the right branch
@@ -34,52 +33,48 @@ Let me start by creating a todo list and following the systematic update process
 - **Format changed files** - Run `nix fmt` on modified .nix files before committing
 
 **Update Command (RECOMMENDED):**
-Use nix-update directly with explicit version:
-```bash
-env NIXPKGS_ALLOW_UNFREE=1 nix-shell -p nix-update --run 'nix-update --build --commit --version X.Y.Z claude-code'
-```
-Replace X.Y.Z with the target version number (e.g., 2.0.17).
-⚠️ Important: nix-update will add npm diff link to commit message - this MUST be replaced with changelog link before pushing!
-
-**Alternative - Maintainer update script:**
+Use the maintainer update script which handles everything automatically:
 ```bash
 ./pkgs/by-name/cl/claude-code/update.sh
 ```
-⚠️ Note: This script may fail due to NIX_PATH issues. If it fails, use the manual nix-update method above.
+This script automatically:
+- Fetches the latest version from npm
+- Updates claude-code package with nix-update
+- Updates the VSCode extension
+- Generates lockfiles for both packages
 
-**Build Verification (CRITICAL):**
-After update, **ALL changed packages MUST build successfully**. For claude-code updates:
-```bash
-env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
-env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
-```
-Check `git status` to identify all modified packages and build each one.
-
-**Key Files:**
+**Key Files Updated by Script:**
 - `pkgs/by-name/cl/claude-code/package.nix` - Version and hashes
 - `pkgs/by-name/cl/claude-code/package-lock.json` - npm dependencies
-- `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix` - VSCode extension (MUST update manually!)
+- `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix` - VSCode extension
 
-**IMPORTANT: VSCode Extension Update:**
-The VSCode extension is NOT automatically updated by nix-update. You MUST manually update it:
-  1. Edit `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix`
-  2. Update version to match claude-code version
-  3. Set hash to empty string `""`
-  4. Build to get correct hash: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code 2>&1 | grep -A 2 "got:"`
-  5. Copy the correct hash from the "got:" line (format: `sha256-...`)
-  6. Update the hash in the file
-  7. Rebuild to verify: `env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code`
-  8. Add to commit and amend (after verifying authorship with `git log -1 --format='%an %ae'`):
-     ```bash
-     git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix && git commit --amend --no-edit
-     ```
-
-Note: If using the `update.sh` script, it may attempt to update the VSCode extension automatically, but this often fails due to NIX_PATH issues.
-
-**Fixing Commit Message (REQUIRED):**
-nix-update adds npm diff link which MUST be replaced with changelog link:
+**Verify package-lock.json Version (REQUIRED):**
+Check that the version in package-lock.json matches the new version:
 ```bash
-git commit --amend -m "$(cat <<'EOF'
+grep '"version":' pkgs/by-name/cl/claude-code/package-lock.json | head -1
+```
+The version must match the NEW-VERSION being updated to (e.g., "2.0.22").
+
+**Format Changed Files (REQUIRED):**
+Run `nix fmt` on modified .nix files before committing:
+```bash
+nix fmt pkgs/by-name/cl/claude-code/package.nix
+nix fmt pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
+```
+
+**Build Verification (CRITICAL):**
+**ALL changed packages MUST build successfully** before committing:
+```bash
+env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
+env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
+```
+Both builds must succeed. If either fails, investigate and fix before proceeding.
+
+**Commit Changes:**
+After formatting and verifying builds succeed, commit the changes:
+```bash
+git add -A
+git commit -m "$(cat <<'EOF'
 claude-code: OLD-VERSION -> NEW-VERSION
 
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
@@ -89,12 +84,7 @@ EOF
 Replace OLD-VERSION and NEW-VERSION with actual version numbers.
 
 **Push Branch:**
-After amending, force push is required:
 ```bash
-git push -f origin claude-code-OLD-VERSION-to-NEW-VERSION
+git push origin claude-code-OLD-VERSION-to-NEW-VERSION
 ```
 Use actual version numbers in branch name.
-
-**PR Creation Process (MANDATORY):**
-When PR is ready, run `gh pr create --dry-run --fill --base master` and ask user if this is okay (MISSION CRITICAL).
-Note: Do NOT use --template flag as it's not needed with --fill.
