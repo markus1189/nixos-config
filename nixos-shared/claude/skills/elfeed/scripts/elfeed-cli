@@ -1,0 +1,128 @@
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
+set -euo pipefail
+
+# elfeed-cli: Command-line interface to elfeed database via emacsclient
+# Usage: elfeed-cli [command] [options]
+
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly ELFEED_QUERY_LIB="$SCRIPT_DIR/elfeed-query.el"
+
+# Check if emacsclient is available
+if ! command -v emacsclient &> /dev/null; then
+    echo "Error: emacsclient not found" >&2
+    exit 1
+fi
+
+# Function to execute elisp and return result
+eval_elisp() {
+    local elisp_code="$1"
+    emacsclient --eval "$elisp_code" 2>&1
+}
+
+# Load the query library
+load_library() {
+    eval_elisp "(progn (load \"$ELFEED_QUERY_LIB\") nil)" > /dev/null
+}
+
+# Commands
+
+cmd_query() {
+    local filter="${1:-+unread}"
+    local format="${2:-simple}"
+    local limit="${3:-}"
+    
+    load_library
+    
+    local elisp="(progn (require 'elfeed-query) (elfeed-query-entries \"$filter\" '$format ${limit:-nil}))"
+    eval_elisp "$elisp"
+}
+
+cmd_stats() {
+    load_library
+    local elisp="(progn (require 'elfeed-query) (elfeed-query-stats))"
+    eval_elisp "$elisp"
+}
+
+cmd_feeds() {
+    load_library
+    local elisp="(progn (require 'elfeed-query) (elfeed-query-feeds))"
+    eval_elisp "$elisp"
+}
+
+cmd_tags() {
+    load_library
+    local elisp="(progn (require 'elfeed-query) (elfeed-query-tags))"
+    eval_elisp "$elisp"
+}
+
+cmd_help() {
+    cat << 'HELP'
+elfeed-cli - Command-line interface to elfeed database
+
+Usage: elfeed-cli [command] [options]
+
+Commands:
+  query [filter] [format] [limit]  Query entries with filter
+                                   filter: elfeed search syntax (default: +unread)
+                                   format: sexp|json|simple (default: simple)
+                                   limit: max number of results (optional)
+  
+  stats                            Show database statistics
+  feeds                            List all feeds
+  tags                             List all tags
+  help                             Show this help message
+
+Filter Syntax:
+  +tag          Must have tag (e.g., +unread)
+  -tag          Must not have tag (e.g., -unread)
+  @time         Entries newer than time (e.g., @1-week-ago, @2-days-ago)
+  #N            Limit to N entries (e.g., #10)
+  =regex        Feed URL/title matches regex
+  ~regex        Feed URL/title doesn't match regex
+  !regex        Entry title/link doesn't match regex
+  text          Entry title/link matches text (regex)
+
+Examples:
+  elfeed-cli query "+unread" simple 10
+  elfeed-cli query "+unread @1-week-ago" json
+  elfeed-cli query "+emacs -reddit" simple
+  elfeed-cli stats
+  elfeed-cli feeds
+  elfeed-cli tags
+
+Note: Requires a running Emacs instance with elfeed loaded.
+HELP
+}
+
+# Main
+
+main() {
+    local command="${1:-help}"
+    shift || true
+    
+    case "$command" in
+        query)
+            cmd_query "$@"
+            ;;
+        stats)
+            cmd_stats
+            ;;
+        feeds)
+            cmd_feeds
+            ;;
+        tags)
+            cmd_tags
+            ;;
+        help|--help|-h)
+            cmd_help
+            ;;
+        *)
+            echo "Unknown command: $command" >&2
+            echo "Run 'elfeed-cli help' for usage" >&2
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
