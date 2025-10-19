@@ -2528,6 +2528,7 @@ Provides more detailed messages on failure."
            ("https://daniel.haxx.se/blog/feed/" programming)
            ("https://wearetrailmix.substack.com/feed" sport)
            ("https://simonwillison.net/atom/everything/" programming llm)
+           ("https://steipete.me/rss.xml" programming llm)
            ("https://voidstarsec.com/blog/feeds/all.atom.xml" hacking)
            ("https://blog.vbang.dk/feed.xml")
            ("https://goodmovie.substack.com/feed")
