@@ -443,11 +443,11 @@ def generate_markdown(
 def search_conversations(
         pattern: str,
         search_user: bool = True,
-        search_assistant: bool = True) -> List[Tuple[Path, str, str, str]]:
+        search_assistant: bool = True) -> List[Tuple[Path, str, str, str, str]]:
     """
     Search for pattern in conversations.
 
-    Returns: List of (file_path, session_id, message_type, snippet) tuples
+    Returns: List of (file_path, session_id, message_type, snippet, timestamp) tuples
     """
     results = []
 
@@ -475,24 +475,26 @@ def search_conversations(
                     try:
                         if re.search(pattern, text, re.IGNORECASE):
                             snippet = get_snippet(text, pattern)
-                            ts = format_timestamp(msg.get('timestamp', ''))
+                            timestamp = msg.get('timestamp', '')
+                            ts = format_timestamp(timestamp)
                             result_text = f"[USER {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
                             results.append(
                                 (jsonl_file, session_id, 'user',
-                                 result_text))
+                                 result_text, timestamp))
                     except re.error:
                         # Fallback to literal string search
                         if pattern.lower() in text.lower():
                             snippet = get_snippet(text, pattern)
-                            ts = format_timestamp(msg.get('timestamp', ''))
+                            timestamp = msg.get('timestamp', '')
+                            ts = format_timestamp(timestamp)
                             result_text = f"[USER {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
                             results.append(
                                 (jsonl_file, session_id, 'user',
-                                 result_text))
+                                 result_text, timestamp))
 
                 elif msg_type == 'assistant' and search_assistant:
                     message = msg.get('message', {})
@@ -502,24 +504,26 @@ def search_conversations(
                     try:
                         if re.search(pattern, text, re.IGNORECASE):
                             snippet = get_snippet(text, pattern)
-                            ts = format_timestamp(msg.get('timestamp', ''))
+                            timestamp = msg.get('timestamp', '')
+                            ts = format_timestamp(timestamp)
                             result_text = f"[ASSISTANT {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
                             results.append(
                                 (jsonl_file, session_id, 'assistant',
-                                 result_text))
+                                 result_text, timestamp))
                     except re.error:
                         # Fallback to literal string search
                         if pattern.lower() in text.lower():
                             snippet = get_snippet(text, pattern)
-                            ts = format_timestamp(msg.get('timestamp', ''))
+                            timestamp = msg.get('timestamp', '')
+                            ts = format_timestamp(timestamp)
                             result_text = f"[ASSISTANT {ts}] {snippet}"
                             if summary:
                                 result_text = f"({summary}) {result_text}"
                             results.append(
                                 (jsonl_file, session_id, 'assistant',
-                                 result_text))
+                                 result_text, timestamp))
 
         except Exception:
             # Skip files that can't be parsed
@@ -597,15 +601,25 @@ def cmd_search(pattern: str, args: List[str]):
         found_msg = f"Found {len(results)} match(es):\n"
     print(found_msg, file=sys.stderr)
 
-    # Group results by session
+    # Group results by session and track most recent timestamp
     sessions = {}
-    for file_path, session_id, msg_type, snippet in results:
+    session_timestamps = {}
+    for file_path, session_id, msg_type, snippet, timestamp in results:
         if session_id not in sessions:
             sessions[session_id] = []
+            session_timestamps[session_id] = timestamp
         sessions[session_id].append((msg_type, snippet))
+        # Keep track of the most recent timestamp for this session
+        if timestamp > session_timestamps[session_id]:
+            session_timestamps[session_id] = timestamp
 
-    # Output results
-    for session_id, matches in sessions.items():
+    # Output results sorted by most recent timestamp first
+    sorted_sessions = sorted(
+        sessions.items(),
+        key=lambda x: session_timestamps[x[0]],
+        reverse=True
+    )
+    for session_id, matches in sorted_sessions:
         if HAS_COLOR:
             session_header = (
                 f"\n{Fore.BLUE}{session_id}{Style.RESET_ALL}"
