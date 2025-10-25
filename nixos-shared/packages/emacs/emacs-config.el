@@ -73,7 +73,6 @@
  '(magit-log-arguments '("--graph" "--color" "--decorate" "-n100"))
  '(magit-log-auto-more t)
  '(magit-merge-arguments '("--no-ff"))
- '(magit-mode-hook '(magit-load-config-extensions))
  '(magit-process-log-max 50)
  '(magit-process-popup-time -1)
  '(magit-rebase-arguments '("--autostash"))
