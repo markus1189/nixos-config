@@ -8,45 +8,84 @@ I'll help you update the claude-code package in nixpkgs following the proper pro
 
 Arguments: $ARGUMENTS
 
-**FIRST STEP - ALWAYS SWITCH TO MASTER:**
-Before doing ANYTHING else, you MUST:
-1. Switch to master branch: `git checkout master`
-2. Fetch and pull latest: `git fetch upstream && git pull upstream master`
+## ⚠️ CRITICAL: MANDATORY FIRST STEP - SWITCH TO MASTER ⚠️
 
-DO NOT assume you are already on master or that you are in the middle of an update. ALWAYS start fresh from master.
+**STOP! READ THIS FIRST!**
 
-Let me start by creating a todo list and following the systematic update process:
+You MUST execute these commands BEFORE doing ANYTHING else:
 
-1. **Prepare Repository** - Switch to master and update with upstream
+```bash
+git checkout master
+git fetch upstream && git pull upstream master
+```
+
+**ABSOLUTE RULES:**
+- ❌ **NEVER** assume you are already on master
+- ❌ **NEVER** assume you are starting fresh
+- ❌ **NEVER** continue if you see an existing `claude-code-update-*` branch
+- ✅ **ALWAYS** switch to master first, no exceptions
+- ✅ **ALWAYS** pull latest from upstream
+- ✅ **ALWAYS** check git status shows clean master before proceeding
+
+**If you see an existing update branch or any uncommitted changes: STOP, switch to master, reset hard.**
+
+---
+
+## Workflow Steps
+
+After switching to master and confirming clean state, create a todo list:
+
+1. **Prepare Repository** - Switch to master and update with upstream (MANDATORY FIRST)
 2. **Check Current and Latest Versions** - Compare nixpkgs version with npm registry
 3. **Create Branch** - Only after confirming a new version exists
-4. **Run Update Command** - Use update.sh maintainer script
-5. **Verify Version Sync** - CRITICAL: Check both packages show same version
-6. **Fix npmDepsHash** - If needed, update hash from build error
+4. **Run update.sh Script** - MANDATORY: Use automated script with high timeout (120s+)
+5. **Handle Script Issues** - If script fails/hangs: STOP and ask user OR retry with higher timeout
+6. **Fix npmDepsHash** - ONLY after update.sh completes, fix hash from build error
 7. **Format Files** - Run nix fmt on changed .nix files
 8. **Build and Test** - Verify BOTH packages build successfully
 9. **Commit Changes** - Follow nixpkgs commit format with changelog
 10. **Push Branch** - Ready for PR creation
 
-**Critical Requirements:**
-- MUST switch to clean master branch FIRST - never assume you're already on the right branch
-- **BOTH packages MUST be at the SAME version** - claude-code CLI and VSCode extension must match
-- update.sh does NOT update npmDepsHash - you must fix it manually if build fails
-- Unfree license requires `NIXPKGS_ALLOW_UNFREE=1` or `env NIXPKGS_ALLOW_UNFREE=1` prefix for commands
-- Follow nixpkgs commit format: `claude-code: old-version -> new-version`
-- **NEVER include npm diff links** - Only use changelog link: `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
-- **Format changed files** - Run `nix fmt` on modified .nix files before committing
+## Critical Requirements
 
-**Update Command (RECOMMENDED):**
-Use the maintainer update script which handles everything automatically:
+**ABSOLUTE PROHIBITIONS:**
+- ❌ **NEVER manually update files instead of running update.sh**
+- ❌ **NEVER kill update.sh and fix things yourself**
+- ❌ **NEVER proceed if update.sh fails - STOP and ask or retry**
+- ❌ **NEVER work on an existing update branch**
+
+**MANDATORY REQUIREMENTS:**
+- ✅ MUST switch to clean master branch FIRST
+- ✅ MUST run update.sh with timeout ≥ 120000ms (2 minutes)
+- ✅ If update.sh hangs: STOP, ask user, or retry with higher timeout (300000ms)
+- ✅ BOTH packages MUST be at SAME version
+- ✅ After update.sh: ONLY fix npmDepsHash if build fails, nothing else
+- ✅ Unfree license requires `NIXPKGS_ALLOW_UNFREE=1` prefix
+- ✅ Follow nixpkgs commit format: `claude-code: old-version -> new-version`
+- ✅ Use changelog link only: `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
+- ✅ Format with `nix fmt` before committing
+
+## Update Command (MANDATORY - NOT OPTIONAL)
+
+**You MUST run this script. Do NOT manually update files:**
+
 ```bash
 ./pkgs/by-name/cl/claude-code/update.sh
 ```
-This script automatically:
-- Fetches the latest version from npm
-- Updates claude-code package with nix-update
-- Updates the VSCode extension
-- Generates lockfiles for both packages
+
+**Script timeout:** Use `timeout: 120000` minimum (2 minutes). If it hangs, retry with `timeout: 300000` (5 minutes).
+
+**If script fails or hangs:**
+1. DO NOT try to fix manually
+2. STOP and ask the user what to do
+3. OR retry with higher timeout
+4. Show user the error output
+
+This script automatically updates:
+- Version and src hash in package.nix
+- package-lock.json for npm dependencies
+- VSCode extension version and hash
+- All necessary lockfiles
 
 **Key Files Updated by Script:**
 - `pkgs/by-name/cl/claude-code/package.nix` - Version and src hash
