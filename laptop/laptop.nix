@@ -37,7 +37,6 @@ rec {
     ./keybase.nix
     ./lastpass.nix
     ./low-battery.nix
-    ./mopidy.nix
     ./programs.nix
     homeManager
     (import ../nixos-shared/home-manager/module.nix {
