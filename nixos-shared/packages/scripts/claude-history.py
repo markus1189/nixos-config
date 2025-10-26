@@ -443,11 +443,13 @@ def generate_markdown(
 def search_conversations(
         pattern: str,
         search_user: bool = True,
-        search_assistant: bool = True) -> List[Tuple[Path, str, str, str, str]]:
+        search_assistant: bool = True
+) -> List[Tuple[Path, str, str, str, str]]:
     """
     Search for pattern in conversations.
 
-    Returns: List of (file_path, session_id, message_type, snippet, timestamp) tuples
+    Returns:
+        List of (file_path, session_id, message_type, snippet, timestamp)
     """
     results = []
 
