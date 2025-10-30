@@ -69,7 +69,6 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         10
                     , Run Date "%T" "date" 1
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
-                    , Run Com "@togglTimer@/bin/togglTimer" [] "toggl" 300
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
                     , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
                     , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 60
@@ -77,5 +76,5 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%%btheadphones%  %toggl%%dunst%%sharing%<fc=orange>%date%</fc>"
+       , template = "%multicpu% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %@wirelessInterface@wi% %vpn%  %battery%%btheadphones%  %dunst%%sharing%<fc=orange>%date%</fc>"
        }
