@@ -387,9 +387,14 @@ Position the cursor at its beginning, according to the current mode."
     (interactive)
     (other-window 1))
 
-  (defun mh/copy-file-and-line ()
-    (interactive)
-    (let ((name (or buffer-file-name default-directory)))
+  (defun mh/copy-file-and-line (&optional arg)
+    "Copy file path to kill ring. With prefix ARG, include line number."
+    (interactive "P")
+    (let* ((file-path (or buffer-file-name default-directory))
+           (line-num (line-number-at-pos))
+           (name (if arg
+                     (format "%s:%d" file-path line-num)
+                   file-path)))
       (message "Copied: %s" name)
       (kill-new name)))
 
