@@ -107,6 +107,7 @@ in
         playerctl
         pmutils
         powertop
+        prettier
         psmisc
         pv
         rclone
