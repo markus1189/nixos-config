@@ -101,36 +101,6 @@ get_context_diff() {
     fi
 }
 
-get_agent_count() {
-    if test -f "$(get_transcript_path)" ; then
-        jq -r 'select(.type == "assistant" and (.message.content[]?.name == "Task"))' \
-            "$(get_transcript_path)" | jq -s length
-    else
-        echo "0"
-    fi
-}
-
-get_agent_tokens() {
-    if test -f "$(get_transcript_path)" ; then
-        local total
-        total=$(jq -r 'select(.isSidechain == true and .type == "assistant" and .message.usage) |
-            (.message.usage.input_tokens // 0) + (.message.usage.output_tokens // 0)' \
-            "$(get_transcript_path)" | \
-            awk '{sum+=$1} END {print sum+0}')
-        if [ "$total" -gt 0 ]; then
-            if [ "$total" -ge 1000 ]; then
-                printf "%.1fk" "$(echo "scale=1; $total / 1000" | bc)"
-            else
-                echo "$total"
-            fi
-        else
-            echo "0"
-        fi
-    else
-        echo "0"
-    fi
-}
-
 get_git_branch() {
     git branch --quiet --show-current 2>/dev/null || echo "⌀"
 }
@@ -220,7 +190,6 @@ readonly ORANGE="255;180;100"
 readonly GREEN="120;220;120"
 readonly BLUE="100;180;255"
 readonly PURPLE="180;140;255"
-readonly CYAN="100;200;200"
 readonly PINK="255;140;180"
 
 # ANSI escape sequences
@@ -245,9 +214,7 @@ echo -en "$(separator "$BLUE" "$PURPLE")"
 echo -en "$(segment "$PURPLE" "$(get_cost)$")"
 echo -en "$(separator "$PURPLE" "$(get_context_color)")"
 echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
-echo -en "$(separator "$(get_context_color)" "$CYAN")"
-echo -en "$(segment "$CYAN" "🤖$(get_agent_count)|$(get_agent_tokens)t")"
-echo -en "$(separator "$CYAN" "$PINK")"
+echo -en "$(separator "$(get_context_color)" "$PINK")"
 echo -en "$(segment "$PINK" "$(get_transcript_id)")"
 echo -en "$(fg_color "$PINK")"
 echo
