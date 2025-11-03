@@ -2301,6 +2301,7 @@ Provides more detailed messages on failure."
              (:channelId "UCqZQlzSHbVJrwrn5XvzrzcA" :title "NBC Sports" :tags (sport))
              (:channelId "UCSoOJTknGqXQSeamRjEE8aA" :title "TechDregs")
              (:channelId "UCK5G-rUDSKKUXeMkrL7Bs1w" :title "The Charismatic Voice" :tags (music))
+             (:channelId "UCGq-a57w-aPwyi3pW7XLiHw" :title "The Diary Of A CEO" :tags (business))
              (:channelId "UCNQJqvSXfDBOd9spve8doWw" :title "Worm Girl CDDA")
              (:channelId "UCt1ES-_FMXQfM3JeO_FrOXw" :title "ParkNotes" :tags (analog))
              (:channelId "UCSHZfmwfiIxCpKrQFrr7YyQ" :title "The Bad Spot")
