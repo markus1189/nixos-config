@@ -49,6 +49,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `secrets.dummy.nix` shows the expected structure for secrets
 - Real secrets are in `secrets.nix` (encrypted)
 
+### Hardware Detection
+- Hardware-specific settings are configured via `lib._custom_` options
+- The `hardware-detection.nix` module formalizes hardware-related configuration
+- **Wireless Interface Detection**:
+  - Each host specifies its wireless interface name via `lib._custom_.wirelessInterface`
+  - To find your wireless interface, run: `detect-wireless-interface` (provided by hardware-detection module)
+  - Or manually: `ip link show | grep -E '^[0-9]+: wl'`
+  - Common patterns: `wlp2s0`, `wlp0s20f3`, `wlp58s0`
+  - Set in host-specific files (e.g., `xps/xps.nix`, `nuc/configuration.nix`, `p1/p1.nix`)
+
 ### Package Management
 - Custom packages are defined in `nixos-shared/packages/`
 - Overlays are managed in `shared-overlays.nix`

@@ -23,6 +23,7 @@ rec {
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix
     ../nixos-shared/fzf.nix
+    ../nixos-shared/hardware-detection.nix
     ../nixos-shared/packages
     ../nixos-shared/packages/services.nix
     ../nixos-shared/rclone-mounts.nix
