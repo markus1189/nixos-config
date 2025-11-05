@@ -12,7 +12,7 @@ let
 in
 {
   home = {
-    stateVersion = "18.09";
+    stateVersion = "24.05";
 
     packages = with pkgs; [
       source-code-pro

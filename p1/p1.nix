@@ -35,7 +35,7 @@
     interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
   };
 
-  system.stateVersion = "20.09";
+  system.stateVersion = "24.05";
 
   hardware = {
     # 403 on url
