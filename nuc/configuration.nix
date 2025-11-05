@@ -28,6 +28,7 @@ in {
     ../nixos-shared/zsh.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
+    ./packages.nix
     homeManager
     (import ../nixos-shared/home-manager/module.nix {
       homeNixFile = ./home.nix;
@@ -96,38 +97,6 @@ in {
   # $ nix search wget
   environment = {
     variables = { EDITOR = "${pkgs.vim}/bin/vim"; };
-
-    systemPackages = with pkgs; [
-      bashmount
-      coreutils
-      google-chrome
-      feh
-      jq
-      lsof
-      nix-index
-      nixVersions.git
-      parallel
-      pciutils
-      pmutils
-      psmisc
-      pv
-      remind
-      rlwrap
-      rsync
-      stack
-      tigervnc
-      tree
-      unrar
-      unzip
-      vim
-      wget
-      which
-      wyrd
-      xclip
-      zathura
-      zip
-      zsh
-    ];
   };
 
   # Open ports in the firewall.

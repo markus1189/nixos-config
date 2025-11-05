@@ -80,9 +80,47 @@ nix-instantiate --parse laptop/home.nix
 ```
 
 ### Adding New Packages
-- System packages: Add to `nixos-shared/common-packages.nix`
-- User packages: Add to appropriate `home.nix` file
-- Custom packages: Create in `nixos-shared/packages/` directory
+
+**Package Organization Hierarchy:**
+
+Packages are organized by scope and use case:
+
+1. **`nixos-shared/common-packages.nix`** - Core CLI tools shared by ALL hosts
+   - **Criteria**: CLI-only, useful on servers and desktops, no GUI dependencies
+   - **Examples**: git, jq, nix tools, htop, curl, wget, bat, httpie
+   - **When to use**: When adding universal command-line utilities
+
+2. **`laptop/packages.nix`** - Laptop-specific GUI & development tools
+   - **Criteria**: GUI applications, desktop utilities, development tools for interactive use
+   - **Examples**: chromium, spotify, discord, emacs, docker-compose, rofi, gimp
+   - **When to use**: GUI apps, desktop utilities, development tools for XPS and P1
+   - **Imported by**: XPS and P1 configurations
+
+3. **`nuc/packages.nix`** - NUC media server packages
+   - **Criteria**: Media playback, server operations, headless-friendly tools
+   - **Examples**: bashmount, tigervnc, remind, wyrd
+   - **When to use**: Packages needed specifically for the NUC media server
+   - **Note**: Service-specific packages (kodi, plex) stay in their respective service files
+
+4. **`p1/packages.nix`** - P1 work-specific tools (future use)
+   - **Criteria**: Only packages needed specifically for work on P1, not on XPS
+   - **Examples**: Corporate VPN clients, work-only applications
+   - **When to use**: Tools only needed for work laptop
+
+5. **User packages** - Add to appropriate `home.nix` file
+   - For user-level packages managed by home-manager
+
+6. **Custom packages** - Create in `nixos-shared/packages/` directory
+   - For custom package definitions and scripts
+
+**Decision Tree:**
+```
+Is it a GUI application or desktop utility?
+├─ Yes → laptop/packages.nix
+└─ No → Is it needed on ALL systems (including servers)?
+    ├─ Yes → nixos-shared/common-packages.nix
+    └─ No → Host-specific packages.nix (nuc/packages.nix, p1/packages.nix, etc.)
+```
 
 ### Service Configuration
 - Add new services to `nixos-shared/common-services.nix` for shared services
