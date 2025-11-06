@@ -2405,6 +2405,7 @@ Provides more detailed messages on failure."
            ("https://ennie-awards.com/feed")
            ("https://hk-newsletter.de/feed" news)
            ("https://feeds.feedburner.com/AnnaHavron")
+           ("https://analogfromhere.com/feed/" analog)
            ("https://analogoffice.net/feed.xml")
            ("https://seb.jambor.dev/feed.xml")
            ("https://bulletjournal.com/blogs/bulletjournalist.xml" analog)
