@@ -13,7 +13,7 @@
   adl (tap-macro down left)
   adr (tap-macro down right)
   all (tap-macro C-end C-S-home)
-  cap (tap-hold-next-release 150 esc lctl)
+  cap (tap-hold-next-release 100 esc lctl)
   dup (tap-macro up   up   up   up   up)
   dwn (tap-macro down down down down down)
   gwt (tap-macro / / space G i v e n enter enter / / space W h e n enter enter / / space T h e n enter)
