@@ -67,7 +67,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         [("/", "<read> <write>")]
                         []
                         10
-                    , Run Date "%T" "date" 1
+                    , Run Date "%F %T" "date" 1
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
                     , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
