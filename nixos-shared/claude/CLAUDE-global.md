@@ -64,6 +64,7 @@ When the user references screenshots or recent images:
 ## Shell Rules
 
 - NEVER use `rm -rf`, it will be denied.  You can use `rm -r` without force
+- don't use `ls -a`, use `ls -A` to list all files, but exclude '.' and '..'
 
 ## Presenting Options
 
