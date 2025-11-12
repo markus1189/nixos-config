@@ -2252,9 +2252,9 @@ Provides more detailed messages on failure."
             (:owner "github" :repo "copilot-cli" :tags (github llm))
             (:owner "martinvonz" :repo "jj")
             (:owner "dunst-project" :repo "dunst")
-(:owner "karthink" :repo "gptel")
-             (:owner "aider-ai" :repo "aider")
-             (:owner "sst" :repo "opencode" :tags (llm))))
+            (:owner "karthink" :repo "gptel")
+            (:owner "aider-ai" :repo "aider")
+            (:owner "sst" :repo "opencode" :tags (llm))))
 
          (mapcar
           (lambda (feed-spec)
