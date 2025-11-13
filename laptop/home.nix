@@ -48,7 +48,18 @@ in
             tui = {
               scroll_speed = 5;
             };
+            permission = {
+              bash = {
+                "git commit" = "ask";
+                "rm -f" = "ask";
+                "rm -rf" = "deny";
+              };
+            };
           };
+        };
+        "opencode-global-rules" = {
+          target = ".config/opencode/AGENTS.md";
+          inherit (claudeConfig.globalClaudeMd) text;
         };
 
         "visidatarc" = {
