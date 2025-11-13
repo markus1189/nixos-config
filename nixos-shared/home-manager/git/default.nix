@@ -48,31 +48,9 @@ let
 in
 {
   value = {
-    inherit userName;
-    userEmail = "markus1189@gmail.com";
-
     enable = true;
     package = gitPackage;
     lfs.enable = true;
-
-    delta = {
-      enable = true;
-      options = {
-        navigate = true;
-
-        features = "side-by-side line-numbers decorations";
-      };
-    };
-
-    aliases = {
-      co = "checkout";
-      rh = "reset --hard";
-      f = "fetch --all --tags";
-      fp = "fetch --all --tags --prune";
-      s = "status";
-      zip = "archive -o zipped-repository.zip -9";
-      lg = "!${gitPrettyLog}";
-    };
 
     attributes = [
       "*.bin diff=binary"
@@ -95,10 +73,22 @@ in
       }
     ];
 
-    extraConfig = {
+    settings = {
       user = {
+        name = userName;
+        email = "markus1189@gmail.com";
         useConfigOnly = true;
         signingkey = "A81E5C8BE9DB291A497B2258B76588292D543934";
+      };
+
+      alias = {
+        co = "checkout";
+        rh = "reset --hard";
+        f = "fetch --all --tags";
+        fp = "fetch --all --tags --prune";
+        s = "status";
+        zip = "archive -o zipped-repository.zip -9";
+        lg = "!${gitPrettyLog}";
       };
 
       color = {

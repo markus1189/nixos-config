@@ -465,7 +465,8 @@ in
 
       bash.enable = true;
 
-      zsh = (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix { inherit pkgs passDir; }).value;
+      zsh =
+        (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix { inherit pkgs passDir; }).value;
 
       direnv = {
         enable = true;
@@ -480,6 +481,15 @@ in
       firefox = (pkgs.callPackage ../nixos-shared/home-manager/firefox/default.nix { }).value;
 
       git = (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
+
+      delta = {
+        enable = true;
+        enableGitIntegration = true;
+        options = {
+          navigate = true;
+          features = "side-by-side line-numbers decorations";
+        };
+      };
 
       jujutsu = {
         enable = true;
