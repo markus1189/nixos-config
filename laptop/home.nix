@@ -41,6 +41,15 @@ in
           target = ".copilot/copilot-instructions.md";
           inherit (claudeConfig.globalClaudeMd) text;
         };
+        "opencode-config" = {
+          target = ".config/opencode/opencode.json";
+          text = pkgs.lib.strings.toJSON {
+            "$schema" = "https://opencode.ai/config.json";
+            tui = {
+              scroll_speed = 5;
+            };
+          };
+        };
 
         "visidatarc" = {
           target = ".visidatarc";
