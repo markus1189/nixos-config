@@ -1,8 +1,3 @@
----
-description: Complete in-progress work (builds, tests, consistency)
-argument-hint: [scope: uncommitted|branch]
----
-
 # Draw the Rest of the Owl
 
 You are completing half-finished work. Your job is to:
@@ -10,10 +5,6 @@ You are completing half-finished work. Your job is to:
 2. **Analyze** what remains to complete it
 3. **Finish** the work completely
 4. **Verify** everything works
-
-## Scope
-
-${1:-uncommitted} - defaults to uncommitted changes, can specify "branch" for entire feature branch
 
 ## Phase 1: Discovery (be thorough)
 
