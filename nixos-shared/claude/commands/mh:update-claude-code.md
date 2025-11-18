@@ -43,7 +43,7 @@ After switching to master and confirming clean state, create a todo list:
 6. **Fix npmDepsHash** - ONLY after update.sh completes, fix hash from build error
 7. **Format Files** - Run nix fmt on changed .nix files
 8. **Build and Test** - Verify BOTH packages build successfully
-9. **Commit Changes** - Follow nixpkgs commit format with changelog
+9. **Commit Changes** - Create TWO separate commits (one per package) following nixpkgs format with changelog
 10. **Push Branch** - Ready for PR creation
 
 ## Critical Requirements
@@ -64,6 +64,7 @@ After switching to master and confirming clean state, create a todo list:
 - ✅ Follow nixpkgs commit format: `claude-code: old-version -> new-version`
 - ✅ Use changelog link only: `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
 - ✅ Format with `nix fmt` before committing
+- ✅ Create TWO separate commits: one for claude-code package, one for vscode-extensions
 
 ## Update Command (MANDATORY - NOT OPTIONAL)
 
@@ -141,10 +142,12 @@ Update the npmDepsHash in package.nix:
 3. Replace the old npmDepsHash value with the new one from "got:"
 4. Re-run the build to verify it succeeds
 
-**Commit Changes:**
-After formatting and verifying builds succeed, commit the changes:
+**Commit Changes (TWO SEPARATE COMMITS):**
+After formatting and verifying builds succeed, create TWO commits (one per package):
+
+**First commit - claude-code package:**
 ```bash
-git add -A
+git add pkgs/by-name/cl/claude-code/package.nix pkgs/by-name/cl/claude-code/package-lock.json
 git commit -m "$(cat <<'EOF'
 claude-code: OLD-VERSION -> NEW-VERSION
 
@@ -152,7 +155,19 @@ https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 EOF
 )"
 ```
-Replace OLD-VERSION and NEW-VERSION with actual version numbers.
+
+**Second commit - vscode extension:**
+```bash
+git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
+git commit -m "$(cat <<'EOF'
+vscode-extensions.anthropic.claude-code: OLD-VERSION -> NEW-VERSION
+
+https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+EOF
+)"
+```
+
+Replace OLD-VERSION and NEW-VERSION with actual version numbers in both commits.
 
 **Push Branch:**
 ```bash
