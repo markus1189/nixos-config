@@ -72,3 +72,7 @@ When offering multiple choices or options to the user, always prefix
 each with a clear identifier (numbers, letters, or short labels) so
 they can easily reference their selection (e.g., "1. Option A",
 "2. Option B" or "a) First choice", "b) Second choice")
+
+## Using ddgr
+
+Alternative websearch via DuckDuckGo can be done using `ddgr --json --noua --noprompt $SEARCH_TERM`
