@@ -33,6 +33,7 @@ in
             "Bash(git show:*)"
           ];
         };
+        opencodeConfig = pkgs.callPackage ../nixos-shared/home-manager/opencode { };
       in
       {
         "claude-code" = claudeConfig.settings;
@@ -428,7 +429,8 @@ in
         };
 
       }
-      // claudeConfig.markdownFiles;
+      // claudeConfig.markdownFiles
+      // opencodeConfig.markdownFiles;
   };
 
   manual = {
