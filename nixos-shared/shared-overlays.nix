@@ -39,7 +39,7 @@ rec {
         # plugins that will soon already be included
         importlib-metadata
         faker
-        pdfminer
+        pdfminer-six
         praw
         psutil
       ];
