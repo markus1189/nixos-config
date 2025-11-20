@@ -41,6 +41,16 @@ in
           mkRsstailToRaindropUnitWithSecrets = myScripts.mkRsstailToRaindropUnit {
             access_token = secrets.raindrop.test_token;
           };
+          # Viessmann refresh token expires every 180 days. To renew, run:
+          # , oauth2c https://iam.viessmann-climatesolutions.com/idp/v3 \
+          #   --client-id=45e59eb93fb498140de733c44637d8df \
+          #   --redirect-url=http://localhost:4244/ \
+          #   --scopes=IoT --scopes=User --scopes=offline_access \
+          #   --response-types=code \
+          #   --grant-type=authorization_code \
+          #   --auth-method=none \
+          #   --response-mode=query \
+          #   --pkce
           viessmannOutsideTemperature = myScripts.viessmannOutsideTemperature {
             botToken = secrets.telegramBotToken;
             viessmannRefreshToken = secrets.viessmannRefreshToken;
