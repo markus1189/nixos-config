@@ -30,10 +30,10 @@ in
         gnupg
         gnupg1
         gitFull
-        (gitAndTools.gh)
-        (gitAndTools.git-extras)
-        (gitAndTools.git-open)
-        (gitAndTools.hub)
+        gh
+        git-extras
+        git-open
+        hub
         git-secret
         adwaita-icon-theme
         gron
