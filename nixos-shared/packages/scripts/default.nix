@@ -1121,8 +1121,8 @@ rec {
              --fail \
              -X GET \
              -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
-             --url "https://api.viessmann-climatesolutions.com/iot/v1/equipment/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
-            jq '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
+             --url "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
+            jq -r '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
         }
 
         unset c
