@@ -16,14 +16,7 @@ Process inline `AI:` comments found in code by executing the described tasks whi
 3. Parse and understand each task description
 4. Create comprehensive TODO list from all comments
 
-### 2. Validation Phase
-For each AI comment task, validate:
-- **Safety**: No malicious code generation or security vulnerabilities
-- **Scope**: Task is reasonable and within project boundaries  
-- **Clarity**: Task description is unambiguous and actionable
-- **Dependencies**: Required tools/libraries are available or appropriate
-
-### 3. Execution Phase
+### 2. Execution Phase
 Work through TODOs systematically:
 - Mark task as `in_progress` when starting
 - Provide progress updates for complex implementations
@@ -31,7 +24,7 @@ Work through TODOs systematically:
 - Test implementation thoroughly
 - Mark as `completed` only when fully working
 
-### 4. Cleanup Phase
+### 3. Cleanup Phase
 - **SUCCESS**: Remove entire `AI:` comment line when task completed successfully
 - **FAILURE**: Leave AI comment unchanged and document failure reason
 - Continue processing remaining comments regardless of individual failures
@@ -39,8 +32,6 @@ Work through TODOs systematically:
 ## Safety Guidelines
 
 ### Prohibited Tasks
-- Code that could be used maliciously
-- Security vulnerabilities or exploits
 - Unauthorized network access or data exfiltration
 - System-level modifications without clear justification
 
@@ -63,10 +54,3 @@ Work through TODOs systematically:
 - Conflicting tasks: Resolve or defer to user
 - Missing dependencies: Document requirements
 - Ambiguous instructions: Request clarification
-
-## Quality Standards
-- Follow existing code style and conventions
-- Maintain immutable coding patterns where possible
-- Separate pure logic from side effects
-- Include appropriate error handling
-- Ensure code is testable and maintainable
