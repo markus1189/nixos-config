@@ -140,7 +140,8 @@ rec {
   services = {
     offlineimap.enable = false;
 
-    upower.enable = false;
+    # required for suspend on low battery
+    upower.enable = true;
 
     tlp = {
       enable = false;
