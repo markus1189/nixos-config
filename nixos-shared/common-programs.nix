@@ -34,5 +34,11 @@
         enable = true;
       };
     };
+
+    npm = {
+      npmrc = ''
+        ignore-scripts=true
+      '';
+    };
   };
 }
