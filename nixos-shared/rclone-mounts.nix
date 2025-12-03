@@ -15,10 +15,12 @@ let
           --vfs-cache-max-age 48h \
           --vfs-read-chunk-size 128M \
           --vfs-read-chunk-size-limit 512M \
+          --daemon-timeout 1m \
           ${remote}: \
           ${mountPoint}
       '';
-      Restart = "always";
+      Restart = "on-failure";
+      RestartSec = "10s";
       Environment = [
         "PATH=/run/wrappers/bin/:$PATH" # required for fusermount setuid wrapper ...
       ];
