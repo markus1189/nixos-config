@@ -1,10 +1,15 @@
 Enable Ultrathink
 
-Please analyze this codebase and create a AGENTS.md/CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.
+Please analyze this codebase and create or update an agent instructions file for AI coding agents.
+
+**File detection:**
+- If `CLAUDE.md` exists → update it
+- If `AGENTS.md` exists → update it
+- If neither exists → create `AGENTS.md`
 
 ## Purpose & Philosophy
 
-AGENTS.md/CLAUDE.md is automatically loaded into every Claude Code session. Think of it as a "README for AI agents" - a dedicated place to provide context and instructions that help AI work effectively on your project. This file should evolve with your project and be version-controlled.
+Agent instructions files (AGENTS.md or CLAUDE.md) are loaded into agent sessions automatically. Think of it as a "README for AI agents" - a dedicated place to provide context and instructions that help agents work effectively on your project. This file should evolve with your project and be version-controlled.
 
 **Core principles:**
 - **Concise over comprehensive**: Every word consumes tokens. Keep under 2 pages when possible. Target 300-500 lines for typical projects.
@@ -58,10 +63,10 @@ Information that requires reading multiple files to understand:
 ### 3. Monorepo Considerations
 
 For repositories containing multiple projects or modules:
-- **Root AGENTS.md/CLAUDE.md**: Shared conventions, repository-wide commands, cross-module architecture
-- **Module AGENTS.md/CLAUDE.md**: Module-specific build/test/architecture only
+- **Root AGENTS.md**: Shared conventions, repository-wide commands, cross-module architecture
+- **Module AGENTS.md**: Module-specific build/test/architecture only
 - Avoid duplication between root and module files
-- Link between files when helpful: "See root AGENTS.md/CLAUDE.md for repository-wide conventions"
+- Link between files when helpful: "See root AGENTS.md for repository-wide conventions"
 
 ### 4. Critical Project-Specific Information
 
@@ -95,7 +100,7 @@ Follow this sequence for efficient exploration:
 6. **Main entry points** (main.go, index.ts, app.py, etc.)
    - Understanding how the application bootstraps
 
-## Keeping AGENTS.md/CLAUDE.md Current
+## Keeping Agent Instructions Current
 
 Update when:
 - **Build system or tooling changes**: New test runner, different build commands, dependency management updates
@@ -104,11 +109,11 @@ Update when:
 - **Repository workflow changes**: Branch strategy updates, commit conventions, PR requirements
 - **Onboarding friction**: New developers repeatedly ask the same questions
 
-Treat AGENTS.md/CLAUDE.md as living documentation - outdated instructions are worse than no instructions.
+Treat agent instructions as living documentation - outdated instructions are worse than no instructions.
 
 ## Quality Checklist
 
-Before finalizing AGETNS.md/CLAUDE.md, verify:
+Before finalizing AGENTS.md, verify:
 
 - [ ] All commands have been tested/verified from build files
 - [ ] No generic advice that applies to any codebase
@@ -195,9 +200,9 @@ For monorepos with many modules, categorize them for scannability:
 [Project-specific patterns, API stability annotations, error handling, etc.]
 ```
 
-## For Existing AGENTS.md/CLAUDE.md Files
+## For Existing Files
 
-When a AGENTS.md/CLAUDE.md already exists:
+When an AGENTS.md or CLAUDE.md already exists:
 
 1. **Audit for generic content**: Remove anything that applies to all projects
 2. **Verify commands**: Check they match current build configuration
@@ -213,12 +218,25 @@ Suggest specific additions, removals, or restructuring with examples.
 
 ## Output Format
 
-**Always write the complete AGENTS.md/CLAUDE.md file** - whether creating new or updating existing.
+**Always write the complete file** - whether creating new or updating existing.
 
 For existing files:
-1. Read the current AGENTS.md/CLAUDE.md
+1. Read the current AGENTS.md or CLAUDE.md
 2. Audit it against the guidelines above
 3. Write the improved version with all necessary updates applied
 4. Briefly summarize what changed (additions, removals, updates)
 
 Do not just suggest improvements - apply them directly by writing the updated file.
+
+## Claude Code Compatibility
+
+Claude Code only reads `CLAUDE.md` files natively (not `AGENTS.md`). If you created `AGENTS.md`:
+
+1. Create a minimal `CLAUDE.md` in the same directory:
+   ```markdown
+   @AGENTS.md
+   ```
+
+2. This imports the AGENTS.md content into Claude Code's context.
+
+Other tools (Cursor, Windsurf, Copilot) read `AGENTS.md` directly.
