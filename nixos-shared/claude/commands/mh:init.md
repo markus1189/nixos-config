@@ -1,10 +1,10 @@
 Enable Ultrathink
 
-Please analyze this codebase and create a CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.
+Please analyze this codebase and create a AGENTS.md/CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.
 
 ## Purpose & Philosophy
 
-CLAUDE.md is automatically loaded into every Claude Code session. Think of it as a "README for AI agents" - a dedicated place to provide context and instructions that help AI work effectively on your project. This file should evolve with your project and be version-controlled.
+AGENTS.md/CLAUDE.md is automatically loaded into every Claude Code session. Think of it as a "README for AI agents" - a dedicated place to provide context and instructions that help AI work effectively on your project. This file should evolve with your project and be version-controlled.
 
 **Core principles:**
 - **Concise over comprehensive**: Every word consumes tokens. Keep under 2 pages when possible. Target 300-500 lines for typical projects.
@@ -12,15 +12,20 @@ CLAUDE.md is automatically loaded into every Claude Code session. Think of it as
 - **Specific over generic**: "Run `./gradlew :driver-sync:test`" not "run tests"
 - **Actionable over descriptive**: What to DO, not just what to know
 - **Project-specific only**: No generic best practices that apply to all codebases
-- **Complete implementations**: Prohibit TODOs and mock functions in examples
-  - ❌ `# TODO: Add database setup commands`
-  - ✅ `docker-compose up -d postgres && npm run db:migrate`
+
+Finally evaluate the finished file with a dedicated subagent for:
+- effectiveness
+- concisceness
+- correctness
+- missing info
+- superfluous info
+- etc, you CAN give more
 
 ## Required Content
 
 ### 1. Essential Development Commands
 
-Commands a developer needs immediately:
+Commands an agent needs immediately:
 - **Build**: Primary build command and module-specific builds (for monorepos)
 - **Test**: Full test suite, single test, specific test file/class/method
 - **Lint/Format**: Code quality and formatting commands
@@ -53,10 +58,10 @@ Information that requires reading multiple files to understand:
 ### 3. Monorepo Considerations
 
 For repositories containing multiple projects or modules:
-- **Root CLAUDE.md**: Shared conventions, repository-wide commands, cross-module architecture
-- **Module CLAUDE.md**: Module-specific build/test/architecture only
+- **Root AGENTS.md/CLAUDE.md**: Shared conventions, repository-wide commands, cross-module architecture
+- **Module AGENTS.md/CLAUDE.md**: Module-specific build/test/architecture only
 - Avoid duplication between root and module files
-- Link between files when helpful: "See root CLAUDE.md for repository-wide conventions"
+- Link between files when helpful: "See root AGENTS.md/CLAUDE.md for repository-wide conventions"
 
 ### 4. Critical Project-Specific Information
 
@@ -65,6 +70,8 @@ For repositories containing multiple projects or modules:
 - **Gotchas and quirks**: Non-standard layouts, unexpected behaviors, known issues
 - **Code conventions**: Project-specific patterns (not generic style guides)
 - **Repository etiquette**: Branch naming, commit message format, merge vs rebase
+- **CI/CD pipeline config**: Where is the deployment defined and configured
+- **Infrastructure setup**: CDK/Terraform/...
 
 ## Discovery Strategy
 
@@ -88,7 +95,7 @@ Follow this sequence for efficient exploration:
 6. **Main entry points** (main.go, index.ts, app.py, etc.)
    - Understanding how the application bootstraps
 
-## Keeping CLAUDE.md Current
+## Keeping AGENTS.md/CLAUDE.md Current
 
 Update when:
 - **Build system or tooling changes**: New test runner, different build commands, dependency management updates
@@ -97,11 +104,11 @@ Update when:
 - **Repository workflow changes**: Branch strategy updates, commit conventions, PR requirements
 - **Onboarding friction**: New developers repeatedly ask the same questions
 
-Treat CLAUDE.md as living documentation - outdated instructions are worse than no instructions.
+Treat AGENTS.md/CLAUDE.md as living documentation - outdated instructions are worse than no instructions.
 
 ## Quality Checklist
 
-Before finalizing CLAUDE.md, verify:
+Before finalizing AGETNS.md/CLAUDE.md, verify:
 
 - [ ] All commands have been tested/verified from build files
 - [ ] No generic advice that applies to any codebase
@@ -113,6 +120,7 @@ Before finalizing CLAUDE.md, verify:
 - [ ] Module/task context provided with numbered steps where helpful
 - [ ] Clean markdown structure: consistent heading levels, proper lists, logical visual hierarchy
 - [ ] Modules are categorized (for monorepos) to improve scannability
+- [ ] Final dedicated subagent review for correctness, consciseness, relevance, missing info
 
 ## What NOT to Include
 
@@ -123,6 +131,7 @@ Before finalizing CLAUDE.md, verify:
 ❌ Style preferences better suited for linters
 ❌ Information easily discovered by ls/tree commands
 ❌ TODO comments or incomplete examples
+❌ Too specific information about e.g. code lines that will become stale quickly
 
 ## File Format
 
@@ -186,9 +195,9 @@ For monorepos with many modules, categorize them for scannability:
 [Project-specific patterns, API stability annotations, error handling, etc.]
 ```
 
-## For Existing CLAUDE.md Files
+## For Existing AGENTS.md/CLAUDE.md Files
 
-When a CLAUDE.md already exists:
+When a AGENTS.md/CLAUDE.md already exists:
 
 1. **Audit for generic content**: Remove anything that applies to all projects
 2. **Verify commands**: Check they match current build configuration
@@ -204,10 +213,10 @@ Suggest specific additions, removals, or restructuring with examples.
 
 ## Output Format
 
-**Always write the complete CLAUDE.md file** - whether creating new or updating existing.
+**Always write the complete AGENTS.md/CLAUDE.md file** - whether creating new or updating existing.
 
 For existing files:
-1. Read the current CLAUDE.md
+1. Read the current AGENTS.md/CLAUDE.md
 2. Audit it against the guidelines above
 3. Write the improved version with all necessary updates applied
 4. Briefly summarize what changed (additions, removals, updates)
