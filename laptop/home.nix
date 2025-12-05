@@ -49,6 +49,7 @@ in
             tui = {
               scroll_speed = 5;
             };
+
             permission = {
               bash = {
                 "git commit" = "ask";
@@ -56,8 +57,42 @@ in
                 "rm -rf" = "deny";
               };
             };
+
+            provider = {
+              portkey = {
+                name = "Portkey Codecentric";
+                npm = "@ai-sdk/openai-compatible";
+                options = {
+                  baseURL = "https://api.portkey.ai/v1";
+                  apiKey = "{env:PORTKEY_API_KEY_CC}";
+                };
+
+                models = {
+                  "@gcp-gemini/gemini-3-pro-preview" = {
+                    name = "Gemini 3 Pro Preview";
+                  };
+
+                  "@azure-openai-foundry/gpt-5.1-chat" = {
+                    name = "GPT 5.1 Chat";
+                  };
+
+                  "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0" = {
+                    name = "Claude 4.5 Sonnet";
+                  };
+
+                  "@ovh/Qwen3-Coder-30B-A3B-Instruct" = {
+                    name = "Qwen3 Coder 30B A3B Instruct";
+                  };
+
+                  "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0" = {
+                    name = "Claude 4.5 Haiku";
+                  };
+                };
+              };
+            };
           };
         };
+
         "opencode-global-rules" = {
           target = ".config/opencode/AGENTS.md";
           inherit (claudeConfig.globalClaudeMd) text;
