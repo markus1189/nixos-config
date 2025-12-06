@@ -1,6 +1,6 @@
 { fetchurl
+, gitFull
 , writeText
-, gitAndTools
 , lib
 , writeScript
 , stdenv
@@ -9,7 +9,7 @@
 }:
 
 let
-  gitPackage = gitAndTools.gitFull;
+  gitPackage = gitFull;
 
   gitignoreGlobal = writeText "gitignore-global-file" ''
     ${lib.readFile ndtSources.gitignore-io}

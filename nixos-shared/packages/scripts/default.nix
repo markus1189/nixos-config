@@ -6,7 +6,7 @@
   curl,
   dbus,
   fzf,
-  xdragon,
+  dragon-drop,
   dunst,
   emacs,
   feh,
@@ -566,7 +566,7 @@ rec {
           scrot
           libnotify
           xclip
-          xdragon
+          dragon-drop
         ];
       }
       ''

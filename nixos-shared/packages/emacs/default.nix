@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommandLocal, fetchurl, emacsWithPackages, fasd, plantuml
+{ emacs, mutate, runCommandLocal, fetchurl, fasd, plantuml
 , pandoc, git, ndtSources }:
 
 let

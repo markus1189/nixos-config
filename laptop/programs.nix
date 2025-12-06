@@ -36,7 +36,7 @@ in
         dmenu
         ddgr
         deluge
-        xdragon
+        dragon-drop
         dool
         emacs
         entr
@@ -55,7 +55,7 @@ in
         gemini-cli-bin
         ghc
         gimp
-        glxinfo
+        mesa-demos
         gnumake
         gnuplot
         pup
@@ -83,7 +83,7 @@ in
         lsb-release
         lsof
         mitmproxy
-        mpc_cli
+        mpc
         mr
         mtools
         mu
@@ -96,7 +96,6 @@ in
         openvpn
         pandoc
         parallel
-        parcellite
         patchelf
         pavucontrol
         pwvucontrol
@@ -140,7 +139,7 @@ in
         # sysdig
         system-config-printer
         tcpdump
-        tdesktop
+        telegram-desktop
         terminator
         testdisk
         # (texlive.combine {

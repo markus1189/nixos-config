@@ -284,7 +284,7 @@ rec {
         source-code-pro
         source-sans-pro
         source-serif-pro
-        ubuntu_font_family
+        ubuntu-classic
         unifont
       ]
       ++ builtins.filter pkgs.lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
