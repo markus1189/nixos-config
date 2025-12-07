@@ -36,7 +36,24 @@ Extract iteration count and task description from arguments:
 - `/mh:iterate 7 complex task` → N=5 (capped), warn user: "Maximum 5 iterations allowed, using N=5"
 - `/mh:iterate 5 write bash script for backups` → N=5, task="write bash script for backups"
 
+## Clarification (If Needed)
+
+Before starting iterations, assess if the task requires clarification. Use AskUserQuestion when fundamental ambiguities would lead to significantly different solutions.
+
+**Ask about**:
+- Language/technology choice: "write a CSV parser" → Which language?
+- Scope boundaries: "make it faster" → What component?
+- Output expectations: "design a REST API" → What domain/resources?
+
+**Don't ask about**:
+- Style preferences, minor details, edge cases (can refine in iterations)
+- Common conventions (modern practices, standard formats)
+
+**Principle**: Clarify fundamental requirements upfront, but leverage the iterative process for refinement of details.
+
 ## Execution Flow
+
+After argument parsing and any necessary clarification, proceed with the iterative refinement:
 
 ### Step 1: Create TODO List
 
