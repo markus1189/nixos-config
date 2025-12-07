@@ -28,6 +28,7 @@ in
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
           enableSoundHooks = true;
           enableDenyRules = true;
+          enablePythonPathCheck = true;
           additionalAllowedCommands = [
             "Bash(git commit:*)"
             "Bash(git show:*)"

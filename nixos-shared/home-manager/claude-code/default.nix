@@ -1,6 +1,7 @@
 { pkgs
 , enableSoundHooks ? false
 , enableDenyRules ? false
+, enablePythonPathCheck ? false
 , additionalAllowedCommands ? []
 , ...
 }:
@@ -66,6 +67,13 @@ let
   # Auto-configure skills directories (symlink entire directories with all contents)
   skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
 
+  # Python PATH check hook script
+  pythonPathCheckScript = pkgs.writeShellApplication {
+    name = "check-python-path";
+    runtimeInputs = with pkgs; [ bash jq coreutils ];
+    text = builtins.readFile ../../claude/hooks/check-python-path.sh;
+  };
+
 in
 {
   settings = {
@@ -114,7 +122,7 @@ in
         ];
       } else {});
 
-      hooks = if enableSoundHooks then {
+      hooks = (if enableSoundHooks then {
         Notification = [
           {
             matcher = "";
@@ -170,7 +178,18 @@ in
               }
             ];
           }
-        ];
+        ] ++ (if enablePythonPathCheck then [
+          {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "${pythonPathCheckScript}/bin/check-python-path";
+                timeout = 5;
+              }
+            ];
+          }
+        ] else []);
         SessionStart = [
           {
             matcher = "startup|resume";
@@ -211,7 +230,20 @@ in
             ];
           }
         ];
-      } else {};
+      } else if enablePythonPathCheck then {
+        PreToolUse = [
+          {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "${pythonPathCheckScript}/bin/check-python-path";
+                timeout = 5;
+              }
+            ];
+          }
+        ];
+      } else {});
 
       env = {
         ACTIVE_CLAUDE_CODE_SESSION = "true";
