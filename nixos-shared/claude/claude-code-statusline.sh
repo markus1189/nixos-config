@@ -11,9 +11,28 @@ get_output_style() {
     fi
 }
 
+shorten_bedrock_model() {
+    local model="$1"
+
+    # Match Bedrock pattern: @bedrock/.../claude-{model}-{version}-{date}-v1:0
+    if [[ "$model" =~ @bedrock/.*claude-(sonnet|haiku|opus)-([0-9]+-[0-9]+|[0-9]+)- ]]; then
+        local model_type="${BASH_REMATCH[1]}"
+        local version="${BASH_REMATCH[2]}"
+        # Convert dashes to dots (4-5 → 4.5)
+        version="${version//-/.}"
+        echo "${model_type}-${version}"
+    else
+        # Not a Bedrock model or doesn't match pattern - return as-is
+        echo "$model"
+    fi
+}
+
 get_model_name() {
-    local model_name style_suffix bedrock_suffix
+    local model_name style_suffix indicator_suffix
     model_name=$(echo "$input" | jq -r '.model.display_name')
+
+    # Shorten Bedrock model names
+    model_name=$(shorten_bedrock_model "$model_name")
 
     # Add output style if not default
     local output_style
@@ -24,14 +43,16 @@ get_model_name() {
         style_suffix=""
     fi
 
-    # Add Bedrock emoji if applicable
+    # Add indicator emojis
+    indicator_suffix=""
     if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
-        bedrock_suffix="🪨"
-    else
-        bedrock_suffix=""
+        indicator_suffix+="🪨"
+    fi
+    if [ "${MH_CLAUDE_CODE_USE_PORTKEY:-}" = "1" ]; then
+        indicator_suffix+="🔑"
     fi
 
-    echo "${model_name}${style_suffix}${bedrock_suffix}"
+    echo "${model_name}${style_suffix}${indicator_suffix}"
 }
 get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
 get_project_dir() { echo "$input" | jq -r '.workspace.project_dir' | sed "s|^$HOME|~|"; }
