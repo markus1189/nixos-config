@@ -603,13 +603,15 @@ def cmd_search(pattern: str, args: List[str]):
         found_msg = f"Found {len(results)} match(es):\n"
     print(found_msg, file=sys.stderr)
 
-    # Group results by session and track most recent timestamp
+    # Group results by session and track most recent timestamp and file path
     sessions = {}
     session_timestamps = {}
+    session_paths = {}
     for file_path, session_id, msg_type, snippet, timestamp in results:
         if session_id not in sessions:
             sessions[session_id] = []
             session_timestamps[session_id] = timestamp
+            session_paths[session_id] = file_path
         sessions[session_id].append((msg_type, snippet))
         # Keep track of the most recent timestamp for this session
         if timestamp > session_timestamps[session_id]:
@@ -622,12 +624,14 @@ def cmd_search(pattern: str, args: List[str]):
         reverse=True
     )
     for session_id, matches in sorted_sessions:
+        file_path = session_paths[session_id]
         if HAS_COLOR:
             session_header = (
-                f"\n{Fore.BLUE}{session_id}{Style.RESET_ALL}"
+                f"\n{Fore.BLUE}{session_id}{Style.RESET_ALL} "
+                f"({file_path})"
             )
         else:
-            session_header = f"\n{session_id}"
+            session_header = f"\n{session_id} ({file_path})"
         print(session_header)
         for msg_type, snippet in matches:
             print(f"  {snippet}")
