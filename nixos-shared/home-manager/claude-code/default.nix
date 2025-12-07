@@ -2,6 +2,7 @@
 , enableSoundHooks ? false
 , enableDenyRules ? false
 , enablePythonPathCheck ? false
+, enableGladosReminder ? true
 , additionalAllowedCommands ? []
 , ...
 }:
@@ -72,6 +73,13 @@ let
     name = "check-python-path";
     runtimeInputs = with pkgs; [ bash jq coreutils ];
     text = builtins.readFile ../../claude/hooks/check-python-path.sh;
+  };
+
+  # GLaDOS reminder hook script for UserPromptSubmit
+  gladosReminderPromptScript = pkgs.writeShellApplication {
+    name = "glados-reminder-prompt";
+    runtimeInputs = with pkgs; [ bash coreutils ];
+    text = builtins.readFile ../../claude/hooks/glados-reminder-prompt.sh;
   };
 
 in
@@ -230,8 +238,19 @@ in
             ];
           }
         ];
-      } else if enablePythonPathCheck then {
-        PreToolUse = [
+        UserPromptSubmit = [] ++ (if enableGladosReminder then [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
+                timeout = 3;
+              }
+            ];
+          }
+        ] else []);
+      } else if enablePythonPathCheck || enableGladosReminder then {
+        PreToolUse = [] ++ (if enablePythonPathCheck then [
           {
             matcher = "Bash";
             hooks = [
@@ -242,7 +261,18 @@ in
               }
             ];
           }
-        ];
+        ] else []);
+        UserPromptSubmit = [] ++ (if enableGladosReminder then [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
+                timeout = 3;
+              }
+            ];
+          }
+        ] else []);
       } else {});
 
       env = {

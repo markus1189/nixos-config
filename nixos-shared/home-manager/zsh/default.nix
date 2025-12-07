@@ -23,18 +23,18 @@
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
 
         c = "claude";
-        c-glados = ''claude --append-system-prompt "${gladosPrompt}"'';
+        c-glados = ''env MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
         cy = "claude ${yolo}";
-        cy-glados = ''claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-glados = ''env MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         c-pk = ''env ${portkeyConfig} claude'';
-        c-pk-glados = ''env ${portkeyConfig} claude --append-system-prompt "${gladosPrompt}"'';
+        c-pk-glados = ''env ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
         cy-pk = ''env ${portkeyConfig} claude ${yolo}'';
-        cy-pk-glados = ''env ${portkeyConfig} claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-pk-glados = ''env ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         c-br = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude'';
-        c-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude --append-system-prompt "${gladosPrompt}"'';
-        cy-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        c-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
+        cy-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         oc = "opencode";
       };
