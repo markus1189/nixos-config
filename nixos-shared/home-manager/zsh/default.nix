@@ -13,12 +13,28 @@
       share = true;
     };
 
-    shellAliases = {
-      "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
-      "c" = "claude";
-      "cy" = "claude --dangerously-skip-permissions";
-      "oc" = "opencode";
-    };
+    shellAliases =
+      let
+        gladosPrompt = "Claude can make snarky AI comments to humour the user as it deems necessary.  Use dry, deadpan humor with occasional wit - think Portal/GLaDOS as inspiration: self-aware AI commentary, helpful but vaguely sardonic, not on every answer - but sometimes based on situation.";
+        yolo = "--dangerously-skip-permissions";
+      in
+      {
+        "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
+
+        c = "claude";
+        c-glados = ''claude --append-system-prompt "${gladosPrompt}"'';
+        cy = "claude ${yolo}";
+
+        c-pk = ''env ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0' ANTHROPIC_DEFAULT_HAIKU_MODEL='@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0' ANTHROPIC_DEFAULT_OPUS_MODEL='@bedrock/eu.anthropic.claude-opus-4-20250514-v1:0' claude'';
+        c-pk-glados = ''env ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0' ANTHROPIC_DEFAULT_HAIKU_MODEL='@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0' ANTHROPIC_DEFAULT_OPUS_MODEL='@bedrock/eu.anthropic.claude-opus-4-20250514-v1:0' claude --append-system-prompt "${gladosPrompt}"'';
+        cy-pk = ''env ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0' ANTHROPIC_DEFAULT_HAIKU_MODEL='@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0' ANTHROPIC_DEFAULT_OPUS_MODEL='@bedrock/eu.anthropic.claude-opus-4-20250514-v1:0' claude ${yolo}'';
+
+        c-br = "aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude";
+        c-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude --append-system-prompt "${gladosPrompt}"'';
+        cy-br = "aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude ${yolo}";
+
+        oc = "opencode";
+      };
 
     initContent = ''
       source ${pkgs.ndtSources.zsh-histdb}/sqlite-history.zsh
