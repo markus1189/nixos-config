@@ -28,30 +28,14 @@ If no claim is provided, analyze the most recent statement from conversation his
 
 ### Step 0: Clarification (if needed)
 
-**Before starting verification**, assess if the claim needs clarification:
+Before verification, assess if the claim needs clarification. Use AskUserQuestion for ambiguous claims, missing scope/context, or vague comparative terms.
 
-**Use AskUserQuestion if:**
-- Claim is ambiguous or has multiple interpretations
-- Scope is unclear (e.g., "Python is slow" - compared to what? in what context?)
-- Version or context is missing (e.g., "React supports hooks" - which version?)
-- Multiple valid fact-check angles exist and user should choose focus
-- Claim contains vague terms ("better", "faster", "modern") without clear comparison
+**Examples needing clarification:**
+- "Python is slow" → Compared to what? In what context?
+- "Rust is faster" → Runtime or compile time? Vs what language?
+- "AI is dangerous" → Which aspects? AGI or current LLMs?
 
-**Examples requiring clarification:**
-- "AI is dangerous" → What aspects? AGI? Current LLMs? Specific risks?
-- "Rust is faster" → Faster than what? In what scenarios? Compile time or runtime?
-- "This pattern is bad" → Bad in what context? Performance? Maintainability?
-
-**Ask questions about:**
-1. **Scope**: What specific aspect should be verified?
-2. **Context**: What environment, version, or conditions apply?
-3. **Comparison**: If comparative claim, what's the baseline?
-4. **Focus**: Which dimension matters most (security, performance, usability)?
-
-**Skip clarification if:**
-- Claim is specific and unambiguous ("React hooks were added in version 16.8")
-- Context is clear from conversation history
-- Quick depth level (user wants fast results)
+**Skip if**: Claim is specific and unambiguous, or quick depth level selected.
 
 ### Step 1: Parse and Classify (30 seconds)
 
