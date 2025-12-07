@@ -38,10 +38,17 @@ in
       {
         "claude-code" = claudeConfig.settings;
         "claude-md" = claudeConfig.globalClaudeMd;
+
+        "gemini-global" = {
+          target = ".gemini/GEMINI.md";
+          inherit (claudeConfig.globalClaudeMd) text;
+        };
+
         "copilot-instructions-global" = {
           target = ".copilot/copilot-instructions.md";
           inherit (claudeConfig.globalClaudeMd) text;
         };
+
         "opencode-config" = {
           target = ".config/opencode/opencode.json";
           text = pkgs.lib.strings.toJSON {
