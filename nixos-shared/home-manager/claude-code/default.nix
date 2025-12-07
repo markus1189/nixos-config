@@ -82,6 +82,151 @@ let
     text = builtins.readFile ../../claude/hooks/glados-reminder-prompt.sh;
   };
 
+  # Hook definitions for compositional building
+  soundNotificationHooks = [
+    {
+      matcher = "";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.writers.writePython3Bin "claude-code-notifier"
+            { flakeIgnore = [ "E501" ]; }
+            ''
+              import json
+              import sys
+              import subprocess
+
+              input = json.load(sys.stdin)
+
+              message = input.get("message") or "<no-message>"
+
+              subprocess.run(["${pkgs.dunst}/bin/dunstify", "Claude-Code", message])
+            ''}/bin/claude-code-notifier";
+        }
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/just-maybe-577.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+  ];
+
+  soundPreToolUseHooks = [
+    {
+      matcher = "Task|WebSearch";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/happy-to-help-notification-sound.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+    {
+      matcher = "Read|List|Glob|Grep|WebFetch";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/come-here-notification.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+    {
+      matcher = "Bash|Write|Edit|MultiEdit|TodoWrite";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+  ];
+
+  soundSessionStartHooks = [
+    {
+      matcher = "startup|resume";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/involved-notification.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+    {
+      matcher = "clear";
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/pull-out-551.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+  ];
+
+  soundStopHooks = [
+    {
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/for-sure-576.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+  ];
+
+  soundSubagentStopHooks = [
+    {
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/time-is-now-585.wav} >/dev/null 2>&1 &";
+        }
+      ];
+    }
+  ];
+
+  pythonPathCheckHook = {
+    matcher = "Bash";
+    hooks = [
+      {
+        type = "command";
+        command = "${pythonPathCheckScript}/bin/check-python-path";
+        timeout = 5;
+      }
+    ];
+  };
+
+  gladosReminderHook = {
+    hooks = [
+      {
+        type = "command";
+        command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
+        timeout = 3;
+      }
+    ];
+  };
+
+  # Build hooks configuration compositionally
+  hooksConfig =
+    if enableSoundHooks then
+      {
+        Notification = soundNotificationHooks;
+        PreToolUse = soundPreToolUseHooks
+          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook);
+        SessionStart = soundSessionStartHooks;
+        Stop = soundStopHooks;
+        SubagentStop = soundSubagentStopHooks;
+      }
+      // (pkgs.lib.optionalAttrs enableGladosReminder {
+        UserPromptSubmit = [ gladosReminderHook ];
+      })
+    else
+      (pkgs.lib.optionalAttrs enablePythonPathCheck {
+        PreToolUse = [ pythonPathCheckHook ];
+      })
+      // (pkgs.lib.optionalAttrs enableGladosReminder {
+        UserPromptSubmit = [ gladosReminderHook ];
+      });
+
 in
 {
   settings = {
@@ -130,150 +275,7 @@ in
         ];
       } else {});
 
-      hooks = (if enableSoundHooks then {
-        Notification = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.writers.writePython3Bin "claude-code-notifier"
-                  { flakeIgnore = [ "E501" ]; }
-                  ''
-                    import json
-                    import sys
-                    import subprocess
-
-                    input = json.load(sys.stdin)
-
-                    message = input.get("message") or "<no-message>"
-
-                    subprocess.run(["${pkgs.dunst}/bin/dunstify", "Claude-Code", message])
-                  ''}/bin/claude-code-notifier";
-              }
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/just-maybe-577.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-        ];
-        PreToolUse = [
-          {
-            matcher = "Task|WebSearch";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/happy-to-help-notification-sound.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-          {
-            matcher = "Read|List|Glob|Grep|WebFetch";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/come-here-notification.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-          {
-            matcher = "Bash|Write|Edit|MultiEdit|TodoWrite";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-        ] ++ (if enablePythonPathCheck then [
-          {
-            matcher = "Bash";
-            hooks = [
-              {
-                type = "command";
-                command = "${pythonPathCheckScript}/bin/check-python-path";
-                timeout = 5;
-              }
-            ];
-          }
-        ] else []);
-        SessionStart = [
-          {
-            matcher = "startup|resume";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/involved-notification.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-          {
-            matcher = "clear";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/pull-out-551.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-        ];
-        Stop = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/for-sure-576.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-        ];
-        SubagentStop = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/time-is-now-585.wav} >/dev/null 2>&1 &";
-              }
-            ];
-          }
-        ];
-        UserPromptSubmit = [] ++ (if enableGladosReminder then [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
-                timeout = 3;
-              }
-            ];
-          }
-        ] else []);
-      } else if enablePythonPathCheck || enableGladosReminder then {
-        PreToolUse = [] ++ (if enablePythonPathCheck then [
-          {
-            matcher = "Bash";
-            hooks = [
-              {
-                type = "command";
-                command = "${pythonPathCheckScript}/bin/check-python-path";
-                timeout = 5;
-              }
-            ];
-          }
-        ] else []);
-        UserPromptSubmit = [] ++ (if enableGladosReminder then [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
-                timeout = 3;
-              }
-            ];
-          }
-        ] else []);
-      } else {});
+      hooks = hooksConfig;
 
       env = {
         ACTIVE_CLAUDE_CODE_SESSION = "true";
