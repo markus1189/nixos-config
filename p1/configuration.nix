@@ -9,6 +9,9 @@
     ./globalprotect/default.nix
   ];
 
+  # Custom sudo with insults
+  security.sudo.package = pkgs.callPackage ./sudo-custom.nix {};
+
   hardware.graphics.extraPackages = with pkgs; [
     intel-compute-runtime
   ];
