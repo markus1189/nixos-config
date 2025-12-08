@@ -2361,6 +2361,7 @@ Provides more detailed messages on failure."
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F%40anthropic-ai%2Fclaude-code%3FactiveTab%3Dversions&cookie=&title_cleanup=&entry_element_selector=%5Baria-labelledby%3D%22version-history%22%5D+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d%5CTH%3Ai%3As.v%5CZ&remove_styling=on&format=Atom"))
 
          '(("https://liore.com/rss/")
+           ("https://linevariation.blot.im/feed.rss" analog)
            ("https://samcurry.net/api/feed.rss")
            ("https://fantasy-faction.com/feed")
            ("https://jamierubin.net/feed/" analog)
