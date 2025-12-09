@@ -43,6 +43,21 @@ EOF
     exit 0
 fi
 
+# Skip check if command contains both 'nix' and 'python'
+# This covers cases like heredocs with Nix shebangs that include python
+if [[ "$COMMAND" =~ nix ]] && [[ "$COMMAND" =~ python ]]; then
+    cat << 'EOF'
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "permissionDecisionReason": "Command uses Nix with Python (likely Nix shebang)"
+  }
+}
+EOF
+    exit 0
+fi
+
 # Check if command contains python or python3
 # Match python/python3 as a standalone command (with word boundaries)
 if [[ "$COMMAND" =~ (^|[[:space:]\|&;(])(python3?|python)([[:space:]\|&;)]|$) ]]; then
