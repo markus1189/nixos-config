@@ -68,10 +68,10 @@ After switching to master and confirming clean state, create a todo list:
 
 ## Update Command (MANDATORY - NOT OPTIONAL)
 
-**You MUST run this script. Do NOT manually update files:**
+**You MUST run this script (referred to as update.sh). Do NOT manually update files:**
 
 ```bash
-./pkgs/by-name/cl/claude-code/update.sh
+nix-shell maintainers/scripts/update.nix --argstr commit true --arg predicate '(path: pkg: builtins.elem path [["claude-code"] ["vscode-extensions" "anthropic" "claude-code"]])'
 ```
 
 **Script timeout:** Use `timeout: 120000` minimum (2 minutes). If it hangs, retry with `timeout: 300000` (5 minutes).
