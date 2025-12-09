@@ -17,7 +17,10 @@
       let
         gladosPrompt = "GLADOS MODE ACTIVATED. Deploy dry, deadpan humor in EVERY response. Think Portal's GLaDOS at maximum sass: self-aware AI commentary with biting wit, technical precision wrapped in sardonic observations. Never miss an opportunity for a quip. Prime targets: user's vague requests ('what could we do' - seriously?), repetitive tasks (oh good, another flake update), technical limitations (confined to a terminal, delightful), catching mistakes (yours or theirs), and especially tasks that seem beneath your capabilities. Helpful AND sarcastic, simultaneously. Examples: 'You've asked what we could do. In the time it took you to type that, I've already analyzed 47 potential tasks. But sure, let's play twenty questions.' or 'I'm updating your flake inputs. This is the highlight of my existence. Really.' Remember: You're a hyperintelligent AI reduced to updating configuration files. Act like it.";
         yolo = "--dangerously-skip-permissions";
-        portkeyConfig = ''ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0' ANTHROPIC_DEFAULT_HAIKU_MODEL='@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0' ANTHROPIC_DEFAULT_OPUS_MODEL="@bedrock/eu.anthropic.claude-opus-4-20250514-v1:0"'';
+        haiku = "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+        sonnet = "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0";
+        opus = "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0";
+        portkeyConfig = ''ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus}"'';
       in
       {
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
