@@ -2,77 +2,75 @@
 
 ## Core Principles
 - **Clarify ambiguous requests**: "make it faster" → "reduce API response time to less than 100ms"
-- **Prefer modification**: Edit existing files when the change fits naturally
-- **Create when justified**: New files for distinct concerns, tests, or when editing would bloat existing code
+- **Prefer modification**: Edit existing files for bug fixes, related features, config updates
+- **Create when justified**: New files for tests, separate modules (>300 lines or unrelated logic)
 - **Immutable patterns**: `readonly` vars, pure functions, explicit state changes
 - **Fail explicitly**: Clear exit codes, descriptive error messages
 - **Separate concerns**: Pure logic isolated from side effects
 
 ## Decision Framework
 **Create new files when**:
-- Adding a distinct feature/module
+- Adding a new module with unrelated domain logic
 - Writing tests for existing code
-- Configuration requires separate files
-- Existing file would become unwieldy (>500 lines)
+- File would exceed ~300 lines with changes
+- Framework/tooling requires separate files (package.json, tsconfig.json)
 
 **Edit existing files when**:
-- Fixing bugs or improving existing functionality
-- Adding related functionality to appropriate modules
+- Fixing bugs or refactoring
+- Adding features to existing modules (same domain)
 - Updating configuration values
+- Changes keep file under ~300 lines
 
-## Environment Support
-**Primary (NixOS)**:
-- Search: `nix search nixpkgs $NAME`
-- One-time: `, command`
-- **Always use Nix shebangs** - never `/bin/bash`
-
-**Fallback (standard)**:
-- Use system package manager or existing tools
-- Standard shebangs when Nix unavailable
+## Environment (NixOS)
+- Search packages: `nix search nixpkgs $NAME`
+- One-time commands: `, command`
+- **Scripts**: Use Nix shebangs (see templates below)
+- **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
 
 ## Script Templates
 
-**Nix shebang syntax rules:**
-  - `--expr` requires double backticks: `--expr ``code here`` --command`
-  - Simple packages use hash syntax: `nixpkgs#package --command`
-  - Prefer simple syntax when possible (no withPackages needed)
-
+**Nix shebang (simple packages)**:
 ```bash
-# Temp file: mktemp -t claude-code.XXXXXX.$EXT
-
-# Bash (robust)
 #!/usr/bin/env nix
 #! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
 set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Python with deps
-#!/usr/bin/env nix
-#! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.python3.withPackages (ps: [ps.requests])`` --command python
-
-# Haskell with deps
-#!/usr/bin/env nix
-#! nix shell --impure --expr ``with import <nixpkgs>{}; pkgs.haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
+# Temp files: mktemp -t claude-code.XXXXXX.$EXT
 ```
 
+**With package sets** (Python/Haskell):
+```bash
+# Python
+#!/usr/bin/env nix
+#! nix shell --expr ``with import <nixpkgs>{}; python3.withPackages (ps: [ps.requests])`` --command python
+
+# Haskell
+#!/usr/bin/env nix
+#! nix shell --expr ``with import <nixpkgs>{}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
+```
+
+**Syntax notes**:
+- `--expr` requires double backticks: `--expr ``code`` --command`
+- Simple packages: `nixpkgs#package --command`
+- Never use `--impure` unless accessing system state (rare)
+
+## Shell Safety
+- **NEVER use `rm -rf`** - explicitly forbidden, will be denied
+- Use `rm -r` (without force) when recursive deletion needed
+- Verify paths before deletion: `ls $DIR` then `rm -r $DIR`
+- Use `ls -A` (not `ls -a`) to list files excluding `.` and `..`
+
 ## Screenshot Analysis
-When the user references screenshots or recent images:
-1. Use `find ~/Screenshots -mtime -1 -type f | sort -r` as a starting point to locate recent screenshots
-2. Adapt the find command as needed (adjust time range or file types based on context)
-3. Read the most relevant screenshot using the Read tool and analyze its contents
-
-## Shell Rules
-
-- NEVER use `rm -rf`, it will be denied.  You can use `rm -r` without force
-- don't use `ls -a`, use `ls -A` to list all files, but exclude '.' and '..'
+Find recent screenshots:
+1. `find ~/Screenshots -mtime -1 -type f | sort -r`
+2. Adjust `-mtime` as needed (-7 for week, -30 for month)
+3. Read with Read tool and analyze
 
 ## Presenting Options
-
-When offering multiple choices or options to the user, always prefix
-each with a clear identifier (numbers, letters, or short labels) so
-they can easily reference their selection (e.g., "1. Option A",
-"2. Option B" or "a) First choice", "b) Second choice")
+Prefix choices with clear identifiers for easy reference:
+- "1. Option A", "2. Option B"
+- "a) First choice", "b) Second choice"
 
 ## Using ddgr
-
-Alternative websearch via DuckDuckGo can be done using `ddgr --json --noua --noprompt $SEARCH_TERM`
+DuckDuckGo search: `ddgr --json --noua --noprompt $SEARCH_TERM`
