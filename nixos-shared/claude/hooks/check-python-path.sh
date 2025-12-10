@@ -76,8 +76,9 @@ if [[ "$COMMAND" =~ (^|[[:space:]\|&;(])(python3?|python)([[:space:]\|&;)]|$) ]]
 ERROR: '$PYTHON_CMD' command not found in PATH.
 
 On NixOS, use one of these alternatives:
-  - , $PYTHON_CMD          (comma runner - temporary shell)
   - nix run nixpkgs#$PYTHON_CMD
+  - nix run 'nixpkgs.python3.withPackages(p: with p; [requests])'
+  - nix shell nixpkgs#$PYTHON_CMD --command
   - nix-shell -p $PYTHON_CMD
 EOF
         exit 2  # Exit code 2 blocks the command
