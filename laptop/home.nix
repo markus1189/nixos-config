@@ -488,10 +488,27 @@ in
     in
     {
       starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
-      alacritty = {
-        enable = true;
-        settings = {
-          font.size = 10;
+      alacritty =
+        let
+          emacsclient-jump = pkgs.writeShellScript "emacsclient-jump" ''
+            # Parse argument: /path/to/file or /path/to/file:123
+            input="$1"
+
+            if [[ "$input" =~ ^(.+):([0-9]+)$ ]]; then
+              # Contains line number
+              filepath="''${BASH_REMATCH[1]}"
+              linenum="''${BASH_REMATCH[2]}"
+              exec ${pkgs.emacs}/bin/emacsclient -n "+''${linenum}" "''${filepath}"
+            else
+              # No line number
+              exec ${pkgs.emacs}/bin/emacsclient -n "''${input}"
+            fi
+          '';
+        in
+        {
+          enable = true;
+          settings = {
+          font.size = 9;
           window = {
             opacity = 0;
             blur = true;
@@ -504,7 +521,58 @@ in
               mods = "Alt";
               action = "Paste";
             }
+            {
+              key = "F";
+              mods = "Control|Shift";
+              action = "None";
+            }
           ];
+          hints = {
+            enabled = [
+              # Default: URL/hyperlink hints (preserving Alacritty default)
+              {
+                command = "xdg-open";
+                hyperlinks = true;
+                post_processing = true;
+                persist = false;
+                mouse = {
+                  enabled = true;
+                };
+                binding = {
+                  key = "O";
+                  mods = "Control|Shift";
+                };
+                regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001f\\u007f-\\u009f<>\"\\\\s{-}\\\\^⟨⟩`]+";
+              }
+              # File path hints - open with emacsclient (FF style, supports :line notation)
+              {
+                regex = "(~?/[^\\\\s:]+)(:[0-9]+)?";
+                command = "${emacsclient-jump}";
+                post_processing = true;
+                mouse = {
+                  enabled = true;
+                  mods = "None";
+                };
+                binding = {
+                  key = "F";
+                  mods = "Control|Shift";
+                };
+              }
+              # Git commit hash hints - copy to clipboard
+              {
+                regex = "[0-9a-f]{7,40}";
+                action = "Select";
+                mouse = {
+                  enabled = true;
+                  mods = "None";
+                };
+                binding = {
+                  key = "C";
+                  mods = "Control|Shift";
+                };
+              }
+            ];
+          };
         };
       };
 
