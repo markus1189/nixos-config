@@ -73,4 +73,10 @@ Prefix choices with clear identifiers for easy reference:
 - "a) First choice", "b) Second choice"
 
 ## Using ddgr
-DuckDuckGo search: `ddgr --json --noua --noprompt $SEARCH_TERM`
+- DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`
+- Prioritize credible websites as sources
+
+## Terminal Environment
+- **Primary multiplexer**: tmux
+- **Workflow**: Multiple panes for parallel development (builds, servers, shells, monitoring)
+- **Access**: Claude can execute `tmux capture-pane` commands directly via Bash tool
