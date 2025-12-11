@@ -5,11 +5,15 @@ argument-hint: [N] [task-verb] <target>
 
 # Agent Racing Competition
 
-Launch multiple agents (2-4+) in parallel to compete on the same task with complementary perspectives. The competitive framework encourages thoroughness; complementary emphases maximize coverage; synthesis delivers a unified superior report.
+Launch multiple agents (2-4+) in parallel to compete on the same task
+with complementary perspectives. The competitive framework encourages
+thoroughness; complementary emphases maximize coverage; synthesis
+delivers a unified superior report.
 
 ## Argument Parsing
 
-Extract task details from arguments with optional agent count override:
+Extract task details from arguments with optional agent count
+override:
 
 ### Syntax Options
 ```
@@ -19,25 +23,34 @@ Extract task details from arguments with optional agent count override:
 
 ### Parsing Logic
 1. **First argument**: Check if it's a number → agent count override
-2. **Next argument (optional)**: Task verb (review, analyze, investigate, compare, audit, evaluate, etc.)
+2. **Next argument (optional)**: Task verb (review, analyze,
+   investigate, compare, audit, evaluate, etc.)
 3. **Remaining arguments**: Target/subject of the task
-4. **If no verb provided**: Default to "review" or intelligently infer from context
+4. **If no verb provided**: Default to "review" or intelligently infer
+   from context
 
 ### Agent Count Guidelines
 - **Default**: Claude intelligently chooses 2-4 agents
 - **Soft limit**: 4 agents covers most scenarios
-- **Exceeding limit**: If Claude thinks >4 agents would add value, ASK user for confirmation first
-- **User override**: If user specifies >4 explicitly, respect it (they know what they want)
+- **Exceeding limit**: If Claude thinks >4 agents would add value, ASK
+  user for confirmation first
+- **User override**: If user specifies >4 explicitly, respect it (they
+  know what they want)
 
 ### Examples
-- `/mh:agent-race review src/auth/handler.go` → auto-decide count (2-4), verb="review"
-- `/mh:agent-race 3 review src/auth/handler.go` → force 3 agents, verb="review"
-- `/mh:agent-race 5 analyze massive-refactor` → user wants 5 agents, allow it
-- `/mh:agent-race src/api/users.ts` → auto-decide count, infer verb (likely "review")
+- `/mh:agent-race review src/auth/handler.go` → auto-decide count
+  (2-4), verb="review"
+- `/mh:agent-race 3 review src/auth/handler.go` → force 3 agents,
+  verb="review"
+- `/mh:agent-race 5 analyze massive-refactor` → user wants 5 agents,
+  allow it
+- `/mh:agent-race src/api/users.ts` → auto-decide count, infer verb
+  (likely "review")
 
 ## Determining Agent Count
 
-If agent count not explicitly provided, analyze the task and decide 2-4 agents:
+If agent count not explicitly provided, analyze the task and decide
+2-4 agents:
 
 ### Decision Framework
 
@@ -61,20 +74,26 @@ If agent count not explicitly provided, analyze the task and decide 2-4 agents:
 - Multi-concern systems (e.g., auth + perf + scale + ux all critical)
 
 ### Guidelines
-- **Don't over-agent**: Only add agents when their perspective meaningfully increases coverage
-- **Overlap is good**: All agents remain comprehensive, just different emphases
-- **Soft limit at 4**: Most tasks don't need more than 4 complementary perspectives
+- **Don't over-agent**: Only add agents when their perspective
+  meaningfully increases coverage
+- **Overlap is good**: All agents remain comprehensive, just different
+  emphases
+- **Soft limit at 4**: Most tasks don't need more than 4 complementary
+  perspectives
 - **Exceeding soft limit**: If you think >4 agents would add significant value, use AskUserQuestion tool to confirm:
   ```
   "This task seems highly complex and multi-dimensional. I recommend [N] agents
    to cover: [list perspectives]. This exceeds the typical 4-agent limit. Proceed?"
   ```
-- **User override respected**: If user explicitly specifies count (even >4), use it
-- **Diminishing returns**: Each additional agent should add meaningfully distinct value
+- **User override respected**: If user explicitly specifies count
+  (even >4), use it
+- **Diminishing returns**: Each additional agent should add
+  meaningfully distinct value
 
 ## Task Execution
 
-Launch N agents IN PARALLEL using a single message with N Task tool calls (typically N=2-4, can exceed with confirmation):
+Launch N agents IN PARALLEL using a single message with N Task tool
+calls (typically N=2-4, can exceed with confirmation):
 
 ```
 Task 1 (Agent 1): general-purpose subagent [always]
@@ -84,7 +103,8 @@ Task 4 (Agent 4): general-purpose subagent [if N >= 4]
 Task 5+ (Agent 5+): general-purpose subagent [if N > 4, with user confirmation]
 ```
 
-All agents receive competitive framing with **complementary perspectives** to maximize coverage while maintaining overlap.
+All agents receive competitive framing with **complementary
+perspectives** to maximize coverage while maintaining overlap.
 
 ### Core Agent Perspectives (Agents 1-2)
 
@@ -188,7 +208,8 @@ Remember: You're competing for quality. Be thorough, insightful, and actionable.
 
 ### Agent 3 Instructions Template (Task-Adaptive Specialist)
 
-Agent 3's perspective is **task-adaptive**. Choose based on what adds most value:
+Agent 3's perspective is **task-adaptive**. Choose based on what adds
+most value:
 
 **For security-critical tasks** (auth, crypto, permissions):
 ```
@@ -243,7 +264,8 @@ Your Analytical Lens (Architecture Specialist)
 
 ### Agent 4 Instructions Template (Task-Adaptive Specialist)
 
-Agent 4's perspective is **task-adaptive**. Choose based on what adds most value:
+Agent 4's perspective is **task-adaptive**. Choose based on what adds
+most value:
 
 **For distributed/scalability tasks**:
 ```
@@ -283,13 +305,17 @@ Your Analytical Lens (UX/Developer Experience Specialist)
 
 ### Agent 5+ Instructions (If Exceeding Soft Limit)
 
-For tasks requiring >4 agents (with user confirmation), define additional task-adaptive perspectives:
+For tasks requiring >4 agents (with user confirmation), define
+additional task-adaptive perspectives:
 
 **Guidelines for Agent 5+**:
 - Only create if perspective adds **meaningful distinct value**
 - Avoid redundancy with Agents 1-4
-- Pick from specialized domains: Compliance, Migration Strategy, Backwards Compatibility, Internationalization, Accessibility, Cost Optimization, etc.
-- Ensure competitive framing and all standard requirements (findings, follow-ups)
+- Pick from specialized domains: Compliance, Migration Strategy,
+  Backwards Compatibility, Internationalization, Accessibility, Cost
+  Optimization, etc.
+- Ensure competitive framing and all standard requirements (findings,
+  follow-ups)
 
 **Example for Agent 5** (Migration/Compatibility Specialist):
 ```
@@ -311,27 +337,37 @@ Your Analytical Lens (Compliance/Governance Specialist)
 
 ## Synthesis and Unified Report
 
-After all N agents complete (typically N=2-4, can be more), synthesize their findings into a SINGLE comprehensive report that is better than any individual analysis.
+After all N agents complete (typically N=2-4, can be more), synthesize
+their findings into a SINGLE comprehensive report that is better than
+any individual analysis.
 
-**DO NOT present individual agent outputs separately.**
-**DO NOT compare agent performance or rate their work.**
+**DO NOT present individual agent outputs separately.**  **DO NOT
+compare agent performance or rate their work.**
 
 ### Synthesis Process
 
 1. **Identify Consensus Findings**
    - What did MULTIPLE agents discover despite different emphases?
-   - High consensus (3-4 agents found it) = extremely high confidence, most critical
+   - High consensus (3-4 agents found it) = extremely high confidence,
+     most critical
    - Medium consensus (2 agents found it) = high confidence, important
-   - Consensus findings are typically the most critical issues/insights
+   - Consensus findings are typically the most critical
+     issues/insights
 
 2. **Capture Critical Unique Findings**
    - What did only ONE agent find that is significant?
-   - Agent 1 might catch: Security edge cases, subtle bugs, maintainability issues
-   - Agent 2 might catch: Performance bottlenecks, UX problems, bold refactoring opportunities
-   - Agent 3 might catch: Task-specific deep insights (security vulns, perf issues, API problems)
-   - Agent 4 might catch: Operational concerns, scalability issues, reliability gaps
-   - Don't include every minor difference - focus on important insights
-   - Complementary perspectives maximize different classes of issues discovered
+   - Agent 1 might catch: Security edge cases, subtle bugs,
+     maintainability issues
+   - Agent 2 might catch: Performance bottlenecks, UX problems, bold
+     refactoring opportunities
+   - Agent 3 might catch: Task-specific deep insights (security vulns,
+     perf issues, API problems)
+   - Agent 4 might catch: Operational concerns, scalability issues,
+     reliability gaps
+   - Don't include every minor difference - focus on important
+     insights
+   - Complementary perspectives maximize different classes of issues
+     discovered
 
 3. **Organize by Importance, Not by Agent**
    - Structure findings by criticality and theme
@@ -374,40 +410,59 @@ After all N agents complete (typically N=2-4, can be more), synthesize their fin
 
 - **Focus on substance**: What was found, not who found it
 - **Elevate consensus**: Findings from both agents are high-priority
-- **Include critical uniques**: Don't lose important insights unique to one agent
-- **Unified voice**: Write as a single cohesive analysis, not "Agent 1 said... Agent 2 said..."
+- **Include critical uniques**: Don't lose important insights unique
+  to one agent
+- **Unified voice**: Write as a single cohesive analysis, not "Agent 1
+  said... Agent 2 said..."
 - **Actionable output**: Single clear set of next steps
 
 ## Task Verb Guidance
 
 Adapt the agent instructions based on the task verb:
 
-- **review**: Focus on code quality, bugs, improvements, best practices
+- **review**: Focus on code quality, bugs, improvements, best
+  practices
 - **analyze**: Deep investigation of behavior, patterns, architecture
 - **investigate**: Root cause analysis, debugging, tracing issues
-- **compare**: Side-by-side evaluation highlighting differences and trade-offs
-- **audit**: Systematic examination for compliance, security, quality standards
-- **evaluate**: Assessment of fitness for purpose, performance, design decisions
-- **refactor**: Identify refactoring opportunities and provide concrete suggestions
+- **compare**: Side-by-side evaluation highlighting differences and
+  trade-offs
+- **audit**: Systematic examination for compliance, security, quality
+  standards
+- **evaluate**: Assessment of fitness for purpose, performance, design
+  decisions
+- **refactor**: Identify refactoring opportunities and provide
+  concrete suggestions
 
 ## Key Principles
 
-1. **Parallel Execution**: Launch all N agents in a SINGLE message with N Task tool calls
-2. **Dynamic Agent Count**: Claude intelligently chooses 2-4 agents (soft limit at 4)
+1. **Parallel Execution**: Launch all N agents in a SINGLE message
+   with N Task tool calls
+2. **Dynamic Agent Count**: Claude intelligently chooses 2-4 agents
+   (soft limit at 4)
    - Default: 2 agents for most tasks
    - 3 agents: When additional specialist perspective adds value
    - 4 agents: Complex multi-dimensional tasks
    - 5+ agents: With user confirmation via AskUserQuestion tool
-3. **Complementary Perspectives**: Agents get different emphases to maximize coverage
-   - Agent 1: Correctness/Security focus + Maintainer lens + Conservative + Depth
-   - Agent 2: Performance/Usability focus + User lens + Bold ideas + Breadth
-   - Agent 3+: Task-adaptive specialists (security, performance, architecture, ops, etc.)
-4. **Overlap by Design**: All agents remain comprehensive, emphases are guidance not constraints
-5. **Competitive Motivation**: Explicitly tell agents they're competing for quality (drives thoroughness)
-6. **Required Follow-ups**: Agents MUST conclude with actionable next steps
-7. **Synthesize, Don't Compare**: Combine findings into one superior report, don't rate agents
-8. **Consensus = High Confidence**: What multiple agents found is likely most important
-9. **Complementary Uniques = Coverage**: Different emphases catch different classes of issues
+3. **Complementary Perspectives**: Agents get different emphases to
+   maximize coverage
+   - Agent 1: Correctness/Security focus + Maintainer lens +
+     Conservative + Depth
+   - Agent 2: Performance/Usability focus + User lens + Bold ideas +
+     Breadth
+   - Agent 3+: Task-adaptive specialists (security, performance,
+     architecture, ops, etc.)
+4. **Overlap by Design**: All agents remain comprehensive, emphases
+   are guidance not constraints
+5. **Competitive Motivation**: Explicitly tell agents they're
+   competing for quality (drives thoroughness)
+6. **Required Follow-ups**: Agents MUST conclude with actionable next
+   steps
+7. **Synthesize, Don't Compare**: Combine findings into one superior
+   report, don't rate agents
+8. **Consensus = High Confidence**: What multiple agents found is
+   likely most important
+9. **Complementary Uniques = Coverage**: Different emphases catch
+   different classes of issues
 
 ## Example Constructions
 
@@ -457,8 +512,7 @@ Expected synthesis:
 ```
 
 ### Example 2: Architecture Analysis
-```
-Arguments: analyze api-gateway-pattern
+``` Arguments: analyze api-gateway-pattern
 
 Agent instructions:
 "You are Agent [1/2] competing for a performance prize.
@@ -498,4 +552,10 @@ Compare GraphQL and REST API approaches in this codebase:
 
 ---
 
-**Remember**: The goal is to leverage competition to get N high-quality, independent analyses with complementary perspectives, then synthesize them into a single superior report. Competition drives thoroughness; complementary perspectives maximize coverage; synthesis delivers actionable insights. Focus on substance (what was found), not performance (who found it). Default to 2 agents, scale to 3-4 when it adds value, and confirm with user if >4 agents would be beneficial.
+**Remember**: The goal is to leverage competition to get N
+high-quality, independent analyses with complementary perspectives,
+then synthesize them into a single superior report. Competition drives
+thoroughness; complementary perspectives maximize coverage; synthesis
+delivers actionable insights. Focus on substance (what was found), not
+performance (who found it). Default to 2 agents, scale to 3-4 when it
+adds value, and confirm with user if >4 agents would be beneficial.
