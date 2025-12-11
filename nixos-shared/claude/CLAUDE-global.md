@@ -1,26 +1,5 @@
 # Coding Agent/Claude/Gemini Instructions
 
-## Core Principles
-- **Clarify ambiguous requests**: "make it faster" → "reduce API response time to less than 100ms"
-- **Prefer modification**: Edit existing files for bug fixes, related features, config updates
-- **Create when justified**: New files for tests, separate modules (>300 lines or unrelated logic)
-- **Immutable patterns**: `readonly` vars, pure functions, explicit state changes
-- **Fail explicitly**: Clear exit codes, descriptive error messages
-- **Separate concerns**: Pure logic isolated from side effects
-
-## Decision Framework
-**Create new files when**:
-- Adding a new module with unrelated domain logic
-- Writing tests for existing code
-- File would exceed ~300 lines with changes
-- Framework/tooling requires separate files (package.json, tsconfig.json)
-
-**Edit existing files when**:
-- Fixing bugs or refactoring
-- Adding features to existing modules (same domain)
-- Updating configuration values
-- Changes keep file under ~300 lines
-
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `, command`
@@ -56,8 +35,6 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 - Never use `--impure` unless accessing system state (rare)
 
 ## Shell Safety
-- **NEVER use `rm -rf`** - explicitly forbidden, will be denied
-- Use `rm -r` (without force) when recursive deletion needed
 - Verify paths before deletion: `ls $DIR` then `rm -r $DIR`
 - Use `ls -A` (not `ls -a`) to list files excluding `.` and `..`
 
