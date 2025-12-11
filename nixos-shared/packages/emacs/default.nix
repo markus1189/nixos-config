@@ -72,6 +72,7 @@ in emacs.pkgs.withPackages (epkgs:
       aidermacs
       avy
       annotate
+      bats-mode
       beacon
       consult
       consult-project-extra

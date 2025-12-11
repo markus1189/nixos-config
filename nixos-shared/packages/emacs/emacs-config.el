@@ -2612,6 +2612,9 @@ Provides more detailed messages on failure."
 (use-package ialign
   :ensure t)
 
+(use-package bats-mode
+  :ensure t)
+
 (add-to-list 'load-path "@mcp_el@")
 (require 'mcp-hub)
 
