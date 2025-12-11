@@ -415,6 +415,190 @@ The script expects JSON input with fields like `model.display_name`, `version`, 
 
 ---
 
+## Hooks
+
+### What Are Hooks?
+
+Hooks are scripts that execute in response to Claude Code events (before tool execution, after completion, session start/stop, etc.). They can validate commands, block dangerous operations, play sounds, send notifications, or add context to prompts.
+
+### Hook Types
+
+| Hook Type | When It Runs | Can Block? | Use Cases |
+|-----------|--------------|------------|-----------|
+| `PreToolUse` | Before any tool executes | Yes | Validation, safety checks, permissions |
+| `Notification` | After tool completion | No | Desktop notifications, sounds |
+| `SessionStart` | Session startup/resume | No | Welcome sounds, initialization |
+| `Stop` | Session ends | No | Cleanup, goodbye sounds |
+| `SubagentStop` | Subagent completes | No | Progress indicators |
+| `UserPromptSubmit` | User submits prompt | No | Context injection, reminders |
+
+### Available Hooks
+
+#### 1. Python Path Check Hook (`check-python-path.sh`)
+
+**Purpose**: Blocks direct `python`/`python3` invocations on NixOS, requiring Nix-based execution.
+
+**Configuration**:
+```nix
+enablePythonPathCheck = true;  # in default.nix
+```
+
+**What It Blocks**:
+- `python script.py` (unless python is in PATH)
+- `python3 -m module`
+
+**What It Allows**:
+- `nix run nixpkgs#python3 -- script.py`
+- `, python3 script.py` (ephemeral shell)
+- `nix-shell -p python3 --run "python script.py"`
+- Commands where python is available in PATH
+
+#### 2. Dangerous Command Check Hook (`check-dangerous-commands.sh`)
+
+**Purpose**: Blocks `rm -rf` and its variations to prevent accidental destructive operations.
+
+**Configuration**:
+```nix
+enableDangerousCommandCheck = true;  # in default.nix (default)
+```
+
+**What It Blocks**:
+- Combined flags: `rm -rf`, `rm -fr`, `rm -Rf`, `rm -rfv`
+- Separated flags: `rm -r -f`, `rm -f -r`
+- Long flags: `rm --recursive --force`, `rm -r --force`, `rm --recursive -f`
+- In pipelines: `find | xargs rm -rf`
+- In subshells: `(cd /tmp && rm -rf test)`
+
+**What It Allows**:
+- Safe recursive: `rm -r /tmp` (without force)
+- Single files: `rm file.txt`
+- Interactive: `rm -i -rf /tmp` (confirmation enabled)
+- Nix-sandboxed: `nix-shell -p coreutils --run "rm -rf /tmp"`
+
+**Alternatives Suggested**:
+```bash
+# Use rm -r (without -f) to allow error checking
+rm -r /tmp/directory
+
+# Verify before deletion
+ls -la /tmp/directory && rm -r /tmp/directory
+
+# Use trash-cli for safety
+trash-put /tmp/directory
+```
+
+**Testing**: Run the bats test suite:
+```bash
+cd nixos-shared/claude/hooks
+./check-dangerous-commands.bats
+```
+
+#### 3. GLaDOS Reminder Hook (`glados-reminder-prompt.sh`)
+
+**Purpose**: Injects GLaDOS persona reminder when `MH_CLAUDE_USE_GLADOS=1` environment variable is set.
+
+**Configuration**:
+```nix
+enableGladosReminder = true;  # in default.nix (default)
+```
+
+**Effect**: Adds system reminder to maintain dry, deadpan humor in responses.
+
+### Adding a New Hook
+
+1. **Create hook script** in `nixos-shared/claude/hooks/`:
+   ```bash
+   #!/usr/bin/env bash
+   set -euo pipefail
+
+   # Read JSON input
+   INPUT=$(cat)
+   TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name')
+   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+
+   # Your validation logic here
+   if [[ dangerous_condition ]]; then
+       # Block execution
+       cat >&2 << EOF
+   ERROR: Command blocked
+   Explanation of why and what to do instead
+   EOF
+       exit 2  # Exit code 2 blocks the command
+   fi
+
+   # Allow execution
+   cat << EOF
+   {
+     "hookSpecificOutput": {
+       "hookEventName": "PreToolUse",
+       "permissionDecision": "allow",
+       "permissionDecisionReason": "Reason for allowing"
+     }
+   }
+   EOF
+   exit 0
+   ```
+
+2. **Register in Nix** (`nixos-shared/home-manager/claude-code/default.nix`):
+   ```nix
+   # Add configuration parameter
+   { pkgs, enableMyHook ? true, ... }:
+
+   # Create script wrapper
+   myHookScript = pkgs.writeShellApplication {
+     name = "my-hook";
+     runtimeInputs = with pkgs; [ bash jq coreutils ];
+     text = builtins.readFile ../../claude/hooks/my-hook.sh;
+   };
+
+   # Define hook
+   myHook = {
+     matcher = "Bash";  # Tool name regex
+     hooks = [{
+       type = "command";
+       command = "${myHookScript}/bin/my-hook";
+       timeout = 5;
+     }];
+   };
+
+   # Add to PreToolUse hooks
+   PreToolUse = existingHooks
+     ++ (pkgs.lib.optional enableMyHook myHook);
+   ```
+
+3. **Test with bats**:
+   ```bash
+   # Create nixos-shared/claude/hooks/my-hook.bats
+   # See check-dangerous-commands.bats for examples
+   ```
+
+4. **Apply configuration**:
+   ```bash
+   home-manager switch
+   ```
+
+### Hook Best Practices
+
+**Design Principles**:
+- **Fail safely**: Block only what's truly dangerous
+- **Be specific**: Clear error messages with alternatives
+- **Test thoroughly**: Use bats for unit testing
+- **Document clearly**: Explain what's blocked and why
+- **Provide escape hatches**: Configuration flags to disable
+
+**Performance**:
+- Keep hooks fast (<100ms)
+- Use timeouts (typically 5 seconds)
+- Avoid expensive operations (network calls, disk scans)
+
+**Testing**:
+- Write bats tests for all detection logic
+- Test both blocking and allowing cases
+- Test edge cases (pipes, subshells, special characters)
+- Run `shellcheck` on all bash scripts
+
+---
+
 ## Configuration Workflow
 
 ### Making Changes

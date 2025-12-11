@@ -3,6 +3,7 @@
 , enableDenyRules ? false
 , enablePythonPathCheck ? false
 , enableGladosReminder ? true
+, enableDangerousCommandCheck ? true
 , additionalAllowedCommands ? []
 , ...
 }:
@@ -80,6 +81,13 @@ let
     name = "glados-reminder-prompt";
     runtimeInputs = with pkgs; [ bash coreutils ];
     text = builtins.readFile ../../claude/hooks/glados-reminder-prompt.sh;
+  };
+
+  # Dangerous command check hook script
+  dangerousCommandCheckScript = pkgs.writeShellApplication {
+    name = "check-dangerous-commands";
+    runtimeInputs = with pkgs; [ bash jq coreutils ];
+    text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 
   # Hook definitions for compositional building
@@ -205,13 +213,25 @@ let
     ];
   };
 
+  dangerousCommandCheckHook = {
+    matcher = "Bash";
+    hooks = [
+      {
+        type = "command";
+        command = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
+        timeout = 5;
+      }
+    ];
+  };
+
   # Build hooks configuration compositionally
   hooksConfig =
     if enableSoundHooks then
       {
         Notification = soundNotificationHooks;
         PreToolUse = soundPreToolUseHooks
-          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook);
+          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook)
+          ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
         SessionStart = soundSessionStartHooks;
         Stop = soundStopHooks;
         SubagentStop = soundSubagentStopHooks;
@@ -220,9 +240,12 @@ let
         UserPromptSubmit = [ gladosReminderHook ];
       })
     else
-      (pkgs.lib.optionalAttrs enablePythonPathCheck {
-        PreToolUse = [ pythonPathCheckHook ];
-      })
+      let
+        preToolUseHooks = [ ]
+          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook)
+          ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
+      in
+      (if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { })
       // (pkgs.lib.optionalAttrs enableGladosReminder {
         UserPromptSubmit = [ gladosReminderHook ];
       });
