@@ -86,7 +86,6 @@ in
         mpc
         mr
         mtools
-        mu
         libressl.nc
         nethogs
         nixVersions.git
