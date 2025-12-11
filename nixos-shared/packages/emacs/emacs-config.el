@@ -2254,6 +2254,7 @@ Provides more detailed messages on failure."
             (:owner "dunst-project" :repo "dunst")
             (:owner "karthink" :repo "gptel")
             (:owner "aider-ai" :repo "aider")
+            (:owner "alacritty" :repo "alacritty")
             (:owner "sst" :repo "opencode" :tags (llm))))
 
          (mapcar
