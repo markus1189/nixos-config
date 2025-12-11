@@ -29,15 +29,14 @@ block_dangerous_command() {
 ERROR: Dangerous command blocked: $reason
 
 The command contains 'rm -rf' (or equivalent with flags in any order).
-This is forbidden by your configuration.
+This is forbidden.
 
 If you need recursive deletion:
   - Use 'rm -r' (without -f) to allow error checking
   - Verify the path first: ls -la <path>
-  - Consider using trash-cli: trash-put <path>
 
-To override this hook, modify:
-  nixos-shared/home-manager/claude-code/default.nix (set enableDangerousCommandCheck = false)
+If you need forced deletion:
+   - ask the user to run the command for you
 EOF
     exit 2
 }
