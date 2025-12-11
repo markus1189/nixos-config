@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Info: BATS unit tests at ./claude-code-statusline.bats
+
 get_output_style() {
     local style
     style=$(echo "$input" | jq -r '.output_style.name // "default"')
