@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-input=$(cat)
 
 get_output_style() {
     local style
@@ -65,60 +64,22 @@ get_transcript_path() { echo "$input" | jq -r '.transcript_path'; }
 get_transcript_id() { basename "$(get_transcript_path)" ".jsonl" | cut -d'-' -f1; }
 
 get_context_size() {
-    if test -f "$(get_transcript_path)" ; then
-        jq -r '
-    select(.message.usage and (.isSidechain != true)) |
-    {
-        timestamp: .timestamp,
-        context_length: (
-            (.message.usage.input_tokens // 0) +
-            (.message.usage.cache_read_input_tokens // 0) +
-            (.message.usage.cache_creation_input_tokens // 0)
-        )
-    }
-' "$(get_transcript_path)" |
-            jq -s 'sort_by(.timestamp) | last | .context_length // 0'
+    local tokens
+    tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
+    if [ -n "$tokens" ] && [[ "$tokens" =~ ^[0-9]+$ ]]; then
+        echo "$tokens"
     else
         echo "⌀"
     fi
 }
 
-get_context_diff() {
-    if test -f "$(get_transcript_path)" ; then
-        local sizes
-        sizes=$(jq -r '
-    select(.message.usage and (.isSidechain == true | not)) |
-    {
-        timestamp: .timestamp,
-        context_length: (
-            (.message.usage.input_tokens // 0) +
-            (.message.usage.cache_read_input_tokens // 0) +
-            (.message.usage.cache_creation_input_tokens // 0)
-        )
-    }
-' "$(get_transcript_path)" | jq -s -r 'sort_by(.timestamp) | map(.context_length) | .[-2:] | @tsv')
-
-        if [ -n "$sizes" ]; then
-            local prev current diff
-            read -r prev current <<< "$sizes"
-
-            if [ -n "$prev" ] && [ -n "$current" ] && [ "$prev" != "null" ] && [ "$current" != "null" ] && [[ "$prev" =~ ^[0-9]+$ ]] && [[ "$current" =~ ^[0-9]+$ ]]; then
-                diff=$((current - prev))
-                if [ $diff -gt 0 ]; then
-                    echo "+$diff"
-                elif [ $diff -lt 0 ]; then
-                    echo "$diff"
-                else
-                    echo ""
-                fi
-            else
-                echo ""
-            fi
-        else
-            echo ""
-        fi
+get_context_window_size() {
+    local size
+    size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
+    if [ -n "$size" ] && [[ "$size" =~ ^[0-9]+$ ]]; then
+        echo "$size"
     else
-        echo ""
+        echo "200000"  # Default fallback
     fi
 }
 
@@ -159,7 +120,7 @@ get_git_status() {
 }
 
 get_context_with_bar() {
-    local context formatted_context
+    local context formatted_context window_size scale_factor
     context=$(get_context_size)
 
     if [ "$context" = "⌀" ]; then
@@ -180,7 +141,10 @@ get_context_with_bar() {
         formatted_context="${context}"
     fi
 
-    local filled=$(( context / 20000 ))  # Scale for ~200k max context
+    # Scale based on actual context window size
+    window_size=$(get_context_window_size)
+    scale_factor=$(( window_size / 10 ))
+    local filled=$(( context / scale_factor ))
     if [ $filled -gt 10 ]; then filled=10; fi
     if [ $filled -lt 0 ]; then filled=0; fi
 
@@ -192,16 +156,25 @@ get_context_with_bar() {
 }
 
 get_context_color() {
-    local context
+    local context window_size threshold_red threshold_orange
     context=$(get_context_size)
+
     if [ "$context" = "⌀" ]; then
         echo "180;140;255"  # Default purple
-    elif [ "$context" -gt 120000 ]; then
-        echo "255;120;120"  # Red for high usage
-    elif [ "$context" -gt 80000 ]; then
-        echo "255;180;100"  # Orange for medium usage
+        return
+    fi
+
+    # Dynamic thresholds based on context window size
+    window_size=$(get_context_window_size)
+    threshold_red=$(( window_size * 60 / 100 ))      # 60% of window
+    threshold_orange=$(( window_size * 40 / 100 ))   # 40% of window
+
+    if [ "$context" -gt "$threshold_red" ]; then
+        echo "255;120;120"  # Red for high usage (>60%)
+    elif [ "$context" -gt "$threshold_orange" ]; then
+        echo "255;180;100"  # Orange for medium usage (>40%)
     else
-        echo "120;220;120"  # Green for low usage
+        echo "120;220;120"  # Green for low usage (<40%)
     fi
 }
 
@@ -223,19 +196,31 @@ fg_color() { printf "\033[38;2;%sm" "$1"; }
 segment() { echo -n "$(bg_color "$1")${BLACK_FG} $2 ${RESET}"; }
 separator() { echo -n "$(fg_color "$1")$(bg_color "$2")${RESET}"; }
 
-# Build statusline with readable segments
-echo -en "$(segment "$RED" "$(get_model_name)")"
-echo -en "$(separator "$RED" "$ORANGE")"
-echo -en "$(segment "$ORANGE" "$(get_version)")"
-echo -en "$(separator "$ORANGE" "$GREEN")"
-echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
-echo -en "$(separator "$GREEN" "$BLUE")"
-echo -en "$(segment "$BLUE" "$(get_project_dir)")"
-echo -en "$(separator "$BLUE" "$PURPLE")"
-echo -en "$(segment "$PURPLE" "$(get_cost)$")"
-echo -en "$(separator "$PURPLE" "$(get_context_color)")"
-echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
-echo -en "$(separator "$(get_context_color)" "$PINK")"
-echo -en "$(segment "$PINK" "$(get_transcript_id)")"
-echo -en "$(fg_color "$PINK")"
-echo
+# Main execution function
+main() {
+    input=$(cat)
+
+    # Build statusline with readable segments
+    echo -en "$(segment "$RED" "$(get_model_name)")"
+    echo -en "$(separator "$RED" "$ORANGE")"
+    echo -en "$(segment "$ORANGE" "$(get_version)")"
+    echo -en "$(separator "$ORANGE" "$GREEN")"
+    echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
+    echo -en "$(separator "$GREEN" "$BLUE")"
+    echo -en "$(segment "$BLUE" "$(get_project_dir)")"
+    echo -en "$(separator "$BLUE" "$PURPLE")"
+    echo -en "$(segment "$PURPLE" "$(get_cost)$")"
+    echo -en "$(separator "$PURPLE" "$(get_context_color)")"
+    echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
+    echo -en "$(separator "$(get_context_color)" "$PINK")"
+    echo -en "$(segment "$PINK" "$(get_transcript_id)")"
+    echo -en "$(fg_color "$PINK")"
+    echo
+}
+
+# Only run main if script is executed directly (not sourced for testing)
+# When sourced, BASH_SOURCE[0] != $0
+# When executed, they're equal OR BASH_SOURCE[0] is empty (piped to bash)
+if [ -z "${BASH_SOURCE[0]}" ] || [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main
+fi
