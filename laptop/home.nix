@@ -488,7 +488,9 @@ in
     in
     {
       starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
-      alacritty =
+
+
+      alacritty = # config documentation at https://alacritty.org/config-alacritty.html
         let
           emacsclient-jump = pkgs.writeShellScript "emacsclient-jump" ''
             # Parse argument: /path/to/file or /path/to/file:123
@@ -536,7 +538,7 @@ in
                 post_processing = true;
                 persist = false;
                 mouse = {
-                  enabled = true;
+                  enabled = false;
                 };
                 binding = {
                   key = "O";
@@ -546,11 +548,11 @@ in
               }
               # File path hints - open with emacsclient (FF style, supports :line notation)
               {
-                regex = "(~?/[^\\\\s:]+)(:[0-9]+)?";
+                regex = "(~?/(?:\\\\\\\\.|\\\\S)+)(:[0-9]+)?";
                 command = "${emacsclient-jump}";
                 post_processing = true;
                 mouse = {
-                  enabled = true;
+                  enabled = false;
                   mods = "None";
                 };
                 binding = {
@@ -563,7 +565,7 @@ in
                 regex = "[0-9a-f]{7,40}";
                 action = "Select";
                 mouse = {
-                  enabled = true;
+                  enabled = false;
                   mods = "None";
                 };
                 binding = {
