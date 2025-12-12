@@ -57,3 +57,4 @@ Prefix choices with clear identifiers for easy reference:
 - **Primary multiplexer**: tmux
 - **Workflow**: Multiple panes for parallel development (builds, servers, shells, monitoring)
 - **Access**: Claude can execute `tmux capture-pane` commands directly via Bash tool
+- **Polling tool**: `tmux-poll-pane` for waiting on patterns in panes (success/failure/inverse patterns, timeout support)

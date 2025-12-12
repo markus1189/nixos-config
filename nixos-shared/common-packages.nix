@@ -65,6 +65,9 @@ in
         watchexec
         wormhole-william
       ])
-      ++ (with pkgs; [ (myScripts.logArgs) ]);
+      ++ (with pkgs; [
+        (myScripts.logArgs)
+        (myScripts.tmuxPollPane)
+      ]);
   };
 }

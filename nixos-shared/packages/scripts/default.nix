@@ -135,6 +135,239 @@ rec {
         main $*
       '';
 
+  tmuxPollPane =
+    writeShellScript
+      {
+        name = "tmux-poll-pane";
+        deps = [
+          tmux
+          coreutils
+          gnugrep
+          gnused
+        ];
+      }
+      ''
+        # tmux-poll-pane - Poll a tmux pane for patterns with timeout
+        # A sophisticated busy-wait loop for the discerning tmux user
+
+        readonly SCRIPT_NAME="tmux-poll-pane"
+        readonly VERSION="1.0.0"
+
+        # Default values
+        INTERVAL=2
+        TIMEOUT=60
+        SUCCESS_PATTERN=""
+        FAILURE_PATTERN=""
+        INVERSE_PATTERN=""
+        USE_SCROLLBACK=false
+        QUIET=false
+        PANE=""
+
+        usage() {
+            cat >&2 <<EOF
+        Usage: $SCRIPT_NAME [OPTIONS] <pane-id>
+
+        Poll a tmux pane for patterns with configurable success/failure conditions.
+
+        ARGUMENTS:
+            <pane-id>           Tmux pane identifier (e.g., 0, 135, or {marked})
+                                Numeric IDs are automatically prefixed with %
+
+        OPTIONS:
+            -s, --success PATTERN    Exit successfully (0) when this pattern is found
+            -f, --failure PATTERN    Exit with error (1) when this pattern is found
+            -i, --inverse PATTERN    Exit successfully when pattern is NOT found
+            -I, --interval SECONDS   Polling interval in seconds (default: 2)
+            -t, --timeout SECONDS    Maximum wait time in seconds (default: 60)
+            -S, --scrollback         Capture entire scrollback history (default: visible only)
+            -q, --quiet              Suppress progress messages, only show result
+            -h, --help               Show this help message
+            -v, --version            Show version information
+
+        PATTERN SYNTAX:
+            Patterns use grep extended regex (-E). Multiple patterns can be separated
+            with '|' for OR matching (e.g., "success|complete|done").
+
+        EXIT CODES:
+            0   Success pattern found (or inverse pattern not found)
+            1   Failure pattern found
+            2   Timeout reached
+            3   Invalid arguments or tmux error
+
+        EXAMPLES:
+            # Wait for build completion
+            $SCRIPT_NAME -s "Build succeeded" -f "Build failed|ERROR" -t 300 2
+
+            # Wait for server startup
+            $SCRIPT_NAME -s "listening on port" -t 30 3
+
+            # Wait for "Compiling..." to disappear
+            $SCRIPT_NAME -i "Compiling" -t 120 1
+
+            # Monitor with 5-second interval and full scrollback
+            $SCRIPT_NAME -s "DONE" -S -I 5 -t 600 4
+
+            # Quiet mode for scripting
+            $SCRIPT_NAME -q -s "complete" -t 60 2 && echo "Success!" || echo "Failed"
+
+        NOTES:
+            - At least one of -s, -f, or -i must be specified
+            - If both success and failure patterns are given, failure takes precedence
+            - Use -S with caution on panes with large scrollback buffers
+            - Patterns are case-sensitive unless you use '(?i)' prefix
+        EOF
+            exit "''${1:-0}"
+        }
+
+        version() {
+            echo "$SCRIPT_NAME version $VERSION"
+            exit 0
+        }
+
+        log() {
+            if ! $QUIET; then
+                echo "$@" >&2
+            fi
+        }
+
+        error() {
+            echo "Error: $*" >&2
+            exit 3
+        }
+
+        # Parse arguments
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                -s|--success)
+                    SUCCESS_PATTERN="$2"
+                    shift 2
+                    ;;
+                -f|--failure)
+                    FAILURE_PATTERN="$2"
+                    shift 2
+                    ;;
+                -i|--inverse)
+                    INVERSE_PATTERN="$2"
+                    shift 2
+                    ;;
+                -I|--interval)
+                    INTERVAL="$2"
+                    shift 2
+                    ;;
+                -t|--timeout)
+                    TIMEOUT="$2"
+                    shift 2
+                    ;;
+                -S|--scrollback)
+                    USE_SCROLLBACK=true
+                    shift
+                    ;;
+                -q|--quiet)
+                    QUIET=true
+                    shift
+                    ;;
+                -h|--help)
+                    usage 0
+                    ;;
+                -v|--version)
+                    version
+                    ;;
+                -*)
+                    error "Unknown option: $1 (use -h for help)"
+                    ;;
+                *)
+                    if [[ -z "$PANE" ]]; then
+                        PANE="$1"
+                        shift
+                    else
+                        error "Multiple pane IDs specified: $PANE and $1"
+                    fi
+                    ;;
+            esac
+        done
+
+        # Validate arguments
+        [[ -z "$PANE" ]] && error "Pane ID required (use -h for help)"
+        [[ -z "$SUCCESS_PATTERN" && -z "$FAILURE_PATTERN" && -z "$INVERSE_PATTERN" ]] && \
+            error "At least one pattern (-s, -f, or -i) must be specified"
+        [[ ! "$INTERVAL" =~ ^[0-9]+$ ]] && error "Interval must be a positive integer"
+        [[ ! "$TIMEOUT" =~ ^[0-9]+$ ]] && error "Timeout must be a positive integer"
+
+        # Prefix numeric pane IDs with %
+        if [[ "$PANE" =~ ^[0-9]+$ ]]; then
+            PANE="%$PANE"
+        fi
+
+        # Verify pane exists
+        if ! tmux list-panes -a -F "#{pane_id}" | grep -qxF "$PANE"; then
+            error "Pane '$PANE' not found"
+        fi
+
+        # Build capture command
+        CAPTURE_CMD=(tmux capture-pane -p -t "$PANE")
+        if $USE_SCROLLBACK; then
+            CAPTURE_CMD+=(-S - -E -)
+        fi
+
+        # Start polling
+        readonly START_TIME=$(date +%s)
+        ITERATION=0
+
+        log "Polling pane $PANE (interval: ''${INTERVAL}s, timeout: ''${TIMEOUT}s)"
+        [[ -n "$SUCCESS_PATTERN" ]] && log "  Success pattern: $SUCCESS_PATTERN"
+        [[ -n "$FAILURE_PATTERN" ]] && log "  Failure pattern: $FAILURE_PATTERN"
+        [[ -n "$INVERSE_PATTERN" ]] && log "  Inverse pattern: $INVERSE_PATTERN"
+
+        while true; do
+            ITERATION=$((ITERATION + 1))
+            ELAPSED=$(($(date +%s) - START_TIME))
+
+            # Capture pane content
+            if ! CONTENT=$("''${CAPTURE_CMD[@]}" 2>&1); then
+                error "Failed to capture pane $PANE: $CONTENT"
+            fi
+
+            # Check failure pattern first (highest priority)
+            if [[ -n "$FAILURE_PATTERN" ]] && echo "$CONTENT" | grep -qE "$FAILURE_PATTERN"; then
+                MATCH=$(echo "$CONTENT" | grep -E "$FAILURE_PATTERN" | head -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                log "✗ Failure pattern found after ''${ELAPSED}s: $MATCH"
+                exit 1
+            fi
+
+            # Check success pattern
+            if [[ -n "$SUCCESS_PATTERN" ]] && echo "$CONTENT" | grep -qE "$SUCCESS_PATTERN"; then
+                MATCH=$(echo "$CONTENT" | grep -E "$SUCCESS_PATTERN" | head -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                log "✓ Success pattern found after ''${ELAPSED}s: $MATCH"
+                exit 0
+            fi
+
+            # Check inverse pattern (success when NOT found)
+            if [[ -n "$INVERSE_PATTERN" ]] && ! echo "$CONTENT" | grep -qE "$INVERSE_PATTERN"; then
+                log "✓ Inverse pattern not found after ''${ELAPSED}s (success)"
+                exit 0
+            fi
+
+            # Check timeout
+            if [[ "$ELAPSED" -ge "$TIMEOUT" ]]; then
+                log "⏱ Timeout reached after ''${ELAPSED}s (''${ITERATION} iterations)"
+                if [[ -n "$SUCCESS_PATTERN" ]]; then
+                    log "  Pattern not found: $SUCCESS_PATTERN"
+                fi
+                if [[ -n "$INVERSE_PATTERN" ]]; then
+                    log "  Pattern still present: $INVERSE_PATTERN"
+                fi
+                exit 2
+            fi
+
+            # Progress indicator (every 10 iterations when not quiet)
+            if ! $QUIET && [[ $((ITERATION % 10)) -eq 0 ]]; then
+                log "  Still polling... (''${ELAPSED}s elapsed, ''${ITERATION} iterations)"
+            fi
+
+            sleep "$INTERVAL"
+        done
+      '';
+
   git-pretty-log =
     writeShellScript
       {
