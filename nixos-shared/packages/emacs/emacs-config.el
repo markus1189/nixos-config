@@ -2033,7 +2033,8 @@ etc. This is a single, standalone request, no follow-up needed."
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
 
-  (setq mh/elfeed-search-stack '(llm hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
+  (defconst mh/elfeed-search-stack-initial '(llm hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
+  (setq mh/elfeed-search-stack mh/elfeed-search-stack-initial)
 
   (defun mh/raindrop-add-url-api (url tags)
     "Add a URL to Raindrop.io API.
@@ -2109,9 +2110,15 @@ Provides more detailed messages on failure."
       (elfeed-search-set-filter next-filter)
       (if (and head (not (consp elfeed-search-entries))) (mh/elfeed-search-stack-next))))
 
+  (defun mh/elfeed-search-stack-reset ()
+    (interactive)
+    (setq mh/elfeed-search-stack mh/elfeed-search-stack-initial)
+    (elfeed-search-set-filter (format "@6-months-ago +unread +%s" (car mh/elfeed-search-stack-initial))))
+
   (progn
     (define-key elfeed-search-mode-map (kbd "l") (lambda () (interactive) (switch-to-buffer (elfeed-log-buffer))))
     (define-key elfeed-search-mode-map (kbd ", m") 'mh/elfeed-search-stack-next)
+    (define-key elfeed-search-mode-map (kbd ", M") 'mh/elfeed-search-stack-reset)
     (define-key elfeed-search-mode-map (kbd ", ,") (lambda ()
                                                      (interactive)
                                                      (mark-whole-buffer)
@@ -2120,12 +2127,12 @@ Provides more detailed messages on failure."
                                                      (mh/elfeed-search-stack-next)))
     (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-raindrop-add-url)
     (define-key elfeed-search-mode-map (kbd "SPC") (lambda()
-                                                    (interactive)
-                                                    (delete-other-windows)
-                                                    (split-window-right)
-                                                    (other-window 1)
-                                                    (elfeed-search-show-entry (elfeed-search-selected :ignore-region))
-                                                    (other-window 1))))
+                                                     (interactive)
+                                                     (delete-other-windows)
+                                                     (split-window-right)
+                                                     (other-window 1)
+                                                     (elfeed-search-show-entry (elfeed-search-selected :ignore-region))
+                                                     (other-window 1))))
 
   (defface mh/elfeed-reddit-tag-face
     '((t :foreground "#1CE"))
@@ -2560,7 +2567,7 @@ Provides more detailed messages on failure."
            ("https://harper.blog/index.xml" programming)
            ("https://lucumr.pocoo.org/feed.atom" llm programming)
            ("https://claudelog.com/rss.xml" llm programming))))
-           ;; ^^^^ feeds
+  ;; ^^^^ feeds
   )
 
 (use-package elfeed-summary
