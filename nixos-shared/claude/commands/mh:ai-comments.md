@@ -1,6 +1,6 @@
 # AI Comments Processing
 
-Process `AI:` comments (pattern: `\bAI:\b`, e.g., `// AI:`, `# AI:`, `<!-- AI: -->`) by executing tasks safely.
+Process `AI:` comments (pattern: `\bAI:`, e.g., `// AI:`, `# AI:`, `<!-- AI: -->`, `;; AI: `) by executing tasks safely.
 
 ## Workflow
 
