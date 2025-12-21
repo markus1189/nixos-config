@@ -20,13 +20,23 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 **With package sets** (Python/Haskell):
 ```bash
-# Python
+# Python without packages
 #!/usr/bin/env nix
-#! nix shell --expr ``with import <nixpkgs>{}; python3.withPackages (ps: [ps.requests])`` --command python
+#! nix shell nixpkgs#python3 --command python
+```
+
+```bash
+# Python with packages (e.g. requests)
+#! /usr/bin/env nix
+#! nix shell --impure --expr ``
+#! nix with (import (builtins.getFlake ''nixpkgs'') {});
+#! nix python3.withPackages (ps: with ps; [ requests ])
+#! nix ``
+#! nix --command python3
 
 # Haskell
 #!/usr/bin/env nix
-#! nix shell --expr ``with import <nixpkgs>{}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
+#! nix shell --impure --expr ``with import <nixpkgs>{}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
 
 **Syntax notes**:
