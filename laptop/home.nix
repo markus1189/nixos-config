@@ -84,16 +84,20 @@ in
                     name = "GPT 5.1 Chat";
                   };
 
+                  "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0" = {
+                    name = "Claude Opus 4.5";
+                  };
+
                   "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0" = {
-                    name = "Claude 4.5 Sonnet";
+                    name = "Claude Sonnet 4.5";
+                  };
+
+                  "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0" = {
+                    name = "Claude Haiku 4.5";
                   };
 
                   "@ovh/Qwen3-Coder-30B-A3B-Instruct" = {
                     name = "Qwen3 Coder 30B A3B Instruct";
-                  };
-
-                  "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0" = {
-                    name = "Claude 4.5 Haiku";
                   };
                 };
               };
