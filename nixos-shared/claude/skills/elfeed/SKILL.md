@@ -1,7 +1,6 @@
 ---
 name: Searching Elfeed RSS Database
-description: Autonomously search the user's elfeed RSS feed database when researching topics they've read about, finding specific articles they mention, analyzing their reading patterns, or gathering context from their curated information sources. Invoke when the user references articles, asks about past reads, or when conversation topics overlap with likely RSS feed content (tech, programming, AI, security, etc.).
-allowed-tools: Bash
+description: Use to search emacs elfeed database for articles or analysis
 ---
 
 # Searching Elfeed RSS Database

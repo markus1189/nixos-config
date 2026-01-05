@@ -1,7 +1,6 @@
 ---
 name: Searching code with Sourcegraph
-description: Search code across repositories using Sourcegraph CLI. Invoke when researching codebases, finding implementation examples, analyzing code patterns, understanding how features work across projects, or answering questions about existing code. Use for cross-repository searches, finding specific patterns, exploring API usage, or locating security issues.
-allowed-tools: Bash
+description: Search code using Sourcegraph CLI. Use when (re)searching codebases, finding implementation examples, analyzing code patterns
 ---
 
 # Sourcegraph Code Search Skill
