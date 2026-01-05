@@ -86,14 +86,38 @@ in
 
                   "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0" = {
                     name = "Claude Opus 4.5";
+                    thinking = {
+                      type = "enabled";
+                      budgetTokens = 16000;
+                    };
+                    modalities = {
+                      input = ["text" "image"];
+                      output = ["text"];
+                    };
                   };
 
                   "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0" = {
                     name = "Claude Sonnet 4.5";
+                    thinking = {
+                      type = "enabled";
+                      budgetTokens = 16000;
+                    };
+                    modalities = {
+                      input = ["text" "image"];
+                      output = ["text"];
+                    };
                   };
 
                   "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0" = {
                     name = "Claude Haiku 4.5";
+                    thinking = {
+                      type = "enabled";
+                      budgetTokens = 16000;
+                    };
+                    modalities = {
+                      input = ["text" "image"];
+                      output = ["text"];
+                    };
                   };
 
                   "@ovh/Qwen3-Coder-30B-A3B-Instruct" = {
@@ -102,6 +126,27 @@ in
                 };
               };
             };
+          };
+        };
+
+        "opencode-plugin-terminal-bell" = {
+          target = ".config/opencode/plugin/terminal-bell.ts";
+          text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
+        };
+
+        "opencode-plugin-sounds" = {
+          target = ".config/opencode/plugin/sounds.ts";
+          source = pkgs.mutate ../nixos-shared/home-manager/opencode/sounds.ts {
+            inherit (pkgs) alsa-utils;
+            aplay = pkgs.alsa-utils;
+            involvedNotificationSound = ../nixos-shared/claude/sounds/involved-notification.wav;
+            pullOutSound = ../nixos-shared/claude/sounds/pull-out-551.wav;
+            forSureSound = ../nixos-shared/claude/sounds/for-sure-576.wav;
+            happyToHelpSound = ../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav;
+            comeHereSound = ../nixos-shared/claude/sounds/come-here-notification.wav;
+            intuitionSound = ../nixos-shared/claude/sounds/intuition-561.wav;
+            timeIsNowSound = ../nixos-shared/claude/sounds/time-is-now-585.wav;
+            justMaybeSound = ../nixos-shared/claude/sounds/just-maybe-577.wav;
           };
         };
 
