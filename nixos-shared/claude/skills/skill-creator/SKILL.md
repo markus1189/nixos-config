@@ -264,8 +264,10 @@ When creating a new skill from scratch, always run the `init_skill.py` script. T
 Usage:
 
 ```bash
-scripts/init_skill.py <skill-name> --path <output-directory>
+./scripts/init_skill.py <skill-name> --path <output-directory>
 ```
+
+**Note:** The scripts have proper shebangs and should be executed directly - no need for `python` or `python3` prefix.
 
 The script:
 
@@ -309,7 +311,8 @@ Write the YAML frontmatter with `name` and `description`:
 - `description`: This is the primary triggering mechanism for your skill, and helps Claude understand when to use the skill.
   - Include both what the Skill does and specific triggers/contexts for when to use it.
   - Include all "when to use" information here - Not in the body. The body is only loaded after triggering, so "When to Use This Skill" sections in the body are not helpful to Claude.
-  - Example description for a `docx` skill: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
+  - **YAML syntax**: If the description contains colons (`:`), quotes, or other special YAML characters, wrap the entire description in double quotes and escape internal quotes as needed.
+  - Example description for a `docx` skill: `"Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"`
 
 Do not include any other fields in YAML frontmatter.
 
@@ -322,14 +325,16 @@ Write instructions for using the skill and its bundled resources.
 Once development of the skill is complete, it must be packaged into a distributable .skill file that gets shared with the user. The packaging process automatically validates the skill first to ensure it meets all requirements:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder>
+./scripts/package_skill.py <path/to/skill-folder>
 ```
 
 Optional output directory specification:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder> ./dist
+./scripts/package_skill.py <path/to/skill-folder> ./dist
 ```
+
+**Note:** The scripts have proper shebangs and should be executed directly - no need for `python` or `python3` prefix.
 
 The packaging script will:
 
