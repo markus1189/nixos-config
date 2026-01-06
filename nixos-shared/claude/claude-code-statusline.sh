@@ -67,7 +67,7 @@ get_transcript_id() { basename "$(get_transcript_path)" ".jsonl" | cut -d'-' -f1
 
 get_context_size() {
     local tokens
-    tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
+    tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty')
     if [ -n "$tokens" ] && [[ "$tokens" =~ ^[0-9]+$ ]]; then
         echo "$tokens"
     else
