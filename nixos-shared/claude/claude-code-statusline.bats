@@ -21,7 +21,15 @@ mock_input_basic() {
   "version": "1.2.3",
   "workspace": {"project_dir": "/home/user/project"},
   "cost": {"total_cost_usd": 1.2345},
-  "context_window": {"total_input_tokens": 50000, "context_window_size": 200000},
+  "context_window": {
+    "current_usage": {
+      "input_tokens": 30000,
+      "cache_creation_input_tokens": 10000,
+      "cache_read_input_tokens": 10000
+    },
+    "total_input_tokens": 50000,
+    "context_window_size": 200000
+  },
   "transcript_path": "/path/to/abc123-timestamp.jsonl"
 }
 EOF
@@ -32,7 +40,15 @@ mock_input_high_usage() {
 {
   "model": {"display_name": "claude-opus-4"},
   "output_style": {"name": "concise"},
-  "context_window": {"total_input_tokens": 150000, "context_window_size": 200000},
+  "context_window": {
+    "current_usage": {
+      "input_tokens": 100000,
+      "cache_creation_input_tokens": 30000,
+      "cache_read_input_tokens": 20000
+    },
+    "total_input_tokens": 150000,
+    "context_window_size": 200000
+  },
   "transcript_path": "/path/to/xyz789-timestamp.jsonl"
 }
 EOF
@@ -164,4 +180,41 @@ EOF
     run get_transcript_id
     assert_success
     assert_output "abc123"
+}
+
+# Tests for get_formatted_context_window function
+
+@test "get_formatted_context_window: 50k tokens shows as 50kt" {
+    input=$(mock_input_basic)
+    run get_formatted_context_window
+    assert_success
+    assert_output "50kt"
+}
+
+@test "get_formatted_context_window: 150k tokens shows as 150kt" {
+    input=$(mock_input_high_usage)
+    run get_formatted_context_window
+    assert_success
+    assert_output "150kt"
+}
+
+@test "get_formatted_context_window: Small number (under 1000) shows as-is" {
+    input='{"context_window": {"total_input_tokens": 500}}'
+    run get_formatted_context_window
+    assert_success
+    assert_output "500"
+}
+
+@test "get_formatted_context_window: Zero tokens shows placeholder" {
+    input='{"context_window": {"total_input_tokens": 0}}'
+    run get_formatted_context_window
+    assert_success
+    assert_output "⌀"
+}
+
+@test "get_formatted_context_window: Missing data shows placeholder" {
+    input='{"context_window": {}}'
+    run get_formatted_context_window
+    assert_success
+    assert_output "⌀"
 }

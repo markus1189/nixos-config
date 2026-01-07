@@ -66,10 +66,18 @@ get_transcript_path() { echo "$input" | jq -r '.transcript_path'; }
 get_transcript_id() { basename "$(get_transcript_path)" ".jsonl" | cut -d'-' -f1; }
 
 get_context_size() {
-    local tokens
-    tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty')
-    if [ -n "$tokens" ] && [[ "$tokens" =~ ^[0-9]+$ ]]; then
-        echo "$tokens"
+    local input_tokens cache_creation cache_read total
+
+    # Read all current_usage token fields
+    input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
+    cache_creation=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
+    cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
+
+    # Sum all components of current context
+    total=$((input_tokens + cache_creation + cache_read))
+
+    if [ "$total" -gt 0 ]; then
+        echo "$total"
     else
         echo "⌀"
     fi
@@ -82,6 +90,24 @@ get_context_window_size() {
         echo "$size"
     else
         echo "200000"  # Default fallback
+    fi
+}
+
+get_formatted_context_window() {
+    local total_tokens
+    total_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+
+    # Handle zero or invalid values
+    if [ "$total_tokens" -eq 0 ]; then
+        echo "⌀"
+        return
+    fi
+
+    # Format with kt suffix for thousands
+    if [ "$total_tokens" -ge 1000 ]; then
+        printf "%.0fkt" "$(echo "scale=1; $total_tokens / 1000" | bc)"
+    else
+        echo "$total_tokens"
     fi
 }
 
@@ -187,6 +213,7 @@ readonly GREEN="120;220;120"
 readonly BLUE="100;180;255"
 readonly PURPLE="180;140;255"
 readonly PINK="255;140;180"
+readonly CYAN="100;200;200"
 
 # ANSI escape sequences
 readonly RESET='\033[0m'
@@ -216,7 +243,9 @@ main() {
     echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
     echo -en "$(separator "$(get_context_color)" "$PINK")"
     echo -en "$(segment "$PINK" "$(get_transcript_id)")"
-    echo -en "$(fg_color "$PINK")"
+    echo -en "$(separator "$PINK" "$CYAN")"
+    echo -en "$(segment "$CYAN" "$(get_formatted_context_window)")"
+    echo -en "$(fg_color "$CYAN")"
     echo
 }
 
