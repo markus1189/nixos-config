@@ -116,6 +116,7 @@ Documentation loaded on-demand to inform Claude's process.
 
 - **Use cases**: Database schemas, API docs, domain knowledge, company policies, workflow guides
 - **Benefits**: Keeps SKILL.md lean, loaded only when needed
+- **Link syntax**: Always use markdown links: `See [references/guide.md](references/guide.md)`
 - **Best practice**: For large files (>10k words), include grep search patterns in SKILL.md
 - **Avoid duplication**: Content lives in SKILL.md OR references, not both
 - **Structure**: For files >100 lines, include table of contents at top so Claude can preview scope

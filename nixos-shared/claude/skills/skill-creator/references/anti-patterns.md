@@ -64,6 +64,22 @@ Always use forward slashes, even on Windows.
 **Bad:** `scripts\helper.py`, `reference\guide.md`
 **Good:** `scripts/helper.py`, `reference/guide.md`
 
+### Backticked References Instead of Links
+
+Reference files must use markdown link syntax so Claude can navigate to them.
+
+**Bad:**
+```markdown
+See: `references/guide.md`
+See references/guide.md for details
+```
+
+**Good:**
+```markdown
+See [references/guide.md](references/guide.md)
+**Advanced features**: See [references/advanced.md](references/advanced.md)
+```
+
 ### Missing Table of Contents
 
 For reference files >100 lines, include a TOC so Claude can preview scope.

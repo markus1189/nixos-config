@@ -13,6 +13,7 @@ Before sharing a skill, verify against this checklist.
 - [ ] Consistent terminology throughout
 - [ ] Examples are concrete, not abstract
 - [ ] File references are one level deep from SKILL.md
+- [ ] File references use markdown link syntax: `[path](path)`
 - [ ] Progressive disclosure used appropriately
 - [ ] Workflows have clear steps
 - [ ] Reference files >100 lines have table of contents
