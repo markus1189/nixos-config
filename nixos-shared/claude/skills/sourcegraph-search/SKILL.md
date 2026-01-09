@@ -1,5 +1,5 @@
 ---
-name: Searching code with Sourcegraph
+name: sourcegraph-search
 description: Search code using Sourcegraph CLI. Use when (re)searching codebases, finding implementation examples, analyzing code patterns
 ---
 
@@ -21,6 +21,26 @@ Use this skill when you need to:
 - **Answer "where is X used?"** questions across projects
 
 **Do NOT use** for local file searches - use Grep/Glob instead.
+
+## Reference Navigation
+
+The reference files are comprehensive. To find specific topics quickly:
+
+```bash
+# Search reference.md sections
+grep -n "^##" references/reference.md
+
+# Find specific filter documentation
+grep -n "^### \`repo:" references/reference.md
+grep -n "^### \`file:" references/reference.md
+grep -n "^### \`lang:" references/reference.md
+
+# Find examples by use case
+grep -n "^##" references/examples.md
+```
+
+See **reference.md** for complete syntax documentation.
+See **examples.md** for practical search patterns organized by use case.
 
 ## Quick Start
 
@@ -47,79 +67,50 @@ src search 'repo:github.com/org/repo$ TODO'
 src search 'repo:sourcegraph/sourcegraph auth'
 ```
 
-**3. Search specific file types**
-```bash
-src search 'file:\.go$ context.Context'
-src search 'file:schema.graphql type User'
-```
-
-**4. Search with multiple filters**
+**3. Search with multiple filters**
 ```bash
 src search 'repo:kubernetes lang:go file:test fmt.Errorf'
-src search 'repo:react lang:typescript useState'
+src search 'TODO -file:test -file:spec'
 ```
 
-**5. Search commit diffs/history**
-```bash
-src search 'type:diff repo:myorg/ password'
-src search 'type:commit author:username refactor'
-```
-
-**6. Use boolean operators**
-```bash
-src search 'repo:kubernetes (mutex OR lock) lang:go'
-src search 'repo:react useState AND useEffect'
-src search 'TODO -file:test'
-```
+See **examples.md** for more patterns including file types, commit history, and boolean operators.
 
 ## Workflow
 
-When invoked to search code:
+When searching code:
 
-1. **Understand the search goal**
-   - What are we looking for?
-   - Which repositories/languages?
-   - What filters would narrow results?
+1. **Understand the goal** - What pattern? Which repos/languages?
+2. **Construct the query** - Start with pattern, add filters (`repo:`, `lang:`, `file:`), use operators (`AND`, `OR`, `NOT`)
+3. **Execute** - Run `src search 'query'` or `src search -json 'query'` for programmatic parsing
+4. **Parse results** - Extract matches, identify patterns, note files for investigation
+5. **Refine** - Too many results? Add filters. Too few? Broaden search.
 
-2. **Construct the query**
-   - Start with the search pattern
-   - Add filters: `repo:`, `lang:`, `file:`
-   - Use operators: `AND`, `OR`, `NOT`, `-`
-   - Set pattern type if needed: `patternType:regexp`
+## Key Filters
 
-3. **Execute the search**
-   ```bash
-   src search 'your query here'
-   # Or for programmatic parsing:
-   src search -json 'your query here'
-   ```
+Most common filters: `repo:`, `lang:`, `file:`, `type:`, `case:`, `-` prefix for exclusion.
 
-4. **Parse and analyze results**
-   - Extract relevant matches
-   - Identify patterns or answers
-   - Note repositories/files for further investigation
-
-5. **Refine if needed**
-   - Too many results? Add more filters
-   - Too few? Broaden the search
-   - Wrong results? Adjust pattern or filters
-
-## Key Filters (Quick Reference)
-
-| Filter | Purpose | Example |
-|--------|---------|---------|
-| `repo:` | Filter by repository | `repo:github.com/org/name` |
-| `lang:` | Filter by language | `lang:go`, `lang:python` |
-| `file:` | Filter by file path | `file:\.test\.js$` |
-| `type:` | Result type | `type:commit`, `type:diff`, `type:symbol` |
-| `case:` | Case sensitivity | `case:yes` |
-| `-` prefix | Exclude | `-file:test`, `-repo:archived` |
+See **reference.md** for complete filter documentation and syntax.
 
 ## Pattern Types
 
-- **Literal** (default): Exact text matching
-- **Regexp**: Use `patternType:regexp` for regex (RE2 syntax)
-- **Structural**: Use `patternType:structural` for syntax-aware matching
+Sourcegraph supports three pattern types:
+
+1. **Literal** (default): Exact text matching
+   ```bash
+   src search 'func main('
+   ```
+
+2. **Regexp**: Use `patternType:regexp` for regex (RE2 syntax)
+   ```bash
+   src search 'patternType:regexp func \w+Handler'
+   ```
+
+3. **Structural**: Use `patternType:structural` for syntax-aware matching
+   ```bash
+   src search 'patternType:structural fmt.Sprintf(:[format], :[...])'
+   ```
+
+See **reference.md** for complete pattern syntax, regex reference, and structural search details.
 
 ## CLI Flags
 
@@ -137,18 +128,9 @@ Queries starting with negation need `--` separator:
 src search -- '-repo:foo/bar error'
 ```
 
-### Output Control
+Use `-json` for programmatic parsing. Set `NO_COLOR=t` to disable colors or `COLOR=t` to force colors when piping.
 
-- Use `-json` for programmatic parsing
-- Default output is formatted for terminal (with colors)
-- Set `NO_COLOR=t` to disable colors
-- Set `COLOR=t` to force colors when piping
-
-### Search Scope
-
-- Sourcegraph searches across configured repositories
-- Default excludes: `fork:no archived:no`
-- Include with: `fork:yes` or `archived:yes`
+Default search scope excludes forks and archived repos. Include with `fork:yes` or `archived:yes`.
 
 ## Examples by Use Case
 
