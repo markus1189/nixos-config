@@ -1,25 +1,11 @@
 ---
 name: Searching Elfeed RSS Database
-description: Use to search emacs elfeed database for articles or analysis
+description: Search the user's Emacs elfeed RSS feed database containing curated feeds from Reddit, blogs, YouTube, GitHub releases, and newsletters. Use when the user asks about articles they've read, mentions RSS feeds or 'something I read', wants to research topics from their curated sources (programming, AI, security, NixOS, Emacs, etc.), or needs to triage unread items.
 ---
 
 # Searching Elfeed RSS Database
 
-This skill provides access to the user's elfeed RSS feed database through a command-line interface. Elfeed is their primary information aggregation system, containing curated feeds from Reddit, blogs, YouTube channels, GitHub releases, and newsletters.
-
-## When to Invoke This Skill
-
-Use this skill when:
-- **Topic research**: User asks about topics likely covered in their feeds (programming, AI, security, NixOS, Emacs, etc.)
-- **Article recall**: User references "something I read" or "an article about..."
-- **Pattern analysis**: Understanding what they've been reading recently
-- **Context gathering**: Building background on topics from their curated sources
-- **Unread triage**: Helping prioritize or summarize unread items
-
-**Do NOT invoke** for:
-- General web searches (use WebSearch instead)
-- Information not likely in RSS feeds
-- Real-time news (elfeed may not have fetched yet)
+Elfeed is the user's primary information aggregation system. This skill provides CLI access to query the database.
 
 ## Quick Start
 
@@ -129,15 +115,15 @@ The `query` command supports three formats:
 
 ## Important Notes
 
-- **Requires running Emacs**: The CLI uses `emacsclient` to query the live database
-- **Real-time data**: Queries reflect current database state (may include recently fetched items)
-- **Tag system**: Feeds are tagged by category (programming, reddit, youtube, github, etc.)
-- **No side effects**: Queries are read-only and don't modify read/unread status
+- **Requires running Emacs**: Uses `emacsclient` to query live database
+- **Read-only**: Queries don't modify read/unread status
+- **Tag system**: Feeds tagged by category (programming, reddit, youtube, github, etc.)
+- **Real-time data**: Reflects current database state
 
 ## Advanced Usage
 
-For detailed filter syntax, regex patterns, and complex query construction, see `reference.md`.
-
-## Integration with Existing Command
-
-The `/mh:elfeed-search` slash command is a convenience wrapper that calls this same tooling. You can invoke the skill autonomously or users can explicitly call the command.
+Read `reference.md` when:
+- Building complex multi-tag filters or regex patterns
+- Queries produce unexpected results requiring troubleshooting
+- Need performance optimization for large result sets
+- Integrating with other tools (jq, pipes, etc.)

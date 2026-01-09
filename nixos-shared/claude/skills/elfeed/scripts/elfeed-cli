@@ -17,7 +17,21 @@ fi
 # Function to execute elisp and return result
 eval_elisp() {
     local elisp_code="$1"
-    emacsclient --eval "$elisp_code" 2>&1
+    local output
+    local exit_code
+
+    output=$(emacsclient --eval "$elisp_code" 2>&1)
+    exit_code=$?
+
+    if [ $exit_code -ne 0 ]; then
+        echo "Error: Cannot connect to Emacs daemon" >&2
+        echo "Is Emacs running? Try: emacs --daemon" >&2
+        echo "" >&2
+        echo "Emacsclient error: $output" >&2
+        exit 1
+    fi
+
+    echo "$output"
 }
 
 # Load the query library
