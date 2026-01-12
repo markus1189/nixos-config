@@ -1,0 +1,229 @@
+#!/usr/bin/env nix
+/*
+#! nix shell nixpkgs#nodejs_22 --command node
+*/
+
+import { connect } from "./cdp.js";
+
+const DEBUG = process.env.DEBUG === "1";
+const log = DEBUG ? (...args) => console.error("[debug]", ...args) : () => {};
+
+function usage() {
+  console.log("Usage: find-by-label.js <name> [options]");
+  console.log("\nFind elements by their accessible name (more reliable than text search).");
+  console.log("\nOptions:");
+  console.log("  --type <role>      Filter by ARIA role (button, textbox, link, etc.)");
+  console.log("  --exact            Require exact match (default: contains)");
+  console.log("  --first            Return only first match");
+  console.log("  --selector         Output CSS selector if possible");
+  console.log("\nExamples:");
+  console.log('  find-by-label.js "Submit"');
+  console.log('  find-by-label.js "Email" --type textbox');
+  console.log('  find-by-label.js "Sign in" --type button --first');
+  console.log('  find-by-label.js "Search" --selector');
+  process.exit(1);
+}
+
+// Parse arguments
+const args = process.argv.slice(2);
+if (args.length === 0) usage();
+
+let searchName = null;
+let roleFilter = null;
+let exactMatch = false;
+let firstOnly = false;
+let outputSelector = false;
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--type") {
+    roleFilter = args[++i];
+  } else if (args[i] === "--exact") {
+    exactMatch = true;
+  } else if (args[i] === "--first") {
+    firstOnly = true;
+  } else if (args[i] === "--selector") {
+    outputSelector = true;
+  } else if (args[i] === "--help" || args[i] === "-h") {
+    usage();
+  } else if (!searchName) {
+    searchName = args[i];
+  }
+}
+
+if (!searchName) {
+  console.error("✗ No search name provided");
+  usage();
+}
+
+// Global timeout
+const globalTimeout = setTimeout(() => {
+  console.error("✗ Global timeout exceeded (30s)");
+  process.exit(1);
+}, 30000);
+
+try {
+  log("connecting...");
+  const cdp = await connect(5000);
+
+  log("getting pages...");
+  const pages = await cdp.getPages();
+  const page = pages.at(-1);
+
+  if (!page) {
+    console.error("✗ No active tab found");
+    process.exit(1);
+  }
+
+  log("attaching to page...");
+  const sessionId = await cdp.attachToPage(page.targetId);
+
+  // Enable required domains
+  await cdp.send("DOM.enable", {}, sessionId);
+  await cdp.send("Accessibility.enable", {}, sessionId);
+
+  log("getting full accessibility tree...");
+  const { nodes } = await cdp.send("Accessibility.getFullAXTree", {}, sessionId);
+
+  // Search for matching nodes
+  const matches = [];
+
+  for (const node of nodes) {
+    if (node.ignored) continue;
+
+    const nodeName = node.name?.value || "";
+    const nodeRole = node.role?.value;
+
+    // Check name match
+    let nameMatches = false;
+    if (exactMatch) {
+      nameMatches = nodeName === searchName;
+    } else {
+      nameMatches = nodeName.toLowerCase().includes(searchName.toLowerCase());
+    }
+
+    if (!nameMatches) continue;
+
+    // Check role filter
+    if (roleFilter && nodeRole !== roleFilter) continue;
+
+    matches.push({
+      name: nodeName,
+      role: nodeRole,
+      nodeId: node.nodeId,
+      backendDOMNodeId: node.backendDOMNodeId,
+      properties: node.properties,
+    });
+
+    if (firstOnly) break;
+  }
+
+  if (matches.length === 0) {
+    console.error(`✗ No elements found with accessible name "${searchName}"${roleFilter ? ` and role ${roleFilter}` : ""}`);
+    cdp.close();
+    clearTimeout(globalTimeout);
+    process.exit(1);
+  }
+
+  // Get CSS selectors if requested
+  if (outputSelector) {
+    for (const match of matches) {
+      if (match.backendDOMNodeId) {
+        try {
+          // Resolve to DOM node
+          const { nodeIds } = await cdp.send(
+            "DOM.pushNodesByBackendIdsToFrontend",
+            { backendNodeIds: [match.backendDOMNodeId] },
+            sessionId
+          );
+
+          if (nodeIds && nodeIds[0]) {
+            // Try to get a unique selector
+            const selector = await cdp.evaluate(
+              sessionId,
+              `(() => {
+                const node = document.evaluate(
+                  '//*[@data-a11y-node-id="${match.backendDOMNodeId}"]',
+                  document,
+                  null,
+                  XPathResult.FIRST_ORDERED_NODE_TYPE,
+                  null
+                ).singleNodeValue;
+
+                // Try various selector strategies
+                function getSelector(el) {
+                  if (!el || el === document.body) return null;
+
+                  // If it has an ID, use it
+                  if (el.id) return '#' + CSS.escape(el.id);
+
+                  // Try unique class combination
+                  if (el.classList.length > 0) {
+                    const selector = el.tagName.toLowerCase() + '.' + Array.from(el.classList).map(c => CSS.escape(c)).join('.');
+                    if (document.querySelectorAll(selector).length === 1) {
+                      return selector;
+                    }
+                  }
+
+                  // Build selector with parent context
+                  const parent = getSelector(el.parentElement);
+                  if (parent) {
+                    const siblings = Array.from(el.parentElement.children).filter(c => c.tagName === el.tagName);
+                    if (siblings.length === 1) {
+                      return parent + ' > ' + el.tagName.toLowerCase();
+                    } else {
+                      const index = siblings.indexOf(el) + 1;
+                      return parent + ' > ' + el.tagName.toLowerCase() + ':nth-of-type(' + index + ')';
+                    }
+                  }
+
+                  return el.tagName.toLowerCase();
+                }
+
+                return getSelector(document.body);
+              })()`
+            );
+
+            if (selector) {
+              match.selector = selector;
+            }
+          }
+        } catch (e) {
+          log(`Could not get selector for node ${match.nodeId}: ${e.message}`);
+        }
+      }
+    }
+  }
+
+  // Disable domains
+  await cdp.send("Accessibility.disable", {}, sessionId);
+  await cdp.send("DOM.disable", {}, sessionId);
+
+  // Output results
+  if (firstOnly && matches.length === 1) {
+    const match = matches[0];
+    if (outputSelector && match.selector) {
+      console.log(match.selector);
+    } else {
+      console.log(`${match.role}: "${match.name}"`);
+    }
+  } else {
+    console.log(`Found ${matches.length} match(es):\n`);
+    for (const match of matches) {
+      let line = `  ${match.role}: "${match.name}"`;
+      if (outputSelector && match.selector) {
+        line += ` → ${match.selector}`;
+      }
+      console.log(line);
+    }
+  }
+
+  log("closing...");
+  cdp.close();
+  log("done");
+} catch (e) {
+  console.error("✗", e.message);
+  process.exit(1);
+} finally {
+  clearTimeout(globalTimeout);
+  setTimeout(() => process.exit(0), 100);
+}

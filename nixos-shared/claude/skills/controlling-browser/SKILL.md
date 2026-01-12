@@ -30,6 +30,9 @@ Minimal CDP tools for collaborative site exploration. Auto-detects Chromium/Chro
 - [Set Request Headers](#set-request-headers)
 - [Block Requests](#block-requests)
 - [Mock Responses](#mock-responses)
+- [Inspect Accessibility](#inspect-accessibility)
+- [Check Accessibility Issues](#check-accessibility-issues)
+- [Find by Accessible Name](#find-by-accessible-name)
 - [Troubleshooting](#troubleshooting)
 - [Debugging](#debugging)
 
@@ -341,6 +344,72 @@ Options:
 1. `./scripts/fill-form.js --field "#email" --value "test@example.com"`
 2. `./scripts/click.js "button[type=submit]"`
 3. `./scripts/wait-for.js --text "Success" --timeout 10000`
+
+## Inspect Accessibility
+
+```bash
+./scripts/get-accessibility.js --selector "#my-button"
+./scripts/get-accessibility.js --full-tree
+./scripts/get-accessibility.js --role button
+./scripts/get-accessibility.js --name "Submit"
+./scripts/get-accessibility.js --full-tree --output a11y-tree.json
+```
+
+Query accessibility tree to inspect ARIA roles, labels, and properties. Useful for understanding how screen readers see the page.
+
+Options:
+- `--selector <css>` - Get accessibility info for specific element
+- `--full-tree` - Get complete accessibility tree
+- `--role <role>` - Query by ARIA role (button, heading, link, etc.)
+- `--name <name>` - Query by accessible name
+- `--output <file>` - Save as JSON
+- `--depth <n>` - Limit tree depth
+
+## Check Accessibility Issues
+
+```bash
+./scripts/check-a11y.js
+./scripts/check-a11y.js --report issues.txt
+./scripts/check-a11y.js --format json --report a11y.json
+```
+
+Scan page for common accessibility problems. Exits with code 1 if errors are found (for CI integration).
+
+Checks for:
+- Missing alt text on images
+- Form controls without labels
+- Missing document title
+- Skipped heading levels (h1 → h3)
+- Empty links and buttons
+
+Options:
+- `--report <file>` - Save issues to file
+- `--format <type>` - Output format: text (default) or json
+- `--severity <lvl>` - Minimum severity: error, warning, info (default: warning)
+
+## Find by Accessible Name
+
+```bash
+./scripts/find-by-label.js "Submit"
+./scripts/find-by-label.js "Email" --type textbox
+./scripts/find-by-label.js "Sign in" --type button --first
+```
+
+Find elements by their accessible name. More reliable than text content searching since it uses the accessibility tree.
+
+Options:
+- `--type <role>` - Filter by ARIA role (button, textbox, link, etc.)
+- `--exact` - Require exact match (default: contains)
+- `--first` - Return only first match
+- `--selector` - Output CSS selector if possible
+
+**Example workflow - click button by accessible name:**
+```bash
+# Find the button first
+./scripts/find-by-label.js "Sign in" --type button --first
+# Then click using a selector
+./scripts/click.js "button[aria-label*='Sign']"
+```
 
 ## Troubleshooting
 
