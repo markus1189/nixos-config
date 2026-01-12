@@ -160,6 +160,48 @@ Options:
 
 Real-time error and exception monitoring. Lightweight alternative to capture-logs when you only care about errors.
 
+## Set Request Headers
+
+```bash
+./scripts/set-headers.js "Authorization: Bearer token123"
+./scripts/set-headers.js "User-Agent: CustomBot" "X-Custom: value"
+./scripts/set-headers.js --remove Cookie --remove Accept-Language
+```
+
+Globally modify HTTP headers for all requests. Runs until Ctrl+C.
+
+Use cases:
+- Add authentication headers for API testing
+- Spoof User-Agent
+- Remove tracking cookies
+- Add custom headers for debugging
+
+## Block Requests
+
+```bash
+./scripts/block-requests.js "*/ads/*"
+./scripts/block-requests.js "*google-analytics*" "*facebook*" "*tracking*"
+```
+
+Block requests matching URL patterns (glob-style, * matches any characters). Runs until Ctrl+C.
+
+## Mock Responses
+
+```bash
+./scripts/mock-response.js --url "*/api/user" --body '{"name":"test"}'
+./scripts/mock-response.js --url "*/api/*" --file mock.json
+./scripts/mock-response.js --url "*/api/*" --body '{}' --status 404
+```
+
+Return mock response for requests matching URL pattern. Runs until Ctrl+C.
+
+Options:
+- `--url <pattern>` - URL pattern to match (glob-style)
+- `--body <content>` - Response body
+- `--file <path>` - Read response from file
+- `--status <code>` - HTTP status code (default: 200)
+- `--content-type <type>` - Content-Type header (auto-detected if not specified)
+
 ## Typical Workflows
 
 **Scraping article content:**
@@ -199,6 +241,17 @@ Real-time error and exception monitoring. Lightweight alternative to capture-log
 3. `./scripts/eval.js 'console.log("checkpoint")'`
 4. Kill capture-logs with Ctrl+C
 5. `cat /tmp/logs.txt` to review
+
+**Test with custom headers:**
+1. `./scripts/start.js`
+2. `./scripts/set-headers.js "Authorization: Bearer mytoken" &`
+3. `./scripts/nav.js https://httpbin.org/headers`
+4. `./scripts/eval.js 'document.body.innerText'` (verify header appears)
+
+**Block ads and trackers:**
+1. `./scripts/start.js`
+2. `./scripts/block-requests.js "*google-analytics*" "*facebook*" "*ads*" &`
+3. Browse normally with reduced tracking
 
 ## Troubleshooting
 
