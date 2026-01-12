@@ -76,6 +76,11 @@ await new Promise((r) => setTimeout(r, 1000));
 const cacheDir = `${homedir()}/.cache/scraping`;
 execSync(`mkdir -p "${cacheDir}"`, { stdio: "ignore" });
 
+// Remove stale lock files that prevent startup
+try {
+  execSync(`rm -f "${cacheDir}/SingletonLock" "${cacheDir}/SingletonSocket" "${cacheDir}/SingletonCookie"`, { stdio: "ignore" });
+} catch {}
+
 if (useProfile) {
   // Sync profile with rsync (much faster on subsequent runs)
   if (existsSync(browser.profilePath)) {
