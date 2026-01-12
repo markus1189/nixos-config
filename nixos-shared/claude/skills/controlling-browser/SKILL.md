@@ -7,6 +7,31 @@ description: "Remote controls Chrome/Chromium browsers using Chrome DevTools Pro
 
 Minimal CDP tools for collaborative site exploration. Auto-detects Chromium/Chrome on NixOS with zero setup.
 
+## Contents
+- [Start Browser](#start-browser)
+- [Navigate](#navigate)
+- [Evaluate JavaScript](#evaluate-javascript)
+- [Screenshot](#screenshot)
+- [Generate PDF](#generate-pdf)
+- [Extract Readable Content](#extract-readable-content)
+- [Pick Elements](#pick-elements)
+- [Dismiss Cookie Dialogs](#dismiss-cookie-dialogs)
+- [Cookies](#cookies)
+- [Storage](#storage)
+- [Click Elements](#click-elements)
+- [Type Text](#type-text)
+- [Fill Forms](#fill-forms)
+- [Press Keys](#press-keys)
+- [Scroll Page](#scroll-page)
+- [Hover](#hover)
+- [Capture Console Logs](#capture-console-logs)
+- [Watch Errors](#watch-errors)
+- [Set Request Headers](#set-request-headers)
+- [Block Requests](#block-requests)
+- [Mock Responses](#mock-responses)
+- [Troubleshooting](#troubleshooting)
+- [Debugging](#debugging)
+
 ## Start Browser
 
 ```bash
@@ -50,24 +75,7 @@ Returns temp file path.
 ./scripts/save-pdf.js output.pdf --paper a4 --margins 0.5
 ```
 
-Convert current page to PDF.
-
-Options:
-- `--landscape` - Landscape orientation
-- `--no-background` - Skip background graphics (saves ink)
-- `--paper <size>` - Paper size: letter, legal, a4, a3
-- `--margins <inches>` - All margins in inches
-- `--scale <factor>` - Scale factor (0.1-2.0)
-- `--pages <ranges>` - Page ranges: "1-3,5"
-- `--header <html>` - Custom header template
-- `--footer <html>` - Custom footer template
-
-Header/footer templates support special classes:
-- `<span class="pageNumber"></span>` - Current page number
-- `<span class="totalPages"></span>` - Total pages
-- `<span class="title"></span>` - Document title
-- `<span class="url"></span>` - Document URL
-- `<span class="date"></span>` - Print date
+Convert current page to PDF. Supports landscape, custom paper sizes (letter/legal/a4/a3), margins, scale, page ranges, and headers/footers with template variables. Run `./scripts/save-pdf.js` without arguments for full options.
 
 ## Extract Readable Content
 
@@ -132,6 +140,106 @@ Manage browser cookies. Export/import useful for session transfer between profil
 ```
 
 Manage localStorage and sessionStorage. Use `--session` flag for sessionStorage.
+
+## Click Elements
+
+```bash
+./scripts/click.js "button[type=submit]"
+./scripts/click.js "#login-button"
+./scripts/click.js ".cookie-accept" --wait 2000
+./scripts/click.js "tr.row" --double
+```
+
+Click element by CSS selector.
+
+Options:
+- `--wait <ms>` - Wait for element to appear before clicking
+- `--double` - Double-click instead of single click
+
+## Type Text
+
+```bash
+./scripts/type-text.js "Hello world"
+./scripts/type-text.js "Search query" --selector "input[name=q]"
+./scripts/type-text.js "Password123" --selector "#password" --clear
+./scripts/type-text.js "Slow typing" --delay 100
+```
+
+Type text into focused element or specific selector.
+
+Options:
+- `--selector <sel>` - Click selector before typing to focus
+- `--delay <ms>` - Delay between keystrokes (human-like typing)
+- `--clear` - Clear existing value before typing
+
+## Fill Forms
+
+```bash
+./scripts/fill-form.js --field "#email" --value "user@example.com" --field "#password" --value "secret"
+./scripts/fill-form.js --json form-data.json
+./scripts/fill-form.js --field "#username" --value "test" --submit "button[type=submit]"
+```
+
+Fill multiple form fields at once. Automatically clears existing values and triggers input/change events.
+
+Options:
+- `--field <sel> --value <val>` - Selector and value pair (repeatable)
+- `--json <file>` - JSON file with `{selector: value}` pairs
+- `--submit <sel>` - Click submit button after filling
+
+## Press Keys
+
+```bash
+./scripts/press-key.js Enter
+./scripts/press-key.js Escape
+./scripts/press-key.js "Control+C"
+./scripts/press-key.js "Control+Shift+S"
+./scripts/press-key.js Tab --times 3
+```
+
+Simulate keyboard key presses and shortcuts.
+
+Supported keys: Enter, Escape/Esc, Tab, Backspace, Delete, Space, Arrow keys, Home, End, PageUp, PageDown, F1-F12, any single character.
+
+Modifiers: Control/Ctrl, Alt, Shift, Meta/Cmd/Command
+
+Options:
+- `--times <n>` - Press key n times
+
+## Scroll Page
+
+```bash
+./scripts/scroll.js --to-bottom
+./scripts/scroll.js --to-top
+./scripts/scroll.js --pixels 500
+./scripts/scroll.js --pixels -300
+./scripts/scroll.js --to-selector "#footer"
+./scripts/scroll.js --to-selector ".comments" --smooth
+./scripts/scroll.js --infinite --delay 1000
+```
+
+Scroll the page or to a specific element.
+
+Options:
+- `--to-bottom` - Scroll to bottom of page
+- `--to-top` - Scroll to top of page
+- `--pixels <n>` - Scroll by n pixels (negative for up)
+- `--to-selector <sel>` - Scroll element into view
+- `--smooth` - Use smooth scrolling animation
+- `--infinite` - Scroll incrementally for infinite scroll pages
+- `--delay <ms>` - Delay between scroll steps (with --infinite)
+
+## Hover
+
+```bash
+./scripts/hover.js ".dropdown-trigger"
+./scripts/hover.js "#menu-item" --duration 2000
+```
+
+Hover over an element to trigger hover states (dropdowns, tooltips, etc.).
+
+Options:
+- `--duration <ms>` - How long to hold hover before returning
 
 ## Capture Console Logs
 
@@ -201,57 +309,6 @@ Options:
 - `--file <path>` - Read response from file
 - `--status <code>` - HTTP status code (default: 200)
 - `--content-type <type>` - Content-Type header (auto-detected if not specified)
-
-## Typical Workflows
-
-**Scraping article content:**
-1. `./scripts/start.js`
-2. `./scripts/nav.js https://article.com`
-3. `sleep 2 && ./scripts/dismiss-cookies.js`
-4. `./scripts/readable.js --text > article.txt`
-
-**Visual inspection:**
-1. `./scripts/start.js`
-2. `./scripts/nav.js https://example.com`
-3. `sleep 2 && ./scripts/dismiss-cookies.js`
-4. `./scripts/screenshot.js`
-5. `./scripts/eval.js 'document.title'`
-
-**Save article as PDF:**
-1. `./scripts/start.js`
-2. `./scripts/nav.js https://article.com`
-3. `sleep 2 && ./scripts/dismiss-cookies.js`
-4. `./scripts/save-pdf.js article.pdf --no-background`
-
-**Save and restore session:**
-1. `./scripts/start.js --profile` (login manually)
-2. `./scripts/cookies.js export session.json`
-3. Later: `./scripts/start.js && ./scripts/cookies.js import session.json`
-4. `./scripts/nav.js https://example.com` (now authenticated)
-
-**Debug JavaScript errors:**
-1. `./scripts/start.js`
-2. `./scripts/watch-errors.js &`
-3. `./scripts/nav.js https://buggy-site.com`
-4. Errors appear in real-time as you interact
-
-**Capture logs during automation:**
-1. `./scripts/capture-logs.js --output /tmp/logs.txt &`
-2. Run automation scripts
-3. `./scripts/eval.js 'console.log("checkpoint")'`
-4. Kill capture-logs with Ctrl+C
-5. `cat /tmp/logs.txt` to review
-
-**Test with custom headers:**
-1. `./scripts/start.js`
-2. `./scripts/set-headers.js "Authorization: Bearer mytoken" &`
-3. `./scripts/nav.js https://httpbin.org/headers`
-4. `./scripts/eval.js 'document.body.innerText'` (verify header appears)
-
-**Block ads and trackers:**
-1. `./scripts/start.js`
-2. `./scripts/block-requests.js "*google-analytics*" "*facebook*" "*ads*" &`
-3. Browse normally with reduced tracking
 
 ## Troubleshooting
 
