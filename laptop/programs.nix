@@ -214,7 +214,7 @@ in
         pdd
         dateutils
         bind
-        wxhexeditor
+        # wxhexeditor  # commented out due to build failure with mhash dependency
       ]
       ++ (with pkgs.myScripts; [
         gnuplot-quick
