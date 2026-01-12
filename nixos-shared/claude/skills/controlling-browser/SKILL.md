@@ -42,6 +42,33 @@ Execute JavaScript in active tab (async context). Use single quotes for escaping
 
 Returns temp file path.
 
+## Generate PDF
+
+```bash
+./scripts/save-pdf.js output.pdf
+./scripts/save-pdf.js output.pdf --landscape --no-background
+./scripts/save-pdf.js output.pdf --paper a4 --margins 0.5
+```
+
+Convert current page to PDF.
+
+Options:
+- `--landscape` - Landscape orientation
+- `--no-background` - Skip background graphics (saves ink)
+- `--paper <size>` - Paper size: letter, legal, a4, a3
+- `--margins <inches>` - All margins in inches
+- `--scale <factor>` - Scale factor (0.1-2.0)
+- `--pages <ranges>` - Page ranges: "1-3,5"
+- `--header <html>` - Custom header template
+- `--footer <html>` - Custom footer template
+
+Header/footer templates support special classes:
+- `<span class="pageNumber"></span>` - Current page number
+- `<span class="totalPages"></span>` - Total pages
+- `<span class="title"></span>` - Document title
+- `<span class="url"></span>` - Document URL
+- `<span class="date"></span>` - Print date
+
 ## Extract Readable Content
 
 ```bash
@@ -92,6 +119,12 @@ Run after navigation with delay:
 3. `sleep 2 && ./scripts/dismiss-cookies.js`
 4. `./scripts/screenshot.js`
 5. `./scripts/eval.js 'document.title'`
+
+**Save article as PDF:**
+1. `./scripts/start.js`
+2. `./scripts/nav.js https://article.com`
+3. `sleep 2 && ./scripts/dismiss-cookies.js`
+4. `./scripts/save-pdf.js article.pdf --no-background`
 
 ## Troubleshooting
 
