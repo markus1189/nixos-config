@@ -105,6 +105,34 @@ Run after navigation with delay:
 ./scripts/nav.js https://example.com && sleep 2 && ./scripts/dismiss-cookies.js
 ```
 
+## Cookies
+
+```bash
+./scripts/cookies.js list                    # List all cookies
+./scripts/cookies.js list --url <url>        # List cookies for URL
+./scripts/cookies.js export session.json     # Export to file
+./scripts/cookies.js import session.json     # Import from file
+./scripts/cookies.js clear                   # Clear all cookies
+./scripts/cookies.js clear --url <url>       # Clear cookies for URL
+```
+
+Manage browser cookies. Export/import useful for session transfer between profiles.
+
+## Storage
+
+```bash
+./scripts/storage.js list                    # List localStorage items
+./scripts/storage.js list --session          # List sessionStorage items
+./scripts/storage.js get <key>               # Get localStorage value
+./scripts/storage.js set <key> <value>       # Set localStorage value
+./scripts/storage.js export backup.json      # Export localStorage
+./scripts/storage.js import backup.json      # Import localStorage
+./scripts/storage.js clear                   # Clear localStorage
+./scripts/storage.js clear --all             # Clear all storage (cache, cookies, etc)
+```
+
+Manage localStorage and sessionStorage. Use `--session` flag for sessionStorage.
+
 ## Typical Workflows
 
 **Scraping article content:**
@@ -125,6 +153,12 @@ Run after navigation with delay:
 2. `./scripts/nav.js https://article.com`
 3. `sleep 2 && ./scripts/dismiss-cookies.js`
 4. `./scripts/save-pdf.js article.pdf --no-background`
+
+**Save and restore session:**
+1. `./scripts/start.js --profile` (login manually)
+2. `./scripts/cookies.js export session.json`
+3. Later: `./scripts/start.js && ./scripts/cookies.js import session.json`
+4. `./scripts/nav.js https://example.com` (now authenticated)
 
 ## Troubleshooting
 
