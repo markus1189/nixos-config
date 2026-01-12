@@ -133,6 +133,33 @@ Manage browser cookies. Export/import useful for session transfer between profil
 
 Manage localStorage and sessionStorage. Use `--session` flag for sessionStorage.
 
+## Capture Console Logs
+
+```bash
+./scripts/capture-logs.js                          # Stream to stdout
+./scripts/capture-logs.js --duration 5000          # Capture for 5 seconds
+./scripts/capture-logs.js --output logs.txt        # Save to file
+./scripts/capture-logs.js --format json --output logs.json
+./scripts/capture-logs.js --level error            # Only errors
+```
+
+Collect console.log/warn/error messages and JavaScript exceptions.
+
+Options:
+- `--output <file>` - Save logs to file
+- `--format json|text` - Output format (default: text)
+- `--duration <ms>` - Capture duration in milliseconds
+- `--level <type>` - Filter by level: log, debug, info, warning, error
+
+## Watch Errors
+
+```bash
+./scripts/watch-errors.js                   # Stream errors to stdout
+./scripts/watch-errors.js --output errs.txt # Also save to file
+```
+
+Real-time error and exception monitoring. Lightweight alternative to capture-logs when you only care about errors.
+
 ## Typical Workflows
 
 **Scraping article content:**
@@ -159,6 +186,19 @@ Manage localStorage and sessionStorage. Use `--session` flag for sessionStorage.
 2. `./scripts/cookies.js export session.json`
 3. Later: `./scripts/start.js && ./scripts/cookies.js import session.json`
 4. `./scripts/nav.js https://example.com` (now authenticated)
+
+**Debug JavaScript errors:**
+1. `./scripts/start.js`
+2. `./scripts/watch-errors.js &`
+3. `./scripts/nav.js https://buggy-site.com`
+4. Errors appear in real-time as you interact
+
+**Capture logs during automation:**
+1. `./scripts/capture-logs.js --output /tmp/logs.txt &`
+2. Run automation scripts
+3. `./scripts/eval.js 'console.log("checkpoint")'`
+4. Kill capture-logs with Ctrl+C
+5. `cat /tmp/logs.txt` to review
 
 ## Troubleshooting
 

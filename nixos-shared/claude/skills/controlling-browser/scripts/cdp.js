@@ -47,9 +47,27 @@ class CDP {
     this.id = 0;
     this.callbacks = new Map();
     this.sessions = new Map();
+    this.eventListeners = new Map(); // event name -> Set of callbacks
 
     ws.on("message", (data) => {
       const msg = JSON.parse(data.toString());
+
+      // Handle CDP events (no id, has method)
+      if (!msg.id && msg.method) {
+        const listeners = this.eventListeners.get(msg.method);
+        if (listeners) {
+          for (const callback of listeners) {
+            try {
+              callback(msg.params, msg.sessionId);
+            } catch (e) {
+              console.error(`Event listener error for ${msg.method}:`, e);
+            }
+          }
+        }
+        return;
+      }
+
+      // Handle request-response
       if (msg.id && this.callbacks.has(msg.id)) {
         const { resolve, reject } = this.callbacks.get(msg.id);
         this.callbacks.delete(msg.id);
@@ -60,6 +78,30 @@ class CDP {
         }
       }
     });
+  }
+
+  /**
+   * Register an event listener for CDP events
+   * @param {string} eventName - CDP event name (e.g., "Runtime.consoleAPICalled")
+   * @param {Function} callback - Callback receiving (params, sessionId)
+   */
+  on(eventName, callback) {
+    if (!this.eventListeners.has(eventName)) {
+      this.eventListeners.set(eventName, new Set());
+    }
+    this.eventListeners.get(eventName).add(callback);
+  }
+
+  /**
+   * Remove an event listener
+   * @param {string} eventName - CDP event name
+   * @param {Function} callback - Previously registered callback
+   */
+  off(eventName, callback) {
+    const listeners = this.eventListeners.get(eventName);
+    if (listeners) {
+      listeners.delete(callback);
+    }
   }
 
   send(method, params = {}, sessionId = null, timeout = 10000) {
