@@ -3,440 +3,298 @@ name: controlling-browser
 description: "Remote controls Chrome/Chromium browsers using Chrome DevTools Protocol for web automation. Use when browsing the web, scraping content, taking screenshots, interacting with web forms, dismissing cookie dialogs, or when the user mentions web automation or browser control."
 ---
 
-# Web Browser Skill
+# Web Browser Control
 
-Minimal CDP tools for collaborative site exploration. Auto-detects Chromium/Chrome on NixOS with zero setup.
+Minimal CDP tools for collaborative site exploration. Auto-detects Chromium/Chrome on NixOS with zero setup—all scripts use Nix shebangs for dependency isolation, requiring no manual installation.
 
-## Contents
-- [Start Browser](#start-browser)
-- [Navigate](#navigate)
-- [Evaluate JavaScript](#evaluate-javascript)
-- [Screenshot](#screenshot)
-- [Generate PDF](#generate-pdf)
-- [Extract Readable Content](#extract-readable-content)
-- [Pick Elements](#pick-elements)
-- [Dismiss Cookie Dialogs](#dismiss-cookie-dialogs)
-- [Cookies](#cookies)
-- [Storage](#storage)
-- [Click Elements](#click-elements)
-- [Type Text](#type-text)
-- [Fill Forms](#fill-forms)
-- [Press Keys](#press-keys)
-- [Scroll Page](#scroll-page)
-- [Hover](#hover)
-- [Wait for Elements](#wait-for-elements)
-- [Capture Console Logs](#capture-console-logs)
-- [Watch Errors](#watch-errors)
-- [Set Request Headers](#set-request-headers)
-- [Block Requests](#block-requests)
-- [Mock Responses](#mock-responses)
-- [Inspect Accessibility](#inspect-accessibility)
-- [Check Accessibility Issues](#check-accessibility-issues)
-- [Find by Accessible Name](#find-by-accessible-name)
-- [Troubleshooting](#troubleshooting)
-- [Debugging](#debugging)
+## Architecture Overview
 
-## Start Browser
+**Zero-Setup Execution:** All scripts use Nix shebangs (`#!/usr/bin/env nix`) to automatically provision Node.js 22 and dependencies. No npm install, no version conflicts, no manual setup required.
 
+**Vendored Dependencies:** External libraries (Readability.js for article extraction, WebSocket client) are vendored in `scripts/vendor/` for reliability and speed.
+
+**Browser Auto-detection:** Scripts automatically detect Chrome or Chromium on NixOS, checking standard paths and falling back to PATH if needed.
+
+See [references/architecture.md](references/architecture.md) for technical details on Nix shebangs, dependency management, and debugging with `DEBUG=1`.
+
+## Quick Start
+
+Most common operations with complete integration examples:
+
+### 1. Start Browser
 ```bash
 ./scripts/start.js              # Fresh profile
 ./scripts/start.js --profile    # Copy your profile (cookies, logins)
 ```
+Starts browser on `:9222` with remote debugging enabled.
 
-Starts browser on `:9222` with remote debugging
-
-## Navigate
-
+### 2. Navigate
 ```bash
 ./scripts/nav.js https://example.com
-./scripts/nav.js https://example.com --new
+./scripts/nav.js https://example.com --new  # Open in new tab
 ```
+Navigate to URL. Returns when page begins loading.
 
-Navigate current tab or open new tab.
+### 3. Take Screenshot
+```bash
+SCREENSHOT=$(./scripts/screenshot.js)
+# Use Read tool on $SCREENSHOT to view the image
+# Then describe what you see to the user
+```
+Captures current page state. Essential for visual verification and debugging.
 
-## Evaluate JavaScript
+### 4. Extract Content
+```bash
+# Get clean article text
+./scripts/readable.js --text
 
+# Get structured article data
+./scripts/readable.js > article.json
+# Use Read tool on article.json to analyze
+```
+Uses Mozilla's Readability algorithm to extract main article content, removing ads and navigation.
+
+### 5. Evaluate JavaScript
 ```bash
 ./scripts/eval.js 'document.title'
 ./scripts/eval.js 'document.querySelectorAll("a").length'
+
+# Capture result for processing
+TITLE=$(./scripts/eval.js 'document.title')
+echo "Page title: $TITLE"
+```
+Execute JavaScript in active tab (async context). Use for custom extraction logic.
+
+## Core Command Categories
+
+Quick reference to all available commands. See [references/commands.md](references/commands.md) for complete documentation.
+
+| Category | Commands | Description |
+|----------|----------|-------------|
+| **Navigation & Control** | `start`, `nav` | Launch browser, navigate to URLs |
+| **Screenshots & PDFs** | `screenshot`, `save-pdf` | Capture visual state, generate PDFs |
+| **Content Extraction** | `readable`, `eval`, `pick` | Extract text, execute JS, select elements interactively |
+| **Element Interaction** | `click`, `type-text`, `fill-form`, `press-key`, `scroll`, `hover` | Manipulate page elements |
+| **Dynamic Content** | `wait-for` | Wait for elements to appear/disappear |
+| **Cookies & Storage** | `cookies`, `storage`, `dismiss-cookies` | Manage cookies, localStorage, sessionStorage |
+| **Debugging** | `capture-logs`, `watch-errors` | Monitor console output and JavaScript errors |
+| **Network Control** | `set-headers`, `block-requests`, `mock-response` | Intercept and modify HTTP traffic |
+| **Accessibility** | `get-accessibility`, `check-a11y`, `find-by-label` | Inspect accessibility tree, audit issues |
+
+## Common Workflows
+
+### 1. Basic Web Scraping
+```bash
+# Navigate and wait for page to load
+./scripts/nav.js https://example.com/article
+./scripts/wait-for.js --selector "article" --visible
+
+# Extract content
+CONTENT=$(./scripts/readable.js --text)
+echo "$CONTENT"
+
+# Take screenshot for verification
+SCREENSHOT=$(./scripts/screenshot.js)
+# Use Read tool to verify visual state
 ```
 
-Execute JavaScript in active tab (async context). Use single quotes for escaping.
-
-## Screenshot
-
+### 2. Form Submission
 ```bash
-./scripts/screenshot.js
+# Navigate to form
+./scripts/nav.js https://example.com/contact
+
+# Dismiss cookie dialog if present
+sleep 2  # Allow time for dialog to appear
+./scripts/dismiss-cookies.js
+
+# Wait for form to load
+./scripts/wait-for.js --selector "#contact-form" --visible
+
+# Fill and submit
+./scripts/fill-form.js \
+  --field "#name" --value "John Doe" \
+  --field "#email" --value "john@example.com" \
+  --field "#message" --value "Test message" \
+  --submit "button[type=submit]"
+
+# Verify submission
+./scripts/wait-for.js --text "Thank you" --timeout 10000
+SCREENSHOT=$(./scripts/screenshot.js)
+# Use Read tool to confirm success message
 ```
 
-Returns temp file path.
-
-## Generate PDF
-
+### 3. SPA Navigation
 ```bash
-./scripts/save-pdf.js output.pdf
-./scripts/save-pdf.js output.pdf --landscape --no-background
-./scripts/save-pdf.js output.pdf --paper a4 --margins 0.5
-```
+# Navigate to single-page app
+./scripts/nav.js https://app.example.com
 
-Convert current page to PDF. Supports landscape, custom paper sizes (letter/legal/a4/a3), margins, scale, page ranges, and headers/footers with template variables. Run `./scripts/save-pdf.js` without arguments for full options.
+# Wait for app to initialize
+./scripts/wait-for.js --selector "#app" --visible
 
-## Extract Readable Content
+# Click to load more content
+./scripts/click.js "#load-more"
 
-```bash
-./scripts/readable.js              # Full article as JSON
-./scripts/readable.js --text       # Plain text only
-./scripts/readable.js --html       # Clean HTML only
-./scripts/readable.js --title      # Title only
-./scripts/readable.js --summary    # Excerpt/summary
-```
-
-Uses Mozilla's Readability algorithm (Firefox Reader View) to extract main article content, removing ads, navigation, and boilerplate. Best for articles, blog posts, and news pages.
-
-Returns article metadata (title, author, excerpt) plus clean content. Text format strips all formatting for easy processing.
-
-## Pick Elements
-
-```bash
-./scripts/pick.js "Click the submit button"
-```
-
-Interactive picker. Click to select, Cmd/Ctrl+Click for multi-select, Enter to finish.
-
-## Dismiss Cookie Dialogs
-
-```bash
-./scripts/dismiss-cookies.js          # Accept
-./scripts/dismiss-cookies.js --reject # Reject (where possible)
-```
-
-Supports major CMPs (OneTrust, Google, Cookiebot, Didomi, Quantcast, and others).
-
-Run after navigation with delay:
-```bash
-./scripts/nav.js https://example.com && sleep 2 && ./scripts/dismiss-cookies.js
-```
-
-## Cookies
-
-```bash
-./scripts/cookies.js list                    # List all cookies
-./scripts/cookies.js list --url <url>        # List cookies for URL
-./scripts/cookies.js export session.json     # Export to file
-./scripts/cookies.js import session.json     # Import from file
-./scripts/cookies.js clear                   # Clear all cookies
-./scripts/cookies.js clear --url <url>       # Clear cookies for URL
-```
-
-Manage browser cookies. Export/import useful for session transfer between profiles.
-
-## Storage
-
-```bash
-./scripts/storage.js list                    # List localStorage items
-./scripts/storage.js list --session          # List sessionStorage items
-./scripts/storage.js get <key>               # Get localStorage value
-./scripts/storage.js set <key> <value>       # Set localStorage value
-./scripts/storage.js export backup.json      # Export localStorage
-./scripts/storage.js import backup.json      # Import localStorage
-./scripts/storage.js clear                   # Clear localStorage
-./scripts/storage.js clear --all             # Clear all storage (cache, cookies, etc)
-```
-
-Manage localStorage and sessionStorage. Use `--session` flag for sessionStorage.
-
-## Click Elements
-
-```bash
-./scripts/click.js "button[type=submit]"
-./scripts/click.js "#login-button"
-./scripts/click.js ".cookie-accept" --wait 2000
-./scripts/click.js "tr.row" --double
-```
-
-Click element by CSS selector.
-
-Options:
-- `--wait <ms>` - Wait for element to appear before clicking
-- `--double` - Double-click instead of single click
-
-## Type Text
-
-```bash
-./scripts/type-text.js "Hello world"
-./scripts/type-text.js "Search query" --selector "input[name=q]"
-./scripts/type-text.js "Password123" --selector "#password" --clear
-./scripts/type-text.js "Slow typing" --delay 100
-```
-
-Type text into focused element or specific selector.
-
-Options:
-- `--selector <sel>` - Click selector before typing to focus
-- `--delay <ms>` - Delay between keystrokes (human-like typing)
-- `--clear` - Clear existing value before typing
-
-## Fill Forms
-
-```bash
-./scripts/fill-form.js --field "#email" --value "user@example.com" --field "#password" --value "secret"
-./scripts/fill-form.js --json form-data.json
-./scripts/fill-form.js --field "#username" --value "test" --submit "button[type=submit]"
-```
-
-Fill multiple form fields at once. Automatically clears existing values and triggers input/change events.
-
-Options:
-- `--field <sel> --value <val>` - Selector and value pair (repeatable)
-- `--json <file>` - JSON file with `{selector: value}` pairs
-- `--submit <sel>` - Click submit button after filling
-
-## Press Keys
-
-```bash
-./scripts/press-key.js Enter
-./scripts/press-key.js Escape
-./scripts/press-key.js "Control+C"
-./scripts/press-key.js "Control+Shift+S"
-./scripts/press-key.js Tab --times 3
-```
-
-Simulate keyboard key presses and shortcuts.
-
-Supported keys: Enter, Escape/Esc, Tab, Backspace, Delete, Space, Arrow keys, Home, End, PageUp, PageDown, F1-F12, any single character.
-
-Modifiers: Control/Ctrl, Alt, Shift, Meta/Cmd/Command
-
-Options:
-- `--times <n>` - Press key n times
-
-## Scroll Page
-
-```bash
-./scripts/scroll.js --to-bottom
-./scripts/scroll.js --to-top
-./scripts/scroll.js --pixels 500
-./scripts/scroll.js --pixels -300
-./scripts/scroll.js --to-selector "#footer"
-./scripts/scroll.js --to-selector ".comments" --smooth
-./scripts/scroll.js --infinite --delay 1000
-```
-
-Scroll the page or to a specific element.
-
-Options:
-- `--to-bottom` - Scroll to bottom of page
-- `--to-top` - Scroll to top of page
-- `--pixels <n>` - Scroll by n pixels (negative for up)
-- `--to-selector <sel>` - Scroll element into view
-- `--smooth` - Use smooth scrolling animation
-- `--infinite` - Scroll incrementally for infinite scroll pages
-- `--delay <ms>` - Delay between scroll steps (with --infinite)
-
-## Hover
-
-```bash
-./scripts/hover.js ".dropdown-trigger"
-./scripts/hover.js "#menu-item" --duration 2000
-```
-
-Hover over an element to trigger hover states (dropdowns, tooltips, etc.).
-
-Options:
-- `--duration <ms>` - How long to hold hover before returning
-
-## Wait for Elements
-
-```bash
-./scripts/wait-for.js --selector "#dynamic-content"
+# Wait for loading to complete
 ./scripts/wait-for.js --selector ".loading" --disappear
-./scripts/wait-for.js --selector "#button" --visible --timeout 10000
-./scripts/wait-for.js --text "Loading complete"
+
+# Extract results
+./scripts/eval.js 'Array.from(document.querySelectorAll(".item")).map(el => el.textContent)'
 ```
 
-Wait for element to appear, disappear, or become visible. Essential for SPAs and dynamic content.
-
-Options:
-- `--selector <css>` - CSS selector to wait for
-- `--text <string>` - Wait for text to appear on page
-- `--disappear` - Wait for element to be removed
-- `--visible` - Wait for element to be visible (not display:none/hidden)
-- `--timeout <ms>` - Max wait time (default: 30000)
-- `--interval <ms>` - Polling interval (default: 100)
-
-## Capture Console Logs
-
+### 4. Cookie Management
 ```bash
-./scripts/capture-logs.js                          # Stream to stdout
-./scripts/capture-logs.js --duration 5000          # Capture for 5 seconds
-./scripts/capture-logs.js --output logs.txt        # Save to file
-./scripts/capture-logs.js --format json --output logs.json
-./scripts/capture-logs.js --level error            # Only errors
+# Navigate and establish session
+./scripts/nav.js https://app.example.com
+# ... perform login ...
+
+# Export session for later reuse
+./scripts/cookies.js export session.json
+
+# Later, import session in new browser instance
+./scripts/start.js
+./scripts/nav.js https://app.example.com
+./scripts/cookies.js import session.json
+
+# Verify session restored
+./scripts/eval.js 'document.cookie.includes("session")'
 ```
 
-Collect console.log/warn/error messages and JavaScript exceptions.
-
-Options:
-- `--output <file>` - Save logs to file
-- `--format json|text` - Output format (default: text)
-- `--duration <ms>` - Capture duration in milliseconds
-- `--level <type>` - Filter by level: log, debug, info, warning, error
-
-## Watch Errors
-
+### 5. Visual Debugging
 ```bash
-./scripts/watch-errors.js                   # Stream errors to stdout
-./scripts/watch-errors.js --output errs.txt # Also save to file
+# Take screenshot before action
+BEFORE=$(./scripts/screenshot.js)
+
+# Perform action
+./scripts/click.js "#button"
+sleep 1
+
+# Take screenshot after action
+AFTER=$(./scripts/screenshot.js)
+
+# Use Read tool to compare both screenshots
+# Analyze what changed and report findings
 ```
 
-Real-time error and exception monitoring. Lightweight alternative to capture-logs when you only care about errors.
+See [references/workflows.md](references/workflows.md) for advanced patterns including:
+- Login flows with session export
+- Infinite scroll extraction
+- API testing with mocked responses
+- Accessibility audits
+- Error recovery patterns with retries
 
-## Set Request Headers
+## Decision Guide
 
+### Content Extraction
+
+**Use `readable.js` when:**
+- Extracting article content (blogs, news, documentation)
+- Need clean text without ads/navigation/boilerplate
+- Processing content for LLM analysis
+- Example: "Extract the main article from this blog post"
+
+**Use `eval.js` when:**
+- Need specific data from page structure
+- Complex extraction logic required
+- Custom JavaScript manipulation needed
+- Example: "Get all product prices from this listing page"
+
+**Use `screenshot.js` when:**
+- Visual layout matters for understanding
+- Need to see current page state
+- Debugging visual issues
+- Example: "Show me what the page looks like now"
+
+### Element Identification
+
+**Use `pick.js` when:**
+- Selector is unknown or complex
+- User needs to identify element visually
+- Exploring unfamiliar page structure
+- Example: "I need to click something but don't know the selector"
+
+**Use CSS selectors when:**
+- Element structure is known/documented
+- Automating repeated tasks
+- Need faster execution
+- Example: `./scripts/click.js "#submit-button"`
+
+**Use `find-by-label.js` when:**
+- Accessible name is known but selector isn't
+- Writing accessibility-friendly automation
+- Selector might change but label won't
+- Example: "Find the 'Submit' button by its label"
+
+### Debugging Approaches
+
+**Use `screenshot.js` when:**
+- Need visual confirmation of state
+- Checking layout or styling issues
+- Quick verification of page state
+- Example: "Take screenshot to see what went wrong"
+
+**Use `capture-logs.js` when:**
+- JavaScript errors suspected
+- Need complete console history
+- Performance debugging required
+- Example: "Capture all logs during page load"
+
+**Use `watch-errors.js` when:**
+- Real-time error monitoring needed
+- Long-running session debugging
+- Catching intermittent async issues
+- Example: "Watch for errors while I interact with the page"
+
+## Specialized Features
+
+For detailed documentation, see the reference files:
+
+**Complete Command Reference:** [references/commands.md](references/commands.md)
+- Full documentation for all 24 commands
+- Detailed options and parameters
+- Integration examples for each command
+- Grep-searchable with pattern: `## CommandName`
+
+**Advanced Workflows:** [references/workflows.md](references/workflows.md)
+- Multi-step automation patterns
+- Validation and verification strategies
+- Error handling and retry patterns
+- Real-world examples (login, infinite scroll, API testing)
+
+**Integration Patterns:** [references/integration.md](references/integration.md)
+- How to use script outputs with Claude tools (Bash + Read)
+- Screenshot workflows and visual analysis
+- JSON processing and data extraction
+- Pipeline composition and error handling
+
+**Architecture & Debugging:** [references/architecture.md](references/architecture.md)
+- Nix shebang technical details
+- Vendored dependency management
+- Browser auto-detection logic
+- Debug mode (`DEBUG=1`) usage
+
+**Troubleshooting:** [references/troubleshooting.md](references/troubleshooting.md)
+- Common errors and solutions
+- Recovery workflows
+- Browser cleanup procedures
+- Element not found, timeout errors, click issues
+
+## Notes
+
+**Script Execution:** All scripts should be executed from the skill directory or with full paths. They use Nix shebangs so no manual dependency installation is required.
+
+**Exit Codes:** Scripts exit with non-zero codes on failure. Check exit status to handle errors:
 ```bash
-./scripts/set-headers.js "Authorization: Bearer token123"
-./scripts/set-headers.js "User-Agent: CustomBot" "X-Custom: value"
-./scripts/set-headers.js --remove Cookie --remove Accept-Language
+if ! ./scripts/click.js "#button"; then
+    echo "Click failed"
+    ./scripts/screenshot.js  # Capture state for debugging
+fi
 ```
 
-Globally modify HTTP headers for all requests. Runs until Ctrl+C.
-
-Use cases:
-- Add authentication headers for API testing
-- Spoof User-Agent
-- Remove tracking cookies
-- Add custom headers for debugging
-
-## Block Requests
-
-```bash
-./scripts/block-requests.js "*/ads/*"
-./scripts/block-requests.js "*google-analytics*" "*facebook*" "*tracking*"
-```
-
-Block requests matching URL patterns (glob-style, * matches any characters). Runs until Ctrl+C.
-
-## Mock Responses
-
-```bash
-./scripts/mock-response.js --url "*/api/user" --body '{"name":"test"}'
-./scripts/mock-response.js --url "*/api/*" --file mock.json
-./scripts/mock-response.js --url "*/api/*" --body '{}' --status 404
-```
-
-Return mock response for requests matching URL pattern. Runs until Ctrl+C.
-
-Options:
-- `--url <pattern>` - URL pattern to match (glob-style)
-- `--body <content>` - Response body
-- `--file <path>` - Read response from file
-- `--status <code>` - HTTP status code (default: 200)
-- `--content-type <type>` - Content-Type header (auto-detected if not specified)
-
-**Handle dynamic SPA content:**
-1. `./scripts/nav.js https://spa-site.com`
-2. `./scripts/wait-for.js --selector "#app" --visible`
-3. `./scripts/click.js "#load-more"`
-4. `./scripts/wait-for.js --selector ".loading" --disappear`
-5. `./scripts/screenshot.js`
-
-**Form submission with confirmation:**
-1. `./scripts/fill-form.js --field "#email" --value "test@example.com"`
-2. `./scripts/click.js "button[type=submit]"`
-3. `./scripts/wait-for.js --text "Success" --timeout 10000`
-
-## Inspect Accessibility
-
-```bash
-./scripts/get-accessibility.js --selector "#my-button"
-./scripts/get-accessibility.js --full-tree
-./scripts/get-accessibility.js --role button
-./scripts/get-accessibility.js --name "Submit"
-./scripts/get-accessibility.js --full-tree --output a11y-tree.json
-```
-
-Query accessibility tree to inspect ARIA roles, labels, and properties. Useful for understanding how screen readers see the page.
-
-Options:
-- `--selector <css>` - Get accessibility info for specific element
-- `--full-tree` - Get complete accessibility tree
-- `--role <role>` - Query by ARIA role (button, heading, link, etc.)
-- `--name <name>` - Query by accessible name
-- `--output <file>` - Save as JSON
-- `--depth <n>` - Limit tree depth
-
-## Check Accessibility Issues
-
-```bash
-./scripts/check-a11y.js
-./scripts/check-a11y.js --report issues.txt
-./scripts/check-a11y.js --format json --report a11y.json
-```
-
-Scan page for common accessibility problems. Exits with code 1 if errors are found (for CI integration).
-
-Checks for:
-- Missing alt text on images
-- Form controls without labels
-- Missing document title
-- Skipped heading levels (h1 → h3)
-- Empty links and buttons
-
-Options:
-- `--report <file>` - Save issues to file
-- `--format <type>` - Output format: text (default) or json
-- `--severity <lvl>` - Minimum severity: error, warning, info (default: warning)
-
-## Find by Accessible Name
-
-```bash
-./scripts/find-by-label.js "Submit"
-./scripts/find-by-label.js "Email" --type textbox
-./scripts/find-by-label.js "Sign in" --type button --first
-```
-
-Find elements by their accessible name. More reliable than text content searching since it uses the accessibility tree.
-
-Options:
-- `--type <role>` - Filter by ARIA role (button, textbox, link, etc.)
-- `--exact` - Require exact match (default: contains)
-- `--first` - Return only first match
-- `--selector` - Output CSS selector if possible
-
-**Example workflow - click button by accessible name:**
-```bash
-# Find the button first
-./scripts/find-by-label.js "Sign in" --type button --first
-# Then click using a selector
-./scripts/click.js "button[aria-label*='Sign']"
-```
-
-## Troubleshooting
-
-### Browser Fails to Start
-
-If `start.js` reports "Failed to connect to Chrome/Chromium", there may be conflicting Chromium instances.
-
-The script automatically kills instances using `remote-debugging-port=9222`, but conflicts can still occur.
-
-**Safe manual cleanup** (only kills skill-related browsers):
-```bash
-# Kill browsers using the scraping cache directory
-pkill -f 'chromium.*\.cache/scraping'
-pkill -f 'chrome.*\.cache/scraping'
-
-# Kill browsers using port 9222
-pkill -f 'chromium.*remote-debugging-port=9222'
-pkill -f 'chrome.*remote-debugging-port=9222'
-```
-
-**DO NOT** use `pkill chromium` or `pkill chrome` - this kills all browser instances including your work browsers.
-
-After cleanup, run `./scripts/start.js` again.
-
-## Debugging
-
-Set `DEBUG=1` for verbose logging:
+**Debug Mode:** Set `DEBUG=1` for verbose logging:
 ```bash
 DEBUG=1 ./scripts/nav.js https://example.com
 ```
+
+**Path Handling:** When passing paths to scripts, use absolute paths or ensure correct working directory.
+
+**Browser State:** The browser instance persists across script calls. Use `pkill -f 'chromium.*remote-debugging-port=9222'` to restart if needed (see troubleshooting reference for safe cleanup).
