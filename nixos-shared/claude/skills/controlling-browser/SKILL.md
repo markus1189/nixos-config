@@ -24,6 +24,7 @@ Minimal CDP tools for collaborative site exploration. Auto-detects Chromium/Chro
 - [Press Keys](#press-keys)
 - [Scroll Page](#scroll-page)
 - [Hover](#hover)
+- [Wait for Elements](#wait-for-elements)
 - [Capture Console Logs](#capture-console-logs)
 - [Watch Errors](#watch-errors)
 - [Set Request Headers](#set-request-headers)
@@ -241,6 +242,25 @@ Hover over an element to trigger hover states (dropdowns, tooltips, etc.).
 Options:
 - `--duration <ms>` - How long to hold hover before returning
 
+## Wait for Elements
+
+```bash
+./scripts/wait-for.js --selector "#dynamic-content"
+./scripts/wait-for.js --selector ".loading" --disappear
+./scripts/wait-for.js --selector "#button" --visible --timeout 10000
+./scripts/wait-for.js --text "Loading complete"
+```
+
+Wait for element to appear, disappear, or become visible. Essential for SPAs and dynamic content.
+
+Options:
+- `--selector <css>` - CSS selector to wait for
+- `--text <string>` - Wait for text to appear on page
+- `--disappear` - Wait for element to be removed
+- `--visible` - Wait for element to be visible (not display:none/hidden)
+- `--timeout <ms>` - Max wait time (default: 30000)
+- `--interval <ms>` - Polling interval (default: 100)
+
 ## Capture Console Logs
 
 ```bash
@@ -309,6 +329,18 @@ Options:
 - `--file <path>` - Read response from file
 - `--status <code>` - HTTP status code (default: 200)
 - `--content-type <type>` - Content-Type header (auto-detected if not specified)
+
+**Handle dynamic SPA content:**
+1. `./scripts/nav.js https://spa-site.com`
+2. `./scripts/wait-for.js --selector "#app" --visible`
+3. `./scripts/click.js "#load-more"`
+4. `./scripts/wait-for.js --selector ".loading" --disappear`
+5. `./scripts/screenshot.js`
+
+**Form submission with confirmation:**
+1. `./scripts/fill-form.js --field "#email" --value "test@example.com"`
+2. `./scripts/click.js "button[type=submit]"`
+3. `./scripts/wait-for.js --text "Success" --timeout 10000`
 
 ## Troubleshooting
 
