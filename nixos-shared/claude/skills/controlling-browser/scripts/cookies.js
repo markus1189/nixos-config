@@ -17,13 +17,28 @@ function usage() {
   console.log("\nCommands:");
   console.log("  list                     List all cookies");
   console.log("  list --url <url>         List cookies for specific URL");
+  console.log("  get --name <name>        Get specific cookie value");
+  console.log("  set --name <name> --value <value> [options]  Set a cookie");
+  console.log("  delete --name <name>     Delete a cookie");
   console.log("  export <file>            Export cookies to JSON file");
   console.log("  export <file> --url <url> Export cookies for specific URL");
   console.log("  import <file>            Import cookies from JSON file");
   console.log("  clear                    Clear all cookies");
   console.log("  clear --url <url>        Clear cookies for specific URL");
+  console.log("\nSet Options:");
+  console.log("  --domain <domain>        Cookie domain (default: current page domain)");
+  console.log("  --path <path>            Cookie path (default: /)");
+  console.log("  --secure                 Mark as secure");
+  console.log("  --httponly               Mark as HTTP-only");
+  console.log("  --samesite <value>       SameSite attribute (Strict, Lax, None)");
+  console.log("  --json                   Parse value as JSON and stringify");
   console.log("\nExamples:");
   console.log("  cookies.js list");
+  console.log('  cookies.js get --name "session"');
+  console.log('  cookies.js set --name "token" --value "abc123"');
+  console.log('  cookies.js set --name "prefs" --value \'{"theme":"dark"}\' --json');
+  console.log('  cookies.js set --name "session" --value "xyz" --secure --httponly');
+  console.log('  cookies.js delete --name "session"');
   console.log("  cookies.js export session.json");
   console.log("  cookies.js import session.json");
   console.log("  cookies.js clear --url https://example.com");
@@ -37,6 +52,10 @@ if (!command || command === "--help" || command === "-h") {
 function getArg(flag) {
   const idx = args.indexOf(flag);
   return idx >= 0 ? args[idx + 1] : null;
+}
+
+function hasFlag(flag) {
+  return args.includes(flag);
 }
 
 const url = getArg("--url");
@@ -89,6 +108,102 @@ try {
         }
         console.error(`\n${cookies.length} cookie(s)`);
       }
+      break;
+    }
+
+    case "get": {
+      const name = getArg("--name");
+      if (!name) {
+        console.error("✗ Get requires --name");
+        process.exit(1);
+      }
+
+      const params = url ? { urls: [url] } : {};
+      const { cookies } = await cdp.send("Network.getCookies", params, sessionId);
+      const cookie = cookies.find(c => c.name === name);
+
+      if (!cookie) {
+        console.error(`✗ Cookie "${name}" not found`);
+        process.exit(1);
+      }
+
+      console.log(cookie.value);
+      break;
+    }
+
+    case "set": {
+      const name = getArg("--name");
+      const value = getArg("--value");
+
+      if (!name || !value) {
+        console.error("✗ Set requires --name and --value");
+        process.exit(1);
+      }
+
+      // Get current page URL to extract domain if not specified
+      const { result } = await cdp.send("Runtime.evaluate", {
+        expression: "window.location.href",
+        returnByValue: true
+      }, sessionId);
+      const currentUrl = new URL(result.value);
+
+      let cookieValue = value;
+      if (hasFlag("--json")) {
+        try {
+          // Validate JSON and stringify
+          JSON.parse(value);
+          cookieValue = value;
+        } catch (e) {
+          console.error("✗ Invalid JSON value");
+          process.exit(1);
+        }
+      }
+
+      const params = {
+        name: name,
+        value: cookieValue,
+        domain: getArg("--domain") || currentUrl.hostname,
+        path: getArg("--path") || "/",
+        secure: hasFlag("--secure"),
+        httpOnly: hasFlag("--httponly"),
+        sameSite: getArg("--samesite") || "Lax",
+      };
+
+      const { success } = await cdp.send("Network.setCookie", params, sessionId);
+
+      if (success) {
+        console.log(`✓ Set cookie "${name}"`);
+      } else {
+        console.error(`✗ Failed to set cookie "${name}"`);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case "delete": {
+      const name = getArg("--name");
+      if (!name) {
+        console.error("✗ Delete requires --name");
+        process.exit(1);
+      }
+
+      // Get all cookies to find the one to delete
+      const params = url ? { urls: [url] } : {};
+      const { cookies } = await cdp.send("Network.getCookies", params, sessionId);
+      const cookie = cookies.find(c => c.name === name);
+
+      if (!cookie) {
+        console.error(`✗ Cookie "${name}" not found`);
+        process.exit(1);
+      }
+
+      await cdp.send("Network.deleteCookies", {
+        name: cookie.name,
+        domain: cookie.domain,
+        path: cookie.path,
+      }, sessionId);
+
+      console.log(`✓ Deleted cookie "${name}"`);
       break;
     }
 
