@@ -66,15 +66,13 @@ get_transcript_path() { echo "$input" | jq -r '.transcript_path'; }
 get_transcript_id() { basename "$(get_transcript_path)" ".jsonl" | cut -d'-' -f1; }
 
 get_context_size() {
-    local input_tokens cache_creation cache_read total
-
-    # Read all current_usage token fields
-    input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
-    cache_creation=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
-    cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
-
-    # Sum all components of current context
-    total=$((input_tokens + cache_creation + cache_read))
+    local total
+    # Single jq call to sum all current_usage token fields
+    total=$(echo "$input" | jq -r '
+        [.context_window.current_usage.input_tokens,
+         .context_window.current_usage.cache_creation_input_tokens,
+         .context_window.current_usage.cache_read_input_tokens]
+        | map(. // 0) | add')
 
     if [ "$total" -gt 0 ]; then
         echo "$total"
@@ -241,23 +239,30 @@ separator() { echo -n "$(fg_color "$1")$(bg_color "$2")${RESET}"; }
 main() {
     input=$(cat)
 
-    # Build statusline with readable segments
+    # Cache expensive calculations
+    local context_color
+    context_color=$(get_context_color)
+
+    # Row 1: Session identity
     echo -en "$(segment "$RED" "$(get_model_name)")"
     echo -en "$(separator "$RED" "$ORANGE")"
     echo -en "$(segment "$ORANGE" "$(get_version)")"
-    echo -en "$(separator "$ORANGE" "$GREEN")"
+    echo -en "$(separator "$ORANGE" "$PINK")"
+    echo -en "$(segment "$PINK" "$(get_transcript_id)")"
+    echo -en "$(fg_color "$PINK")"
+    echo
+
+    # Row 2: Working state
     echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
     echo -en "$(separator "$GREEN" "$BLUE")"
     echo -en "$(segment "$BLUE" "$(get_project_dir)")"
     echo -en "$(separator "$BLUE" "$PURPLE")"
     echo -en "$(segment "$PURPLE" "$(get_cost)$")"
-    echo -en "$(separator "$PURPLE" "$(get_context_color)")"
-    echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
-    echo -en "$(separator "$(get_context_color)" "$YELLOW")"
+    echo -en "$(separator "$PURPLE" "$context_color")"
+    echo -en "$(segment "$context_color" "$(get_context_with_bar)")"
+    echo -en "$(separator "$context_color" "$YELLOW")"
     echo -en "$(segment "$YELLOW" "$(get_context_percentage)")"
-    echo -en "$(separator "$YELLOW" "$PINK")"
-    echo -en "$(segment "$PINK" "$(get_transcript_id)")"
-    echo -en "$(separator "$PINK" "$CYAN")"
+    echo -en "$(separator "$YELLOW" "$CYAN")"
     echo -en "$(segment "$CYAN" "$(get_formatted_context_window)")"
     echo -en "$(fg_color "$CYAN")"
     echo
