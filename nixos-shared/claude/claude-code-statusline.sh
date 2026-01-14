@@ -252,11 +252,14 @@ main() {
     echo -en "$(fg_color "$PINK")"
     echo
 
-    # Row 2: Working state
-    echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
-    echo -en "$(separator "$GREEN" "$BLUE")"
+    # Row 2: Location
     echo -en "$(segment "$BLUE" "$(get_project_dir)")"
-    echo -en "$(separator "$BLUE" "$PURPLE")"
+    echo -en "$(separator "$BLUE" "$GREEN")"
+    echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
+    echo -en "$(fg_color "$GREEN")"
+    echo
+
+    # Row 3: Cost and context metrics
     echo -en "$(segment "$PURPLE" "$(get_cost)$")"
     echo -en "$(separator "$PURPLE" "$context_color")"
     echo -en "$(segment "$context_color" "$(get_context_with_bar)")"
