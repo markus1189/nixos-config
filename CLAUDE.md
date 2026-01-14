@@ -152,7 +152,9 @@ rg ":id" nixos-shared/packages/emacs/emacs-config.el            # Newsletters
 
 Custom Claude Code setup in `nixos-shared/claude/`:
 - `commands/` - Custom slash commands (mh:agent-race, mh:iterate, mh:fact-check, etc.)
-- `skills/` - Custom skills
+- `skills/` - Custom skills (each skill is a subdirectory with skill.md)
 - `CLAUDE-global.md` - Global instructions
+
+**Skills location**: `nixos-shared/claude/skills/[skill-name]/skill.md`
 
 Home-manager integration in `nixos-shared/home-manager/claude-code/` supports sound hooks, deny rules, and additional allowed commands.
