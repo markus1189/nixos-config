@@ -1,5 +1,5 @@
 ---
-name: Searching Elfeed RSS Database
+name: elfeed
 description: Search the user's Emacs elfeed RSS feed database containing curated feeds from Reddit, blogs, YouTube, GitHub releases, and newsletters. Use when the user asks about articles they've read, mentions RSS feeds or 'something I read', wants to research topics from their curated sources (programming, AI, security, NixOS, Emacs, etc.), or needs to triage unread items.
 ---
 
