@@ -93,6 +93,17 @@ get_context_window_size() {
     fi
 }
 
+get_context_percentage() {
+    local percentage
+    percentage=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+
+    if [ -n "$percentage" ] && [[ "$percentage" =~ ^[0-9.]+$ ]]; then
+        printf "%.0f%%" "$percentage"
+    else
+        echo "⌀"
+    fi
+}
+
 get_formatted_context_window() {
     local total_tokens
     total_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
@@ -214,6 +225,7 @@ readonly BLUE="100;180;255"
 readonly PURPLE="180;140;255"
 readonly PINK="255;140;180"
 readonly CYAN="100;200;200"
+readonly YELLOW="220;180;80"
 
 # ANSI escape sequences
 readonly RESET='\033[0m'
@@ -241,7 +253,9 @@ main() {
     echo -en "$(segment "$PURPLE" "$(get_cost)$")"
     echo -en "$(separator "$PURPLE" "$(get_context_color)")"
     echo -en "$(segment "$(get_context_color)" "$(get_context_with_bar)")"
-    echo -en "$(separator "$(get_context_color)" "$PINK")"
+    echo -en "$(separator "$(get_context_color)" "$YELLOW")"
+    echo -en "$(segment "$YELLOW" "$(get_context_percentage)")"
+    echo -en "$(separator "$YELLOW" "$PINK")"
     echo -en "$(segment "$PINK" "$(get_transcript_id)")"
     echo -en "$(separator "$PINK" "$CYAN")"
     echo -en "$(segment "$CYAN" "$(get_formatted_context_window)")"

@@ -55,6 +55,8 @@ Find recent screenshots:
 3. Read with Read tool and analyze
 
 ## Presenting Options
+If there is a tool for questions, use it rigorously, otherwise:
+
 Prefix choices with clear identifiers for easy reference:
 - "1. Option A", "2. Option B"
 - "a) First choice", "b) Second choice"

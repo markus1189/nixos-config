@@ -218,3 +218,33 @@ EOF
     assert_success
     assert_output "⌀"
 }
+
+# Tests for get_context_percentage function
+
+@test "get_context_percentage: Uses native percentage" {
+    input='{"context_window": {"used_percentage": 42.6}}'
+    run get_context_percentage
+    assert_success
+    assert_output "43%"
+}
+
+@test "get_context_percentage: Rounds to nearest integer" {
+    input='{"context_window": {"used_percentage": 75.8}}'
+    run get_context_percentage
+    assert_success
+    assert_output "76%"
+}
+
+@test "get_context_percentage: Missing percentage shows placeholder" {
+    input='{"context_window": {}}'
+    run get_context_percentage
+    assert_success
+    assert_output "⌀"
+}
+
+@test "get_context_percentage: Null percentage shows placeholder" {
+    input='{"context_window": {"used_percentage": null}}'
+    run get_context_percentage
+    assert_success
+    assert_output "⌀"
+}
