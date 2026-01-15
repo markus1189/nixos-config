@@ -1,35 +1,15 @@
 ---
 name: telegram
-description: Direct integration with Telegram Bot API for checking inbox messages and sending messages (text, photos, documents) to chats. Use when the user asks to "check Telegram inbox", "check messages", "send message to [chat]", or needs to interact with a Telegram bot. Requires TELEGRAM_BOT_TOKEN environment variable.
+description: "Direct integration with Telegram Bot API for checking inbox messages and sending messages (text, photos, documents) to chats. Triggers when users request 'check Telegram inbox', 'check messages', 'send message to [chat]', or mention Telegram bot interactions. Requires TELEGRAM_BOT_TOKEN environment variable."
 ---
 
 # Telegram Bot Integration
 
-Interact directly with Telegram Bot API to check messages and send content to chats.
-
-## Prerequisites
-
-The bot token is required. Use `env` to pass it from your password store for single-command usage:
-
-```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/check_messages.py
-```
-
-Optional: Set custom download directory (default: `~/Downloads`):
-```bash
-env TELEGRAM_DOWNLOAD_DIR='~/my-telegram-files' ./scripts/check_messages.py
-```
-
-Scripts use Nix shebangs to automatically provide the `pyTelegramBotAPI` dependency - no manual installation needed.
+Interact directly with Telegram Bot API to check messages and send content to chats. Scripts use Nix shebangs to automatically provide dependencies.
 
 ## Checking Inbox Messages
 
-Use `scripts/check_messages.py` when the user asks about Telegram messages.
-
-**Triggers:**
-- "Check my Telegram inbox"
-- "Any new Telegram messages?"
-- "What messages did I get?"
+Use `scripts/check_messages.py` to retrieve new messages.
 
 **What it does:**
 - Polls Telegram API for new updates
@@ -37,10 +17,12 @@ Use `scripts/check_messages.py` when the user asks about Telegram messages.
 - Displays message details (chat ID, user, timestamp, content)
 - Marks messages as read after displaying
 
-**Example:**
+**Usage:**
 ```bash
 env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/check_messages.py
 ```
+
+Optional: Set custom download directory with `TELEGRAM_DOWNLOAD_DIR` environment variable.
 
 **Output format:**
 ```
@@ -55,20 +37,10 @@ Photo: /home/user/Downloads/telegram_12345_789_photo.jpg
 
 ## Sending Messages
 
-Use `scripts/send_message.py` when the user wants to send content via Telegram.
-
-**Triggers:**
-- "Send message to chat 12345"
-- "Send this photo via Telegram"
-- "Message user X saying..."
+Use `scripts/send_message.py` to send content via Telegram.
 
 ### Send Text
 
-```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py <chat_id> <message_text>
-```
-
-Example:
 ```bash
 env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 "Hello from Claude"
 ```
@@ -76,28 +48,13 @@ env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 "H
 ### Send Photo
 
 ```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py <chat_id> --photo <filepath>
-```
-
-Example:
-```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 --photo ~/image.png
-```
-
-With caption:
-```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 --photo ~/image.png --caption "Check this out"
+env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 --photo ~/image.png --caption "Optional caption"
 ```
 
 ### Send Document
 
 ```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py <chat_id> --document <filepath>
-```
-
-Example:
-```bash
-env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 --document ~/report.pdf --caption "Monthly report"
+env TELEGRAM_BOT_TOKEN="$(pass api/telegram)" ./scripts/send_message.py 12345 --document ~/report.pdf --caption "Optional caption"
 ```
 
 ## Important Constraints
@@ -122,8 +79,6 @@ Common errors are handled automatically by the scripts:
 - **403**: User hasn't started conversation or blocked bot
 - **429**: Rate limit - scripts report retry delay
 - **File not found**: Clear error message with filepath
-
-For detailed error reference, see [references/error_codes.md](references/error_codes.md).
 
 ## Chat IDs
 
