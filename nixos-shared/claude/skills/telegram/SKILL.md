@@ -82,9 +82,11 @@ Common errors are handled automatically by the scripts:
 
 ## Chat IDs
 
-Chat IDs are required for sending messages. Users can get their chat ID by:
-1. Checking inbox output (displays chat ID for each message)
-2. Sending a message to the bot and checking inbox
+**Default chat ID: 299952716** (user @markus1189)
+
+When sending messages without a specified chat ID, use the default. To discover other chat IDs:
+1. Check inbox output (displays chat ID for each message)
+2. Send a message to the bot and check inbox
 
 ## Stateless Operation
 
