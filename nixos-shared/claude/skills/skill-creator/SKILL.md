@@ -115,6 +115,7 @@ def process_file(path):
 Documentation loaded on-demand to inform Claude's process.
 
 - **Use cases**: Database schemas, API docs, domain knowledge, company policies, workflow guides
+- **External API/library docs**: When wrapping a library or API with publicly accessible documentation, link to official docs (both library wrapper and underlying API if applicable). Skip if docs require authentication or are otherwise inaccessible.
 - **Benefits**: Keeps SKILL.md lean, loaded only when needed
 - **Link syntax**: Always use markdown links: `See [references/guide.md](references/guide.md)`
 - **Best practice**: For large files (>10k words), include grep search patterns in SKILL.md
