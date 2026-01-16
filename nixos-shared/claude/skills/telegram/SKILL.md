@@ -91,3 +91,11 @@ When sending messages without a specified chat ID, use the default. To discover 
 ## Stateless Operation
 
 This skill is stateless. Telegram's API automatically tracks which messages have been read using update offsets. No local state storage needed.
+
+## API Documentation
+
+**Library used:** [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI) (imported as `telebot`)
+- [pyTelegramBotAPI docs](https://pytba.readthedocs.io/)
+
+**Underlying API:** [Telegram Bot API](https://core.telegram.org/bots/api)
+- Useful for understanding available methods, parameters, and error codes

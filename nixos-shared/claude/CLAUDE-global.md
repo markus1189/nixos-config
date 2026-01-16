@@ -65,6 +65,9 @@ Prefix choices with clear identifiers for easy reference:
 - DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`
 - Prioritize credible websites as sources
 
+## Web Content
+- Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t markdown`
+
 ## Terminal Environment
 - **Primary multiplexer**: tmux
 - **Workflow**: Multiple panes for parallel development (builds, servers, shells, monitoring)
