@@ -35,6 +35,9 @@ in
           ];
         };
         opencodeConfig = pkgs.callPackage ../nixos-shared/home-manager/opencode { };
+        piAgentConfig = pkgs.callPackage ../nixos-shared/home-manager/pi-agent {
+          globalMdText = claudeConfig.globalClaudeMd.text;
+        };
       in
       {
         "claude-code" = claudeConfig.settings;
@@ -522,7 +525,8 @@ in
 
       }
       // claudeConfig.markdownFiles
-      // opencodeConfig.markdownFiles;
+      // opencodeConfig.markdownFiles
+      // piAgentConfig.markdownFiles;
   };
 
   manual = {
