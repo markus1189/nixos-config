@@ -40,6 +40,10 @@
         cy-br-glados = ''aws-vault exec -n work -d 8h -- env AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         oc = "opencode";
+
+        pi = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y @mariozechner/pi-coding-agent'';
+
+        pi-glados = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y @mariozechner/pi-coding-agent --append-system-prompt "${gladosPrompt}"'';
       };
 
     initContent = ''

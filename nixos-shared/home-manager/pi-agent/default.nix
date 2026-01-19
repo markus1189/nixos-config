@@ -45,6 +45,19 @@ let
       target = ".pi/agent/extensions/questionnaire.ts";
       text = builtins.readFile ./questionnaire.ts;
     };
+
+    "pi-agent-extension-sounds" = {
+      target = ".pi/agent/extensions/sounds.ts";
+      text = builtins.readFile (pkgs.mutate ./sounds.ts {
+        aplay = pkgs.alsa-utils;
+        sounds = ../../claude/sounds;
+      });
+    };
+
+    "pi-agent-extension-glados" = {
+      target = ".pi/agent/extensions/glados.ts";
+      text = builtins.readFile ./glados.ts;
+    };
   };
 
 in
