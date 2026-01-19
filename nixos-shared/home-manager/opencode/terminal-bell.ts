@@ -5,7 +5,7 @@ export const TerminalBell: Plugin = async ({ project, client, $, directory, work
     event: async ({ event }) => {
       if (event.type === "session.idle") {
         await Bun.write(Bun.stdout, "\x07")
-        await $`notify-send Opencode "Session Idle"`
+        await $`dunstify Opencode "Session Idle"`
       }
     }
   }
