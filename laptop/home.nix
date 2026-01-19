@@ -879,6 +879,10 @@ in
           "previous_page" = "K";
         };
       };
+
+      fd = {
+        enable = true;
+      };
     };
 
   services = {
