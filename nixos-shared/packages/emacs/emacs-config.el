@@ -2308,6 +2308,7 @@ Provides more detailed messages on failure."
             (:owner "johnwarne" :repo "reddit-top-rss")
             (:owner "mbnuqw" :repo "sidebery")
             (:owner "ast-grep" :repo "ast-grep")
+            (:owner "badlogic" :repo "pi-mono" :tags (llm))
             (:owner "github" :repo "copilot-cli" :tags (github llm))
             (:owner "martinvonz" :repo "jj")
             (:owner "dunst-project" :repo "dunst")
