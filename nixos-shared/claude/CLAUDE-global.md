@@ -54,10 +54,16 @@ Find recent screenshots:
 2. Adjust `-mtime` as needed (-7 for week, -30 for month)
 3. Read with Read tool and analyze
 
-## Presenting Options
-If there is a tool for questions, use it rigorously, otherwise:
+## Presenting Options / Asking Questions
+**ALWAYS use the questions tool when available** for:
+- Asking the user to choose between options
+- Clarifying requirements
+- Getting preferences or feedback
+- Any situation with 2+ distinct choices
 
-Prefix choices with clear identifiers for easy reference:
+**Never** list questions or options in plain text when the questionnaire tool exists.
+
+Only if no questionnaire tool is available, prefix choices with clear identifiers:
 - "1. Option A", "2. Option B"
 - "a) First choice", "b) Second choice"
 
