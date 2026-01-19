@@ -1,6 +1,10 @@
 # AI Comments Processing
 
-Process `AI:` comments (pattern: `\bAI:`, e.g., `// AI:`, `# AI:`, `<!-- AI: -->`, `;; AI: `) by executing tasks safely.
+Process `AI:` comments (pattern: `\bAI:`, e.g., `// AI:`, `# AI:`,
+`<!-- AI: -->`, `;; AI: `) by executing tasks.
+
+## Arguments
+Optional argument: $ARGUMENTS
 
 ## Workflow
 
@@ -10,6 +14,5 @@ Process `AI:` comments (pattern: `\bAI:`, e.g., `// AI:`, `# AI:`, `<!-- AI: -->
 
 ## Guidelines
 
-**Safety**: No unauthorized access, validate task scope/permissions
 **Errors**: Document failures, preserve comment, continue
 **Edge Cases**: Skip malformed (`ai:`, `AI :`, `AI-`), clarify ambiguous
