@@ -58,6 +58,11 @@ let
       target = ".pi/agent/extensions/glados.ts";
       text = builtins.readFile ./glados.ts;
     };
+
+    "pi-agent-extension-todo" = {
+      target = ".pi/agent/extensions/todo.ts";
+      text = builtins.readFile ./todo.ts;
+    };
   };
 
 in
