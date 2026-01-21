@@ -3,6 +3,7 @@
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `, command`
+- **Benchmarking**: `, hyperfine 'cmd1' 'cmd2'` for statistical command comparison
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
 
