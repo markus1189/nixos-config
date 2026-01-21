@@ -15,6 +15,10 @@ export default function (pi: ExtensionAPI) {
     playSound("involved-notification.wav");
   });
 
+  pi.on("agent_end", async (event, ctx) => {
+    playSound("for-sure-576.wav");
+  });
+
   pi.on("session_switch", async (event, ctx) => {
     // event.reason = [new, resume]
 
