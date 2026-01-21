@@ -9,6 +9,7 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { spawn } from "child_process";
 
 function notify(title: string, body: string, urgency: "low" | "normal" | "critical" = "normal"): void {
+        process.stdout.write('\u0007');
         spawn("dunstify", ["-a", "Pi", "-u", urgency, title, body], {
                 detached: true,
                 stdio: "ignore",
