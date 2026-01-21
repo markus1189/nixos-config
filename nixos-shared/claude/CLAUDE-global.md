@@ -72,7 +72,7 @@ Only if no questionnaire tool is available, prefix choices with clear identifier
 - Prioritize credible websites as sources
 
 ## Web Content
-- Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t markdown`
+- Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t gfm-raw_html`
 
 ## Terminal Environment
 - **Primary multiplexer**: tmux
