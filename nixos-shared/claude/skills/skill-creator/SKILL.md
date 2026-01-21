@@ -110,6 +110,39 @@ def process_file(path):
     return open(path).read()  # Just fails
 ```
 
+**Script path conventions:**
+
+When documenting script usage in SKILL.md, always use simple relative paths from the skill directory:
+
+```bash
+# Good - Simple and standard
+./scripts/script-name.sh [args]
+./scripts/another-script.py --flag value
+```
+
+**Never** use complex path resolution patterns:
+
+```bash
+# Bad - Unnecessarily complex
+SKILL_DIR=$(dirname /path/to/skill/SKILL.md)
+cd "$SKILL_DIR/scripts" && ./script.sh
+
+# Bad - Absolute paths
+~/.claude/skills/skill-name/scripts/script.sh
+```
+
+**Rationale:** When Claude loads a skill from `~/.claude/skills/skill-name/SKILL.md`, it can determine the skill directory from the file path. The simple `./scripts/` pattern is:
+- Consistent across all skills
+- Easy to read and understand
+- Works when Claude changes to the skill directory before execution
+
+**Standard note to include at the end of SKILL.md:**
+
+```markdown
+**Script Execution:** Scripts should be executed from the skill directory. 
+All scripts use Nix shebangs so no manual dependency installation is required.
+```
+
 ##### References (`references/`)
 
 Documentation loaded on-demand to inform Claude's process.

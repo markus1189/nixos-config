@@ -178,6 +178,36 @@ def process_file(path):
         return ''
 ```
 
+### Complex Path Resolution
+
+Use simple relative paths from the skill directory. Never use complex path resolution patterns.
+
+**Bad:**
+```bash
+# Unnecessarily complex
+SKILL_DIR=$(dirname /path/to/skill/SKILL.md)
+cd "$SKILL_DIR/scripts" && ./script.sh
+
+# Absolute paths
+~/.claude/skills/skill-name/scripts/script.sh
+
+# Path computation
+cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && ./script.sh
+```
+
+**Good:**
+```bash
+# Simple and standard
+./scripts/script.sh [args]
+./scripts/another-script.py --flag value
+```
+
+**Standard note to include:**
+```markdown
+**Script Execution:** Scripts should be executed from the skill directory. 
+All scripts use Nix shebangs so no manual dependency installation is required.
+```
+
 ### Voodoo Constants
 
 Configuration parameters should be justified and documented.

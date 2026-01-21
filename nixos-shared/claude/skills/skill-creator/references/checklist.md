@@ -23,6 +23,9 @@ Before sharing a skill, verify against this checklist.
 
 - [ ] Scripts solve problems rather than punt to Claude
 - [ ] Error handling is explicit and helpful
+- [ ] Script paths use simple relative syntax: `./scripts/script.sh`
+- [ ] No complex path resolution patterns (`SKILL_DIR`, `cd` tricks, absolute paths)
+- [ ] Standard note included: "Scripts should be executed from the skill directory"
 - [ ] No "voodoo constants" (all magic numbers justified and documented)
 - [ ] Required packages listed in instructions and verified as available
 - [ ] Scripts have clear documentation
