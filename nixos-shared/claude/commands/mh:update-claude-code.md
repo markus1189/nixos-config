@@ -1,7 +1,5 @@
 ---
 description: Update claude-code package in nixpkgs with automated process
-argument-hint: [new-version] (optional - will check npm if not provided)
-allowed-tools: Bash, Read, Write, Edit, Grep, TodoWrite
 ---
 
 Update claude-code in nixpkgs. Arguments: $ARGUMENTS
