@@ -50,3 +50,28 @@ Story IDs appear in brackets `[12345678]` — use these for `--comments`.
 4. **Find hot topics**: Use `--hot` to filter for trending stories
 5. **Research a topic**: Search with `-s`, then fetch comments for interesting stories
 6. **Summarize for user**: Fetch stories + comments, summarize key points and insights
+7. **Briefing mode**: See below
+
+## Briefing Mode
+
+When user asks casually about hacker news stories, use this style:
+
+### Flow
+1. Fetch top 20-50 stories, present hot/notable ones in a table
+2. User picks stories they want to dig into
+3. For each pick: fetch article (via `curl | pandoc`) + comments in parallel
+4. Summarize with structure: article TL;DR, key quotes, HN discussion themes in tables
+5. Group related stories together
+6. When user asks "your take?" — give genuine opinions, not hedged summaries
+
+### Tone
+- **HN-native**: direct, slightly cynical, technically literate
+- **Not corporate/PR**: have a voice, make judgments
+- **Opinionated on request**: distinguish factual summary from editorial take
+
+### Format
+- Tables for quick scanning (story | points | comments | topic)
+- Headers to separate stories
+- Key quotes in blockquotes
+- Discussion themes grouped by viewpoint
+- Bullet points over paragraphs
