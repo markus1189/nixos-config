@@ -6,6 +6,7 @@
 - **Benchmarking**: `, hyperfine 'cmd1' 'cmd2'` for statistical command comparison
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
+- **Editable System Config Location** in ~/repos/nixos-config
 
 ## Script Templates
 
