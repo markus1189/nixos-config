@@ -38,17 +38,17 @@ let
 
     "pi-agent-extension-notify" = {
       target = ".pi/agent/extensions/notify.ts";
-      text = builtins.readFile ./notify.ts;
+      text = builtins.readFile ./extensions/notify.ts;
     };
 
     "pi-agent-extension-questionnaire" = {
       target = ".pi/agent/extensions/questionnaire.ts";
-      text = builtins.readFile ./questionnaire.ts;
+      text = builtins.readFile ./extensions/questionnaire.ts;
     };
 
     "pi-agent-extension-sounds" = {
       target = ".pi/agent/extensions/sounds.ts";
-      text = builtins.readFile (pkgs.mutate ./sounds.ts {
+      text = builtins.readFile (pkgs.mutate ./extensions/sounds.ts {
         aplay = pkgs.alsa-utils;
         sounds = ../../claude/sounds;
       });
@@ -56,7 +56,7 @@ let
 
     "pi-agent-extension-glados" = {
       target = ".pi/agent/extensions/glados.ts";
-      text = builtins.readFile ./glados.ts;
+      text = builtins.readFile ./extensions/glados.ts;
     };
 
     "pi-agent-models" = {
@@ -67,5 +67,5 @@ let
 
 in
 {
-  markdownFiles = staticEntries // promptEntries;
+  linkedFiles = staticEntries // promptEntries;
 }

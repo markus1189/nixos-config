@@ -526,7 +526,7 @@ in
       }
       // claudeConfig.markdownFiles
       // opencodeConfig.markdownFiles
-      // piAgentConfig.markdownFiles;
+      // piAgentConfig.linkedFiles;
   };
 
   manual = {
