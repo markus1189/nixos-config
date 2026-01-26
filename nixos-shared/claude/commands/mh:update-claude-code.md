@@ -1,7 +1,3 @@
----
-description: Update claude-code package in nixpkgs with automated process
----
-
 Update claude-code in nixpkgs. Arguments: $ARGUMENTS
 
 ## Quick Reference
