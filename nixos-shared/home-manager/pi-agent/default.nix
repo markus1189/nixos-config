@@ -58,6 +58,11 @@ let
       target = ".pi/agent/extensions/glados.ts";
       text = builtins.readFile ./glados.ts;
     };
+
+    "pi-agent-models" = {
+      target = ".pi/agent/models.json";
+      text = builtins.readFile ./models.json;
+    };
   };
 
 in
