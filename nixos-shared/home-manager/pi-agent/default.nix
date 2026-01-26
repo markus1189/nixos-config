@@ -68,6 +68,11 @@ let
       target = ".pi/agent/models.json";
       text = builtins.readFile ./models.json;
     };
+
+    "pi-agent-keybindings" = {
+      target = ".pi/agent/keybindings.json";
+      source = ./keybindings.json;
+    };
   };
 
 in

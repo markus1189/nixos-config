@@ -1,0 +1,29 @@
+{
+  "cursorUp": [
+    "up",
+    "ctrl+p"
+  ],
+  "cursorDown": [
+    "down",
+    "ctrl+n"
+  ],
+  "cursorLeft": [
+    "left",
+    "ctrl+b"
+  ],
+  "cursorRight": [
+    "right",
+    "ctrl+f"
+  ],
+  "selectUp": [
+    "up",
+    "ctrl+p"
+  ],
+  "selectDown": [
+    "down",
+    "ctrl+n"
+  ],
+  "toggleSessionPath": "ctrl+l",
+  "cycleModelForward": [],
+  "cycleModelBackward": []
+}
