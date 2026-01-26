@@ -59,6 +59,11 @@ let
       text = builtins.readFile ./extensions/glados.ts;
     };
 
+    "pi-agent-extension-block-dangerous" = {
+      target = ".pi/agent/extensions/block-dangerous.ts";
+      text = builtins.readFile ./extensions/block-dangerous.ts;
+    };
+
     "pi-agent-models" = {
       target = ".pi/agent/models.json";
       text = builtins.readFile ./models.json;
