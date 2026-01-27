@@ -131,5 +131,5 @@ to a markdown file at `.plan/handoffs/[timestamp]-[slug].md` where
 [timestamp] is the current date in format YYYY-MM-DD and the slug is
 what we defined before.
 
-Then tell the user about this file and that they can use `/pickup
+Then tell the user about this file and that they can use `/mh:pickup
 FILENAME` to continue.
