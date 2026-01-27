@@ -64,6 +64,11 @@ let
       text = builtins.readFile ./extensions/block-dangerous.ts;
     };
 
+    "pi-agent-extension-web-tools" = {
+      target = ".pi/agent/extensions/web-tools.ts";
+      source = ./extensions/web-tools.ts;
+    };
+
     "pi-agent-models" = {
       target = ".pi/agent/models.json";
       text = builtins.readFile ./models.json;
