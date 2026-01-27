@@ -36,6 +36,8 @@ let
       text = globalMdText;
     };
 
+    # START EXTENSIONS
+
     "pi-agent-extension-notify" = {
       target = ".pi/agent/extensions/notify.ts";
       text = builtins.readFile ./extensions/notify.ts;
@@ -69,6 +71,13 @@ let
       source = ./extensions/web-tools.ts;
     };
 
+    "pi-agent-extension-qna" = {
+      target = ".pi/agent/extensions/qna.ts";
+      source = ./extensions/qna.ts;
+    };
+
+    # END EXTENSIONS
+
     "pi-agent-models" = {
       target = ".pi/agent/models.json";
       text = builtins.readFile ./models.json;
@@ -78,6 +87,7 @@ let
       target = ".pi/agent/keybindings.json";
       source = ./keybindings.json;
     };
+
   };
 
 in
