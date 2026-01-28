@@ -432,7 +432,7 @@ myKeysP =
     (myModKeyP "o d i", raise (iclassName "discord")),
     (myModKeyP "o f i", raise (iclassName "firefox")),
     (myModKeyP "o i n", raise ((||) <$> iclassName "jetbrains-idea-ce" <*> iclassName "jetbrains-idea")),
-    (myModKeyP "o i m", raise ((&&) <$> iclassName "alacritty" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
+    (myModKeyP "o i m", raise ((&&) <$> iclassName "com.mitchellh.ghostty" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
     (myModKeyP "o m s", raise (ititleContains "microsoft teams")),
     (myModKeyP "o s l", raise (iclassName "slack")),
@@ -521,11 +521,11 @@ workspaceRenamer x = case x of
   _ -> x
 
 myTerminal :: String
-myTerminal = "@alacritty@/bin/alacritty"
+myTerminal = "@ghostty@/bin/ghostty"
 
 runTerminal :: String -> String -> String
 runTerminal termTitle arg =
-  unwords [myTerminal, "--title", termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
+  unwords [myTerminal, "--title=" ++ termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
 
 main :: IO ()
 main = do

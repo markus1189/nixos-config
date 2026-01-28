@@ -1,5 +1,5 @@
 args@{
-  alacritty,
+  ghostty,
   autoMonitorConfig,
   autorandr,
   bukuRun,
