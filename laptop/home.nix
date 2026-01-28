@@ -647,9 +647,12 @@ in
 
           confirm-close-surface = false;
 
+          font-feature = "-calt, -liga, -dlig";
+
           keybind = [
             "alt+v=paste_from_clipboard"
             "ctrl+shift+f=unbind"
+            "ctrl+shift+o=unbind"
           ];
         };
       };
