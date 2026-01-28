@@ -631,6 +631,32 @@ in
         };
       };
 
+      ghostty = {
+        enable = true;
+        enableZshIntegration = true;
+        settings = {
+          # Mouse
+          mouse-hide-while-typing = true;
+
+          # Clipboard
+          copy-on-select = true;
+
+          # Window
+          background-opacity = 0;
+          background-blur = true;
+          gtk-titlebar = false;
+
+          # Cursor (disable shell integration cursor changes)
+          shell-integration-features = "no-cursor";
+
+          # Keybindings
+          keybind = [
+            "alt+v=paste_from_clipboard"
+            "ctrl+shift+f=unbind"
+          ];
+        };
+      };
+
       atuin = {
         enable = true;
         settings = {
