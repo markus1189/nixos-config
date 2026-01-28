@@ -635,21 +635,18 @@ in
         enable = true;
         enableZshIntegration = true;
         settings = {
-          # Mouse
           mouse-hide-while-typing = true;
 
-          # Clipboard
-          copy-on-select = true;
+          copy-on-select = "clipboard";
 
-          # Window
           background-opacity = 0;
           background-blur = true;
           gtk-titlebar = false;
 
-          # Cursor (disable shell integration cursor changes)
           shell-integration-features = "no-cursor";
 
-          # Keybindings
+          confirm-close-surface = false;
+
           keybind = [
             "alt+v=paste_from_clipboard"
             "ctrl+shift+f=unbind"
