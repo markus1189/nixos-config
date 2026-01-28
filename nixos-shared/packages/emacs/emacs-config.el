@@ -1250,7 +1250,15 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package annotate
-  :ensure t)
+  :ensure t
+  :bind (("C-c a" . annotate-mode))
+  :custom
+  ;; Store annotations separately
+  (annotate-file "~/.emacs.d/annotations")
+  ;; Don't warn about file changes (useful during ediff)
+  (annotate-warn-if-hash-mismatch nil)
+  ;; Confirm before deleting
+  (annotate-annotation-confirm-deletion t))
 
 (use-package org-drill
   :ensure t)
