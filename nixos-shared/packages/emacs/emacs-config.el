@@ -750,11 +750,12 @@ Position the cursor at its beginning, according to the current mode."
     (cond ((equal (list 4) prefix) (insert "_undefined"))
           (t (insert "undefined"))))
 
-  :bind (("C-c C-a" . mh/haskell-mode-organize-imports)
-         ("C-c C-q" . mh/haskell-import-toggle-qualified)
-         ("C-c ?" . mh/haskell-insert-undefined))
   :ensure t
-  :hook ((haskell-mode . interactive-haskell-mode)))
+  :hook ((haskell-mode . interactive-haskell-mode))
+  :bind (:map haskell-mode-map
+              ("C-c C-a" . mh/haskell-mode-organize-imports)
+              ("C-c C-q" . mh/haskell-import-toggle-qualified)
+              ("C-c ?" . mh/haskell-insert-undefined)))
 
 (use-package ox-jira
   :ensure t)
