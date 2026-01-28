@@ -3,8 +3,10 @@ Update claude-code in nixpkgs. Arguments: $ARGUMENTS
 ## Quick Reference
 
 **Files:**
-- `pkgs/by-name/cl/claude-code/package.nix` - Main package
+- `pkgs/by-name/cl/claude-code/package.nix` - Main npm package
 - `pkgs/by-name/cl/claude-code/package-lock.json` - npm lockfile
+- `pkgs/by-name/cl/claude-code-bin/package.nix` - Binary distribution package
+- `pkgs/by-name/cl/claude-code-bin/manifest.json` - Binary manifest
 - `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix` - VSCode extension
 
 **Branch naming:** `claude-code-OLD-to-NEW` (e.g., `claude-code-2.1.6-to-2.1.7`)
@@ -40,16 +42,17 @@ git checkout -b claude-code-OLD-to-NEW
 Pipe empty input to handle interactive prompt:
 ```bash
 echo "" | nix-shell maintainers/scripts/update.nix --arg predicate \
-  '(path: pkg: builtins.elem path [["claude-code"] ["vscode-extensions" "anthropic" "claude-code"]])'
+  '(path: pkg: builtins.elem path [["claude-code"] ["claude-code-bin"] ["vscode-extensions" "anthropic" "claude-code"]])'
 ```
 **Timeout:** 300000ms (5 minutes)
 
 **If script fails:** Do NOT fix manually. Ask user or retry with higher timeout.
 
 ### 5. Verify Versions Match
-All three must show the same version:
+All four must show the same version:
 ```bash
 grep -E '^  version = ' pkgs/by-name/cl/claude-code/package.nix
+jq -r '.version' pkgs/by-name/cl/claude-code-bin/manifest.json
 grep 'version = ' pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
 grep '"version":' pkgs/by-name/cl/claude-code/package-lock.json | head -1
 ```
@@ -57,20 +60,22 @@ grep '"version":' pkgs/by-name/cl/claude-code/package-lock.json | head -1
 ### 6. Format
 ```bash
 nix fmt pkgs/by-name/cl/claude-code/package.nix \
+       pkgs/by-name/cl/claude-code-bin/package.nix \
        pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
 ```
 
-### 7. Build Both Packages
+### 7. Build All Packages
 ```bash
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
+env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code-bin
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 ```
 
 **If npmDepsHash mismatch:** Copy the "got:" hash from error, update `npmDepsHash` in package.nix, rebuild.
 
-### 8. Commit (TWO separate commits)
+### 8. Commit (THREE separate commits)
 ```bash
-# First: claude-code package
+# First: claude-code npm package
 git add pkgs/by-name/cl/claude-code/
 git commit -m "$(cat <<'EOF'
 claude-code: OLD -> NEW
@@ -79,7 +84,16 @@ https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 EOF
 )"
 
-# Second: vscode extension
+# Second: claude-code-bin binary package
+git add pkgs/by-name/cl/claude-code-bin/
+git commit -m "$(cat <<'EOF'
+claude-code-bin: OLD -> NEW
+
+https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+EOF
+)"
+
+# Third: vscode extension
 git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/
 git commit -m "$(cat <<'EOF'
 vscode-extensions.anthropic.claude-code: OLD -> NEW
