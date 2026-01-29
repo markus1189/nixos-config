@@ -21,7 +21,9 @@ import {
   DEFAULT_MAX_BYTES,
   DEFAULT_MAX_LINES,
   formatSize,
+  keyHint,
 } from "@mariozechner/pi-coding-agent";
+import { Text } from "@mariozechner/pi-tui";
 import { Type } from "@sinclair/typebox";
 import * as fs from "node:fs";
 import * as os from "node:os";
@@ -55,6 +57,66 @@ export default function webToolsExtension(pi: ExtensionAPI) {
         }),
       ),
     }),
+
+    renderCall(args, theme) {
+      let text = theme.fg("toolTitle", theme.bold("web_search "));
+      text += theme.fg("dim", `"${args.query}"`);
+      return new Text(text, 0, 0);
+    },
+
+    renderResult(result, { expanded, isPartial }, theme) {
+      // Still executing
+      if (isPartial) {
+        return new Text(theme.fg("muted", "Searching..."), 0, 0);
+      }
+
+      const details = result.details as {
+        query?: string;
+        resultCount?: number;
+        results?: Array<{ title: string; url: string }>;
+        error?: string;
+      };
+
+      // Handle errors
+      if (result.isError || details?.error) {
+        return new Text(
+          theme.fg("error", `✗ ${details?.error || "Search failed"}`),
+          0,
+          0,
+        );
+      }
+
+      // No results
+      if (!details?.resultCount) {
+        return new Text(
+          theme.fg("warning", `No results for "${details?.query || ""}"`),
+          0,
+          0,
+        );
+      }
+
+      // Collapsed: show count + query
+      let text = theme.fg("success", "✓ ");
+      text += `Found ${details.resultCount} results for "${details.query}"`;
+
+      if (!expanded) {
+        text += ` ${theme.fg("muted", `(${keyHint("expandTools", "to expand")})`)}`;
+        return new Text(text, 0, 0);
+      }
+
+      // Expanded: show full results with abstracts
+      const content = result.content[0];
+      if (content?.type === "text" && content.text) {
+        // Extract just the results part (skip the header line)
+        const lines = content.text.split("\n");
+        const resultsStart = lines.findIndex((l) => l.match(/^\d+\./));
+        if (resultsStart >= 0) {
+          text += "\n" + lines.slice(resultsStart).join("\n");
+        }
+      }
+
+      return new Text(text, 0, 0);
+    },
 
     async execute(_toolCallId, params, onUpdate, _ctx, signal) {
       const { query, num_results = 10 } = params as {
@@ -172,6 +234,77 @@ export default function webToolsExtension(pi: ExtensionAPI) {
         description: "URL of the web page to fetch",
       }),
     }),
+
+    renderCall(args, theme) {
+      let text = theme.fg("toolTitle", theme.bold("web_fetch "));
+      // Show just the hostname for compactness
+      try {
+        const url = new URL(args.url);
+        text += theme.fg("dim", url.hostname);
+      } catch {
+        text += theme.fg("dim", args.url);
+      }
+      return new Text(text, 0, 0);
+    },
+
+    renderResult(result, { expanded, isPartial }, theme) {
+      // Still executing
+      if (isPartial) {
+        return new Text(theme.fg("muted", "Fetching..."), 0, 0);
+      }
+
+      const details = result.details as {
+        url?: string;
+        contentLength?: number;
+        truncated?: boolean;
+        error?: string;
+      };
+
+      // Handle errors
+      if (result.isError || details?.error) {
+        return new Text(
+          theme.fg("error", `✗ ${details?.error || "Fetch failed"}`),
+          0,
+          0,
+        );
+      }
+
+      // No content
+      if (!details?.contentLength) {
+        return new Text(
+          theme.fg("warning", "No readable content extracted"),
+          0,
+          0,
+        );
+      }
+
+      // Collapsed: show size + truncation status
+      let text = theme.fg("success", "✓ ");
+      text += formatSize(details.contentLength);
+      if (details.truncated) {
+        text += theme.fg("warning", " (truncated)");
+      }
+
+      if (!expanded) {
+        text += ` ${theme.fg("muted", `(${keyHint("expandTools", "to expand")})`)}`;
+        return new Text(text, 0, 0);
+      }
+
+      // Expanded: show full content
+      const content = result.content[0];
+      if (content?.type === "text" && content.text) {
+        // Skip the "Content from URL:" header line
+        const lines = content.text.split("\n");
+        const contentStart = lines.findIndex((l) => !l.startsWith("Content from"));
+        if (contentStart >= 0) {
+          text += "\n" + lines.slice(contentStart).join("\n");
+        } else {
+          text += "\n" + content.text;
+        }
+      }
+
+      return new Text(text, 0, 0);
+    },
 
     async execute(_toolCallId, params, onUpdate, _ctx, signal) {
       const { url } = params as { url: string };
