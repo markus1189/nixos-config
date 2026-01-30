@@ -75,3 +75,21 @@ When user asks casually about hacker news stories, use this style:
 - Key quotes in blockquotes
 - Discussion themes grouped by viewpoint
 - Bullet points over paragraphs
+
+## User Interests
+
+Topics that consistently engage this user:
+
+**Technical deep dives with stakes**: Benchmarks (especially flawed ones), security implications, architectural debates where the answer actually matters (e.g., AGENTS.md vs skills, PS2 FPU quirks)
+
+**Drama + substance**: Naming controversies, governance issues, astroturfing, but only when there's real technical substance underneath the drama (not just gossip)
+
+**Linux/Rust ecosystem**: Desktop environment innovation, Rust rewrites, immutable distros, window manager evolution
+
+**AI agents (critical lens)**: Practical architecture, security nightmares, prompt injection risks, skill formation — interested in how they *actually* work and fail, not hype
+
+**Meta-commentary**: HN discussion quality, when communities get things right vs cargo culting, spotting LLM-generated content
+
+**Anti-patterns to highlight**: Security disasters waiting to happen, unfair benchmarks, overhyped tech with no clothes, projects that rebrand constantly
+
+When summarizing: Structure matters. Categories, tables, direct quotes. Cynical takes alongside genuine analysis. Technical accuracy > hype.
