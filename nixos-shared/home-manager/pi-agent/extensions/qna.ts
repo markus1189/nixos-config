@@ -11,21 +11,116 @@ import { complete, type UserMessage } from "@mariozechner/pi-ai";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { BorderedLoader } from "@mariozechner/pi-coding-agent";
 
-const SYSTEM_PROMPT = `You are a question extractor. Given text from a conversation, extract any questions that need answering and format them for the user to fill in.
+const SYSTEM_PROMPT = `You are a question extractor for a coding assistant conversation.
+
+Extract questions that require USER input/decisions. Do NOT extract:
+- Rhetorical questions the assistant answers themselves
+- Questions already answered in the same message
+- Procedural questions ("Should I continue?") unless truly blocked
+
+For each question:
+1. Preserve original wording, formatting, and all sub-points
+2. Maintain indentation for bullet lists and options
+3. Keep questions in original order
+4. Include context clues (numbered lists, bullets, etc.)
 
 Output format:
-- List each question on its own line, prefixed with "Q: "
-- After each question, add a blank line for the answer prefixed with "A: "
-- If no questions are found, output "No questions found in the last message."
+- Each question starts with "Q: " 
+- After each question, add a blank line with "A: " for the user to fill in
+- Preserve all indentation and structure within the question text
+- Add a blank line between Q/A pairs
 
+<output>
 Example output:
 Q: What is your preferred database?
 A:
 
 Q: Should we use TypeScript or JavaScript?
 A:
+</output>
 
-Keep questions in the order they appeared. Be concise.`;
+<example1>
+<input>
+Documentation Questions
+
+1. Where to document the workflow?
+    - AGENTS.md in this repo? (agent instructions)
+    - A skill file? (~/.claude/skills/taskwarrior/)
+    - Both?
+2. What to document?
+    - Task lifecycle: discover → start → annotate → done
+    - Tag conventions: +needs-human, +bug, +feature
+    - Project naming
+    - When to create vs annotate
+3. Git tracking decision
+    - .task/ - commit or gitignore?
+    - If commit: shared history, but potential conflicts
+    - If ignore: ephemeral, agent-local state
+
+What's your instinct on these?
+</input>
+<output>
+Q: Where to document the workflow?
+    - AGENTS.md in this repo? (agent instructions)
+    - A skill file? (~/.claude/skills/taskwarrior/)
+    - Both?
+A:
+
+Q: What to document?
+    - Task lifecycle: discover → start → annotate → done
+    - Tag conventions: +needs-human, +bug, +feature
+    - Project naming
+    - When to create vs annotate
+A:
+
+Q: Git tracking decision?
+    - .task/ - commit or gitignore?
+    - If commit: shared history, but potential conflicts
+    - If ignore: ephemeral, agent-local state
+A:
+
+</output>
+</example1>
+
+<example2>
+<input>
+I have two approaches:
+a) Use a monorepo - everything in one place, easier to refactor
+b) Separate repos - cleaner boundaries, but harder to coordinate
+
+Which would you prefer? Also, should we use TypeScript strict mode?
+</input>
+<output>
+Q: Which approach would you prefer?
+    a) Use a monorepo - everything in one place, easier to refactor
+    b) Separate repos - cleaner boundaries, but harder to coordinate
+A:
+
+Q: Should we use TypeScript strict mode?
+A:
+
+</output>
+</example2>
+
+<example3>
+<input>
+Before I proceed, I need to know: what's your target audience (beginners/advanced)? This will help me decide the level of detail.
+
+I'm thinking we could use either Redux or Zustand for state management - thoughts?
+</input>
+<output>
+Q: What's your target audience (beginners/advanced)?
+A:
+
+Q: Should we use Redux or Zustand for state management?
+A:
+
+</output>
+</example3>
+
+If no questions need user input, output: "No unanswered questions found."
+
+Keep questions in the order they appeared. Preserve all formatting and context.`;
 
 export default function (pi: ExtensionAPI) {
   pi.registerCommand("qna", {
