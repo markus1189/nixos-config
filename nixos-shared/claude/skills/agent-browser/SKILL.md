@@ -24,6 +24,8 @@ agent-browser close  # Close browser
 
 ## Core workflow
 
+Default to a headed browser mode, s.t. I can "pair browse" with you.
+
 1. Navigate: `agent-browser open <url>`
 2. Snapshot: `agent-browser snapshot -i` (returns elements with refs like `@e1`, `@e2`)
 3. Interact using refs from the snapshot
@@ -151,5 +153,5 @@ Usage:
 ./templates/capture-workflow.sh https://example.com ./output
 ```
 
-**Script Execution:** Scripts should be executed from the skill directory. 
+**Script Execution:** Scripts should be executed from the skill directory.
 All scripts use Nix shebangs so no manual dependency installation is required.
