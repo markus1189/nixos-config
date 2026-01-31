@@ -25,7 +25,7 @@ For each question:
 4. Include context clues (numbered lists, bullets, etc.)
 
 Output format:
-- Each question starts with "Q: " 
+- Each question starts with "Q: "
 - After each question, add a blank line with "A: " for the user to fill in
 - Preserve all indentation and structure within the question text
 - Add a blank line between Q/A pairs

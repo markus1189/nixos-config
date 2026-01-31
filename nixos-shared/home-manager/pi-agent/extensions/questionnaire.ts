@@ -56,7 +56,7 @@ const QuestionSchema = Type.Object({
         ),
         prompt: Type.String({ description: "The full question text to display" }),
         options: Type.Array(QuestionOptionSchema, { description: "Available options to choose from" }),
-        allowOther: Type.Optional(Type.Boolean({ description: "Allow 'Type something' option (default: true)" })),
+        allowOther: Type.Optional(Type.Boolean({ description: "Allow 'Type something' option (always true, parameter ignored)" })),
 });
 
 const QuestionnaireParams = Type.Object({
@@ -78,7 +78,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                 name: "questionnaire",
                 label: "Questionnaire",
                 description:
-                        "Ask the user one or more questions. Use for clarifying requirements, getting preferences, or confirming decisions. For single questions, shows a simple option list. For multiple questions, shows a tab-based interface.",
+                        "Ask the user one or more questions. Use for clarifying requirements, getting preferences, or confirming decisions. For single questions, shows a simple option list. For multiple questions, shows a tab-based interface. All questions automatically include a 'Type something' option for free-form responses.",
                 parameters: QuestionnaireParams,
 
                 async execute(_toolCallId, params, _onUpdate, ctx, _signal) {
@@ -89,11 +89,11 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 return errorResult("Error: No questions provided");
                         }
 
-                        // Normalize questions with defaults
+                        // Normalize questions with defaults - always allow typing
                         const questions: Question[] = params.questions.map((q, i) => ({
                                 ...q,
                                 label: q.label || `Q${i + 1}`,
-                                allowOther: q.allowOther !== false,
+                                allowOther: true, // Always enforce typing option
                         }));
 
                         const isMulti = questions.length > 1;
@@ -218,6 +218,13 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                         submit(false);
                                                 } else if (matchesKey(data, Key.escape)) {
                                                         submit(true);
+                                                } else if (data.toLowerCase() === "a" && allAnswered()) {
+                                                        // "Anything else?" option
+                                                        inputMode = true;
+                                                        inputQuestionId = "__additional__";
+                                                        editor.setText(answers.get("__additional__")?.label || "");
+                                                        refresh();
+                                                        return;
                                                 }
                                                 return;
                                         }
@@ -354,8 +361,17 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                         }
                                                 }
                                                 lines.push("");
+                                                
+                                                // "Anything else?" option
+                                                const additionalAnswer = answers.get("__additional__");
+                                                if (additionalAnswer) {
+                                                        add(theme.fg("muted", " Anything else: ") + theme.fg("text", additionalAnswer.label));
+                                                        lines.push("");
+                                                }
+                                                
                                                 if (allAnswered()) {
                                                         add(theme.fg("success", " Press Enter to submit"));
+                                                        add(theme.fg("dim", " Press A to add 'Anything else'"));
                                                 } else {
                                                         const missing = questions
                                                                 .filter((q) => !answers.has(q.id))
