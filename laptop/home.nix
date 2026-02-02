@@ -653,6 +653,9 @@ in
             "alt+v=paste_from_clipboard"
             "ctrl+shift+f=unbind"
             "ctrl+shift+o=unbind"
+            "ctrl+shift+t=unbind"
+            "ctrl+shift+p=unbind"
+            "ctrl+shift+i=unbind"
           ];
         };
       };
