@@ -118,7 +118,7 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       return new Text(text, 0, 0);
     },
 
-    async execute(_toolCallId, params, onUpdate, _ctx, signal) {
+    async execute(_toolCallId, params, signal, onUpdate) {
       const { query, num_results = 10 } = params as {
         query: string;
         num_results?: number;
@@ -126,6 +126,7 @@ export default function webToolsExtension(pi: ExtensionAPI) {
 
       onUpdate?.({
         content: [{ type: "text", text: `Searching: ${query}...` }],
+        details: {},
       });
 
       try {
@@ -306,11 +307,12 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       return new Text(text, 0, 0);
     },
 
-    async execute(_toolCallId, params, onUpdate, _ctx, signal) {
+    async execute(_toolCallId, params, signal, onUpdate) {
       const { url } = params as { url: string };
 
       onUpdate?.({
         content: [{ type: "text", text: `Fetching: ${url}...` }],
+        details: {},
       });
 
       // Create a temp file for the pipeline
