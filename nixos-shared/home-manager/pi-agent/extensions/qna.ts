@@ -20,7 +20,7 @@ Skip (self-answered or rhetorical):
 - "Why X? Because Y"
 
 Always extract:
-- "Would you like me to [action]..."
+- "Would you like me to [action]..." (including "Or..." continuations)
 - "Should I/we [action]..."
 - "Do you want..."
 - Enumerated options (A/B/C, 1/2/3) + decision prompt ("Which?", "Thoughts?", "What do you think?", "Prefer?")
