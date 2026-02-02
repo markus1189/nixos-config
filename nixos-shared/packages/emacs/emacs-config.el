@@ -2030,8 +2030,19 @@ etc. This is a single, standalone request, no follow-up needed."
    ("k" . #'previous-line))
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
+  (elfeed-new-entry-hook . mh/elfeed-prefix-github-titles)
 
   :init
+  (defun mh/elfeed-prefix-github-titles (entry)
+    "Prefix GitHub release titles with repo name extracted from feed URL."
+    (let* ((feed (elfeed-entry-feed entry))
+           (feed-url (elfeed-feed-url feed))
+           (entry-title (elfeed-entry-title entry)))
+      (when (and (member 'github (elfeed-entry-tags entry))
+                 (string-match "github\\.com/\\([^/]+\\)/\\([^/]+\\)/" feed-url))
+        (let ((repo (match-string 2 feed-url)))
+          (setf (elfeed-entry-title entry)
+                (format "[%s] %s" repo entry-title))))))
   ;; (add-hook 'elfeed-new-entry-hook
   ;;           (elfeed-make-tagger :entry-title "llm|LLM|gemini|Gemini|claude|Claude|Anthropic|anthropic|OpenAI|openai"))
   (defun mh/elfeed-extract-comments-link (_type xml entry)
