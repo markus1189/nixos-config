@@ -82,5 +82,5 @@ Only if no questionnaire tool is available, prefix choices with clear identifier
 - **Access**: Claude can execute `tmux capture-pane` commands directly via Bash tool
 - **Polling tool**: `tmux-poll-pane` for waiting on patterns in panes (success/failure/inverse patterns, timeout support)
 
-## Emacs Packages
+## Find Installed Emacs Package Source
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
