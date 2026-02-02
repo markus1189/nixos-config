@@ -1,4 +1,4 @@
-# Coding Agent/Claude/Gemini Instructions
+# Global Coding Agent Instructions
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
@@ -81,3 +81,6 @@ Only if no questionnaire tool is available, prefix choices with clear identifier
 - **Workflow**: Multiple panes for parallel development (builds, servers, shells, monitoring)
 - **Access**: Claude can execute `tmux capture-pane` commands directly via Bash tool
 - **Polling tool**: `tmux-poll-pane` for waiting on patterns in panes (success/failure/inverse patterns, timeout support)
+
+## Emacs Packages
+`emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
