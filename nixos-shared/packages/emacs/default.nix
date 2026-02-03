@@ -46,20 +46,6 @@ in emacs.pkgs.withPackages (epkgs:
     with epkgs.elpaPackages;
     with epkgs;
     let
-      my_copilot = epkgs.callPackage
-        ({ dash, editorconfig, f, fetchFromGitHub, nodejs, s, trivialBuild }:
-          trivialBuild {
-            pname = "copilot";
-            version = ndtSources.copilot-emacs.date;
-            src = ndtSources.copilot-emacs;
-            packageRequires = [ dash editorconfig f nodejs s ];
-
-            meta = {
-              description = "An unofficial copilot plugin for Emacs";
-              homepage = "https://github.com/copilot-emacs/copilot.el";
-              platforms = [ "x86_64-darwin" "x86_64-linux" "x86_64-windows" ];
-            };
-          }) { };
       my_gptel = epkgs.gptel.overrideAttrs (old: rec {
         version = builtins.replaceStrings [ ".00" ".0" ] [ "." "." ]
           (builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
@@ -199,4 +185,4 @@ in emacs.pkgs.withPackages (epkgs:
       csv-mode
       rainbow-mode
       myEmacsConfig
-    ] ++ [ my_copilot my_gptel ]))
+    ] ++ [ my_gptel ]))

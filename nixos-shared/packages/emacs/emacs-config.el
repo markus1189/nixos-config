@@ -1364,12 +1364,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package rust-mode
   :ensure t)
 
-(use-package copilot
-  :config
-  ;; keep it disabled by default
-  ;; (add-hook 'prog-mode-hook 'copilot-mode)
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (setq copilot-enable-predicates '(copilot--buffer-changed)))
+
 
 (use-package gptel
   :ensure t
