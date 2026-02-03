@@ -626,6 +626,16 @@ Position the cursor at its beginning, according to the current mode."
 
   (setq gc-cons-threshold 100000000)
 
+  ;; Use GCMH for smart GC timing instead of high static threshold
+  (use-package gcmh
+    :ensure t
+    :demand t
+    :config
+    (setq gcmh-idle-delay 5)
+    (setq gcmh-high-cons-threshold (* 16 1024 1024))  ; 16MB
+    (setq gcmh-verbose nil)
+    (gcmh-mode 1))
+
   (setq erc-autojoin-channels-alist
         '(("irchighway.net" "#ebooks")))
 

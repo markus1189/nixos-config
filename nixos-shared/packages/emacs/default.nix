@@ -94,6 +94,7 @@ in emacs.pkgs.withPackages (epkgs:
       flycheck-haskell
       flycheck-yamllint
       fullframe
+      gcmh
       git-link
       git-timemachine
       go-mode
