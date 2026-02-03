@@ -24,6 +24,7 @@ Always extract:
 - "Would you like me to:" + enumerated list
 - "Should I/we [action]..."
 - "Do you want..."
+- "Which [option/thing] do you prefer/want/like..." + enumerated list
 - Enumerated options (A/B/C, 1/2/3) + decision prompt ("Which?", "Thoughts?", "What do you think?", "Prefer?")
 - "Should we:" + option list
 - Questions at message end
