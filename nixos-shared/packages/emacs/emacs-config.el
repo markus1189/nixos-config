@@ -1747,7 +1747,12 @@ etc. This is a single, standalone request, no follow-up needed."
   :init
   (savehist-mode)
   :config
-  (add-to-list 'savehist-additional-variables 'log-edit-comment-ring))
+  (add-to-list 'savehist-additional-variables 'log-edit-comment-ring)
+  (add-to-list 'savehist-additional-variables 'command-history)
+  (add-to-list 'savehist-additional-variables 'extended-command-history)
+  (add-to-list 'savehist-additional-variables 'compile-command)
+  (add-to-list 'savehist-additional-variables 'kill-ring)
+  (setq savehist-autosave-interval 60)) ; Save every minute
 
 (use-package project
   :ensure t)
