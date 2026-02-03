@@ -2029,7 +2029,7 @@ etc. This is a single, standalone request, no follow-up needed."
    ("j" . #'next-line)
    ("k" . #'previous-line))
   :hook
-  (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
+  (elfeed-new-entry-parse-hook . mh/elfeed-extract-comments-link)
   (elfeed-new-entry-hook . mh/elfeed-prefix-github-titles)
 
   :init
