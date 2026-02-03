@@ -21,6 +21,7 @@ Skip (self-answered or rhetorical):
 
 Always extract:
 - "Would you like me to [action]..." (including "Or..." continuations)
+- "Would you like me to:" + enumerated list
 - "Should I/we [action]..."
 - "Do you want..."
 - Enumerated options (A/B/C, 1/2/3) + decision prompt ("Which?", "Thoughts?", "What do you think?", "Prefer?")

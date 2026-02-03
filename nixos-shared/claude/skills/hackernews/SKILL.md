@@ -47,7 +47,6 @@ Story IDs appear in brackets `[12345678]` — use these for `--comments`.
 1. **Browse HN**: Run with no args, scan titles
 2. **Search for topics**: Use `-s "query"` to find stories on specific topics
 3. **Dive into discussion**: Note story ID, run with `-c ID -d 2`
-4. **Find hot topics**: Use `--hot` to filter for trending stories
 5. **Research a topic**: Search with `-s`, then fetch comments for interesting stories
 6. **Summarize for user**: Fetch stories + comments, summarize key points and insights
 7. **Briefing mode**: See below
