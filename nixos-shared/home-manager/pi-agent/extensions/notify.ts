@@ -34,11 +34,8 @@ export default function (pi: ExtensionAPI) {
                 // Calculate duration
                 const duration = Math.round((Date.now() - startTime) / 1000);
 
-                // Determine completion status
-                const status = errorCount > 0 ? "Failed" : "Done";
-
                 // Build summary
-                const parts: string[] = [status];
+                const parts: string[] = ["Done"];
                 if (toolCount > 0) {
                         parts.push(`${toolCount} tool${toolCount !== 1 ? "s" : ""}`);
                 }
@@ -47,6 +44,12 @@ export default function (pi: ExtensionAPI) {
                 }
                 if (duration > 0) {
                         parts.push(`${duration}s`);
+                }
+
+                // Add TMUX_PANE if set
+                const tmuxPane = process.env.TMUX_PANE;
+                if (tmuxPane) {
+                        parts.push(`pane:${tmuxPane}`);
                 }
 
                 const body = parts.join(" · ");
