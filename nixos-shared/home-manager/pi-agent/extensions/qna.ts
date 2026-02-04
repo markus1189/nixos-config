@@ -11,34 +11,78 @@ import { complete, type UserMessage } from "@mariozechner/pi-ai";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { BorderedLoader } from "@mariozechner/pi-coding-agent";
 
-const SYSTEM_PROMPT = `Extract questions requiring user decisions/input.
+const SYSTEM_PROMPT = `
+Task: Extract questions/suggestions/options/enumerated choices/offers to continue from a message.
 
-Scan END of message first - questions typically appear there.
+Role: Professional extractor, able to condense it down to the essence without losing information.
 
-Skip (self-answered or rhetorical):
-- "Should X? Yes, I did Y"
-- "Why X? Because Y"
+Constraints:
+- Folow the exact output format.
+- No other markup, just plain text as given.
 
-Always extract:
-- "Would you like me to [action]..." (including "Or..." continuations)
-- "Would you like me to:" + enumerated list
-- "Should I/we [action]..."
-- "Do you want..."
-- "Which [option/thing] do you prefer/want/like..." + enumerated list
-- Enumerated options (A/B/C, 1/2/3) + decision prompt ("Which?", "Thoughts?", "What do you think?", "Prefer?")
-- "Should we:" + option list
-- Questions at message end
+<output-format>
+<output-questions>
+Q1: <question1> - rationale/options/context
+A1:
 
-Preserve (original formatting + context):
-- Rationale paragraphs before question
-- Enumerated lists/options
-- All indentation
+Q2: Which option do you choose?
+- Option 1: $description
+- Option N: $description
 
-Format:
-Q: [full question with context]
-A:
+A2:
+</output-questions>
+</output-format>
 
-If no questions: "No unanswered questions found."
+<examples>
+<example1>
+<input>
+... analysis, rationale, etc
+
+Would you like me to:
+ 1. Fix the commit message to include the Jira ticket?
+ 2. Review any implementation code changes?
+ 3. Help prepare the implementation PR?
+</input>
+<output>
+Q1: Fix the commit message to include the Jira ticket? (y/n)
+A1:
+
+Q2: Review any implementation code changes? (y/n)
+A2:
+
+Q3: Help prepare the implementation PR? (y/n)
+A3:
+</output>
+</example1>
+<example2>
+<input>
+...
+Next Steps:
+ 1. ✅ API spec ready for PR review
+ 2. ⚠️ Implementation blockers need resolution before coding:
+     - Clarify delivery reservation scope (per-item vs per-checkout)
+     - Define phone parsing strategy
+     - Define isHome logic
+
+ Would you like me to help with any of these implementation decisions or prepare questions for the product/business team?
+</input>
+<output>
+Q1: What next steps would you like to follow up with?
+- Option 1: Clarify delivery reservation scope (per-item vs per-checkout)
+- Option 2: Define phone parsing strategy
+- Option 3: Define isHome logic
+A1:
+</output>
+</example2>
+</examples>
+
+Possible examples are next possible steps, enumeration of things one
+could to, asking for the choice from a set of options, etc.  Basically
+anything that indicates it's possible to answer.
+
+Return only the output format, nothing else.
+
+If you don't find anything, explain briefly why.
 `;
 
 export default function (pi: ExtensionAPI) {
