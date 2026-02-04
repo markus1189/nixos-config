@@ -16,9 +16,9 @@ Host configs (xps/, nuc/, p1/)
 ### Host Configurations
 | Host | Build Method | User | Purpose |
 |------|--------------|------|---------|
-| `xps/` | `laptop/activate.sh` (traditional) | markus | XPS laptop |
+| `p1/` | `laptop/activate.sh` (traditional) | markus | ThinkPad P1 (primary laptop) |
 | `nuc/` | `nuc/activate.sh` (traditional) | mediacenter | Home server |
-| `p1/` | Flake-based | markus | ThinkPad P1 |
+| `xps/` | Legacy (not in use) | markus | Old XPS laptop |
 | `nix-on-droid/` | Separate flake | n/a | Android/Termux |
 
 ### Shared Modules (`nixos-shared/`)
@@ -42,14 +42,11 @@ Two systems in use:
 
 ### Building Configurations
 ```bash
-# XPS laptop (traditional) - runs sudo nixos-rebuild with xps/configuration.nix
+# P1 ThinkPad (primary laptop) - runs sudo nixos-rebuild with p1/configuration.nix
 laptop/activate.sh
 
 # NUC home server (traditional) - runs sudo nixos-rebuild with nuc/configuration.nix
 nuc/activate.sh
-
-# P1 ThinkPad (flake-based, no activate.sh)
-sudo nixos-rebuild switch --flake .#nixos-p1
 
 # Nix-on-Droid (from nix-on-droid/ directory)
 nix-on-droid switch --flake ./nix-on-droid
