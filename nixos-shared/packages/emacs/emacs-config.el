@@ -37,7 +37,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(async-shell-command-buffer 'new-buffer)
- '(custom-enabled-themes '(wombat))
+ '(custom-enabled-themes '(spacemacs-dark))
+ '(custom-safe-themes
+   '("01f347a923dd21661412d4c5a7c7655bf17fb311b57ddbdbd6fce87bd7e58de6"
+     default))
  '(dired-auto-revert-buffer 'dired-directory-changed-p)
  '(dired-dwim-target t)
  '(dired-filter-saved-filters '(("custom-filters" (omit))))
@@ -67,6 +70,7 @@
    '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
  '(helm-split-window-default-side 'right)
  '(initial-major-mode 'org-mode)
+ '(js-indent-level 2)
  '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
  '(magit-diff-options '("--minimal" "--patience"))
  '(magit-diff-refine-hunk 'all)
@@ -87,113 +91,20 @@
  '(magit-use-overlays t)
  '(org-babel-load-languages '((emacs-lisp . t) (python . t)))
  '(package-selected-packages
-   '(iy-go-to-char iy-goto-char visual-regexp vertico-buffer consult-extra-project counsel-jq yaml-mode which-key vertico verb use-package undo-tree typescript-mode treemacs-projectile transpose-frame terraform-mode systemd string-inflection strace-mode solarized-theme smartparens sbt-mode rust-mode rg restclient rainbow-mode protobuf-mode plantuml-mode persistent-scratch pdf-tools ox-jira ormolu org-drill orderless nix-mode mvn move-text markdown-preview-mode marginalia magit lsp-ui lsp-metals lsp-haskell log4j-mode liso-theme just-mode jsonnet-mode json-mode js2-refactor jq-mode itail indent-guide iedit ibuffer-vc ibuffer-projectile hledger-mode hl-anything groovy-mode gptel go-complete go-autocomplete git-link fullframe format-all flycheck-yamllint flycheck-haskell find-temp-file fasd expand-region evil-numbers eros embark-consult editorconfig dyalog-mode dumb-jump doom-themes dogears dockerfile-mode docker direnv dired-filter diff-hl dhall-mode deadgrep csv-mode company beacon annotate))
+   '(iy-go-to-char iy-goto-char visual-regexp vertico-buffer consult-extra-project counsel-jq yaml-mode which-key vertico verb use-package undo-tree typescript-mode treemacs-projectile transpose-frame terraform-mode systemd string-inflection strace-mode spacemacs-theme smartparens sbt-mode rust-mode rg restclient rainbow-mode protobuf-mode plantuml-mode persistent-scratch pdf-tools ox-jira ormolu org-drill orderless nix-mode mvn move-text markdown-preview-mode marginalia magit lsp-ui lsp-metals lsp-haskell log4j-mode just-mode jsonnet-mode json-mode js2-refactor jq-mode itail indent-guide iedit ibuffer-vc ibuffer-projectile hledger-mode hl-anything groovy-mode gptel go-complete go-autocomplete git-link fullframe format-all flycheck-yamllint flycheck-haskell find-temp-file fasd expand-region evil-numbers eros embark-consult editorconfig dyalog-mode dumb-jump dogears dockerfile-mode docker direnv dired-filter diff-hl dhall-mode deadgrep csv-mode company beacon annotate))
+ '(typescript-indent-level 2)
  '(whitespace-action '(auto-cleanup)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Sauce Code Pro Nerd Font "))))
- '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
- '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
- '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
- '(ace-jump-face-foreground ((t (:foreground "dark orange" :underline nil))))
- '(agda2-highlight-datatype-face ((t (:foreground "deep sky blue"))))
- '(agda2-highlight-function-face ((t (:foreground "deep sky blue"))))
- '(annotate-highlight-secondary ((t (:underline "dim gray"))))
- '(avy-lead-face ((t (:background "orange1" :foreground "black"))))
- '(avy-lead-face-0 ((t (:background "pale green" :foreground "black"))))
- '(avy-lead-face-1 ((t (:background "sky blue" :foreground "black"))))
- '(avy-lead-face-2 ((t (:background "IndianRed2" :foreground "black"))))
- '(bmkp-*-mark ((t (:foreground "orange"))))
- '(bmkp-D-mark ((t (:foreground "red"))))
- '(bmkp-a-mark ((t (:foreground "yellow"))))
- '(bmkp-bad-bookmark ((t (:foreground "Red" :underline t :slant italic))))
- '(bmkp-local-directory ((t (:foreground "Pink"))))
- '(col-highlight ((t (:inherit hl-line))))
- '(company-preview ((t (:foreground "dim gray"))))
- '(company-preview-common ((t (:inherit company-preview :foreground "dark orange"))))
- '(company-scrollbar-bg ((t (:inherit company-tooltip :background "dark gray"))) t)
- '(company-scrollbar-fg ((t (:background "dark orange"))) t)
- '(company-tooltip ((t (:background "gray17" :foreground "light gray"))))
- '(company-tooltip-annotation ((t (:inherit company-tooltip :foreground "dark orange"))))
- '(company-tooltip-common ((t (:inherit company-tooltip :foreground "dark orange"))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :foreground "black"))))
- '(company-tooltip-selection ((t (:inherit company-tooltip :background "orange1" :foreground "black"))))
- '(cursor ((t (:background "white smoke" :inverse-video t))))
- '(diredp-compressed-file-suffix ((t (:foreground "steel blue"))))
- '(diredp-date-time ((t (:foreground "pale goldenrod"))))
- '(diredp-deletion ((t (:foreground "red"))))
- '(diredp-dir-heading ((t (:foreground "pale green" :height 1.15))))
- '(diredp-dir-priv ((t (:foreground "#8ac6f2"))))
- '(diredp-exec-priv ((t (:foreground "yellow"))))
- '(diredp-file-name ((t (:foreground "white"))))
- '(diredp-file-suffix ((t (:foreground "light gray"))))
- '(diredp-flag-mark ((t (:foreground "DarkOrange1"))))
- '(diredp-flag-mark-line ((t (:background "gray20"))))
- '(diredp-ignored-file-name ((t (:foreground "dark gray"))))
- '(diredp-link-priv ((t (:foreground "dodger blue"))))
- '(diredp-mode-line-marked ((t (:foreground "#6B6BFFFF2C2C"))))
- '(diredp-number ((t (:foreground "pale goldenrod"))))
- '(diredp-omit-file-name ((t (:inherit diredp-ignored-file-name))))
- '(diredp-rare-priv ((t (:background "red" :foreground "black"))))
- '(diredp-read-priv ((t (:foreground "tomato"))))
- '(diredp-symlink ((t (:foreground "pale green"))))
- '(diredp-write-priv ((t (:foreground "spring green"))))
- '(ediff-current-diff-C ((t (:background "RoyalBlue4"))))
- '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
- '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
- '(ediff-fine-diff-C ((t (:background "RoyalBlue2" :foreground "black"))))
- '(embark-keybinding ((t (:foreground "dark orange" :inherit success))))
- '(eshell-prompt ((t (:foreground "light sky blue" :weight bold))))
- '(flyspell-duplicate ((t (:underline "red"))))
- '(flyspell-incorrect ((t (:foreground "red" :underline "red"))))
- '(guide-key/highlight-command-face ((t (:foreground "spring green"))))
- '(guide-key/key-face ((t (:foreground "dark orange"))))
- '(guide-key/prefix-command-face ((t (:foreground "dark orange"))))
- '(helm-candidate-number ((t (:inherit helm-source-header :height 0.7))))
- '(helm-ff-directory ((t (:foreground "#8ac6f2"))))
- '(helm-ff-executable ((t (:foreground "chartreuse2"))))
- '(helm-selection ((t (:background "gray24" :weight bold))))
- '(helm-source-header ((t (:foreground "DarkOrange2" :weight bold :height 1.3 :family "Sans Serif"))))
- '(helm-visible-mark ((t (:background "dark orange" :foreground "black"))))
- '(hl-line ((t (:background "gray20"))))
- '(hl-paren-face ((t (:weight ultra-bold))) t)
- '(linum ((t (:inherit (shadow default) :height 0.9))))
- '(magit-item-highlight ((t (:inherit hl-line))))
- '(match ((t (:background "dark green" :foreground "white"))))
- '(minesweeper-1 ((t (:foreground "steel blue"))))
- '(minesweeper-2 ((t (:foreground "light green"))))
- '(minesweeper-3 ((t (:foreground "medium violet red"))))
- '(minesweeper-marked ((t (:foreground "yellow"))))
- '(minesweeper-neighbor ((t (:background "black"))))
- '(newsticker-treeview-selection-face ((t (:inherit hl-line))))
- '(org-level-4 ((t (:foreground "dark orange"))))
- '(org-todo ((t (:foreground "indian red" :weight bold))))
- '(popup-isearch-match ((t (:background "orange" :foreground "black"))))
- '(popup-menu-selection-face ((t (:background "dark orange" :foreground "black"))))
- '(region ((t (:background "#444444" :foreground "#f6f3e8" :weight bold))))
- '(shm-current-face ((t (:background "gray18"))))
- '(sp-show-pair-match-face ((t (:inherit match))))
- '(term-color-blue ((t (:background "cornflower blue" :foreground "cornflower blue"))))
- '(term-color-green ((t (:background "light green" :foreground "light green"))))
- '(term-color-magenta ((t (:background "orchid" :foreground "orchid"))))
- '(term-color-red ((t (:background "firebrick1" :foreground "firebrick1"))))
- '(term-color-yellow ((t (:background "yellow" :foreground "yellow"))))
- '(trailing-whitespace ((t (:underline "dark red"))))
- '(visible-mark-face ((t (:background "dim gray"))))
- '(vr/group-0 ((t (:background "RoyalBlue4"))))
- '(vr/group-1 ((t (:background "#335533"))))
- '(vr/group-2 ((t (:background "brown4"))))
- '(vr/match-0 ((t (:background "gray30"))))
- '(vr/match-1 ((t (:background "black"))))
- '(wgrep-delete-face ((t (:background "firebrick4"))))
- '(wgrep-face ((t (:background "dark green"))))
- '(window-number-face ((t (:foreground "white"))))
- '(writegood-duplicates-face ((t (:inherit font-lock-warning-face :background "DeepPink" :foreground "black"))))
- '(writegood-passive-voice-face ((t (:inherit font-lock-warning-face :background "LemonChiffon" :foreground "black"))))
- '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
+ 
+ ;; Font configuration
+ '(default ((t (:family "Sauce Code Pro Nerd Font" :foundry "adobe" :height 100))))
+ 
+ ;; Let spacemacs-theme handle most colors, only override what's necessary
+ '(trailing-whitespace ((t (:underline "dark red")))))
 
 
 ;; make unpure packages archives unavailable
@@ -274,14 +185,24 @@
 (use-package f
   :ensure t)
 
-(use-package solarized-theme
+(use-package spacemacs-theme
   :ensure t
   :init
-  (setq solarized-distinct-fringe-background t)
-  (setq solarized-use-variable-pitch nil)
-  (setq solarized-high-contrast-mode-line t)
+  (load-theme 'spacemacs-dark t)
   :config
-  )
+  (setq spacemacs-theme-comment-bg nil)
+  (setq spacemacs-theme-comment-italic t))
+
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
 (use-package avy
   :ensure t
@@ -1339,18 +1260,7 @@ string). It returns t if a new completion is found, nil otherwise."
               (make-local-variable 'company-backends)
               (add-to-list 'company-backends 'hledger-company))))
 
-(use-package doom-themes
-  :ensure t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-one t)
 
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-org-config))
 
 (use-package treemacs
   :ensure t)
