@@ -124,6 +124,7 @@ in emacs.pkgs.withPackages (epkgs:
       jq-mode
       lua-mode
       log4j-mode
+      liso-theme
       ##########
       # LSP mode
       lsp-mode
@@ -166,7 +167,7 @@ in emacs.pkgs.withPackages (epkgs:
       rust-mode
       rainbow-delimiters
       smartparens
-      spacemacs-theme
+      solarized-theme
       systemd
       terraform-mode
       transpose-frame
