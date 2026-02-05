@@ -5,3 +5,4 @@ result/
 /nixos-shared/packages/xmonad/.direnv
 /nixos-shared/secrets.nix
 result
+.taskwarrior/
