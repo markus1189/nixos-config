@@ -15,12 +15,19 @@ specialized knowledge, workflows, and tools. Think of them as "onboarding guides
 domains or tasks—they transform Claude from a general-purpose agent into a specialized agent
 equipped with procedural knowledge that no model can fully possess.
 
-### What Skills Provide
+### Common Skill Categories
 
-1. Specialized workflows - Multi-step procedures for specific domains
-2. Tool integrations - Instructions for working with specific file formats or APIs
-3. Domain expertise - Company-specific knowledge, schemas, business logic
-4. Bundled resources - Scripts, references, and assets for complex and repetitive tasks
+1. **Document & Asset Creation** - Create consistent output (reports, presentations, designs, code)
+2. **Workflow Automation** - Multi-step processes with consistent methodology
+3. **MCP Enhancement** - Workflow guidance on top of MCP tool access (turns raw tools into reliable workflows)
+
+### Problem-First vs. Tool-First Design
+
+Choose your approach early:
+- **Problem-first**: User describes outcome ("set up a project workspace") → skill orchestrates tools
+- **Tool-first**: User has tool access ("I have Notion MCP") → skill provides expertise and best practices
+
+Most skills lean one direction. Problem-first skills focus on workflow orchestration; tool-first skills embed domain knowledge and optimal patterns.
 
 ## Core Principles
 
@@ -304,9 +311,17 @@ The script validates first (frontmatter, naming, structure), then creates `skill
 
 ### Step 6: Test and Iterate
 
+**Pro tip: Start with a single challenging task.** Iterate until Claude succeeds, then extract the winning approach into the skill. This provides faster signal than broad testing upfront.
+
 **Test with multiple models:** Skills behave differently across models.
 - Haiku may need more explicit guidance
 - Opus may be over-explained by detailed instructions
+
+**Success metrics** (aspirational targets):
+- Triggers on 90%+ of relevant queries
+- Completes workflow in expected tool call count
+- 0 failed API calls per workflow
+- Users don't need to redirect or clarify
 
 **Evaluation-driven development:**
 1. Run Claude on representative tasks WITHOUT the skill - document failures
@@ -325,3 +340,28 @@ The script validates first (frontmatter, naming, structure), then creates `skill
 - Does Claude miss references? → Links need to be more prominent
 - Does Claude repeatedly read the same file? → Move that content to SKILL.md
 - Does Claude never access a file? → May be unnecessary or poorly signaled
+
+**Debugging tip:** Ask Claude "When would you use the [skill name] skill?" - it will quote the description back, revealing what's missing or unclear.
+
+### Common Issues and Fixes
+
+**Undertriggering** (skill doesn't load when it should):
+- Add more trigger phrases and keywords to description
+- Include technical terms users might say
+
+**Overtriggering** (skill loads for unrelated queries):
+- Add negative triggers: "Do NOT use for simple data exploration"
+- Be more specific about scope
+
+**Instructions not followed:**
+- Put critical instructions at the top with ## Critical headers
+- For validations, use scripts (code is deterministic; language isn't)
+- Combat model "laziness" by adding to user prompts (not SKILL.md):
+  - "Take your time to do this thoroughly"
+  - "Quality is more important than speed"
+  - "Do not skip validation steps"
+
+**Large context issues** (slow responses, degraded quality):
+- Keep SKILL.md under 5,000 words
+- Move detailed docs to references/
+- If 20+ skills enabled simultaneously, recommend selective enablement

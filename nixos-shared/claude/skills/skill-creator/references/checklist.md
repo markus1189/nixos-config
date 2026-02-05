@@ -60,3 +60,11 @@ Before sharing a skill, verify against this checklist.
 - [ ] Third person only
 - [ ] Includes specific triggers/contexts for when to use
 - [ ] Not vague ("helps with documents" → bad)
+
+## Distribution (if sharing publicly)
+
+- [ ] Hosted on GitHub with public repo
+- [ ] Repo-level README.md for human users (separate from skill folder - skill folder must NOT contain README.md)
+- [ ] Clear installation instructions in repo README
+- [ ] Example usage with screenshots if applicable
+- [ ] If MCP companion: link to skill from MCP docs, explain combined value
