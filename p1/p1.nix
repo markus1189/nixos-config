@@ -83,7 +83,7 @@
           "/otto.de/10.79.255.200"
           "/ottogroup.com/10.79.255.100"
           "/ottogroup.com/10.79.255.200"
-          "/otto.de/"
+          "/otto.de/#"
         ];
       };
 
