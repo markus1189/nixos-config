@@ -47,6 +47,26 @@
           }
         },
         {
+          "id": "@vertex-ai/anthropic.claude-opus-4-6@default",
+          "name": "Claude Opus 4.6 (Portkey/Vertex)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 5,
+            "output": 25,
+            "cacheRead": 0.5,
+            "cacheWrite": 6.25
+          },
+          "contextWindow": 200000,
+          "maxTokens": 64000,
+          "headers": {
+            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
+          }
+        },
+        {
           "id": "@vertex-ai/anthropic.claude-haiku-4-5@20251001",
           "name": "Claude Haiku 4.5 (Portkey/Vertex)",
           "reasoning": true,
