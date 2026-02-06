@@ -8,14 +8,17 @@
  *
  * Key behaviors:
  * - Only triggers on the "read" tool
- * - Walks from the read target's directory up to (but excluding) the project root
  * - Checks AGENTS.md before CLAUDE.md per directory (first match wins)
  * - Deduplicates per branch: each file is injected at most once
  * - Self-exclusion: reading an AGENTS.md directly won't re-inject it
- * - Root exclusion: files at the project root are skipped (belong in system prompt)
- * - For files outside ctx.cwd, finds the file's repo root via .git
  * - Branch-aware state: uses pi.appendEntry() so forks/tree navigation
  *   correctly re-discover instruction files on new branches
+ *
+ * Walk boundaries:
+ * - Files inside ctx.cwd: walks up to ctx.cwd (exclusive)
+ * - Files outside ctx.cwd: walks up to $HOME (inclusive)
+ * - Files pi already loaded into the system prompt (cwd ancestors +
+ *   ~/.pi/agent/) are pre-excluded via discoverPreloaded()
  *
  * Debug logging: set INSTRUCTION_RESOLVER_DEBUG=1 to log to ~/.pi/agent/instruction-resolver.log
  */
@@ -46,41 +49,93 @@ function log(message: string) {
   }
 }
 
+const HOME = process.env.HOME ?? "/";
+const AGENT_DIR = path.join(HOME, ".pi", "agent");
+
 /**
- * Find the project root for a given file path.
- * Uses ctx.cwd if the file is within it, otherwise walks up looking for .git.
+ * Discover which AGENTS.md/CLAUDE.md files pi already loaded into the system
+ * prompt at startup. Replicates pi's loadProjectContextFiles algorithm:
+ * - ~/.pi/agent/AGENTS.md (global)
+ * - Walk from cwd up to / checking each directory
  */
-function findRoot(filepath: string, cwd: string): string | undefined {
-  if (filepath.startsWith(cwd + "/") || filepath === cwd) {
-    return cwd;
+function discoverPreloaded(cwd: string): Set<string> {
+  const preloaded = new Set<string>();
+
+  // Global agent dir
+  for (const file of INSTRUCTION_FILES) {
+    const candidate = path.join(AGENT_DIR, file);
+    try {
+      if (fs.existsSync(candidate)) {
+        preloaded.add(candidate);
+        break;
+      }
+    } catch {
+      // Ignore
+    }
   }
 
-  let dir = path.dirname(filepath);
+  // Walk from cwd up to filesystem root (same as pi's loadProjectContextFiles)
+  let dir = cwd;
   while (true) {
-    try {
-      if (fs.existsSync(path.join(dir, ".git"))) return dir;
-    } catch {
-      // Ignore errors
+    for (const file of INSTRUCTION_FILES) {
+      const candidate = path.join(dir, file);
+      try {
+        if (fs.existsSync(candidate) && !preloaded.has(candidate)) {
+          preloaded.add(candidate);
+          break;
+        }
+      } catch {
+        // Ignore
+      }
     }
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
 
-  return undefined;
+  return preloaded;
+}
+
+/**
+ * Determine the walk boundary for a file path.
+ * - Inside ctx.cwd: use cwd as exclusive boundary
+ * - Outside ctx.cwd: use $HOME as boundary
+ *
+ * Returns { root, exclusive } where `exclusive` controls whether the root
+ * directory itself is excluded from scanning.
+ */
+function walkBoundary(
+  filepath: string,
+  cwd: string,
+): { root: string; exclusive: boolean } {
+  if (filepath.startsWith(cwd + "/") || filepath === cwd) {
+    return { root: cwd, exclusive: true };
+  }
+  return { root: HOME, exclusive: false };
 }
 
 export default function instructionResolver(pi: ExtensionAPI) {
   const loaded = new Set<string>();
   let projectRoot = "";
 
-  /** Rebuild `loaded` from persisted entries on the current branch. */
+  /**
+   * Rebuild `loaded` from:
+   * 1. Files pi already loaded into the system prompt (preloaded)
+   * 2. Persisted entries on the current branch (previously injected by us)
+   */
   function rebuildState(ctx: {
     sessionManager: {
       getBranch(): Array<{ type: string; customType?: string; data?: unknown }>;
     };
   }) {
     loaded.clear();
+
+    // Seed with files pi already has in the system prompt
+    const preloaded = discoverPreloaded(projectRoot);
+    for (const p of preloaded) loaded.add(p);
+    log(`preloaded: ${preloaded.size} paths [${[...preloaded].join(", ")}]`);
+
+    // Add files previously injected on this branch
     for (const entry of ctx.sessionManager.getBranch()) {
       if (entry.type === "custom" && entry.customType === ENTRY_TYPE) {
         const paths = (entry.data as { paths?: string[] })?.paths;
@@ -89,7 +144,7 @@ export default function instructionResolver(pi: ExtensionAPI) {
         }
       }
     }
-    log(`rebuildState: ${loaded.size} paths [${[...loaded].join(", ")}]`);
+    log(`rebuildState: ${loaded.size} total paths [${[...loaded].join(", ")}]`);
   }
 
   pi.on("session_start", async (_event, ctx) => {
@@ -117,19 +172,20 @@ export default function instructionResolver(pi: ExtensionAPI) {
     if (!inputPath) return;
 
     const filepath = path.resolve(projectRoot, inputPath);
-    const root = findRoot(filepath, projectRoot);
-    if (!root) {
-      log(`read: ${filepath} — no project root found, skipping`);
-      return;
-    }
+    const boundary = walkBoundary(filepath, projectRoot);
 
-    log(`read: ${filepath} (root=${root})`);
+    log(
+      `read: ${filepath} (boundary=${boundary.root}, exclusive=${boundary.exclusive})`,
+    );
 
     let current = path.dirname(filepath);
     const discovered: string[] = [];
     const newPaths: string[] = [];
 
-    while (current.startsWith(root) && current !== root) {
+    while (
+      current.startsWith(boundary.root) &&
+      (boundary.exclusive ? current !== boundary.root : true)
+    ) {
       for (const file of INSTRUCTION_FILES) {
         const candidate = path.join(current, file);
         if (candidate === filepath) continue;
