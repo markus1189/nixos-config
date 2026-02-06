@@ -76,9 +76,9 @@ let
       source = ./extensions/qna.ts;
     };
 
-    "pi-agent-extension-agents-md-resolver" = {
-      target = ".pi/agent/extensions/agents-md-resolver.ts";
-      source = ./extensions/agents-md-resolver.ts;
+    "pi-agent-extension-instruction-resolver" = {
+      target = ".pi/agent/extensions/instruction-resolver.ts";
+      source = ./extensions/instruction-resolver.ts;
     };
 
     # END EXTENSIONS
