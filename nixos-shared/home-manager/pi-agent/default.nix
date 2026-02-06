@@ -76,6 +76,11 @@ let
       source = ./extensions/qna.ts;
     };
 
+    "pi-agent-extension-agents-md-resolver" = {
+      target = ".pi/agent/extensions/agents-md-resolver.ts";
+      source = ./extensions/agents-md-resolver.ts;
+    };
+
     # END EXTENSIONS
 
     "pi-agent-models" = {
