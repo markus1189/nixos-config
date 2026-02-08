@@ -364,7 +364,17 @@ in
             osd-duration=5000
             osd-font-size=40
 
-            hwdec=no
+            # Video output
+            vo=gpu-next
+            gpu-api=vulkan
+            hwdec=auto-safe
+
+            # Debanding
+            deband=yes
+            deband-iterations=2
+            deband-threshold=35
+            deband-range=16
+            deband-grain=5
 
             volume-max=300
 
