@@ -3,12 +3,13 @@
  *
  * Provides web search and web fetch tools using local CLI utilities:
  * - web_search: Search the web using ddgr (DuckDuckGo CLI)
- * - web_fetch: Fetch and convert web pages to markdown using curl/wget + pandoc
+ * - web_fetch: Fetch and convert web pages to markdown using httpie/curl/wget + pandoc
  *
  * Requirements:
  * - ddgr: `nix-shell -p ddgr` or install via package manager
- * - curl: typically pre-installed
- * - wget: typically pre-installed (used as fallback)
+ * - httpie: `nix-shell -p httpie` (primary fetcher)
+ * - curl: typically pre-installed (first fallback)
+ * - wget: typically pre-installed (second fallback)
  * - pandoc: `nix-shell -p pandoc` or install via package manager
  *
  * Usage:
@@ -323,16 +324,25 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       );
 
       try {
-        // Try curl first, fall back to wget if curl fails.
+        // Try httpie first, then curl, then wget.
         // Uses a realistic User-Agent, compressed encoding, and cookie support.
         const escapedUrl = shellEscape(url);
-        const ua = "'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0'";
+        const uaRaw = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
+        const uaShell = shellEscape(uaRaw);
         const pandocCmd = "pandoc -f html -t gfm-raw_html --wrap=none";
+
+        const httpieCmd = [
+          `http --follow --timeout=30 --print=b --quiet GET`,
+          escapedUrl,
+          shellEscape(`User-Agent:${uaRaw}`),
+          shellEscape("Accept:text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+          shellEscape("Accept-Language:en-US,en;q=0.5"),
+        ].join(" ");
 
         const curlCmd = [
           `curl -sL`,
           `--compressed`,
-          `-A ${ua}`,
+          `-A ${uaShell}`,
           `--max-time 30`,
           `--max-filesize 5242880`,
           `--retry 2 --retry-delay 1 --retry-max-time 15`,
@@ -345,7 +355,7 @@ export default function webToolsExtension(pi: ExtensionAPI) {
         const wgetCmd = [
           `wget -q -O -`,
           `--compression=auto`,
-          `-U ${ua}`,
+          `-U ${uaShell}`,
           `--timeout=30`,
           `--max-redirect=10`,
           `--header='Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'`,
@@ -353,14 +363,19 @@ export default function webToolsExtension(pi: ExtensionAPI) {
           escapedUrl,
         ].join(" ");
 
-        // Try curl first; if it fails (non-zero exit or empty output), fall back to wget
+        // Try httpie → curl → wget, using first that succeeds with non-empty output
         const fetchScript = `
-          html=$(${curlCmd} 2>/dev/null) || html=""
+          html=""
+          for cmd in 'httpie' 'curl' 'wget'; do
+            case $cmd in
+              httpie) html=$(${httpieCmd} 2>/dev/null) || html="" ;;
+              curl)   html=$(${curlCmd} 2>/dev/null) || html="" ;;
+              wget)   html=$(${wgetCmd} 2>/dev/null) || html="" ;;
+            esac
+            [ -n "$html" ] && break
+          done
           if [ -z "$html" ]; then
-            html=$(${wgetCmd} 2>/dev/null) || html=""
-          fi
-          if [ -z "$html" ]; then
-            echo "FETCH_FAILED: both curl and wget failed to retrieve content" >&2
+            echo "FETCH_FAILED: httpie, curl, and wget all failed to retrieve content" >&2
             exit 1
           fi
           printf '%s' "$html" | ${pandocCmd}
