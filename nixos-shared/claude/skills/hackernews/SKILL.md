@@ -51,15 +51,36 @@ Story IDs appear in brackets `[12345678]` — use these for `--comments`.
 6. **Summarize for user**: Fetch stories + comments, summarize key points and insights
 7. **Briefing mode**: See below
 
+## Deep-Dive Sub-Agent
+
+**Script**: [`scripts/hn-deepdive.sh`](scripts/hn-deepdive.sh)
+
+Spawns an isolated `pi` subprocess to fetch article + comments and return a structured markdown summary. This keeps the raw content out of the main context.
+
+```bash
+./scripts/hn-deepdive.sh STORY_ID "https://article-url.com" "Story Title"
+./scripts/hn-deepdive.sh STORY_ID "" "Ask HN: Story Title"   # no article URL
+```
+
+**Parallel deep-dives** — run multiple in background and collect results:
+```bash
+./scripts/hn-deepdive.sh 12345 "https://example.com/a" "Title A" > /tmp/hn-12345.md &
+./scripts/hn-deepdive.sh 67890 "https://example.com/b" "Title B" > /tmp/hn-67890.md &
+wait
+# Then read each /tmp/hn-*.md file
+```
+
+Output is structured markdown (TL;DR, key points, discussion themes table, notable comments). Progress goes to stderr.
+
 ## Briefing Mode
 
 When user asks casually about hacker news stories, use this style:
 
 ### Flow
-1. Fetch top 20-50 stories, present hot/notable ones in a table
+1. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
 2. User picks stories they want to dig into
-3. For each pick: fetch article (via `curl | pandoc`) + comments in parallel
-4. Summarize with structure: article TL;DR, key quotes, HN discussion themes in tables
+3. **Spawn `hn-deepdive.sh` for each pick** (in parallel via `&` + `wait`, writing to temp files). Do NOT fetch articles or comments directly into main context.
+4. Read the summary files and present them to the user
 5. Group related stories together
 6. When user asks "your take?" — give genuine opinions, not hedged summaries
 
