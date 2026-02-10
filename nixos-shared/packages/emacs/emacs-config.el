@@ -2515,6 +2515,7 @@ Provides more detailed messages on failure."
            ("https://www.outsideonline.com/rss/all/rss.xml" outsideonline)
            ("https://www.enworld.org/ewr-porta/index.rss")
            ("https://www.reddit.com/search.rss?q=subreddit%3Arpg%20site%3Apodcast&sort=hot&t=week")
+           ("https://www.reddit.com/r/usenet/search.rss?q=drunkenslug+registration&sort=new&restrict_sr=on&t=month" usenet)
            ("https://lonedimension.wordpress.com/feed")
            ("https://theangrygm.com/feed")
            ("https://contributors.scala-lang.org/latest.rss")
