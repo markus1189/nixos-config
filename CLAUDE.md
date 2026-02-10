@@ -64,6 +64,15 @@ nixos-rebuild test -I nixos-config=/path/to/configuration.nix
 nix flake update
 ```
 
+### Option Reference (offline, version-matched)
+```bash
+# Browse all NixOS options (~370k lines) - always matches current system version
+man configuration.nix
+
+# Browse all Home Manager options (~82k lines)
+man home-configuration.nix
+```
+
 ## Development Workflow
 
 ### Adding Packages
