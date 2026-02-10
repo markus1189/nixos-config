@@ -67,6 +67,7 @@ in
       ])
       ++ (with pkgs; [
         (myScripts.logArgs)
+        (myScripts.recordMeeting)
         (myScripts.tmuxPollPane)
       ]);
   };

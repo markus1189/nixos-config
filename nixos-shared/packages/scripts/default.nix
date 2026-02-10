@@ -10,6 +10,7 @@
   dunst,
   emacs,
   feh,
+  ffmpeg,
   findutils,
   firefox,
   gawk,
@@ -1438,6 +1439,53 @@ rec {
           --preview-window '~4,+{2}+4/3,<80(up)'
     '';
   };
+
+  recordMeeting =
+    writeShellScript
+      {
+        name = "record-meeting";
+        deps = [
+          pulseaudioFull
+          ffmpeg
+          coreutils
+        ];
+      }
+      ''
+        OUTPUT_DIR="."
+        LABEL="''${1:+_''${1// /-}}"
+        FILENAME="$OUTPUT_DIR/meeting_$(date +%Y%m%d_%H%M)''${LABEL}.mp3"
+
+        MIC="$(pactl list short sources | grep -v monitor | grep RUNNING | head -1 | cut -f2 || true)"
+        SPK="$(pactl list short sources | grep monitor | grep RUNNING | head -1 | cut -f2 || true)"
+
+        echo "$FILENAME"
+
+        if [[ -z "$SPK" ]]; then
+          echo "ERROR: No active speaker output found" >&2
+          exit 1
+        fi
+
+        if [[ -z "$MIC" ]]; then
+          echo "WARNING: No active mic found, recording speaker only" >&2
+          ffmpeg -hide_banner -loglevel quiet -stats \
+                 -f pulse -i "$SPK" -ac 1 -ar 24000 -b:a 64k "$FILENAME"
+        else
+          echo "Recording both sides:"
+          echo "  Mic:     $MIC"
+          echo "  Speaker: $SPK"
+          echo "  Output:  $FILENAME"
+          echo "  Press Ctrl+C to stop"
+          echo
+          ffmpeg -hide_banner -loglevel quiet -stats \
+                 -f pulse -i "$SPK" \
+                 -f pulse -i "$MIC" \
+                 -filter_complex amix=inputs=2:duration=longest \
+                 -ac 1 -ar 24000 -b:a 64k "$FILENAME"
+        fi
+
+        echo ""
+        echo "Saved: $FILENAME"
+      '';
 
   mpv-watch-later-overview = writers.writePython3Bin "mpv-watch-later-overview" { } (builtins.readFile ./mpv-watch-later-overview.py);
 
