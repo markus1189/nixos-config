@@ -3,11 +3,12 @@
  *
  * Provides web search and web fetch tools using local CLI utilities:
  * - web_search: Search the web using ddgr (DuckDuckGo CLI)
- * - web_fetch: Fetch and convert web pages to markdown using curl + pandoc
+ * - web_fetch: Fetch and convert web pages to markdown using curl/wget + pandoc
  *
  * Requirements:
  * - ddgr: `nix-shell -p ddgr` or install via package manager
  * - curl: typically pre-installed
+ * - wget: typically pre-installed (used as fallback)
  * - pandoc: `nix-shell -p pandoc` or install via package manager
  *
  * Usage:
@@ -322,14 +323,52 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       );
 
       try {
-        // Fetch and convert in a single pipeline using bash
-        // curl -> pandoc to avoid needing stdin support
+        // Try curl first, fall back to wget if curl fails.
+        // Uses a realistic User-Agent, compressed encoding, and cookie support.
+        const escapedUrl = shellEscape(url);
+        const ua = "'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0'";
+        const pandocCmd = "pandoc -f html -t gfm-raw_html --wrap=none";
+
+        const curlCmd = [
+          `curl -sL`,
+          `--compressed`,
+          `-A ${ua}`,
+          `--max-time 30`,
+          `--max-filesize 5242880`,
+          `--retry 2 --retry-delay 1 --retry-max-time 15`,
+          `-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'`,
+          `-H 'Accept-Language: en-US,en;q=0.5'`,
+          `-b ''`, // enable cookie engine
+          escapedUrl,
+        ].join(" ");
+
+        const wgetCmd = [
+          `wget -q -O -`,
+          `--compression=auto`,
+          `-U ${ua}`,
+          `--timeout=30`,
+          `--max-redirect=10`,
+          `--header='Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'`,
+          `--header='Accept-Language: en-US,en;q=0.5'`,
+          escapedUrl,
+        ].join(" ");
+
+        // Try curl first; if it fails (non-zero exit or empty output), fall back to wget
+        const fetchScript = `
+          html=$(${curlCmd} 2>/dev/null) || html=""
+          if [ -z "$html" ]; then
+            html=$(${wgetCmd} 2>/dev/null) || html=""
+          fi
+          if [ -z "$html" ]; then
+            echo "FETCH_FAILED: both curl and wget failed to retrieve content" >&2
+            exit 1
+          fi
+          printf '%s' "$html" | ${pandocCmd}
+        `;
+
         const result = await pi.exec(
           "bash",
-          [
-            "-c",
-            `curl -sL -A 'Mozilla/5.0 (compatible; pi-agent/1.0)' --max-time 30 --max-filesize 5000000 ${shellEscape(url)} | pandoc -f html -t gfm-raw_html --wrap=none`,
-          ],
+          ["-c", fetchScript],
           { signal, timeout: 60000 },
         );
 
