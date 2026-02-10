@@ -47,7 +47,7 @@
           }
         },
         {
-          "id": "@vertex-ai/anthropic.claude-opus-4-6@default",
+          "id": "@vertex-ai/anthropic.claude-opus-4-6",
           "name": "Claude Opus 4.6 (Portkey/Vertex)",
           "reasoning": true,
           "input": [

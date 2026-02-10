@@ -22,7 +22,7 @@
         opus-br = "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0";
         haiku-vertex = "@vertex-ai/anthropic.claude-haiku-4-5@20251001";
         sonnet-vertex = "@vertex-ai/anthropic.claude-sonnet-4-5@20250929";
-        opus-vertex = "@vertex-ai/anthropic.claude-opus-4-6@default";
+        opus-vertex = "@vertex-ai/anthropic.claude-opus-4-6";
         portkeyConfig = ''ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet-vertex}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku-vertex}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus-vertex}"'';
       in
       {
