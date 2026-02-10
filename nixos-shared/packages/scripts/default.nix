@@ -1448,6 +1448,7 @@ rec {
           pulseaudioFull
           ffmpeg
           coreutils
+          gnugrep
         ];
       }
       ''
