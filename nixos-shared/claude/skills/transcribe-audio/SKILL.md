@@ -32,9 +32,25 @@ Run the script for each file:
 
 - Output file: same name as audio, with `.md` extension, same directory
 - Default prompt handles speaker identification, timestamps, summary, action items
-- Pass a custom prompt as second argument only when the user explicitly requests different output
+- Pass a custom prompt as second argument when the user requests different output or a focused transcription (see below)
 
 The script outputs the transcript to stdout and progress to stderr. Capture stdout to the `.md` file.
+
+#### Focused Transcription
+
+When the user asks about a **specific topic** (e.g. "tell me about the Miro discussion", "what was said about budgets?"), pass a focused prompt as the second argument instead of doing a full transcription and then grep/reading:
+
+```bash
+./scripts/transcribe.sh <audio-file> "Focus on the parts of this audio that discuss <TOPIC>. Provide:
+1. A detailed transcript of just those sections (with speaker labels and timestamps)
+2. A summary of what was said about <TOPIC>
+3. Any decisions, action items, or open questions related to <TOPIC>
+Skip unrelated parts of the audio." > <output-focus.md>
+```
+
+- **Output file for focused transcripts**: use a suffix to avoid overwriting the full transcript, e.g. `meeting.focus-miro.md`
+- **When to use**: The user asks about a specific topic AND there is no existing full transcript to search, OR the user explicitly asks to re-transcribe with a focus
+- **When NOT to use**: A full transcript already exists — just read it and answer the question directly
 
 ### 4. Post-Processing
 
