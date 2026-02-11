@@ -1,6 +1,6 @@
 ---
 name: nzb-search
-description: "Search and download NZB files from Usenet indexers (SceneNZBs, NZBgeek, NZBFinder) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
+description: "Search and download NZB files from Usenet indexers (SceneNZBs, NZBgeek, NZBFinder, NZBPlanet) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
 ---
 
 # NZB Search
@@ -14,6 +14,7 @@ Search Newznab-compatible Usenet indexers for movies, TV shows, books, and other
 | SceneNZBs (default) | `@scenenzbs` | `pass api/scenenzbs` | ✅ API |
 | NZBgeek | `@nzbgeek` | `pass api/nzbgeek` | ❌ Web-only |
 | NZBFinder | `@nzbfinder` | `pass api/nzbfinder` | ❌ Not supported |
+| NZBPlanet | `@nzbplanet` | `pass api/nzbplanet` | ❌ Not supported |
 
 ## Workflow
 
@@ -65,6 +66,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ./scripts/nzb-api.sh @nzbgeek search "inception"
 ./scripts/nzb-api.sh @scenenzbs search "inception"
 ./scripts/nzb-api.sh @nzbfinder search "inception"
+./scripts/nzb-api.sh @nzbplanet search "inception"
 
 # Search ALL indexers at once (results include .indexer field)
 ./scripts/nzb-api.sh search_all "inception" "&cat=2000"
@@ -210,16 +212,16 @@ Number results clearly for user selection.
 
 ### Indexer Support Matrix
 
-| Operation | SceneNZBs | NZBgeek | NZBFinder |
-|-----------|-----------|---------|-----------|
-| Search | ✅ Newznab API | ✅ Newznab API | ✅ Newznab API |
-| Movie search | ✅ | ✅ | ✅ |
-| TV search | ✅ | ✅ | ✅ |
-| Book search | ✅ | ✅ | ❌ Not supported |
-| Download NZB | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` |
-| Add to cart | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported |
-| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only | ❌ Not supported |
-| View cart | ❌ Not implemented | ❌ Web-only | ❌ Not supported |
+| Operation | SceneNZBs | NZBgeek | NZBFinder | NZBPlanet |
+|-----------|-----------|---------|-----------|-----------|
+| Search | ✅ Newznab API | ✅ Newznab API | ✅ Newznab API | ✅ Newznab API |
+| Movie search | ✅ | ✅ | ✅ | ✅ |
+| TV search | ✅ | ✅ | ✅ | ✅ |
+| Book search | ✅ | ✅ | ❌ Not supported | ✅ |
+| Download NZB | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` |
+| Add to cart | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported | ❌ Not supported |
+| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only | ❌ Not supported | ❌ Not supported |
+| View cart | ❌ Not implemented | ❌ Web-only | ❌ Not supported | ❌ Not supported |
 
 **NZBgeek Note:** Cart operations require web session authentication with internal release IDs that aren't exposed via the Newznab API. For NZBgeek, use direct download instead of cart.
 
@@ -365,7 +367,7 @@ Append to search commands:
 - **URL Encoding**: The script automatically URL-encodes all search queries, so spaces and special characters are handled correctly
 - **Single vs Multiple Results**: Always use `[.channel.item] | flatten | .[]?` pattern in jq to handle both cases
 - **Newznab Compatibility**: Both indexers use the standard Newznab API, so all commands work identically
-- **API Keys**: Stored in `pass` - ensure keys exist at `api/scenenzbs`, `api/nzbgeek`, and `api/nzbfinder`
+- **API Keys**: Stored in `pass` - ensure keys exist at `api/scenenzbs`, `api/nzbgeek`, `api/nzbfinder`, and `api/nzbplanet`
 - **Rate Limits**: NZBFinder free tier: 15 calls/24h. Other indexers have more generous limits.
 
 ## Adding New Indexers
@@ -377,6 +379,7 @@ declare -A INDEXERS=(
     ["scenenzbs"]="https://scenenzbs.com/api|api/scenenzbs"
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
+    ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
     ["newindexer"]="https://newindexer.com/api|api/newindexer"
 )
 ```

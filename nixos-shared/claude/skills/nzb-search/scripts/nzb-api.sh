@@ -7,6 +7,7 @@ declare -A INDEXERS=(
     ["scenenzbs"]="https://scenenzbs.com/api|api/scenenzbs"
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
+    ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
 )
 
 # Default indexer
