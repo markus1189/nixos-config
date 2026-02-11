@@ -1456,18 +1456,52 @@ rec {
         LABEL="''${1:+_''${1// /-}}"
         FILENAME="$OUTPUT_DIR/meeting_$(date +%Y%m%d_%H%M)''${LABEL}.mp3"
 
-        MIC="$(pactl list short sources | grep -v monitor | grep RUNNING | head -1 | cut -f2 || true)"
-        SPK="$(pactl list short sources | grep monitor | grep RUNNING | head -1 | cut -f2 || true)"
+        find_mic() {
+          # Prefer RUNNING mic, fall back to any non-monitor source
+          pactl list short sources | grep -v monitor | grep RUNNING | head -1 | cut -f2 \
+            || pactl list short sources | grep -v monitor | grep -v SUSPENDED | head -1 | cut -f2 \
+            || pactl list short sources | grep -v monitor | head -1 | cut -f2 \
+            || true
+        }
 
-        echo "$FILENAME"
+        find_speaker() {
+          # Prefer RUNNING monitor, fall back to any monitor source
+          pactl list short sources | grep monitor | grep RUNNING | head -1 | cut -f2 \
+            || pactl list short sources | grep monitor | grep -v SUSPENDED | head -1 | cut -f2 \
+            || pactl list short sources | grep monitor | head -1 | cut -f2 \
+            || true
+        }
+
+        MIC="$(find_mic)"
+        SPK="$(find_speaker)"
+
+        # If no speaker monitor yet (meeting not started), wait for one
+        if [[ -z "$SPK" ]]; then
+          echo "Waiting for speaker output to become available..."
+          for i in $(seq 1 60); do
+            sleep 2
+            SPK="$(find_speaker)"
+            if [[ -n "$SPK" ]]; then
+              break
+            fi
+            echo "  still waiting... (''${i}/60)"
+          done
+        fi
 
         if [[ -z "$SPK" ]]; then
-          echo "ERROR: No active speaker output found" >&2
+          echo "ERROR: No speaker output found after 2 minutes" >&2
           exit 1
         fi
 
+        # Re-check mic in case it became available while waiting
         if [[ -z "$MIC" ]]; then
-          echo "WARNING: No active mic found, recording speaker only" >&2
+          MIC="$(find_mic)"
+        fi
+
+        echo "$FILENAME"
+
+        if [[ -z "$MIC" ]]; then
+          echo "WARNING: No mic found, recording speaker only" >&2
           ffmpeg -hide_banner -loglevel quiet -stats \
                  -f pulse -i "$SPK" -ac 1 -ar 24000 -b:a 64k "$FILENAME"
         else
