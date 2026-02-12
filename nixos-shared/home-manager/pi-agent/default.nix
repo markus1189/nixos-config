@@ -81,6 +81,11 @@ let
       source = ./extensions/instruction-resolver.ts;
     };
 
+    "pi-agent-extension-think" = {
+      target = ".pi/agent/extensions/think.ts";
+      source = ./extensions/think.ts;
+    };
+
     # END EXTENSIONS
 
     "pi-agent-models" = {
