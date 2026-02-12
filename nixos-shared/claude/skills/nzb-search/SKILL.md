@@ -9,12 +9,12 @@ Search Newznab-compatible Usenet indexers for movies, TV shows, books, and other
 
 ## Supported Indexers
 
-| Indexer | Prefix | API Key Location | Cart Support |
-|---------|--------|------------------|--------------|
-| SceneNZBs (default) | `@scenenzbs` | `pass api/scenenzbs` | ✅ API |
-| NZBgeek | `@nzbgeek` | `pass api/nzbgeek` | ❌ Web-only |
-| NZBFinder | `@nzbfinder` | `pass api/nzbfinder` | ❌ Not supported |
-| NZBPlanet | `@nzbplanet` | `pass api/nzbplanet` | ❌ Not supported |
+| Indexer             | Prefix       | API Key Location     | Cart Support     |
+| ------------------- | ------------ | -------------------- | ---------------- |
+| SceneNZBs (default) | `@scenenzbs` | `pass api/scenenzbs` | ✅ API           |
+| NZBgeek             | `@nzbgeek`   | `pass api/nzbgeek`   | ❌ Web-only      |
+| NZBFinder           | `@nzbfinder` | `pass api/nzbfinder` | ❌ Not supported |
+| NZBPlanet           | `@nzbplanet` | `pass api/nzbplanet` | ❌ Web-only      |
 
 ## Workflow
 
@@ -46,10 +46,12 @@ Common categories: `2000` (Movies), `5000` (TV), `6000` (XXX), `7000` (Books), `
 All searches use `scripts/nzb-api.sh`. Prefix with `@indexer` to select indexer (default: scenenzbs).
 
 **IMPORTANT - JQ Parsing:** The API returns different JSON structures depending on result count:
+
 - **Multiple results**: `.channel.item` is an array
 - **Single result**: `.channel.item` is an object (not an array)
 
 Always use this pattern to handle both cases:
+
 ```bash
 jq '[.channel.item] | flatten | .[]? | ...'
 ```
@@ -115,6 +117,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ```
 
 **Key points:**
+
 - Always use `[.channel.item] | flatten | .[]?` to handle single/multiple results
 - Use `// "default"` for fallback values (grabs, size)
 - Size can be in `.size`, `.attr[]`, or `.enclosure."@attributes".length` - try all three
@@ -163,6 +166,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ## Quality Filtering
 
 **Priority indicators:**
+
 1. **Grabs/stats** - Higher = more popular/reliable
 2. **Resolution** - Prefer 720p or 1080p (avoid 2160p/4K - unnecessarily large)
 3. **Subtitles** - Check `subs` attribute for "english" when requested
@@ -184,6 +188,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ```
 
 **Filter logic:**
+
 - Extract resolution from title if not in metadata (look for "720p", "1080p", "2160p")
 - Prioritize 1080p, accept 720p
 - Exclude 2160p/4K unless specifically requested
@@ -200,6 +205,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ## Presenting Results
 
 Show 3-5 top results with:
+
 - Title (include resolution/quality indicators visible in title)
 - Size (in GB, formatted)
 - Grabs/popularity if available
@@ -212,20 +218,23 @@ Number results clearly for user selection.
 
 ### Indexer Support Matrix
 
-| Operation | SceneNZBs | NZBgeek | NZBFinder | NZBPlanet |
-|-----------|-----------|---------|-----------|-----------|
-| Search | ✅ Newznab API | ✅ Newznab API | ✅ Newznab API | ✅ Newznab API |
-| Movie search | ✅ | ✅ | ✅ | ✅ |
-| TV search | ✅ | ✅ | ✅ | ✅ |
-| Book search | ✅ | ✅ | ❌ Not supported | ✅ |
-| Download NZB | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID` |
-| Add to cart | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported | ❌ Not supported |
-| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only | ❌ Not supported | ❌ Not supported |
-| View cart | ❌ Not implemented | ❌ Web-only | ❌ Not supported | ❌ Not supported |
+| Operation        | SceneNZBs              | NZBgeek                      | NZBFinder          | NZBPlanet                    |
+| ---------------- | ---------------------- | ---------------------------- | ------------------ | ---------------------------- |
+| Search           | ✅ Newznab API         | ✅ Newznab API               | ✅ Newznab API     | ✅ Newznab API               |
+| Movie search     | ✅                     | ✅                           | ✅                 | ✅                           |
+| TV search        | ✅                     | ✅                           | ✅                 | ✅                           |
+| Book search      | ✅                     | ✅                           | ❌ Not supported   | ✅                           |
+| Download NZB     | ✅ `t=get&id=GUID`     | ✅ `t=get&id=GUID`           | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID`           |
+| Add to cart      | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported   | ❌ Web-only (session cookie) |
+| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  |
+| View cart        | ❌ Not implemented     | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  |
 
 **NZBgeek Note:** Cart operations require web session authentication with internal release IDs that aren't exposed via the Newznab API. For NZBgeek, use direct download instead of cart.
 
+**NZBPlanet Note:** Cart operations require web session authentication (POST to `/cart?add=ID` with PHPSESSID cookie). The Newznab `t=cartadd` endpoint is documented but non-functional (returns error 300). For NZBPlanet, use direct download instead of cart.
+
 **NZBFinder Notes:**
+
 - **Rate limit:** Free tier is limited to 15 API calls per 24 hours. Use sparingly — prefer other indexers for exploratory searches.
 - **UHD downloads:** Require a premium account. Non-UHD downloads work on free tier.
 - **No book search:** `t=book` endpoint is not supported. Use general `search` with `&cat=7000` as fallback.
@@ -300,6 +309,7 @@ Number results clearly for user selection.
 **Note:** Categories are standardized by Newznab, but availability varies by indexer. Use `caps` to check what an indexer supports.
 
 ### English Content
+
 - **2000** = Movies
   - 2060 = 3D
   - 2050 = BluRay
@@ -324,6 +334,7 @@ Number results clearly for user selection.
   - 3020 = Video
 
 ### German Content (DE) - SceneNZBs specific
+
 - **7100** = Books - DE
   - **7120** = Ebook (use this for German ebooks!)
   - 7130 = Comics
@@ -341,11 +352,13 @@ Number results clearly for user selection.
 - **3130** = Audiobook - DE
 
 ### Spanish Content (ES) - SceneNZBs specific
+
 - **2200** = Movies - ES
 - **5200** = TV - ES
 - **3230** = Audiobook - ES
 
 ### Other Categories
+
 - **1000** = Console (PS4, PS5, Xbox, Switch, etc.)
 - **4000** = PC (Games, Software, Mobile)
 - **6000** = XXX
@@ -356,6 +369,7 @@ Number results clearly for user selection.
 ## Additional Search Parameters
 
 Append to search commands:
+
 - `&limit=N` - max results (default varies, max 100)
 - `&maxage=N` - posted within N days
 - `&minsize=1GB` / `&maxsize=10GB` - size filters
