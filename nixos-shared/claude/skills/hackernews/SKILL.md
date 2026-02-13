@@ -96,6 +96,27 @@ When user asks casually about hacker news stories, use this style:
 - Discussion themes grouped by viewpoint
 - Bullet points over paragraphs
 
+## Comment Mining
+
+The most valuable HN finds are often **buried in comments**, not in the stories themselves — someone's personal shell function, a workflow hack, an unpublished tool that lives only in their rc file, etc. When a thread is rich (productivity, "how do you X", Ask HN, "what's your setup"), don't just summarize the article — **scan comments for personal systems, tools, and workflows** people mention (casually).
+
+### What to look for
+- **Unpublished personal inventions**: shell functions, directory layouts, automation scripts nobody's packaged. If someone mentions it across multiple threads over time, it's battle-tested.
+- **"Show and tell" derails**: When a thread devolves into "what's YOUR setup" — that's the gold, not the article.
+- **Contrarian practitioners**: The person who says "I tried the opposite and here's what happened" with specifics.
+- **First-hand war stories**: "At my company we..." with concrete details, not abstract opinions.
+
+### Following up on interesting commenters
+Use the Algolia API to check if they've mentioned the same system before:
+```bash
+curl -s "https://hn.algolia.com/api/v1/search?query=KEYWORDS&tags=comment,author_USERNAME" | jq '.hits[]'
+```
+Also check: HN profile (`about` field), GitHub username, dotfiles repos, blog links.
+
+### When the user shows interest in a comment-level find
+1. Pull the commenter's history via Algolia for prior mentions
+2. Search GitHub/web for prior art or implementations
+
 ## User Interests
 
 Topics that consistently engage this user:
@@ -106,7 +127,9 @@ Topics that consistently engage this user:
 
 **Linux/Rust ecosystem**: Desktop environment innovation, Rust rewrites, immutable distros, window manager evolution
 
-**AI agents (critical lens)**: Practical architecture, security nightmares, prompt injection risks, skill formation — interested in how they *actually* work and fail, not hype
+**AI agents, LLMs & agentic coding (core interest)**: Everything Claude, Codex, and LLM-based coding agents — new releases, degradation reports, workflow innovations, AGENTS.md/rules/skills patterns, benchmarks, prompt engineering, tool use, context management, multi-agent orchestration. Also: practical architecture, security nightmares, prompt injection risks, skill formation. Interested in how they *actually* work and fail, not hype. Always surface and prioritize these stories.
+
+**Analog notebooks & note-taking**: Physical notebooks, engineering notebooks, bullet journaling, pen & paper workflows, fountain pens, analog productivity systems. Always surface these — a core interest.
 
 **Meta-commentary**: HN discussion quality, when communities get things right vs cargo culting, spotting LLM-generated content
 
