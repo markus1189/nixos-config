@@ -480,7 +480,6 @@ rec {
         ff = "${emacs}/bin/emacsclient -n -c";
         FF = "${emacs}/bin/emacsclient -n";
         magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
-        cdt = "cd $(${coreutils}/bin/mktemp -d)";
         pwdc = "pwd | clip";
         wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface}";
       }
