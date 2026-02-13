@@ -714,7 +714,21 @@ Position the cursor at its beginning, according to the current mode."
                                     "etf-whiskey"
                                     "etf-x-ray"
                                     "etf-yankee"
-                                    "etf-zulu")))
+                                    "etf-zulu"))
+
+  ;; Route temp files into ~/Stuff date dirs instead of /tmp/
+  ;; Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
+  (defun mh/set-stuff-dir (&rest _)
+    "Set find-temp-file-directory to today's Stuff dir."
+    (let* ((month-dir (expand-file-name (format-time-string "%Y-%m") "~/Stuff"))
+           (day-dir (expand-file-name (format-time-string "%d-tmpfile") month-dir)))
+      (make-directory day-dir t)
+      (let ((symlink (expand-file-name "CurrentStuff" "~")))
+        (when (file-symlink-p symlink) (delete-file symlink))
+        (make-symbolic-link month-dir symlink))
+      (setq find-temp-file-directory (file-name-as-directory day-dir))))
+
+  (advice-add 'find-temp-file :before #'mh/set-stuff-dir))
 
 (use-package haskell-mode
   :demand t
