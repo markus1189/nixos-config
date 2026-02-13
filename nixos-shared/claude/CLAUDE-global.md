@@ -3,7 +3,6 @@
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `, command`
-- **Benchmarking**: `, hyperfine 'cmd1' 'cmd2'` for statistical command comparison
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
 - **Editable System Config Location** in ~/repos/nixos-config
@@ -54,20 +53,6 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 Find recent screenshots:
 1. `find ~/Screenshots -mtime -1 -type f | sort -r`
 2. Adjust `-mtime` as needed (-7 for week, -30 for month)
-3. Read with Read tool and analyze
-
-## Presenting Options / Asking Questions
-**ALWAYS use the questions tool when available** for:
-- Asking the user to choose between options
-- Clarifying requirements
-- Getting preferences or feedback
-- Any situation with 2+ distinct choices
-
-**Never** list questions or options in plain text when the questionnaire tool exists.
-
-Only if no questionnaire tool is available, prefix choices with clear identifiers:
-- "1. Option A", "2. Option B"
-- "a) First choice", "b) Second choice"
 
 ## Using ddgr
 - DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`
@@ -78,9 +63,7 @@ Only if no questionnaire tool is available, prefix choices with clear identifier
 
 ## Terminal Environment
 - **Primary multiplexer**: tmux
-- **Workflow**: Multiple panes for parallel development (builds, servers, shells, monitoring)
-- **Access**: Claude can execute `tmux capture-pane` commands directly via Bash tool
-- **Polling tool**: `tmux-poll-pane` for waiting on patterns in panes (success/failure/inverse patterns, timeout support)
+- **Access**: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
 
 ## Find Installed Emacs Package Source
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
