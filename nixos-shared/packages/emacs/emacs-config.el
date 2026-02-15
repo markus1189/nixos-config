@@ -2671,6 +2671,7 @@ Provides more detailed messages on failure."
            ("https://harper.blog/index.xml" programming programming-general)
            ("https://lucumr.pocoo.org/feed.atom" llm programming programming-general)
            ("https://claudelog.com/rss.xml" llm programming programming-general)
+           ("https://taoofmac.com/atom.xml" programming programming-general)
            ("https://work.njae.me.uk/rss/" programming haskell-fp))))
   ;; ^^^^ feeds
   )
