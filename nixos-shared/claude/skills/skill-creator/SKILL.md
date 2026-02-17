@@ -21,6 +21,15 @@ equipped with procedural knowledge that no model can fully possess.
 2. **Workflow Automation** - Multi-step processes with consistent methodology
 3. **MCP Enhancement** - Workflow guidance on top of MCP tool access (turns raw tools into reliable workflows)
 
+### Skill Archetypes
+
+Orthogonal to the categories above, most skills follow one of two structural patterns:
+
+- **Toolbox** — Scripts that encapsulate complexity + SKILL.md that teaches when/how to use them. Claude focuses on orchestration, not implementation.
+- **Knowledge Injection** — A batch of domain knowledge Claude didn't have before. References and docs that make Claude instantly expert in a topic.
+
+Most skills are a mix, but naming the patterns helps decide *what kind of value* the skill provides and where to invest effort (scripts vs. references).
+
 ### Problem-First vs. Tool-First Design
 
 Choose your approach early:
@@ -35,7 +44,13 @@ Most skills lean one direction. Problem-first skills focus on workflow orchestra
 
 The context window is a public good. Skills share context with system prompt, conversation history, other Skills' metadata, and the user's request.
 
-**Default assumption: Claude is already very smart.** Only add context Claude doesn't already have. Challenge each piece: "Does Claude really need this explanation?" and "Does this paragraph justify its token cost?"
+**Default assumption: Claude is already very smart.** For every line in a skill, apply this three-part test:
+
+1. **Is this outside my training data?** (learned through research, experimentation, experience)
+2. **Is this context-specific?** (I know it now but won't after context clears)
+3. **Does this align future Claude with current Claude?** (behavioral guidance for consistency)
+
+If none of these are true, delete the line. Skills with no external signal actively hurt performance — they dilute the context with things the model already knows.
 
 Prefer concise examples over verbose explanations.
 
@@ -80,6 +95,8 @@ skill-name/                # Gerund form preferred: "processing-pdfs", "analyzin
 
 **Critical**: Description determines when skill triggers. Include both what the skill does AND when to use it.
 
+**Err on the side of broad descriptions.** The error costs are asymmetric: if Claude loads a skill then decides not to use it — small token cost. If Claude doesn't load a skill and spirals on an already-solved problem — the session is ruined.
+
 **Good description** (third person, specific triggers):
 ```yaml
 description: "Extracts text and tables from PDF files, fills forms, merges documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
@@ -101,6 +118,13 @@ Executable code for deterministic reliability or frequently-rewritten operations
 - **When to include**: Code rewritten repeatedly or needing deterministic reliability
 - **Benefits**: Token efficient (executed without loading into context), reliable, consistent
 - **Key principle - Solve, don't punt**: Scripts should handle errors explicitly, not fail and let Claude figure it out
+
+**Why scripts beat prose:** Over a long session, SKILL.md text gets pushed out of Claude's active attention window. But a script's interface (`--help`, argument names, error messages) remains discoverable via tool use at any point. Invest in clear `--help` output and descriptive argument names — script API design matters more than SKILL.md prose quality for long-running sessions.
+
+**Reducing mistake surface area:** Over a session, Claude *will* make mistakes — typos, forgotten flags, wrong directories, skipped steps. Scripts reduce the surface area for these errors:
+1. **Single-touch** — fold setup and teardown into the tool. One command does the whole job.
+2. **Clean primitives** — expose composable operations, not monolithic scripts with complex interdependencies.
+3. **Repo-specific** — generic tools already exist. The unique workflows in your repo are where automation pays off most.
 
 ```python
 # Good - handles errors:
@@ -196,6 +220,7 @@ See [references/progressive-disclosure.md](references/progressive-disclosure.md)
 
 Skill creation involves these steps:
 
+0. Experiment with the domain before writing
 1. Understand the skill with concrete examples
 2. Plan reusable skill contents (scripts, references, assets)
 3. Initialize the skill (run init_skill.py)
@@ -204,6 +229,10 @@ Skill creation involves these steps:
 6. Iterate based on real usage
 
 Follow these steps in order, skipping only if there is a clear reason why they are not applicable.
+
+### Step 0: Experiment Before Writing
+
+Before creating a skill, experiment with the domain. Research CLIs and libraries, try them out, see what works and what breaks. Skills built on speculation are worse than no skill at all — LLM-generated context files that encode no real signal actively hurt performance. Only write from direct experience.
 
 ### Step 1: Understanding the Skill with Concrete Examples
 

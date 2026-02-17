@@ -155,6 +155,28 @@ with pdfplumber.open("file.pdf") as pdf:
     text = pdf.pages[0].extract_text()
 ```
 
+### Recording Derived Data
+
+Don't teach Claude things it can figure out from information already provided. Lead a horse to water, don't teach it how to drink.
+
+**Bad:**
+```markdown
+## API Authentication
+The API uses Bearer tokens. To authenticate:
+1. Get your API key from the dashboard
+2. Add header: `Authorization: Bearer YOUR_KEY`
+3. The server validates the token against...
+[200 words of explanation Claude already knows]
+```
+
+**Good:**
+```markdown
+## API Authentication
+Bearer token auth. Key from: https://dashboard.example.com/api-keys
+```
+
+If there's an easily available source that will tell Claude everything, point to it. If the info can be trivially derived from what Claude already knows, don't spell it out. This is distinct from "Explaining What Claude Already Knows" (general knowledge) — this is about not restating things derivable from context already in the skill.
+
 ## Script Anti-Patterns
 
 ### Punting to Claude

@@ -105,6 +105,12 @@ Files not intended to be loaded into context, but rather used within the output 
 ---
 
 **Any unneeded directories can be deleted.** Not every skill requires all three types of resources.
+
+## Fixes
+
+<!-- Initially empty. Add fixes only for failures actually observed in use.
+     Do NOT predict possible failures or add speculative troubleshooting.
+     Each entry: describe the failure, then the fix that worked. -->
 """
 
 EXAMPLE_SCRIPT = '''#!/usr/bin/env python3
