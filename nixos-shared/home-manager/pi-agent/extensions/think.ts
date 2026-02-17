@@ -28,6 +28,23 @@ export default function (pi: ExtensionAPI) {
       thought: Type.String({ description: "Your thought or reasoning." }),
     }),
 
+    renderCall(args: { thought?: string }, theme) {
+      const { thought } = args;
+      if (!thought) {
+        return new Text(theme.fg("toolTitle", theme.bold("Think")), 0, 0);
+      }
+      const words = thought.trim().split(/\s+/);
+      const trail =
+        words.length > 50
+          ? "… " + words.slice(-50).join(" ")
+          : thought;
+      return new Text(
+        theme.fg("toolTitle", theme.bold("Think")) + "\n" + theme.fg("dim", trail),
+        0,
+        0,
+      );
+    },
+
     async execute(_toolCallId, params, _signal, _onUpdate, _ctx) {
       const { thought } = params as { thought: string };
       const wordCount = thought.trim().split(/\s+/).length;
