@@ -2,7 +2,8 @@
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
-- One-time commands: `, command`
+- There is no global python3, use nix to run scripts
+- One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
 - **Editable System Config Location** in ~/repos/nixos-config
