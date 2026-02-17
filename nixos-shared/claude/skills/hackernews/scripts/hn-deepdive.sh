@@ -62,6 +62,9 @@ Return a single structured markdown summary with these sections:
 **Notable Comments**:
 > Quote the most insightful or contrarian comments with attribution
 
+**Linked Artifacts** (if any — be selective):
+Only surface links that are personal, hand-crafted, or validated by the thread (praised, discussed, built upon). Skip generic libraries, well-known projects, and obvious self-promotion. Good finds: someone's dotfiles, personal tool repos, AGENTS.md/SKILL.md files, gists with workflows, niche tools they built themselves. Include: commenter name, what it is, why it's interesting, and the full URL.
+
 **Meta**: Any drama, astroturfing signals, or interesting discussion dynamics.
 
 ## Rules

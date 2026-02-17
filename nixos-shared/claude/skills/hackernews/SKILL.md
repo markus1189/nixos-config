@@ -113,9 +113,22 @@ curl -s "https://hn.algolia.com/api/v1/search?query=KEYWORDS&tags=comment,author
 ```
 Also check: HN profile (`about` field), GitHub username, dotfiles repos, blog links.
 
-### When the user shows interest in a comment-level find
-1. Pull the commenter's history via Algolia for prior mentions
-2. Search GitHub/web for prior art or implementations
+### Linked Artifacts — the real gold
+
+The most valuable HN finds are often **linked in comments, not described** — someone drops a GitHub URL to their dotfiles, a gist with their shell function, an AGENTS.md, a SKILL.md, a personal tool repo. These are the discoveries users care about most.
+
+**Filtering**: Not every link is worth surfacing. Skip generic library links, well-known projects, and obvious self-promotion. Surface links that are:
+- **Personal and hand-crafted** — someone's own config, workflow, or tool they built for themselves
+- **Validated by the thread** — other commenters praised it, asked questions about it, or built on it
+- **Relevant to user interests** — matches topics in the User Interests section below
+
+**During deep dives**: The sub-agent surfaces these in a "Linked Artifacts" section. After reading deep-dive output, **prominently call out** interesting artifacts that pass the filter — don't bury them in comment quotes. Present them as a separate callout so the user can decide whether to chase them down.
+
+**When the user asks to chase an artifact**:
+1. Fetch the actual content — `curl` the raw GitHub URL, read the file, present it
+2. Navigate the repo structure if needed (API: `https://api.github.com/repos/OWNER/REPO/contents/PATH`)
+3. Pull the commenter's history via Algolia for prior mentions
+4. Search GitHub/web for related work by the same person
 
 ## User Interests
 
