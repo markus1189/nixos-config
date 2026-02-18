@@ -211,6 +211,13 @@ export default function instructionResolver(pi: ExtensionAPI) {
       log(`  discovered ${discovered.length} instruction file(s)`);
       pi.appendEntry(ENTRY_TYPE, { paths: newPaths });
 
+      const fileList = newPaths.map((p) => `  • ${p}`).join("\n");
+      pi.sendMessage({
+        customType: ENTRY_TYPE,
+        content: `Injected ${newPaths.length} instruction file(s):\n${fileList}`,
+        display: true,
+      });
+
       const reminder = `\n\n<system-reminder>\n${discovered.join("\n\n")}\n</system-reminder>`;
       const modified = event.content.map((c, i) =>
         i === event.content.length - 1 && c.type === "text"
