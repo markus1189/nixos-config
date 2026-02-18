@@ -12,7 +12,7 @@ Portkey virtual key slugs follow this pattern:
 ```
 
 Examples:
-- `@vertex-ai/anthropic.claude-sonnet-4-5@20250929`
+- `@vertex-ai/anthropic.claude-sonnet-4-6`
 - `@azure-openai-foundry/gpt-5.1-codex`
 - `@openai/gpt-4`
 
@@ -82,7 +82,7 @@ Location: `~/.pi/agent/models.json`
       "authHeader": true,
       "models": [
         {
-          "id": "@vertex-ai/anthropic.claude-sonnet-4-5@20250929",
+          "id": "@vertex-ai/anthropic.claude-sonnet-4-6",
           "name": "Claude Sonnet 4.5 (Portkey/Vertex)",
           "reasoning": true,
           "input": ["text", "image"],
@@ -147,7 +147,7 @@ The `api` field determines the protocol:
 
 | Provider | Slug Prefix | Example |
 |----------|-------------|---------|
-| Vertex AI (Anthropic) | `@vertex-ai/` | `@vertex-ai/anthropic.claude-sonnet-4-5@20250929` |
+| Vertex AI (Anthropic) | `@vertex-ai/` | `@vertex-ai/anthropic.claude-sonnet-4-6` |
 | Azure OpenAI Foundry | `@azure-openai-foundry/` | `@azure-openai-foundry/gpt-5.1-codex` |
 | OpenAI | `@openai/` | `@openai/gpt-4o` |
 | Bedrock | `@bedrock/` | `@bedrock/anthropic.claude-sonnet-4-5` |
@@ -158,7 +158,7 @@ Test your configuration:
 
 ```bash
 # Validate schema
-pi --provider portkey --model @vertex-ai/anthropic.claude-sonnet-4-5@20250929
+pi --provider portkey --model @vertex-ai/anthropic.claude-sonnet-4-6
 
 # Interactive test
 pi

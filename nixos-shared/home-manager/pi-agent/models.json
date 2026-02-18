@@ -7,8 +7,8 @@
       "authHeader": true,
       "models": [
         {
-          "id": "@vertex-ai/anthropic.claude-sonnet-4-5@20250929",
-          "name": "Claude Sonnet 4.5 (Portkey/Vertex)",
+          "id": "@vertex-ai/anthropic.claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6 (Portkey/Vertex)",
           "reasoning": true,
           "input": [
             "text",
