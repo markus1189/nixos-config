@@ -2,11 +2,19 @@
 
 Before sharing a skill, verify against this checklist.
 
+## Pre-Creation
+
+- [ ] Domain experimented with before writing (not speculative — tried CLIs, libraries, workflows)
+- [ ] Skill archetype identified (Toolbox, Knowledge Injection, or mix)
+
 ## Core Quality
 
+- [ ] Every line passes the three-part test: (1) outside training data, (2) context-specific, or (3) behavioral alignment guidance
+- [ ] No derived data (don't spell out what Claude can figure out from info already provided)
 - [ ] Description is specific and includes key terms
 - [ ] Description includes both what the skill does AND when to use it
 - [ ] Description uses third person only (no "I can" or "You can")
+- [ ] Description errs on the side of broad triggers (loading cost ≪ missing the skill)
 - [ ] SKILL.md body is under 500 lines
 - [ ] Additional details are in separate reference files (if needed)
 - [ ] No time-sensitive information (or moved to "old patterns" section)
@@ -18,17 +26,21 @@ Before sharing a skill, verify against this checklist.
 - [ ] Progressive disclosure used appropriately
 - [ ] Workflows have clear steps
 - [ ] Reference files >100 lines have table of contents
+- [ ] Fixes section contains only empirically observed failures (no speculative troubleshooting)
 
 ## Code and Scripts
 
 - [ ] Scripts solve problems rather than punt to Claude
 - [ ] Error handling is explicit and helpful
+- [ ] Scripts have clear `--help` output and descriptive argument names (APIs outlast context attention)
+- [ ] Scripts are single-touch where possible (fold setup + teardown into one command)
+- [ ] Scripts expose clean, composable primitives (not monolithic with complex interdependencies)
+- [ ] Scripts target repo-specific workflows (generic tools already exist)
 - [ ] Script paths use simple relative syntax: `./scripts/script.sh`
 - [ ] No complex path resolution patterns (`SKILL_DIR`, `cd` tricks, absolute paths)
 - [ ] Standard note included: "Scripts should be executed from the skill directory"
 - [ ] No "voodoo constants" (all magic numbers justified and documented)
 - [ ] Required packages listed in instructions and verified as available
-- [ ] Scripts have clear documentation
 - [ ] No Windows-style paths (all forward slashes)
 - [ ] Validation/verification steps for critical operations
 - [ ] Feedback loops included for quality-critical tasks
