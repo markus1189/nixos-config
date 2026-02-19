@@ -51,6 +51,9 @@ function log(message: string) {
 
 const HOME = process.env.HOME ?? "/";
 const AGENT_DIR = path.join(HOME, ".pi", "agent");
+// ~/.claude/ is the Claude Code global config dir; CLAUDE.md there is a
+// global instruction file that pi never loads but should not be re-injected.
+const CLAUDE_DIR = path.join(HOME, ".claude");
 
 /**
  * Discover which AGENTS.md/CLAUDE.md files pi already loaded into the system
@@ -61,16 +64,20 @@ const AGENT_DIR = path.join(HOME, ".pi", "agent");
 function discoverPreloaded(cwd: string): Set<string> {
   const preloaded = new Set<string>();
 
-  // Global agent dir
-  for (const file of INSTRUCTION_FILES) {
-    const candidate = path.join(AGENT_DIR, file);
-    try {
-      if (fs.existsSync(candidate)) {
-        preloaded.add(candidate);
-        break;
+  // Global dirs whose instruction files pi will never inject but must not be
+  // re-injected by this extension either (~/.pi/agent/ is loaded by pi itself;
+  // ~/.claude/ is the Claude Code global config dir).
+  for (const dir of [AGENT_DIR, CLAUDE_DIR]) {
+    for (const file of INSTRUCTION_FILES) {
+      const candidate = path.join(dir, file);
+      try {
+        if (fs.existsSync(candidate)) {
+          preloaded.add(candidate);
+          break;
+        }
+      } catch {
+        // Ignore
       }
-    } catch {
-      // Ignore
     }
   }
 
