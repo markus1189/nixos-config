@@ -25,5 +25,6 @@
   ],
   "toggleSessionPath": "ctrl+l",
   "cycleModelForward": [],
-  "cycleModelBackward": []
+  "cycleModelBackward": [],
+  "tree": ["alt+shift+t"]
 }
