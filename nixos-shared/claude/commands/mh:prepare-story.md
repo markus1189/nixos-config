@@ -1,5 +1,6 @@
 This is a story template for a story I am preparing. Please iterate with me on the content.
 
+<template>
 ## [TITEL_DER_STORY]
 
 ### Acceptance Criteria
@@ -43,3 +44,4 @@ This is a story template for a story I am preparing. Please iterate with me on t
 ### QS
 
 - [Was muss getestet werden? Welche Szenarien?]
+</template>
