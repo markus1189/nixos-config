@@ -149,6 +149,68 @@ agent-browser --session uk open example.com
 agent-browser --session uk screenshot uk-view.png
 ```
 
+## Session Name Persistence (`--session-name`)
+
+Use `--session-name` to automatically save and restore cookies and localStorage across browser restarts. Unlike `--session` (in-memory only), `--session-name` persists state to disk.
+
+```bash
+# Auto-save/load state for "twitter" session
+agent-browser --session-name twitter open twitter.com
+
+# Login once - state saves automatically
+agent-browser --session-name twitter click "#login"
+
+# Next time (even after browser restart) - still logged in
+agent-browser --session-name twitter open twitter.com
+
+# Via environment variable
+export AGENT_BROWSER_SESSION_NAME=twitter
+agent-browser open twitter.com
+```
+
+State files are stored in `~/.agent-browser/sessions/` and automatically loaded on daemon start.
+
+**Session name rules** - must contain only alphanumeric characters, hyphens, and underscores:
+```bash
+# Valid
+agent-browser --session-name my-project open example.com
+agent-browser --session-name test_session_v2 open example.com
+
+# Invalid (rejected)
+agent-browser --session-name "../bad" open example.com    # path traversal
+agent-browser --session-name "my session" open example.com # spaces
+```
+
+## State Encryption
+
+Encrypt saved state files (cookies, localStorage) using AES-256-GCM:
+
+```bash
+# Generate a 256-bit key (64 hex characters)
+openssl rand -hex 32
+
+# Set the encryption key
+export AGENT_BROWSER_ENCRYPTION_KEY=<your-64-char-hex-key>
+
+# State files are now encrypted automatically
+agent-browser --session-name secure-session open example.com
+
+# List states shows encryption status
+agent-browser state list
+```
+
+## State Auto-Expiration
+
+Automatically delete old state files to prevent accumulation:
+
+```bash
+# Set expiration in days (default: 30 days)
+export AGENT_BROWSER_STATE_EXPIRE_DAYS=7
+
+# Manually clean old states
+agent-browser state clean --older-than 7
+```
+
 ## Persistent Profiles
 
 Sessions are ephemeral by default. Use `--profile` for persistence:
@@ -162,6 +224,10 @@ agent-browser --profile ~/.app-profile state save
 # Later: Reuse profile
 agent-browser --profile ~/.app-profile open app.com/dashboard
 # Still logged in!
+
+# Via environment variable
+export AGENT_BROWSER_PROFILE=~/.app-profile
+agent-browser open app.com
 ```
 
 ### Profile vs Session
@@ -270,6 +336,16 @@ for i in {1..100}; do
   sleep 2  # Rate limit: 0.5 requests/second per session
 done
 ```
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `AGENT_BROWSER_SESSION` | Browser session ID (default: "default") |
+| `AGENT_BROWSER_SESSION_NAME` | Auto-save/load state persistence name |
+| `AGENT_BROWSER_PROFILE` | Persistent browser profile directory path |
+| `AGENT_BROWSER_ENCRYPTION_KEY` | 64-char hex key for AES-256-GCM state encryption |
+| `AGENT_BROWSER_STATE_EXPIRE_DAYS` | Auto-delete states older than N days (default: 30) |
 
 ## Best Practices
 

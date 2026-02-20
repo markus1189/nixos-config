@@ -70,6 +70,26 @@ Excludes:
 - Divs
 - Structural elements
 
+### Cursor-Interactive Elements (`-C`)
+
+Many modern web apps use custom clickable elements (divs, spans) instead of standard buttons or links. The `-C` flag detects these by looking for:
+
+- `cursor: pointer` CSS style
+- `onclick` attribute or handler
+- `tabindex` attribute (keyboard focusable)
+
+```bash
+agent-browser snapshot -i -C
+# Output includes:
+# @e1 [button] "Submit"
+# @e2 [link] "Learn more"
+# Cursor-interactive elements:
+# @e3 [clickable] "Menu Item" [cursor:pointer, onclick]
+# @e4 [clickable] "Card" [cursor:pointer]
+```
+
+Use `-i -C` together when `-i` alone misses custom interactive components.
+
 ### Compact Mode (`-c`)
 
 Removes empty structural elements:
@@ -109,13 +129,33 @@ agent-browser snapshot -i -c -d 5 -s "#app"
 
 Returns: Interactive elements within #app, compact output, max 5 levels deep
 
+## Annotated Screenshots
+
+For visual context alongside snapshots, use `screenshot --annotate` to overlay numbered labels on interactive elements. Each label `[N]` maps to ref `@eN`:
+
+```bash
+agent-browser screenshot --annotate ./page.png
+# -> Screenshot saved to ./page.png
+#    [1] @e1 button "Submit"
+#    [2] @e2 link "Home"
+#    [3] @e3 textbox "Email"
+agent-browser click @e2  # Use refs immediately
+```
+
+Annotated screenshots **also cache refs**, so you can interact with elements right after without a separate snapshot call. Useful when:
+- Text snapshot is insufficient (unlabeled icons, canvas content)
+- Visual layout verification is needed
+- Elements lack accessible names
+
 ## Best Practices
 
 1. **Start with `-i`** - Most AI workflows only need interactive elements
-2. **Re-snapshot liberally** - After clicks, form submissions, or navigation
-3. **Use JSON for parsing** - `--json` flag for structured data
-4. **Scope large pages** - Use `-s` to focus on relevant sections
-5. **Combine filters** - `-i -c` works well for most scenarios
+2. **Add `-C` for SPAs** - Many React/Vue apps use non-semantic clickable divs
+3. **Re-snapshot liberally** - After clicks, form submissions, or navigation
+4. **Use JSON for parsing** - `--json` flag for structured data
+5. **Scope large pages** - Use `-s` to focus on relevant sections
+6. **Combine filters** - `-i -c` works well for most scenarios
+7. **Use `--annotate`** - When visual context or icon-only buttons make text refs ambiguous
 
 ## Troubleshooting
 

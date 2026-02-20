@@ -38,6 +38,7 @@ Default to a headed browser mode, s.t. I can "pair browse" with you.
 agent-browser open <url>  # Navigate (supports https://, http://, file://)
 agent-browser back/forward/reload  # Navigation controls
 agent-browser snapshot -i  # Interactive elements with refs (recommended)
+agent-browser snapshot -i -C  # Also include cursor-interactive elements (custom clickable divs)
 agent-browser snapshot -s "#main"  # Scope to CSS selector
 agent-browser close  # Close browser
 ```
@@ -72,6 +73,7 @@ agent-browser wait --text "Success"  # Wait for text
 agent-browser wait --load networkidle  # Wait for network idle
 agent-browser screenshot  # Take screenshot
 agent-browser screenshot --full  # Full page screenshot
+agent-browser screenshot --annotate page.png  # Screenshot with numbered element labels ([N]→@eN)
 ```
 
 ### Debugging
@@ -85,9 +87,23 @@ agent-browser record stop  # Save recording
 
 ### Sessions & State
 ```bash
-agent-browser --session test1 open site.com  # Isolated session
+agent-browser --session test1 open site.com       # Isolated in-memory session
+agent-browser --session-name myapp open site.com  # Auto-persist state across restarts
 agent-browser state save auth.json  # Save browser state
 agent-browser state load auth.json  # Load saved state
+agent-browser state list            # List saved states
+agent-browser state clean --older-than 7  # Remove old states
+```
+
+### iOS Simulator (macOS only)
+```bash
+agent-browser device list  # List available iOS Simulators
+agent-browser -p ios --device "iPhone 16 Pro" open https://example.com
+agent-browser -p ios snapshot -i   # Same ref-based workflow
+agent-browser -p ios tap @e1       # Tap (touch alias for click)
+agent-browser -p ios swipe up      # Swipe gesture (up/down/left/right)
+agent-browser -p ios swipe up 500  # Swipe with pixel distance
+agent-browser -p ios screenshot mobile.png
 ```
 
 For complete command reference including mouse control, semantic locators, network interception, tabs, frames, and all options, see [references/command-reference.md](references/command-reference.md).
@@ -129,11 +145,12 @@ For detailed patterns and best practices, see:
 | Reference | Description |
 |-----------|-------------|
 | [references/command-reference.md](references/command-reference.md) | Complete command reference with all options |
-| [references/snapshot-refs.md](references/snapshot-refs.md) | Ref lifecycle, invalidation rules, troubleshooting |
-| [references/session-management.md](references/session-management.md) | Parallel sessions, state persistence, concurrent scraping |
+| [references/snapshot-refs.md](references/snapshot-refs.md) | Ref lifecycle, `-C` cursor flag, annotated screenshots, troubleshooting |
+| [references/session-management.md](references/session-management.md) | Sessions, `--session-name`, state encryption/expiration, profiles |
 | [references/authentication.md](references/authentication.md) | Login flows, OAuth, 2FA handling, state reuse |
-| [references/cloud-providers.md](references/cloud-providers.md) | Using cloud browser providers (browserbase, browseruse) |
+| [references/cloud-providers.md](references/cloud-providers.md) | Using cloud browser providers (browserbase, browseruse, kernel) |
 | [references/streaming.md](references/streaming.md) | Real-time browser streaming and remote viewing |
+| [references/ios-simulator.md](references/ios-simulator.md) | iOS Simulator automation with Safari (tap, swipe, real devices) |
 
 ## Ready-to-use templates
 

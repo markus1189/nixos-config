@@ -15,15 +15,33 @@ agent-browser close  # Close browser (aliases: quit, exit)
 agent-browser connect 9222  # Connect to browser via CDP port
 ```
 
+## Device listing (iOS)
+
+```bash
+agent-browser device list  # List available iOS Simulators and devices
+```
+
+See [ios-simulator.md](ios-simulator.md) for iOS setup and usage.
+
 ## Snapshot (page analysis)
 
 ```bash
 agent-browser snapshot  # Full accessibility tree
 agent-browser snapshot -i  # Interactive elements only (recommended)
+agent-browser snapshot -i -C  # Include cursor-interactive elements (divs with onclick/cursor:pointer)
 agent-browser snapshot -c  # Compact output
 agent-browser snapshot -d 3  # Limit depth to 3
 agent-browser snapshot -s "#main"  # Scope to CSS selector
+agent-browser snapshot -i -c -d 5  # Combine options
 ```
+
+| Option | Description |
+|---|---|
+| `-i, --interactive` | Only interactive elements (buttons, links, inputs) |
+| `-C, --cursor` | Include cursor-interactive elements (cursor:pointer, onclick, tabindex) |
+| `-c, --compact` | Remove empty structural elements |
+| `-d, --depth` | Limit tree depth |
+| `-s, --selector` | Scope to CSS selector |
 
 ## Interactions (use @refs from snapshot)
 
@@ -46,6 +64,10 @@ agent-browser scroll down 500  # Scroll page (default: down 300px)
 agent-browser scrollintoview @e1  # Scroll element into view (alias: scrollinto)
 agent-browser drag @e1 @e2  # Drag and drop
 agent-browser upload @e1 file.pdf  # Upload files
+# iOS-specific (use with -p ios):
+agent-browser -p ios tap @e1  # Tap element (alias for click, touch-semantics)
+agent-browser -p ios swipe up  # Swipe gesture (up/down/left/right)
+agent-browser -p ios swipe down 500  # Swipe with distance in pixels
 ```
 
 ## Get information
@@ -76,8 +98,11 @@ agent-browser is checked @e1  # Check if checked
 agent-browser screenshot  # Save to a temporary directory
 agent-browser screenshot path.png  # Save to a specific path
 agent-browser screenshot --full  # Full page
+agent-browser screenshot --annotate ./page.png  # Annotated with numbered element labels ([N] → @eN)
 agent-browser pdf output.pdf  # Save as PDF
 ```
+
+Annotated screenshots overlay numbered labels on interactive elements and also cache refs, so you can interact with elements immediately after without a separate snapshot.
 
 ## Video recording
 
@@ -89,8 +114,6 @@ agent-browser record restart ./take2.webm  # Stop current + start new recording
 ```
 
 Recording creates a fresh context but preserves cookies/storage from your session. If no URL is provided, it automatically returns to your current page. For smooth demos, explore first, then start recording.
-
-For more details, see [video-recording.md](video-recording.md).
 
 ## Wait
 
@@ -198,19 +221,31 @@ agent-browser eval "document.title"  # Run JavaScript
 ## Global options
 
 ```bash
-agent-browser --session <name> ...  # Isolated browser session
-agent-browser --json ...  # JSON output for parsing
-agent-browser --headed ...  # Show browser window (not headless)
-agent-browser --full ...  # Full page screenshot (-f)
-agent-browser --cdp <port> ...  # Connect via Chrome DevTools Protocol
-agent-browser -p <provider> ...  # Cloud browser provider (--provider)
-agent-browser --proxy <url> ...  # Use proxy server
-agent-browser --headers <json> ...  # HTTP headers scoped to URL's origin
-agent-browser --executable-path <path>  # Custom browser executable
-agent-browser --extension <path> ...  # Load browser extension (repeatable)
-agent-browser --help  # Show help (-h)
-agent-browser --version  # Show version (-V)
-agent-browser <command> --help  # Show detailed help for a command
+agent-browser --session <name> ...        # Isolated browser session (in-memory)
+agent-browser --session-name <name> ...   # Auto-save/restore state across restarts
+agent-browser --profile <path> ...        # Persistent browser profile directory
+agent-browser --state <path> ...          # Load storage state from JSON file
+agent-browser --json ...                  # JSON output for parsing
+agent-browser --headed ...                # Show browser window (not headless)
+agent-browser --full, -f ...              # Full page screenshot
+agent-browser --annotate ...              # Annotated screenshot with numbered labels
+agent-browser --cdp <port|url> ...        # Connect via Chrome DevTools Protocol
+agent-browser --auto-connect ...          # Auto-discover and connect to running Chrome
+agent-browser -p, --provider <name> ...   # Browser provider (ios, browserbase, kernel, browseruse)
+agent-browser --device <name> ...         # Device name for iOS ("iPhone 16 Pro")
+agent-browser --proxy <url> ...           # Use proxy server
+agent-browser --proxy-bypass <hosts> ...  # Hosts to bypass proxy
+agent-browser --headers <json> ...        # HTTP headers scoped to URL's origin
+agent-browser --user-agent <ua> ...       # Custom User-Agent string
+agent-browser --executable-path <path>    # Custom browser executable
+agent-browser --extension <path> ...      # Load browser extension (repeatable)
+agent-browser --args <args> ...           # Browser launch args (comma separated)
+agent-browser --ignore-https-errors ...   # Ignore HTTPS certificate errors
+agent-browser --allow-file-access ...     # Allow file:// access to local files (Chromium only)
+agent-browser --debug ...                 # Debug output
+agent-browser --help, -h                  # Show help
+agent-browser --version, -V               # Show version
+agent-browser <command> --help            # Show detailed help for a command
 ```
 
 ### Proxy support
@@ -219,9 +254,8 @@ agent-browser <command> --help  # Show detailed help for a command
 agent-browser --proxy http://proxy.com:8080 open example.com
 agent-browser --proxy http://user:pass@proxy.com:8080 open example.com
 agent-browser --proxy socks5://proxy.com:1080 open example.com
+agent-browser --proxy http://proxy.com:8080 --proxy-bypass "localhost,127.0.0.1" open example.com
 ```
-
-See [proxy-support.md](proxy-support.md) for detailed proxy configuration patterns.
 
 ## Sessions (parallel browsers)
 
@@ -262,11 +296,17 @@ agent-browser record stop  # Save recording
 ## Environment variables
 
 ```bash
-AGENT_BROWSER_SESSION="mysession"  # Default session name
+AGENT_BROWSER_SESSION="mysession"          # Default session name (in-memory)
+AGENT_BROWSER_SESSION_NAME="twitter"       # Auto-save/load state persistence name
+AGENT_BROWSER_PROFILE="~/.app-profile"    # Persistent browser profile directory
+AGENT_BROWSER_ENCRYPTION_KEY="<64-hex>"   # AES-256-GCM encryption key for state files
+AGENT_BROWSER_STATE_EXPIRE_DAYS=7         # Auto-delete states older than N days (default: 30)
 AGENT_BROWSER_EXECUTABLE_PATH="/path/chrome"  # Custom browser path
-AGENT_BROWSER_EXTENSIONS="/ext1,/ext2"  # Comma-separated extension paths
-AGENT_BROWSER_PROVIDER="your-cloud-browser-provider"  # Cloud browser provider (select browseruse or browserbase)
-AGENT_BROWSER_STREAM_PORT="9223"  # WebSocket streaming port
+AGENT_BROWSER_EXTENSIONS="/ext1,/ext2"    # Comma-separated extension paths
+AGENT_BROWSER_PROVIDER="browserbase"      # Cloud browser provider (browserbase, browseruse, kernel, ios)
+AGENT_BROWSER_IOS_DEVICE="iPhone 16 Pro"  # iOS device name (when PROVIDER=ios)
+AGENT_BROWSER_IOS_UDID="<udid>"           # iOS device UDID (alternative to device name)
+AGENT_BROWSER_STREAM_PORT="9223"          # WebSocket streaming port
 AGENT_BROWSER_HOME="/path/to/agent-browser"  # Custom install location (for daemon.js)
 ```
 
