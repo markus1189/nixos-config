@@ -118,7 +118,7 @@ import XMonad.Hooks.DynamicLog
   )
 import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
-import XMonad.Hooks.ManageHelpers (isDialog)
+import XMonad.Hooks.ManageHelpers (isDialog, isFixedSizeWindow)
 import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
@@ -175,6 +175,7 @@ myManageHook =
   composeAll . concat $
     [ [manageHook gnomeConfig],
       [isDialog --> doFloat],
+      [isFixedSizeWindow --> doFloat],
       [MH.className =? c --> doFloat | c <- classFloats],
       [MH.title =? t --> doFloat | t <- titleFloats],
       [stringProperty "WM_NAME" =? t --> doIgnore | t <- windowNameIgnores],
