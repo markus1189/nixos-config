@@ -239,14 +239,8 @@ export default function webToolsExtension(pi: ExtensionAPI) {
     }),
 
     renderCall(args, theme) {
-      let text = theme.fg("toolTitle", theme.bold("web_fetch "));
-      // Show just the hostname for compactness
-      try {
-        const url = new URL(args.url);
-        text += theme.fg("dim", url.hostname);
-      } catch {
-        text += theme.fg("dim", args.url);
-      }
+      const text = theme.fg("toolTitle", theme.bold("web_fetch ")) + theme.fg("dim", args.url);
+
       return new Text(text, 0, 0);
     },
 
