@@ -33,13 +33,8 @@ export default function (pi: ExtensionAPI) {
       if (!thought) {
         return new Text(theme.fg("toolTitle", theme.bold("Think")), 0, 0);
       }
-      const words = thought.trim().split(/\s+/);
-      const trail =
-        words.length > 50
-          ? "… " + words.slice(-50).join(" ")
-          : thought;
       return new Text(
-        theme.fg("toolTitle", theme.bold("Think")) + "\n" + theme.fg("dim", trail),
+        theme.fg("toolTitle", theme.bold("Think")) + "\n" + theme.fg("dim", thought),
         0,
         0,
       );
