@@ -935,6 +935,14 @@ in
       maxCacheTtl = 60 * 60 * 12;
     };
 
+    pass-secret-service = {
+      enable = true;
+      # mkForce needed: password-store module auto-sets storePath to
+      # PASSWORD_STORE_DIR ("$HOME/..."), but $HOME isn't expanded in
+      # systemd ExecStart args, causing pass_secret_service to crash.
+      storePath = pkgs.lib.mkForce "${config.home.homeDirectory}/.local/share/password-store";
+    };
+
   };
 
   fonts = {
