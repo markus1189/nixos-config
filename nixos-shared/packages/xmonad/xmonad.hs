@@ -118,7 +118,7 @@ import XMonad.Hooks.DynamicLog
   )
 import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
-import XMonad.Hooks.ManageHelpers (isDialog, isFixedSizeWindow)
+import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
@@ -175,7 +175,7 @@ myManageHook =
   composeAll . concat $
     [ [manageHook gnomeConfig],
       [isDialog --> doFloat],
-      [isFixedSizeWindow --> doFloat],
+      [MH.className =? "Sauce4zwift" --> doFloat],
       [MH.className =? c --> doFloat | c <- classFloats],
       [MH.title =? t --> doFloat | t <- titleFloats],
       [stringProperty "WM_NAME" =? t --> doIgnore | t <- windowNameIgnores],
@@ -249,7 +249,8 @@ myManageHook =
     ws9 = ["teams-for-linux"]
     miscellaneous =
       [ MH.title =? "vmail" --> doShift (workSpaceN 7),
-        MH.className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5)
+        MH.className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5),
+        MH.className =? "zwiftapp.exe" --> doShift (workSpaceN 10)
       ]
 
 myScratchPads :: [NamedScratchpad]
