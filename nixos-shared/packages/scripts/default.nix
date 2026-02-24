@@ -859,6 +859,10 @@ rec {
       }
       ''
         killall xmobar
+        # Kill accumulated scratchpad ghostty processes from previous XMonad sessions.
+        # Without this, each xmonad --restart spawns fresh scratchpads while old ones
+        # keep running, accumulating hundreds of processes and gigabytes of RAM over time.
+        pkill -f 'ghostty.*--title=sp_' || true
         xmonad --restart
       '';
 
