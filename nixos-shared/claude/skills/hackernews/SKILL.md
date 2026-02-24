@@ -72,17 +72,81 @@ wait
 
 Output is structured markdown (TL;DR, key points, discussion themes table, notable comments). Progress goes to stderr.
 
+## Daily State Tracking
+
+Track HN browsing across multiple sessions in a single day using a stateful markdown file.
+
+### State file location
+`~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` (uses current date)
+
+### First check of the day
+If no `hn-daily.md` exists for today → full briefing mode (see below). After presenting stories:
+1. Create the file with a `## Check 1 — HH:MM` section containing the briefing
+2. Append a state tail (see format below)
+3. Deep dives requested → append inline under the check section, update status to `dived`
+
+### Subsequent checks (file exists)
+1. Read `hn-daily.md`, parse the state tail at the bottom
+2. Fetch HN top N
+3. Compute delta:
+   - **New**: stories not in state tail
+   - **Movers**: stories where score jumped >50 OR comments jumped >30 since last check
+4. Present only the delta (skip unchanged/already-seen stories)
+5. User picks deep dives → append inline
+6. Append new `## Check N — HH:MM` section
+7. Rewrite state tail with merged current snapshot
+
+### State tail format
+Always at the very end of the file, after a `---` separator. Fenced with ` ```state ` / ` ``` `. Pipe-delimited, one line per story:
+
+    ---
+    ```state
+    47122715|Age Verification Trap|1449|1110|dived
+    47120899|Ladybird Rust|1172|647|dived
+    47133055|enveil|76|38|dismissed
+    47131225|Steerling-8B|159|40|noted
+    ```
+
+Fields: `story_id|title|score|comments|status`
+
+Status values:
+- `new` — appeared, not yet interacted with
+- `noted` — user acknowledged / showed interest
+- `dived` — deep dive completed
+- `dismissed` — user explicitly skipped
+
+The state tail is **rewritten** (not appended) each check — always reflects the current snapshot with updated scores/comments.
+
+### Delta presentation format
+
+```markdown
+## Check 2 — 18:00
+
+### New Stories
+| # | Story | Pts | 💬 | Topic |
+...
+
+### Movers
+| Story | Was | Now | Δ pts | Δ 💬 |
+...
+```
+
+### When user says "check HN" / "what's new on HN"
+Always check for an existing `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` first. If it exists, run in delta mode. If not, run full briefing mode.
+
 ## Briefing Mode
 
 When user asks casually about hacker news stories, use this style:
 
 ### Flow
-1. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
-2. User picks stories they want to dig into
-3. **Spawn `hn-deepdive.sh` for each pick** (in parallel via `&` + `wait`, writing to temp files). Do NOT fetch articles or comments directly into main context.
-4. Read the summary files and present them to the user
-5. Group related stories together
-6. When user asks "your take?" — give genuine opinions, not hedged summaries
+1. Check for existing daily state file (see Daily State Tracking above)
+2. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
+3. User picks stories they want to dig into
+4. **Spawn `hn-deepdive.sh` for each pick** (in parallel via `&` + `wait`, writing to temp files). Do NOT fetch articles or comments directly into main context.
+5. Read the summary files and present them to the user
+6. Group related stories together
+7. When user asks "your take?" — give genuine opinions, not hedged summaries
+8. Update the daily state file (create if first check, append if subsequent)
 
 ### Tone
 - **HN-native**: direct, slightly cynical, technically literate
