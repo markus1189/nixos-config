@@ -575,8 +575,8 @@ in
           settings = {
           font.size = 9;
           window = {
-            opacity = 0;
-            blur = true;
+            opacity = 0.92;
+            blur = false;
           };
           selection.save_to_clipboard = true;
           mouse.hide_when_typing = true;
