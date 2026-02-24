@@ -649,8 +649,9 @@ in
 
           copy-on-select = "clipboard";
 
-          background-opacity = 0;
-          background-blur = true;
+          background-opacity = 0.95;
+          background = "#0d0d0d";
+          background-blur = false;
           gtk-titlebar = false;
 
           shell-integration-features = "no-cursor";
