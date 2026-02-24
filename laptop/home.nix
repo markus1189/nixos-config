@@ -925,6 +925,12 @@ in
     };
 
   services = {
+    picom = {
+      enable = true;
+      backend = "glx";
+      vSync = true;
+    };
+
     flameshot.enable = true;
 
     dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix { }).value;
