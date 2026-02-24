@@ -81,7 +81,18 @@ export default function questionnaire(pi: ExtensionAPI) {
                 name: "questionnaire",
                 label: "Questionnaire",
                 description:
-                        "Ask the user one or more questions. Use for clarifying requirements, getting preferences, or confirming decisions. For single questions, shows a simple option list. For multiple questions, shows a tab-based interface. All questions automatically include a 'Type something' option for free-form responses. Set multiple: true to allow the user to select more than one option.",
+                        "Use this tool when you need to ask the user questions before proceeding. This allows you to:\n" +
+                        "1. Clarify ambiguous instructions or requirements\n" +
+                        "2. Gather preferences or constraints before making decisions\n" +
+                        "3. Offer choices at key implementation branch points\n" +
+                        "4. Confirm direction before undertaking significant work\n" +
+                        "\n" +
+                        "Usage notes:\n" +
+                        "- A 'Type something' option is always added automatically — do not include 'Other', 'Something else', or any catch-all option\n" +
+                        "- Set multiple: true to allow selecting more than one answer\n" +
+                        "- If you recommend a specific option, make it first in the list and append '(Recommended)' to its label\n" +
+                        "- Keep option labels short and distinct; use the description field for elaboration\n" +
+                        "- Use the label field for a concise tab name (e.g. 'Scope', 'Timeline') — defaults to Q1, Q2…",
                 parameters: QuestionnaireParams,
 
                 async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
