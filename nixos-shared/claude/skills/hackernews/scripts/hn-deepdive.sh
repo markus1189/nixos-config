@@ -59,6 +59,11 @@ Return a single structured markdown summary with these sections:
 |-------|-----------|---------------|
 | ...   | ...       | ...           |
 
+**⭐ High-Profile Commenters** (if any):
+Check whether any comments come from recognizable people — use your general knowledge of the tech/HN community to identify notable usernames. Also flag anyone who self-identifies as the article author, or whose linked profile/blog makes them notable.
+For each notable commenter found: their username, their identity, and their key point in the thread.
+If none found, omit this section entirely.
+
 **Notable Comments**:
 > Quote the most insightful or contrarian comments with attribution
 

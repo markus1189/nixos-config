@@ -198,6 +198,19 @@ Academic papers, formal institutional documents, and research cited in comments 
 3. Pull the commenter's history via Algolia for prior mentions
 4. Search GitHub/web for related work by the same person
 
+## High-Profile Commenters
+
+When a recognizable person shows up in a thread, their comment carries more weight than an anon's — they're speaking from a track record. Flag them explicitly, don't just quote them as "a commenter."
+
+Use your general knowledge to recognize notable HN usernames — you know who they are. Also catch people who identify themselves in-thread ("I'm the author of X", "I work at Y") or whose linked profile/blog makes them notable.
+
+### How to surface them
+
+- In deep dives: add a **⭐ High-Profile Commenters** section before Notable Comments listing who appeared, their identity, and their key point
+- In main context briefings: call it out inline if a notable person is the submitter or a prominent commenter (e.g., "Armin Ronacher is in the thread and disagrees with the framing")
+- Weight their comments higher — quote them first, even if the comment isn't the most upvoted
+- Note when the article's *author* comments (they often add context not in the article)
+
 ## User Interests
 
 Topics that consistently engage this user:
