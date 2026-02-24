@@ -94,6 +94,44 @@ Home Manager is integrated via `nixos-shared/home-manager/module.nix`. Each host
 
 ## Emacs Configuration
 
+### emacs-overlay (nix-community)
+
+`nixos-shared/packages/emacs/service.nix` applies the [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay) fetched **unpinned from master**. This overlay replaces `emacs.pkgs` entirely with a newer MELPA snapshot, so all Emacs package versions come from the overlay, not base nixpkgs.
+
+**This is the first thing to check when an Emacs package build breaks.** Two failure modes:
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `"marked as broken, refusing to evaluate"` | `meta.broken = true` — overlay's MELPA JSON has an `error` field for this version | `overrideScope` + `meta = { broken = false; }` |
+| `"variable $src should point to the source"` | `src = null` — overlay has a new MELPA version but hasn't computed its sha256 yet | `overrideScope` + `fetchzip` pinned to last good commit |
+
+**Fix pattern** (in `nixos-shared/packages/emacs/default.nix`):
+```nix
+# Add fetchzip to function args, then:
+emacsPackages = emacs.pkgs.overrideScope (self: super: {
+  somepackage = super.somepackage.overrideAttrs (_: {
+    src = fetchzip {
+      url = "https://github.com/owner/repo/archive/<last-good-commit>.tar.gz";
+      sha256 = "<sha256-from-overlay-json>";
+    };
+    meta = { broken = false; };
+  });
+});
+```
+
+Use `overrideScope` (not just `overrideAttrs` on the list item) so transitive dependents also get the fixed version.
+
+**Finding the last good sha256** from cached overlay snapshots in the nix store:
+```bash
+find /nix/store -maxdepth 2 -name "recipes-archive-melpa.json" \
+  | xargs nix run nixpkgs#jq -- -r \
+      --arg p "somepackage" \
+      '.[] | select(.ename==$p) | [(.unstable.version|join(".")), .unstable.sha256, .unstable.commit] | @tsv' \
+  2>/dev/null | sort -r | head
+```
+
+These workarounds are **temporary** — remove them once the overlay's JSON catches up.
+
 ### Adding Emacs Packages
 1. Add package name to `nixos-shared/packages/emacs/default.nix` (alphabetically in package list)
 2. Add `use-package` configuration in `nixos-shared/packages/emacs/emacs-config.el`
