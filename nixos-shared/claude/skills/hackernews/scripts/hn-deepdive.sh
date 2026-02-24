@@ -65,6 +65,9 @@ Return a single structured markdown summary with these sections:
 **Linked Artifacts** (if any — be selective):
 Only surface links that are personal, hand-crafted, or validated by the thread (praised, discussed, built upon). Skip generic libraries, well-known projects, and obvious self-promotion. Good finds: someone's dotfiles, personal tool repos, AGENTS.md/SKILL.md files, gists with workflows, niche tools they built themselves. Include: commenter name, what it is, why it's interesting, and the full URL.
 
+**Cited Papers & Research** (if any):
+Academic papers, formal institutional documents, and research referenced in comments or the article are always worth surfacing. Include: title, author(s) if mentioned, year, a one-line description of why it's relevant to the discussion, and the URL. These are high-signal — commenters who cite specific papers are usually practitioners, not drive-by opinion-havers.
+
 **Meta**: Any drama, astroturfing signals, or interesting discussion dynamics.
 
 ## Rules
