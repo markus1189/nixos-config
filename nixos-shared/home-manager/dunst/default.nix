@@ -20,7 +20,7 @@ in
         width = "400";
         origin = "top-right";
         notification_limit = "10";
-        transparency = 20;
+        transparency = 5;
         separator_height = 2;
         padding = 6;
         horizontal_padding = 6;
