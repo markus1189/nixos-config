@@ -205,6 +205,15 @@ export default function instructionResolver(pi: ExtensionAPI) {
             const content = fs.readFileSync(candidate, "utf-8");
             discovered.push(`Instructions from: ${candidate}\n${content}`);
             log(`  INJECTED: ${candidate} (${content.length} bytes)`);
+            // Mark remaining instruction files in this directory as loaded
+            // so e.g. CLAUDE.md is suppressed when AGENTS.md wins
+            for (const other of INSTRUCTION_FILES) {
+              const otherCandidate = path.join(current, other);
+              if (otherCandidate !== candidate) {
+                loaded.add(otherCandidate);
+                log(`  SUPPRESSED: ${otherCandidate} (sibling of ${file})`);
+              }
+            }
             break;
           }
         } catch {
