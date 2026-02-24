@@ -3,6 +3,7 @@
  *
  * Single question: simple options list
  * Multiple questions: tab bar navigation between questions
+ * Multi-select: Space/number to toggle, Enter to confirm
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -24,14 +25,15 @@ interface Question {
         prompt: string;
         options: QuestionOption[];
         allowOther: boolean;
+        multiple?: boolean;
 }
 
 interface Answer {
         id: string;
-        value: string;
-        label: string;
-        wasCustom: boolean;
-        index?: number;
+        values: string[];   // machine values (array; one element for single-select)
+        labels: string[];   // display labels (array; one element for single-select)
+        wasCustom: boolean; // whether user typed at least one free-text answer
+        indices?: number[]; // 1-based indices of predefined selected options
 }
 
 interface QuestionnaireResult {
@@ -57,6 +59,7 @@ const QuestionSchema = Type.Object({
         prompt: Type.String({ description: "The full question text to display" }),
         options: Type.Array(QuestionOptionSchema, { description: "Available options to choose from" }),
         allowOther: Type.Optional(Type.Boolean({ description: "Allow 'Type something' option (always true, parameter ignored)" })),
+        multiple: Type.Optional(Type.Boolean({ description: "Allow selecting multiple options. Use Space or number keys to toggle, Enter to confirm." })),
 });
 
 const QuestionnaireParams = Type.Object({
@@ -78,7 +81,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                 name: "questionnaire",
                 label: "Questionnaire",
                 description:
-                        "Ask the user one or more questions. Use for clarifying requirements, getting preferences, or confirming decisions. For single questions, shows a simple option list. For multiple questions, shows a tab-based interface. All questions automatically include a 'Type something' option for free-form responses.",
+                        "Ask the user one or more questions. Use for clarifying requirements, getting preferences, or confirming decisions. For single questions, shows a simple option list. For multiple questions, shows a tab-based interface. All questions automatically include a 'Type something' option for free-form responses. Set multiple: true to allow the user to select more than one option.",
                 parameters: QuestionnaireParams,
 
                 async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
@@ -107,6 +110,9 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 let inputQuestionId: string | null = null;
                                 let cachedLines: string[] | undefined;
                                 const answers = new Map<string, Answer>();
+
+                                // Multi-select state: question id → { indices: Set of 0-based option indices, custom?: string }
+                                const multiSelections = new Map<string, { indices: Set<number>; custom?: string }>();
 
                                 // Editor for "Type something" option
                                 const editorTheme: EditorTheme = {
@@ -163,19 +169,84 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         refresh();
                                 }
 
+                                // Single-select: save as single-element arrays
                                 function saveAnswer(questionId: string, value: string, label: string, wasCustom: boolean, index?: number) {
-                                        answers.set(questionId, { id: questionId, value, label, wasCustom, index });
+                                        answers.set(questionId, {
+                                                id: questionId,
+                                                values: [value],
+                                                labels: [label],
+                                                wasCustom,
+                                                indices: index !== undefined ? [index] : undefined,
+                                        });
+                                }
+
+                                // Multi-select helpers
+                                function getMultiSelection(questionId: string): { indices: Set<number>; custom?: string } {
+                                        if (!multiSelections.has(questionId)) {
+                                                multiSelections.set(questionId, { indices: new Set() });
+                                        }
+                                        return multiSelections.get(questionId)!;
+                                }
+
+                                function toggleMultiOption(questionId: string, optIndex: number) {
+                                        const sel = getMultiSelection(questionId);
+                                        if (sel.indices.has(optIndex)) {
+                                                sel.indices.delete(optIndex);
+                                        } else {
+                                                sel.indices.add(optIndex);
+                                        }
+                                }
+
+                                function hasAnyMultiSelection(questionId: string): boolean {
+                                        const sel = multiSelections.get(questionId);
+                                        if (!sel) return false;
+                                        return sel.indices.size > 0 || sel.custom !== undefined;
+                                }
+
+                                function saveMultiAnswer(questionId: string, opts: RenderOption[]) {
+                                        const sel = getMultiSelection(questionId);
+                                        const sortedIndices = Array.from(sel.indices).sort((a, b) => a - b);
+                                        const selectedOpts = sortedIndices.map((i) => opts[i]).filter(Boolean);
+                                        const values: string[] = selectedOpts.map((o) => o.value);
+                                        const labels: string[] = selectedOpts.map((o) => o.label);
+                                        const indices: number[] = sortedIndices.map((i) => i + 1); // 1-based
+
+                                        if (sel.custom !== undefined) {
+                                                values.push(sel.custom);
+                                                labels.push(sel.custom);
+                                        }
+
+                                        answers.set(questionId, {
+                                                id: questionId,
+                                                values,
+                                                labels,
+                                                wasCustom: sel.custom !== undefined,
+                                                indices,
+                                        });
                                 }
 
                                 // Editor submit callback
                                 editor.onSubmit = (value) => {
                                         if (!inputQuestionId) return;
                                         const trimmed = value.trim() || "(no response)";
-                                        saveAnswer(inputQuestionId, trimmed, trimmed, true);
-                                        inputMode = false;
-                                        inputQuestionId = null;
-                                        editor.setText("");
-                                        advanceAfterAnswer();
+                                        const q = questions.find((q) => q.id === inputQuestionId);
+
+                                        if (q?.multiple) {
+                                                // Multi-select: store custom text, stay on question so user can confirm
+                                                const sel = getMultiSelection(inputQuestionId);
+                                                sel.custom = trimmed;
+                                                inputMode = false;
+                                                inputQuestionId = null;
+                                                editor.setText("");
+                                                refresh();
+                                        } else {
+                                                // Single-select: save and advance
+                                                saveAnswer(inputQuestionId, trimmed, trimmed, true);
+                                                inputMode = false;
+                                                inputQuestionId = null;
+                                                editor.setText("");
+                                                advanceAfterAnswer();
+                                        }
                                 };
 
                                 function handleInput(data: string) {
@@ -222,14 +293,14 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                         // "Anything else?" option
                                                         inputMode = true;
                                                         inputQuestionId = "__additional__";
-                                                        editor.setText(answers.get("__additional__")?.label || "");
+                                                        editor.setText(answers.get("__additional__")?.labels[0] || "");
                                                         refresh();
                                                         return;
                                                 }
                                                 return;
                                         }
 
-                                        // Option navigation
+                                        // Option navigation (shared)
                                         if (matchesKey(data, Key.up)) {
                                                 optionIndex = Math.max(0, optionIndex - 1);
                                                 refresh();
@@ -241,38 +312,86 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 return;
                                         }
 
-                                        // Number key selection (1-9)
-                                        if (q) {
+                                        if (q?.multiple) {
+                                                // ── Multi-select mode ──
                                                 const num = parseInt(data, 10);
-                                                if (num >= 1 && num <= opts.length) {
+                                                const isNumKey = num >= 1 && num <= opts.length;
+                                                const isSpace = data === " ";
+                                                const isEnter = matchesKey(data, Key.enter);
+
+                                                // Number keys move cursor AND toggle
+                                                if (isNumKey) {
                                                         optionIndex = num - 1;
+                                                }
+
+                                                const activeOpt = opts[optionIndex];
+
+                                                if (isNumKey || isSpace) {
+                                                        if (activeOpt?.isOther) {
+                                                                // Open editor for custom text (pre-fill if already typed)
+                                                                const sel = getMultiSelection(q.id);
+                                                                inputMode = true;
+                                                                inputQuestionId = q.id;
+                                                                editor.setText(sel.custom || "");
+                                                        } else {
+                                                                toggleMultiOption(q.id, optionIndex);
+                                                        }
+                                                        refresh();
+                                                        return;
+                                                }
+
+                                                if (isEnter) {
+                                                        if (activeOpt?.isOther) {
+                                                                // Enter on "Type something": open editor
+                                                                const sel = getMultiSelection(q.id);
+                                                                inputMode = true;
+                                                                inputQuestionId = q.id;
+                                                                editor.setText(sel.custom || "");
+                                                                refresh();
+                                                                return;
+                                                        }
+                                                        if (hasAnyMultiSelection(q.id)) {
+                                                                saveMultiAnswer(q.id, opts);
+                                                                advanceAfterAnswer();
+                                                        }
+                                                        // Nothing selected → do nothing (render shows hint)
+                                                        return;
+                                                }
+                                        } else {
+                                                // ── Single-select mode ──
+                                                // Number key selection (1-9)
+                                                if (q) {
+                                                        const num = parseInt(data, 10);
+                                                        if (num >= 1 && num <= opts.length) {
+                                                                optionIndex = num - 1;
+                                                                const opt = opts[optionIndex];
+                                                                if (opt.isOther) {
+                                                                        inputMode = true;
+                                                                        inputQuestionId = q.id;
+                                                                        editor.setText("");
+                                                                } else {
+                                                                        saveAnswer(q.id, opt.value, opt.label, false, num);
+                                                                        advanceAfterAnswer();
+                                                                }
+                                                                refresh();
+                                                                return;
+                                                        }
+                                                }
+
+                                                // Enter to select
+                                                if (matchesKey(data, Key.enter) && q) {
                                                         const opt = opts[optionIndex];
                                                         if (opt.isOther) {
                                                                 inputMode = true;
                                                                 inputQuestionId = q.id;
                                                                 editor.setText("");
-                                                        } else {
-                                                                saveAnswer(q.id, opt.value, opt.label, false, num);
-                                                                advanceAfterAnswer();
+                                                                refresh();
+                                                                return;
                                                         }
-                                                        refresh();
+                                                        saveAnswer(q.id, opt.value, opt.label, false, optionIndex + 1);
+                                                        advanceAfterAnswer();
                                                         return;
                                                 }
-                                        }
-
-                                        // Select option
-                                        if (matchesKey(data, Key.enter) && q) {
-                                                const opt = opts[optionIndex];
-                                                if (opt.isOther) {
-                                                        inputMode = true;
-                                                        inputQuestionId = q.id;
-                                                        editor.setText("");
-                                                        refresh();
-                                                        return;
-                                                }
-                                                saveAnswer(q.id, opt.value, opt.label, false, optionIndex + 1);
-                                                advanceAfterAnswer();
-                                                return;
                                         }
 
                                         // Cancel
@@ -317,20 +436,43 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 lines.push("");
                                         }
 
-                                        // Helper to render options list
+                                        // Render options list (used in normal and input-mode views)
                                         function renderOptions() {
+                                                const isMultiple = q?.multiple === true;
+                                                const multiSel = (q && isMultiple) ? getMultiSelection(q.id) : null;
+
                                                 for (let i = 0; i < opts.length; i++) {
                                                         const opt = opts[i];
-                                                        const selected = i === optionIndex;
+                                                        const cursorOn = i === optionIndex;
                                                         const isOther = opt.isOther === true;
-                                                        const prefix = selected ? theme.fg("accent", "> ") : "  ";
-                                                        const color = selected ? "accent" : "text";
-                                                        // Mark "Type something" differently when in input mode
-                                                        if (isOther && inputMode) {
-                                                                add(prefix + theme.fg("accent", `${i + 1}. ${opt.label} ✎`));
+                                                        const cursorPrefix = cursorOn ? theme.fg("accent", "> ") : "  ";
+                                                        const color = cursorOn ? "accent" : "text";
+
+                                                        if (isMultiple && multiSel) {
+                                                                const isChecked = isOther
+                                                                        ? multiSel.custom !== undefined
+                                                                        : multiSel.indices.has(i);
+                                                                const checkbox = isChecked
+                                                                        ? theme.fg("success", "[x]")
+                                                                        : theme.fg("muted", "[ ]");
+
+                                                                if (isOther && inputMode && inputQuestionId === q!.id) {
+                                                                        add(cursorPrefix + checkbox + " " + theme.fg("accent", `${i + 1}. ${opt.label} ✎`));
+                                                                } else if (isOther && multiSel.custom !== undefined) {
+                                                                        // Show the already-typed text inline
+                                                                        add(cursorPrefix + checkbox + " " + theme.fg(color, `${i + 1}. Type something`) + theme.fg("muted", `: "${multiSel.custom}"`));
+                                                                } else {
+                                                                        add(cursorPrefix + checkbox + " " + theme.fg(color, `${i + 1}. ${opt.label}`));
+                                                                }
                                                         } else {
-                                                                add(prefix + theme.fg(color, `${i + 1}. ${opt.label}`));
+                                                                // Single-select: cursor indicator only
+                                                                if (isOther && inputMode) {
+                                                                        add(cursorPrefix + theme.fg("accent", `${i + 1}. ${opt.label} ✎`));
+                                                                } else {
+                                                                        add(cursorPrefix + theme.fg(color, `${i + 1}. ${opt.label}`));
+                                                                }
                                                         }
+
                                                         if (opt.description) {
                                                                 add(`     ${theme.fg("muted", opt.description)}`);
                                                         }
@@ -341,7 +483,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         if (inputMode && q) {
                                                 add(theme.fg("text", ` ${q.prompt}`));
                                                 lines.push("");
-                                                // Show options for reference
+                                                // Show options for reference (with current checkboxes)
                                                 renderOptions();
                                                 lines.push("");
                                                 add(theme.fg("muted", " Your answer:"));
@@ -356,19 +498,29 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 for (const question of questions) {
                                                         const answer = answers.get(question.id);
                                                         if (answer) {
-                                                                const prefix = answer.wasCustom ? "(wrote) " : "";
-                                                                add(`${theme.fg("muted", ` ${question.label}: `)}${theme.fg("text", prefix + answer.label)}`);
+                                                                let labelText: string;
+                                                                if (answer.wasCustom && answer.labels.length === 1) {
+                                                                        labelText = `(wrote) ${answer.labels[0]}`;
+                                                                } else {
+                                                                        const predefined = answer.wasCustom ? answer.labels.slice(0, -1) : answer.labels;
+                                                                        const parts = [...predefined];
+                                                                        if (answer.wasCustom) {
+                                                                                parts.push(`"${answer.labels[answer.labels.length - 1]}"`);
+                                                                        }
+                                                                        labelText = parts.join(", ");
+                                                                }
+                                                                add(`${theme.fg("muted", ` ${question.label}: `)}${theme.fg("text", labelText)}`);
                                                         }
                                                 }
                                                 lines.push("");
-                                                
+
                                                 // "Anything else?" option
                                                 const additionalAnswer = answers.get("__additional__");
                                                 if (additionalAnswer) {
-                                                        add(theme.fg("muted", " Anything else: ") + theme.fg("text", additionalAnswer.label));
+                                                        add(theme.fg("muted", " Anything else: ") + theme.fg("text", additionalAnswer.labels[0]));
                                                         lines.push("");
                                                 }
-                                                
+
                                                 if (allAnswered()) {
                                                         add(theme.fg("success", " Press Enter to submit"));
                                                         add(theme.fg("dim", " Press A to add 'Anything else'"));
@@ -383,13 +535,30 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 add(theme.fg("text", ` ${q.prompt}`));
                                                 lines.push("");
                                                 renderOptions();
+
+                                                // Multi-select: show contextual hint below options
+                                                if (q.multiple) {
+                                                        lines.push("");
+                                                        if (hasAnyMultiSelection(q.id)) {
+                                                                add(theme.fg("success", " Press Enter to confirm selections"));
+                                                        } else {
+                                                                add(theme.fg("dim", " Select at least one option, then press Enter"));
+                                                        }
+                                                }
                                         }
 
                                         lines.push("");
                                         if (!inputMode) {
-                                                const help = isMulti
-                                                        ? " Tab/←→ navigate • ↑↓/1-9 select • Enter confirm • Esc cancel"
-                                                        : " ↑↓/1-9 select • Enter confirm • Esc cancel";
+                                                let help: string;
+                                                if (q?.multiple) {
+                                                        help = isMulti
+                                                                ? " Tab/←→ navigate • ↑↓ move • 1-9/Space toggle • Enter confirm • Esc cancel"
+                                                                : " ↑↓ move • 1-9/Space toggle • Enter confirm • Esc cancel";
+                                                } else {
+                                                        help = isMulti
+                                                                ? " Tab/←→ navigate • ↑↓/1-9 select • Enter confirm • Esc cancel"
+                                                                : " ↑↓/1-9 select • Enter confirm • Esc cancel";
+                                                }
                                                 add(theme.fg("dim", help));
                                         }
                                         add(theme.fg("accent", "─".repeat(width)));
@@ -415,11 +584,30 @@ export default function questionnaire(pi: ExtensionAPI) {
                         }
 
                         const answerLines = result.answers.map((a) => {
-                                const qLabel = questions.find((q) => q.id === a.id)?.label || a.id;
-                                if (a.wasCustom) {
-                                        return `${qLabel}: user wrote: ${a.label}`;
+                                if (a.id === "__additional__") {
+                                        return `Additional notes: ${a.labels[0]}`;
                                 }
-                                return `${qLabel}: user selected: ${a.index}. ${a.label}`;
+
+                                const qLabel = questions.find((q) => q.id === a.id)?.label || a.id;
+                                const parts: string[] = [];
+
+                                // Predefined selections (all labels except last if wasCustom)
+                                const predefinedLabels = a.wasCustom ? a.labels.slice(0, -1) : a.labels;
+                                const predefinedIndices = a.indices || [];
+                                if (predefinedLabels.length > 0) {
+                                        const selections = predefinedLabels
+                                                .map((label, i) =>
+                                                        predefinedIndices[i] !== undefined ? `${predefinedIndices[i]}. ${label}` : label,
+                                                )
+                                                .join(", ");
+                                        parts.push(`user selected: ${selections}`);
+                                }
+
+                                if (a.wasCustom) {
+                                        parts.push(`user wrote: ${a.labels[a.labels.length - 1]}`);
+                                }
+
+                                return `${qLabel}: ${parts.join(" and ")}`;
                         });
 
                         return {
@@ -450,11 +638,22 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 return new Text(theme.fg("warning", "Cancelled"), 0, 0);
                         }
                         const lines = details.answers.map((a) => {
-                                if (a.wasCustom) {
-                                        return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${theme.fg("muted", "(wrote) ")}${a.label}`;
+                                if (a.id === "__additional__") {
+                                        return `${theme.fg("success", "✓ ")}${theme.fg("muted", "Additional: ")}${a.labels[0]}`;
                                 }
-                                const display = a.index ? `${a.index}. ${a.label}` : a.label;
-                                return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${display}`;
+                                if (a.wasCustom && a.labels.length === 1) {
+                                        return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${theme.fg("muted", "(wrote) ")}${a.labels[0]}`;
+                                }
+                                const predefinedLabels = a.wasCustom ? a.labels.slice(0, -1) : a.labels;
+                                const predefinedIndices = a.indices || [];
+                                const displayParts: string[] = predefinedLabels.map((label, i) => {
+                                        const idx = predefinedIndices[i];
+                                        return idx !== undefined ? `${idx}. ${label}` : label;
+                                });
+                                if (a.wasCustom) {
+                                        displayParts.push(`"${a.labels[a.labels.length - 1]}"`);
+                                }
+                                return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${displayParts.join(", ")}`;
                         });
                         return new Text(lines.join("\n"), 0, 0);
                 },
