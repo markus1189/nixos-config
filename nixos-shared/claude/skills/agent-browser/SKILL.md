@@ -71,9 +71,9 @@ agent-browser wait @e1  # Wait for element
 agent-browser wait 2000  # Wait milliseconds
 agent-browser wait --text "Success"  # Wait for text
 agent-browser wait --load networkidle  # Wait for network idle
-agent-browser screenshot  # Take screenshot
-agent-browser screenshot --full  # Full page screenshot
 agent-browser screenshot --annotate page.png  # Screenshot with numbered element labels ([N]→@eN)
+agent-browser screenshot --full  # Full page screenshot
+agent-browser screenshot  # Take screenshot
 ```
 
 ### Debugging
