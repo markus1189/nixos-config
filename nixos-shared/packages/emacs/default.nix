@@ -1,4 +1,4 @@
-{ emacs, mutate, runCommandLocal, fetchurl, fasd, plantuml
+{ emacs, mutate, runCommandLocal, fetchurl, fetchzip, fasd, plantuml
 , pandoc, git, ndtSources }:
 
 let
@@ -41,7 +41,18 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
   '';
-in emacs.pkgs.withPackages (epkgs:
+  emacsPackages = emacs.pkgs.overrideScope (self: super: {
+    # flycheck 20260223.1754 has no sha256 in the emacs-overlay yet → src = null → build failure.
+    # Pin to last working version (20260219.1225) until the overlay catches up.
+    flycheck = super.flycheck.overrideAttrs (_: {
+      src = fetchzip {
+        url = "https://github.com/flycheck/flycheck/archive/ebddfd89b1eea91b8590f542908672569942fb82.tar.gz";
+        sha256 = "0gndi96ijxqj6k9qy5d4l0cwqh0ky7w1p27z90ipkn05xz4j3zp5";
+      };
+      meta = { broken = false; };
+    });
+  });
+in emacsPackages.withPackages (epkgs:
   (with epkgs.melpaPackages;
     with epkgs.elpaPackages;
     with epkgs;
