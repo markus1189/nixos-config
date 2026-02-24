@@ -1,6 +1,6 @@
 ---
 name: hackernews
-description: "Fetches and displays Hacker News stories and comments via CLI. Use when the user asks about HN, Hacker News, tech stories, wants to search HN, or wants to read/analyze HN comments."
+description: "Daily HN briefing agent with delta tracking, deep-dive sub-agent pipeline, and user-interest-aware filtering. Use when the user asks about HN, Hacker News, tech news, wants to check/browse HN, get a briefing, see what's new or hot, search stories, read or analyze HN comments, or do a deep dive on a story."
 ---
 
 # Hacker News CLI
@@ -35,21 +35,18 @@ Fetch top stories, search, and view comments from Hacker News.
 ./scripts/hn-cli.sh -c STORY_ID -n 100           # Up to 100 comments
 ```
 
-## Output format
+Story IDs appear in brackets `[12345678]` in output — use these for `--comments`.
 
-Stories show: rank, title, domain, story ID, points, author, age, comment count, URLs.
-Comments show: tree structure with author, time, and text.
-
-Story IDs appear in brackets `[12345678]` — use these for `--comments`.
+**Script Execution:** Run scripts from the skill directory. All scripts use Nix shebangs so no manual dependency installation is required.
 
 ## Typical workflows
 
 1. **Browse HN**: Run with no args, scan titles
 2. **Search for topics**: Use `-s "query"` to find stories on specific topics
 3. **Dive into discussion**: Note story ID, run with `-c ID -d 2`
-5. **Research a topic**: Search with `-s`, then fetch comments for interesting stories
-6. **Summarize for user**: Fetch stories + comments, summarize key points and insights
-7. **Briefing mode**: See below
+4. **Research a topic**: Search with `-s`, then fetch comments for interesting stories
+5. **Summarize for user**: Fetch stories + comments, summarize key points and insights
+6. **Briefing mode**: See below
 
 ## Deep-Dive Sub-Agent
 
@@ -72,6 +69,10 @@ wait
 
 Output is structured markdown (TL;DR, key points, discussion themes table, notable comments). Progress goes to stderr.
 
+### Ghost thread auto-follow
+
+If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically run a second deep dive on that linked thread — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
+
 ## Daily State Tracking
 
 Track HN browsing across multiple sessions in a single day using a stateful markdown file.
@@ -91,10 +92,9 @@ If no `hn-daily.md` exists for today → full briefing mode (see below). After p
 3. Compute delta:
    - **New**: stories not in state tail
    - **Movers**: stories where score jumped >50 OR comments jumped >30 since last check
-4. Present only the delta (skip unchanged/already-seen stories)
-5. User picks deep dives → append inline
-6. Append new `## Check N — HH:MM` section
-7. Rewrite state tail with merged current snapshot
+4. **Write file first**: append `## Check N — HH:MM` section and rewrite state tail before presenting output to user
+5. Present only the delta (skip unchanged/already-seen stories)
+6. User picks deep dives → run them, **append notes to file before presenting summaries**
 
 ### State tail format
 Always at the very end of the file, after a `---` separator. Fenced with ` ```state ` / ` ``` `. Pipe-delimited, one line per story:
@@ -143,32 +143,24 @@ When user asks casually about hacker news stories, use this style:
 2. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
 3. User picks stories they want to dig into
 4. **Spawn `hn-deepdive.sh` for each pick** (in parallel via `&` + `wait`, writing to temp files). Do NOT fetch articles or comments directly into main context.
-5. Read the summary files and present them to the user
-6. Group related stories together
-7. When user asks "your take?" — give genuine opinions, not hedged summaries
-8. Update the daily state file (create if first check, append if subsequent)
+5. Read the summary files
+6. **Write all file updates first** (state file, deep dive notes appended to daily file) — before writing any conversational output. The text summary the user reads is always last.
+7. Present summaries to the user
+8. Group related stories together
+9. When user asks "your take?" — give genuine opinions, not hedged summaries
 
 ### Tone
 - **HN-native**: direct, slightly cynical, technically literate
 - **Not corporate/PR**: have a voice, make judgments
 - **Opinionated on request**: distinguish factual summary from editorial take
 
-### Format
-- Tables for quick scanning (story | points | comments | topic)
-- Headers to separate stories
-- Key quotes in blockquotes
-- Discussion themes grouped by viewpoint
-- Bullet points over paragraphs
-
 ## Comment Mining
 
 The most valuable HN finds are often **buried in comments**, not in the stories themselves — someone's personal shell function, a workflow hack, an unpublished tool that lives only in their rc file, etc. When a thread is rich (productivity, "how do you X", Ask HN, "what's your setup"), don't just summarize the article — **scan comments for personal systems, tools, and workflows** people mention (casually).
 
 ### What to look for
-- **Unpublished personal inventions**: shell functions, directory layouts, automation scripts nobody's packaged. If someone mentions it across multiple threads over time, it's battle-tested.
+- **Unpublished personal inventions**: shell functions, directory layouts, automation scripts nobody's packaged. Mentioned across multiple threads = battle-tested.
 - **"Show and tell" derails**: When a thread devolves into "what's YOUR setup" — that's the gold, not the article.
-- **Contrarian practitioners**: The person who says "I tried the opposite and here's what happened" with specifics.
-- **First-hand war stories**: "At my company we..." with concrete details, not abstract opinions.
 
 ### Following up on interesting commenters
 Use the Algolia API to check if they've mentioned the same system before:
@@ -181,10 +173,7 @@ Also check: HN profile (`about` field), GitHub username, dotfiles repos, blog li
 
 The most valuable HN finds are often **linked in comments, not described** — someone drops a GitHub URL to their dotfiles, a gist with their shell function, an AGENTS.md, a SKILL.md, a personal tool repo. These are the discoveries users care about most.
 
-**Filtering**: Not every link is worth surfacing. Skip generic library links, well-known projects, and obvious self-promotion. Surface links that are:
-- **Personal and hand-crafted** — someone's own config, workflow, or tool they built for themselves
-- **Validated by the thread** — other commenters praised it, asked questions about it, or built on it
-- **Relevant to user interests** — matches topics in the User Interests section below
+**Filtering**: Surface links that are personal/hand-crafted (someone's own config, dotfiles, tool), validated by the thread (other commenters engaged with it), and relevant to User Interests below. Skip generic libraries and well-known projects.
 
 **During deep dives**: The sub-agent surfaces these in a "Linked Artifacts" section. After reading deep-dive output, **prominently call out** interesting artifacts that pass the filter — don't bury them in comment quotes. Present them as a separate callout so the user can decide whether to chase them down.
 
@@ -209,7 +198,6 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 - In deep dives: add a **⭐ High-Profile Commenters** section before Notable Comments listing who appeared, their identity, and their key point
 - In main context briefings: call it out inline if a notable person is the submitter or a prominent commenter (e.g., "Armin Ronacher is in the thread and disagrees with the framing")
 - Weight their comments higher — quote them first, even if the comment isn't the most upvoted
-- Note when the article's *author* comments (they often add context not in the article)
 
 ## User Interests
 
