@@ -86,11 +86,6 @@ let
       source = ./extensions/think.ts;
     };
 
-    "pi-agent-extension-file-trigger" = {
-      target = ".pi/agent/extensions/file-trigger.ts";
-      source = ./extensions/file-trigger.ts;
-    };
-
     # END EXTENSIONS
 
     "pi-agent-models" = {
