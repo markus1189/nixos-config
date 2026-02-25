@@ -1,16 +1,14 @@
-# Restwerte Analysis
+---
+description: Sprint Restwerte — extract Jira stories from latest screenshot into tracking table, copy as HTML to clipboard for Teams
+---
 
-## Description
-Extract Jira story information from the most recent screenshot and create a table for tracking remaining story points (Restwerte) in the current sprint.
+Find the most recent screenshot in ~/Screenshots, extract all visible active Jira stories (skip greyed-out/parked items), and build a markdown table with columns: Nr, Story, Title, Estimated, Remaining (empty), Notizen. Include a Total row.
 
-## Prompt
-Find the most recent screenshot in ~/Screenshots, extract all visible Jira stories, and create a table with columns: Nr, Story, Title, Estimated, Remaining. Leave the "Remaining" column empty for manual input.
+Once the user fills in Remaining values, update the table and copy it to clipboard as HTML for Teams pasting:
 
-The table should include:
-- Sequential number (Nr) for easy reference
-- Story numbers (e.g., FT1-29241)
-- Story titles/descriptions
-- Estimated story points (visible on the right side)
-- Empty "Remaining" column for Restwerte input
+```bash
+echo '...table...' | pandoc -f markdown -t html > /tmp/restwerte.html
+nohup bash -c 'DISPLAY=:0 xclip -selection clipboard -t text/html -i /tmp/restwerte.html' >/dev/null 2>&1 &
+```
 
-Format as a markdown table that can be easily copied and updated.
+Do NOT pipe directly into xclip — it hangs. The nohup+DISPLAY pattern is the only reliable approach.
