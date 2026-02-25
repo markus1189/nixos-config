@@ -437,6 +437,7 @@ myKeysP =
     (myModKeyP "o i m", raise ((&&) <$> iclassName "com.mitchellh.ghostty" <*> (MH.title <&> ("im:" `isPrefixOf`)))),
     (myModKeyP "o t e", raise (iclassName "telegramdesktop")),
     (myModKeyP "o m s", raise (ititleContains "microsoft teams")),
+    (myModKeyP "o s i", raise (iclassName "signal")),
     (myModKeyP "o s l", raise (iclassName "slack")),
     (myModKeyP "o s p", raise (iclassName "spotify")),
     (myModKeyP "o m p", raise (iclassName "mpv")),
