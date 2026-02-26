@@ -152,7 +152,7 @@
     "portkey-openai": {
       "baseUrl": "https://api.portkey.ai/v1",
       "apiKey": "PORTKEY_API_KEY_CC",
-      "api": "openai-completions",
+      "api": "openai-responses",
       "authHeader": true,
       "models": [
         {
@@ -175,6 +175,23 @@
         {
           "id": "@azure-openai-foundry/gpt-5.2-codex",
           "name": "GPT-5.2 Codex (Portkey/Azure)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 1.75,
+            "output": 14,
+            "cacheRead": 0.175,
+            "cacheWrite": 0
+          },
+          "contextWindow": 400000,
+          "maxTokens": 128000
+        },
+        {
+          "id": "@azure-openai-foundry/gpt-5.3-codex",
+          "name": "GPT-5.3 Codex (Portkey/Azure)",
           "reasoning": true,
           "input": [
             "text",
