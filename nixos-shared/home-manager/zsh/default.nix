@@ -55,27 +55,24 @@
 
       # cdt: Create Date-organized directory and cd into it
       # Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
+      # Canonical entrypoint is ~/Stuff/Today (symlink to today's dir)
       # Usage: cdt [name] -> ~/Stuff/2026-02/13-name
       function cdt() {
         local name="''${1:-scratch}"
         local month_dir="$HOME/Stuff/$(date +%Y-%m)"
         local target="$month_dir/$(date +%d)-$name"
-        
+        local today_link="$HOME/Stuff/Today"
+
         mkdir -p "$target"
-        
-        # Update current symlink
-        ln -sfn "$month_dir" "$HOME/CurrentStuff"
-        
+
+        # Update today symlink
+        ln -sfn "$target" "$today_link"
+
         cd "$target" || return
       }
 
-      # stuff: Jump to current month's directory
-      function stuff() {
-        cd "$HOME/CurrentStuff" || echo "No CurrentStuff symlink found. Run 'cdt' first."
-      }
-
-      # fstuff: Fuzzy find a directory in Stuff and jump to it
-      function fstuff() {
+      # Fuzzy find a directory in Stuff and jump to it
+      function cdf() {
         local dir
         dir=$(find ~/Stuff -mindepth 2 -maxdepth 2 -type d 2>/dev/null | fzf --height 40% --layout=reverse --border --preview 'ls -A {1}')
         [ -n "$dir" ] && cd "$dir"

@@ -721,11 +721,11 @@ Position the cursor at its beginning, according to the current mode."
   (defun mh/set-stuff-dir (&rest _)
     "Set find-temp-file-directory to today's Stuff dir."
     (let* ((month-dir (expand-file-name (format-time-string "%Y-%m") "~/Stuff"))
-           (day-dir (expand-file-name (format-time-string "%d-scratch") month-dir)))
+           (day-dir (expand-file-name (format-time-string "%d-scratch") month-dir))
+           (symlink (expand-file-name "Today" "~/Stuff")))
       (make-directory day-dir t)
-      (let ((symlink (expand-file-name "CurrentStuff" "~")))
-        (when (file-symlink-p symlink) (delete-file symlink))
-        (make-symbolic-link month-dir symlink))
+      (when (file-symlink-p symlink) (delete-file symlink))
+      (make-symbolic-link day-dir symlink)
       (setq find-temp-file-directory (file-name-as-directory day-dir))))
 
   (advice-add 'find-temp-file :before #'mh/set-stuff-dir))
