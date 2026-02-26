@@ -1402,42 +1402,6 @@ string). It returns t if a new completion is found, nil otherwise."
   (require 'gptel-integrations)
   :config
 
-  (defun mh/gptel-ocr-screenshot ()
-    (interactive)
-    (let ((buf-name "*gptel-ocr-screenshot*")
-          (gptel-backend (gptel-get-backend "OpenRouter"))
-          (gptel-model 'openai/gpt-4.1-nano)
-          (gptel-context--alist nil)
-          (gptel-track-media t)
-          (gptel-post-request-hook nil)
-          (path (format
-                 "~/Screenshots/%s"
-                 (car
-                  (-filter (lambda (path)
-                             (s-match "^[[:digit:]][[:digit:]][[:digit:]][[:digit:]]-" path))
-                           (reverse
-                            (directory-files
-                             (expand-file-name "~/Screenshots")
-                             nil
-                             "^\\([^.]\\|\\.[^.]\\|\\.\\..\\)"))))))
-          )
-      (add-hook 'gptel-post-request-hook (lambda () (switch-to-buffer (get-buffer-create buf-name))))
-      (with-current-buffer (get-buffer-create buf-name) (erase-buffer))
-      (and
-       (gptel-context--add-binary-file path)
-       (gptel-request
-           "Please extract all text from the attached screenshot in this one-time
-request. Preserve any table structures and format the output for easy
-copy-pasting. Highlight or clearly indicate important information such
-as messages, UUIDs, code snippets, or other relevant identifiers. The
-extraction should be suitable for use with programming tools and
-documentation, capturing details from sites like JIRA, Miro, Kibana,
-etc. This is a single, standalone request, no follow-up needed."
-         :buffer   (get-buffer-create "*gptel-ocr-screenshot*")
-         :position (point-max)
-         ;; :callback (lambda (response _) (message response))
-         ))))
-
   (setq gptel-use-tools nil)
 
   (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "* user\n")
