@@ -4,10 +4,10 @@
 Extract my assigned roles from sprint duty tables by analyzing the most recent screenshot and creating a comprehensive assignment table.
 
 ## Prompt
-Find the most recent screenshot in ~/Screenshots using an efficient file discovery approach, extract all visible sprint duty tables, and systematically search for "Markus" assignments.
+Find the most recent screenshot in ~/Stuff/Today using an efficient file discovery approach, extract all visible sprint duty tables, and systematically search for "Markus" assignments.
 
 **File Discovery Strategy:**
-Use `find ~/Screenshots -mtime -1 -type f | sort -r` to get the most recent files (within last 24 hours), sorted newest first.
+Use `find ~/Stuff/Today -maxdepth 1 -type f | sort -r` to get the most recent files, sorted newest first.
 
 **Analysis Requirements:**
 1. **Thorough Search**: Examine EVERY column in ALL tables row by row

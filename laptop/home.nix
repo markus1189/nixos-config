@@ -227,7 +227,8 @@ in
             drawColor=#ff0000
             drawThickness=3
             saveAfterCopy=true
-            savePath=/home/markus/Screenshots
+            ; Symlink managed by cdt/Emacs to today's Stuff directory
+            savePath=/home/markus/Stuff/Today
             uiColor=#ee8903
 
             [Shortcuts]

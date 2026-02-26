@@ -52,8 +52,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ## Screenshot Analysis
 Find recent screenshots:
-1. `find ~/Screenshots -mtime -1 -type f | sort -r`
-2. Adjust `-mtime` as needed (-7 for week, -30 for month)
+1. `find ~/Stuff/Today -maxdepth 1 -type f | sort -r`
+2. For older files adjust path, e.g. `~/Stuff/2026-02/13-scratch`
 
 ## Using ddgr
 - DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`

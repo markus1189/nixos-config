@@ -39,10 +39,10 @@ Then automatically creates a Splid expense entry using the extracted information
 set -euo pipefail
 
 # Find the most recent screenshot
-LATEST_SCREENSHOT=$(find ~/Screenshots -mtime -1 -type f | sort -r | head -1)
+LATEST_SCREENSHOT=$(find ~/Stuff/Today -maxdepth 1 -type f | sort -r | head -1)
 
 if [[ -z "$LATEST_SCREENSHOT" ]]; then
-    echo "No recent screenshots found in ~/Screenshots"
+    echo "No recent screenshots found in ~/Stuff/Today"
     exit 1
 fi
 
@@ -52,7 +52,7 @@ echo "Please analyze this screenshot to extract the expense title and total amou
 
 ## Workflow
 
-1. Locates the most recent screenshot from `~/Screenshots`
+1. Locates the most recent screenshot from `~/Stuff/Today`
 2. Claude analyzes the screenshot to extract:
    - Expense title (brief description of all items)
    - Total amount (Gesamtsumme)
