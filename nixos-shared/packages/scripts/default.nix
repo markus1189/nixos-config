@@ -1531,4 +1531,47 @@ rec {
   claude-history = writers.writePython3Bin "claude-history" {
     libraries = [ python3Packages.colorama ];
   } (builtins.readFile ./claude-history.py);
+
+  chronic-file = writeShellApplication {
+    name = "chronic-file";
+    runtimeInputs = [ coreutils ];
+    text = ''
+      show_time=0
+      if [[ "''${1:-}" == "--time" ]]; then
+          show_time=1
+          shift
+      fi
+
+      if [[ $# -eq 0 ]]; then
+          echo "Usage: chronic-file [--time] <command> [args...]" >&2
+          exit 1
+      fi
+
+      tmpfile=$(mktemp -t chronic-file.XXXXXX.log)
+
+      start=$(date +%s%3N)
+
+      exit_code=0
+      "$@" >"$tmpfile" 2>&1 || exit_code=$?
+
+      end=$(date +%s%3N)
+      elapsed_ms=$(( end - start ))
+
+      if (( elapsed_ms < 1000 )); then
+          duration="''${elapsed_ms}ms"
+      else
+          duration="$(( elapsed_ms / 1000 )).$( printf '%03d' $(( elapsed_ms % 1000 )) | cut -c1-1 )s"
+      fi
+
+      if [[ $exit_code -eq 0 ]]; then
+          rm -f "$tmpfile"
+          if [[ $show_time -eq 1 ]]; then
+              echo "OK (''${duration})" >&2
+          fi
+      else
+          echo "FAILED (exit $exit_code, ''${duration}): $tmpfile" >&2
+          exit $exit_code
+      fi
+    '';
+  };
 }

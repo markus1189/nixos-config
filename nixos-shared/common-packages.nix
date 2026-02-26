@@ -69,6 +69,7 @@ in
         (myScripts.logArgs)
         (myScripts.recordMeeting)
         (myScripts.tmuxPollPane)
+        (myScripts.chronic-file)
       ]);
   };
 }
