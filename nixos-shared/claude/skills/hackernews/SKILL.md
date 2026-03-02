@@ -199,6 +199,39 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 - In main context briefings: call it out inline if a notable person is the submitter or a prominent commenter (e.g., "Armin Ronacher is in the thread and disagrees with the framing")
 - Weight their comments higher — quote them first, even if the comment isn't the most upvoted
 
+## Wrap-Up Mode
+
+**Trigger**: user says "wrapup" (or variant) to end the session.
+
+1. Read today's `hn-daily.md`
+2. Write `hn-wrapup.md` to the same directory **before** any conversational output
+3. Confirm briefly — don't re-summarize
+
+### Structure
+
+```markdown
+# HN Wrap-Up — [Weekday, Month Day, Year]
+
+> Top N checked. N deep dives.
+
+## The Day in One Paragraph
+[dominant themes, tone, 2–3 standout stories — with voice]
+
+## Deep Dives
+### [Emoji] [Title] [[story_id]]
+**[pts] pts · [comments] comments**
+[Distill, don't paste: what matters from the story + thread, key artifacts/papers/commenters]
+
+## Stories Noted (Not Dived)
+| Story | Pts | Why Notable |
+(only worth-remembering ones — skip low-signal)
+
+## Threads to Follow Tomorrow
+(omit if nothing genuine to follow up on)
+```
+
+---
+
 ## User Interests
 
 Topics that consistently engage this user:
