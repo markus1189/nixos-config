@@ -18,7 +18,6 @@ let
     pocketConsumerKey = secrets.pocket.consumer_key;
     pocketAccessToken = secrets.pocket.access_token;
     raindropTestToken = secrets.raindrop.test_token;
-    mcp_el = ndtSources.mcp-el;
   };
 
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
@@ -72,7 +71,6 @@ in emacsPackages.withPackages (epkgs:
     in [
       (treesit-grammars.with-all-grammars)
 
-      aidermacs
       avy
       annotate
       bats-mode

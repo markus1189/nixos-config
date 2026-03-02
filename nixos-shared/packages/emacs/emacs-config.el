@@ -2323,7 +2323,6 @@ Provides more detailed messages on failure."
             (:owner "martinvonz" :repo "jj")
             (:owner "dunst-project" :repo "dunst")
             (:owner "karthink" :repo "gptel")
-            (:owner "aider-ai" :repo "aider")
             (:owner "alacritty" :repo "alacritty")
             (:owner "sst" :repo "opencode" :tags (llm))))
 
@@ -2632,7 +2631,6 @@ Provides more detailed messages on failure."
            ("https://feeds.leonid.codes/hacker_news.rss" hackernews2)
            ("https://gophersignal.com/rss#/" hackernews3)
            ("https://github.blog/changelog/feed/" github)
-           ("https://aider.chat/feed.xml" programming programming-general)
            ("https://hamatti.org/feed/feed.xml" programming programming-general)
            ("https://harper.blog/index.xml" programming programming-general)
            ("https://lucumr.pocoo.org/feed.atom" llm programming programming-general)
@@ -2695,46 +2693,4 @@ Provides more detailed messages on failure."
 (use-package bats-mode
   :ensure t)
 
-(add-to-list 'load-path "@mcp_el@")
-(require 'mcp-hub)
-
-(setq mcp-hub-servers
-      '(
-        ("mongodb-local" . (:command "docker" :args ("run" "--rm" "-i" "--network=host" "furey/mongodb-lens")))
-        ("filesystem" . (:command "docker" :args ("run" "--rm" "-i" "--mount" "type=bind,src=/tmp/filesystem-mcp-test,dst=/projects/filesystem-mcp-test" "mcp/filesystem" "/projects")))
-        ("sqlite" . (:command "docker" :args ("run" "--rm" "-i" "-v" "mcp-test:/mcp" "mcp/sqlite" "--db-path" "/mcp/test.db")))
-        ("intellij" . (:command "npx" :args ("-y" "@jetbrains/mcp-proxy")))))
-
-
-(defun gptel-mcp-register-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar #'(lambda (tool)
-                (apply #'gptel-make-tool
-                       tool))
-            tools)))
-
-(defun gptel-mcp-use-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar #'(lambda (tool)
-                (let ((path (list (plist-get tool :category)
-                                  (plist-get tool :name))))
-                  (push (gptel-get-tool path)
-                        gptel-tools)))
-            tools)))
-
-(defun gptel-mcp-close-use-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar #'(lambda (tool)
-                (let ((path (list (plist-get tool :category)
-                                  (plist-get tool :name))))
-                  (setq gptel-tools
-                        (cl-remove-if #'(lambda (tool)
-                                          (equal path
-                                                 (list (gptel-tool-category tool)
-                                                       (gptel-tool-name tool))))
-                                      gptel-tools))))
-            tools)))
 ;;
