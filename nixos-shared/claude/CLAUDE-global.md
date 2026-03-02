@@ -66,5 +66,13 @@ Find recent screenshots:
 - **Primary multiplexer**: tmux
 - **Access**: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
 
+## Clipboard (xclip)
+Direct piping into xclip hangs. Always use the `nohup` + `DISPLAY=:0` pattern:
+```bash
+echo "text" > /tmp/clip.txt
+nohup bash -c 'DISPLAY=:0 xclip -selection clipboard -i /tmp/clip.txt' >/dev/null 2>&1 &
+```
+For HTML clipboard content, add `-t text/html`.
+
 ## Find Installed Emacs Package Source
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
