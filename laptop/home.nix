@@ -661,6 +661,8 @@ in
 
           font-feature = "-calt, -liga, -dlig";
 
+          bell-features = "no-title";
+
           keybind = [
             "alt+v=paste_from_clipboard"
             "ctrl+shift+f=unbind"
