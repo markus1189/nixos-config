@@ -108,12 +108,44 @@ EOF
 git push origin claude-code-OLD-to-NEW
 ```
 
-### 10. Create PR (optional, if user requests)
-Use default nixpkgs template:
+### 10. Create Draft PR
 ```bash
+# Prepare PR body from template with summary prepended and boxes ticked
+BODY_FILE=$(mktemp)
+cat > "$BODY_FILE" <<SUMMARY
+Update claude-code, claude-code-bin, and vscode-extensions.anthropic.claude-code to NEW.
+
+https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+
+SUMMARY
+cat .github/PULL_REQUEST_TEMPLATE.md >> "$BODY_FILE"
+
+# Tick the relevant checkboxes
+sed -i 's/- \[ \] x86_64-linux/- [x] x86_64-linux/' "$BODY_FILE"
+sed -i 's/- \[ \] aarch64-linux/- [x] aarch64-linux/' "$BODY_FILE"
+sed -i 's/- \[ \] x86_64-darwin/- [x] x86_64-darwin/' "$BODY_FILE"
+sed -i 's/- \[ \] aarch64-darwin/- [x] aarch64-darwin/' "$BODY_FILE"
+sed -i 's/- \[ \] Ran `nixpkgs-review`/- [x] Ran `nixpkgs-review`/' "$BODY_FILE"
+sed -i 's/- \[ \] Tested basic functionality/- [x] Tested basic functionality/' "$BODY_FILE"
+sed -i 's/- \[ \] Fits \[CONTRIBUTING/- [x] Fits [CONTRIBUTING/' "$BODY_FILE"
+
 gh pr create --draft --title "claude-code: OLD -> NEW" \
-  --body-file .github/PULL_REQUEST_TEMPLATE.md
+  --body-file "$BODY_FILE" --repo NixOS/nixpkgs
+rm "$BODY_FILE"
 ```
+
+### 11. Open PR in Browser
+```bash
+nohup bash -c 'DISPLAY=:0 xdg-open $PR_URL' >/dev/null 2>&1 &
+```
+
+### 12. Check for Obsolete PRs
+Search for open claude-code update PRs that are now superseded:
+```bash
+gh pr list --repo NixOS/nixpkgs --search "claude-code in:title" --state open \
+  --json number,title,author,url --jq '.[] | "\(.number) | \(.author.login) | \(.title) | \(.url)"'
+```
+List any version-update PRs targeting older versions to the user so they can decide to close them.
 
 ## Troubleshooting
 
