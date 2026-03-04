@@ -6,7 +6,7 @@ let
   };
   nixpkgsMaster = import nixpkgsMasterSrc {
     config = {
-      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
+      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" "claude-code-bin" ];
       firefox = {
         enableOfficialBranding = true;
       };
