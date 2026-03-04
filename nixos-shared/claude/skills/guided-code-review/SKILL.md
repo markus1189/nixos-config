@@ -53,6 +53,8 @@ For each chunk in the agreed map:
 3. **Assess** against review dimensions (see [references/review-dimensions.md](references/review-dimensions.md))
 4. **Wait for reviewer feedback** before proceeding to the next chunk
 
+IMPORTANT: Use the question/questionnaire tool to step through this process!
+
 #### Reviewer Steering Commands
 
 Respond to these naturally:
