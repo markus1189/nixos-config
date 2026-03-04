@@ -21,6 +21,7 @@ in
       # jrnl fails at tests (2022-02-18)
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
+      (myScripts.addToRaindropScript { access_token = secrets.raindrop.test_token; })
     ];
 
     file =
