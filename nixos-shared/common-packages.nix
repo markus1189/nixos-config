@@ -17,7 +17,7 @@ in
 {
   environment = {
     systemPackages =
-      (with nixpkgsMaster; [ claude-code opencode ])
+      (with nixpkgsMaster; [ claude-code-bin ])
       ++ (with pkgs; [
         aws-vault
         bat
