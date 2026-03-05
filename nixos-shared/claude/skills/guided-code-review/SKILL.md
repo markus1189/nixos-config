@@ -107,6 +107,18 @@ After all chunks are reviewed, produce a structured summary:
 
 Omit empty sections. If story was a subtask, note which ACs this changeset covers vs. which are deferred.
 
+#### TODOs / Follow-ups
+
+If any findings warrant action, end with a concrete list:
+
+```
+## 📋 TODOs / Follow-ups
+- [ ] [Actionable item with enough context to act on]
+- [ ] ...
+```
+
+Only include if there are actual action items. Each item should be self-contained (no "see above").
+
 ## Key Rules
 
 - **Never dump everything at once** — always chunk and wait for the reviewer
