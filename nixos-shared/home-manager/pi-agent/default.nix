@@ -86,6 +86,11 @@ let
       source = ./extensions/think.ts;
     };
 
+    "pi-agent-extension-fresh-session" = {
+      target = ".pi/agent/extensions/fresh-session.ts";
+      source = ./extensions/fresh-session.ts;
+    };
+
     # END EXTENSIONS
 
     "pi-agent-models" = {
