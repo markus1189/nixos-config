@@ -37,7 +37,7 @@ export default function (pi: ExtensionAPI) {
         setup: async (sm) => {
           sm.appendMessage({
             role: "user",
-            content: [{ type: "text", text }],
+            content: [{ type: "text", text: `[Note: This was the last assistant message from the previous session, sent here as a user message for context.]\n\n${text}` }],
             timestamp: Date.now(),
           });
         },
