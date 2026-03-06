@@ -1,7 +1,7 @@
 import Control.Monad (filterM)
 import Data.Char (toLower)
 import Data.Functor (void, (<&>))
-import Data.List (foldl', isInfixOf, isPrefixOf)
+import Data.List (isInfixOf, isPrefixOf)
 import Data.Map qualified as M
 import Data.Ratio ((%))
 import System.IO (hPutStrLn)
@@ -59,6 +59,7 @@ import XMonad
     xK_F11,
     xK_F12,
     xK_F2,
+    xK_Insert,
     xK_Return,
     xK_Super_L,
     xK_Tab,
@@ -75,7 +76,6 @@ import XMonad
     xK_o,
     xK_p,
     xK_q,
-    xK_r,
     xK_s,
     xK_semicolon,
     xK_space,
@@ -86,20 +86,20 @@ import XMonad
     xmonad,
     (-->),
     (.|.),
-    (<+>),
     (=?),
-    (|||), xK_Insert,
+    (|||),
   )
 import XMonad.Actions.CopyWindow (copyToAll, kill1, killAllOtherCopies)
-import XMonad.Actions.CycleRecentWS (cycleWindowSets, recentWS)
+import XMonad.Actions.CycleRecentWS (cycleWindowSets)
 import XMonad.Actions.CycleWS (nextScreen, shiftNextScreen, swapNextScreen, toggleWS')
+import XMonad.Actions.DynamicWorkspaces (addHiddenWorkspace, removeEmptyWorkspace)
 import XMonad.Actions.FlexibleManipulate qualified as Flex
 import XMonad.Actions.GroupNavigation (Direction (Backward, Forward), nextMatchWithThis)
 import XMonad.Actions.Submap (submap)
 import XMonad.Actions.WindowBringer (bringWindow)
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
-import XMonad.Core (WindowSet, WindowSpace, WorkspaceId)
+import XMonad.Core (WindowSet, WindowSpace, WorkspaceId, withWindowSet)
 import XMonad.Hooks.DynamicLog
   ( PP
       ( ppCurrent,
@@ -130,7 +130,7 @@ import XMonad.Layout.MultiToggle (EOT (..), Toggle (..), mkToggle, (??))
 import XMonad.Layout.MultiToggle.Instances
   ( StdTransformers (FULL, NOBORDERS),
   )
-import XMonad.Layout.NoBorders (smartBorders)
+import XMonad.Layout.NoBorders (hasBorder, smartBorders)
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Reflect (reflectHoriz)
 import XMonad.Layout.ResizableTile (ResizableTall (..))
@@ -155,6 +155,7 @@ import XMonad.Layout.Tabbed
 import XMonad.ManageHook qualified as MH
 import XMonad.Prompt.Window (allWindows)
 import XMonad.StackSet qualified as W
+import XMonad.Util.Dmenu (menuArgs)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
 import XMonad.Util.NamedScratchpad
   ( NamedScratchpad (NS),
@@ -165,7 +166,16 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
-myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0])
+myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0]) ++ myNamedWorkspaces
+
+myNamedWorkspaces :: [String]
+myNamedWorkspaces = [workspaceZwift, workspaceSauce]
+
+workspaceZwift :: String
+workspaceZwift = "zwift"
+
+workspaceSauce :: String
+workspaceSauce = "sauce"
 
 workSpaceN :: Int -> String
 workSpaceN i = myWorkspaces !! (i - 1)
@@ -175,7 +185,11 @@ myManageHook =
   composeAll . concat $
     [ [manageHook gnomeConfig],
       [isDialog --> doFloat],
-      [MH.className =? "Sauce4zwift" --> doFloat],
+      [("Groups - Sauce for Zwift" `isInfixOf`) <$> wmName --> hasBorder False <> doShift workspaceZwift <> doFloat],
+      [("O101: Progress Bar" `isInfixOf`) <$> wmName --> hasBorder False <> doShift workspaceZwift <> doFloat],
+      [("Sauce for Zwift" `isPrefixOf`) <$> wmName --> doShift workspaceZwift <> doFloat],
+      [("Route Profile with segments" `isPrefixOf`) <$> wmName --> hasBorder False <> doShift workspaceSauce],
+      [wmName =? "Mod: Nearby Athletes" --> doShift workspaceSauce],
       [MH.className =? c --> doFloat | c <- classFloats],
       [MH.title =? t --> doFloat | t <- titleFloats],
       [stringProperty "WM_NAME" =? t --> doIgnore | t <- windowNameIgnores],
@@ -190,10 +204,10 @@ myManageHook =
       [MH.className =? c --> doShift (workSpaceN 7) | c <- ws7],
       [MH.className =? c --> doShift (workSpaceN 8) | c <- ws8],
       [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9],
-      [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9],
-      miscellaneous
+      [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9]
     ]
   where
+    wmName = stringProperty "WM_NAME"
     classFloats =
       [ "Xmessage",
         "Unity-2d-launcher",
@@ -247,11 +261,6 @@ myManageHook =
     ws7 = ["MPlayer", "mplayer2", "mpv"]
     ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
     ws9 = ["teams-for-linux"]
-    miscellaneous =
-      [ MH.title =? "vmail" --> doShift (workSpaceN 7),
-        MH.className <&> ("libreoffice" `isPrefixOf`) --> doShift (workSpaceN 5),
-        MH.className =? "zwiftapp.exe" --> doShift (workSpaceN 10)
-      ]
 
 myScratchPads :: [NamedScratchpad]
 myScratchPads =
@@ -329,8 +338,9 @@ recentNonVisibleWS p w =
 
 isWindowSpaceInteresting :: WindowSpace -> Bool
 isWindowSpaceInteresting = (&&) <$> notNSP <*> isNotEmpty
-  where isNotEmpty = not . null . W.stack
-        notNSP w = W.tag w /= "NSP"
+  where
+    isNotEmpty = not . null . W.stack
+    notNSP w = W.tag w /= "NSP"
 
 myKeys :: [((ButtonMask, KeySym), X ())]
 myKeys =
@@ -391,6 +401,10 @@ myKeys =
     ((myModShift, xK_u), scratchTermUpper),
     ((myModShift, xK_w), shiftNextScreen),
     ((myModShift, xK_x), spawn "@xkill@/bin/xkill"),
+    -- Dynamic workspaces
+    ((myModKey, xK_n), rofiWorkspaceSwitch),
+    ((myModShift, xK_n), rofiWorkspaceShift),
+    ((myModCtrl, xK_n), removeEmptyWorkspace),
     ((myModShiftCtrl, xK_h), spawn "env CM_MAX_CLIPS=9999 CM_LAUNCHER=rofi CM_HISTLENGTH=30 @clipmenu@/bin/clipmenu -i"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     -- Copy to all, kill again
@@ -405,8 +419,8 @@ myKeys =
   ]
     -- Non-greedy workspace switching with mod+<num>, greedy with mod+ctrl+<num>
     ++ [ ((m .|. myModKey, k), windows $ f i)
-         | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0]),
-           (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
+       | (i, k) <- zip myWorkspaces ([xK_1 .. xK_9] ++ [xK_0]),
+         (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
        ]
   where
     maximizeFloatWindow d w = liftIO $ moveResizeWindow d w 0 22 3834 1560
@@ -424,6 +438,44 @@ myKeys =
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
     xF86Search = 0x1008ff1b
+
+-- Dynamic workspaces via rofi
+rofiArgs :: [String]
+rofiArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-p", "workspace"]
+
+numberedWorkspaces :: [WorkspaceId]
+numberedWorkspaces = map show ([(0 :: Int) .. 9])
+
+allWorkspaceNames :: X [WorkspaceId]
+allWorkspaceNames = withWindowSet (return . map W.tag . W.workspaces)
+
+-- Show named + dynamic workspaces in rofi (exclude numbered 0-9 and NSP)
+extraWorkspaceNames :: X [WorkspaceId]
+extraWorkspaceNames = filter (\w -> w `notElem` numberedWorkspaces && w /= "NSP") <$> allWorkspaceNames
+
+rofiWorkspaceSwitch :: X ()
+rofiWorkspaceSwitch = do
+  ws <- extraWorkspaceNames
+  choice <- menuArgs "@rofi@/bin/rofi" rofiArgs ws
+  case choice of
+    "" -> return ()
+    name -> do
+      exists <- elem name <$> allWorkspaceNames
+      if exists
+        then windows $ W.greedyView name
+        else addHiddenWorkspace name >> windows (W.greedyView name)
+
+rofiWorkspaceShift :: X ()
+rofiWorkspaceShift = do
+  ws <- extraWorkspaceNames
+  choice <- menuArgs "@rofi@/bin/rofi" rofiArgs ws
+  case choice of
+    "" -> return ()
+    name -> do
+      exists <- elem name <$> allWorkspaceNames
+      if exists
+        then windows $ W.shift name
+        else addHiddenWorkspace name >> windows (W.shift name)
 
 -- use "xprop"
 myKeysP :: [(String, X ())]
@@ -541,9 +593,7 @@ main = do
           def
             { workspaces = myWorkspaces,
               manageHook =
-                manageHook def
-                  <+> myManageHook
-                  <+> namedScratchpadManageHook myScratchPads,
+                manageHook def <> myManageHook <> namedScratchpadManageHook myScratchPads,
               borderWidth = 2,
               focusFollowsMouse = False,
               terminal = myTerminal,
