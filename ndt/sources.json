@@ -56,7 +56,7 @@
   "emacs-dired-plus": {
     "sha256": "07xpdxf1p31ixd3q1gw7pl53wbxsbkb6iw7xj2k9i47bpfccrw4j",
     "type": "url",
-    "url": "https://www.emacswiki.org/emacs/download/dired+.el"
+    "url": "https://raw.githubusercontent.com/emacsmirror/dired-plus/master/dired+.el"
   },
   "emacs-hurl-mode": {
     "sha256": "1aibnicrlsncs16nlcfgv1n84h5y3zb949ba5wzqpa4q6xsfn1lv",
