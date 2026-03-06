@@ -187,7 +187,7 @@ myManageHook =
       [isDialog --> doFloat],
       [("Groups - Sauce for Zwift" `isInfixOf`) <$> wmName --> hasBorder False <> doShift workspaceZwift <> doFloat],
       [("O101: Progress Bar" `isInfixOf`) <$> wmName --> hasBorder False <> doShift workspaceZwift <> doFloat],
-      [("Sauce for Zwift" `isPrefixOf`) <$> wmName --> doShift workspaceZwift <> doFloat],
+      [("Sauce for Zwift" `isPrefixOf`) <$> wmName --> doShift workspaceSauce <> doFloat],
       [("Route Profile with segments" `isPrefixOf`) <$> wmName --> hasBorder False <> doShift workspaceSauce],
       [wmName =? "Mod: Nearby Athletes" --> doShift workspaceSauce],
       [MH.className =? c --> doFloat | c <- classFloats],
@@ -207,7 +207,7 @@ myManageHook =
       [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9]
     ]
   where
-    wmName = stringProperty "WM_NAME"
+    wmName = MH.title
     classFloats =
       [ "Xmessage",
         "Unity-2d-launcher",
