@@ -197,11 +197,10 @@ in
         xmobar
       ])
       ++ (with pkgs.xorg; [
-        xbacklight
         xev
         xkill
       ])
-      ++ (with pkgs.nodePackages; [ js-yaml ])
+      ++ [ pkgs.brightnessctl ]
       ++ [
         # photography related stuff
         darktable

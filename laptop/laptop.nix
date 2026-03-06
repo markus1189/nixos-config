@@ -366,7 +366,6 @@ rec {
   # in nixpkgs2311.virtualbox;
 
   programs = {
-    light.enable = true;
 
     captive-browser = {
       enable = true;
