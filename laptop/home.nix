@@ -88,6 +88,30 @@ in
                     name = "GPT 5.1 Chat";
                   };
 
+                  "@vertex-ai/anthropic.claude-opus-4-6" = {
+                    name = "Claude Opus 4.6";
+                    thinking = {
+                      type = "enabled";
+                      budgetTokens = 16000;
+                    };
+                    modalities = {
+                      input = ["text" "image"];
+                      output = ["text"];
+                    };
+                  };
+
+                  "@vertex-ai/anthropic.claude-sonnet-4-6" = {
+                    name = "Claude Sonnet 4.6";
+                    thinking = {
+                      type = "enabled";
+                      budgetTokens = 16000;
+                    };
+                    modalities = {
+                      input = ["text" "image"];
+                      output = ["text"];
+                    };
+                  };
+
                   "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0" = {
                     name = "Claude Opus 4.5";
                     thinking = {
@@ -112,7 +136,7 @@ in
                     };
                   };
 
-                  "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0" = {
+                  "@vertex-ai/anthropic.claude-haiku-4-5@20251001" = {
                     name = "Claude Haiku 4.5";
                     thinking = {
                       type = "enabled";
