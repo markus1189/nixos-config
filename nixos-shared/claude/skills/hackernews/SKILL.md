@@ -37,7 +37,7 @@ Fetch top stories, search, and view comments from Hacker News.
 
 Story IDs appear in brackets `[12345678]` in output — use these for `--comments`.
 
-**Script Execution:** Run scripts from the skill directory. All scripts use Nix shebangs so no manual dependency installation is required.
+**Script Execution:** Always use absolute paths when invoking scripts. Resolve `./scripts/` against this skill's directory. Example: `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`. All scripts use Nix shebangs so no manual dependency installation is required.
 
 ## Typical workflows
 
@@ -61,8 +61,9 @@ Spawns an isolated `pi` subprocess to fetch article + comments and return a stru
 
 **Parallel deep-dives** — run multiple in background and collect results:
 ```bash
-./scripts/hn-deepdive.sh 12345 "https://example.com/a" "Title A" > /tmp/hn-12345.md &
-./scripts/hn-deepdive.sh 67890 "https://example.com/b" "Title B" > /tmp/hn-67890.md &
+HN=/home/markus/.claude/skills/hackernews/scripts
+$HN/hn-deepdive.sh 12345 "https://example.com/a" "Title A" > /tmp/hn-12345.md 2>/dev/null &
+$HN/hn-deepdive.sh 67890 "https://example.com/b" "Title B" > /tmp/hn-67890.md 2>/dev/null &
 wait
 # Then read each /tmp/hn-*.md file
 ```

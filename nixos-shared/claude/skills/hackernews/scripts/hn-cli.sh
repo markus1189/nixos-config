@@ -384,7 +384,14 @@ fetch_and_format_story() {
     ] | @tsv')
 
     local title score by time_stamp descendants url item_type story_id
-    IFS=$'\t' read -r title score by time_stamp descendants url item_type story_id <<< "$parsed"
+    title=$(printf '%s' "$parsed" | awk -F'\t' '{print $1}')
+    score=$(printf '%s' "$parsed" | awk -F'\t' '{print $2}')
+    by=$(printf '%s' "$parsed" | awk -F'\t' '{print $3}')
+    time_stamp=$(printf '%s' "$parsed" | awk -F'\t' '{print $4}')
+    descendants=$(printf '%s' "$parsed" | awk -F'\t' '{print $5}')
+    url=$(printf '%s' "$parsed" | awk -F'\t' '{print $6}')
+    item_type=$(printf '%s' "$parsed" | awk -F'\t' '{print $7}')
+    story_id=$(printf '%s' "$parsed" | awk -F'\t' '{print $8}')
 
     # Skip stories with invalid/empty IDs
     if [[ -z "$story_id" || "$story_id" == "0" || "$story_id" == "null" ]]; then
