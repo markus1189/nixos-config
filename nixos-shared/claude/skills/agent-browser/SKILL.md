@@ -16,6 +16,7 @@ allowed-tools: Bash(agent-browser:*)
 
 ```bash
 agent-browser --headed open <url>   # Navigate (visible browser)
+agent-browser set viewport 1920 1080  # Set 1080p resolution (always do this after open)
 agent-browser snapshot -i           # Get interactive elements with refs
 agent-browser click @e1             # Click element by ref
 agent-browser fill @e2 "text"       # Fill input by ref
@@ -28,9 +29,10 @@ agent-browser close                 # Close browser
 Always open the browser in `--headed` mode so the user can pair browse.
 
 1. Navigate: `agent-browser --headed open <url>`
-2. Snapshot: `agent-browser snapshot -i` (returns elements with refs like `@e1`, `@e2`)
-3. Interact using refs from the snapshot
-4. Re-snapshot after navigation or significant DOM changes
+2. Set viewport: `agent-browser set viewport 1920 1080` (always do this right after opening)
+3. Snapshot: `agent-browser snapshot -i` (returns elements with refs like `@e1`, `@e2`)
+4. Interact using refs from the snapshot
+5. Re-snapshot after navigation or significant DOM changes
 
 ## Common Commands
 
@@ -83,6 +85,7 @@ agent-browser screenshot --full     # Full page screenshot
 
 ```bash
 agent-browser --headed open https://example.com/form
+agent-browser set viewport 1920 1080
 agent-browser snapshot -i
 # Output: textbox "Email" [ref=e1], textbox "Password" [ref=e2], button "Submit" [ref=e3]
 agent-browser fill @e1 "user@example.com"
