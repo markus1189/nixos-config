@@ -93,7 +93,7 @@ if [[ -z "$PORTKEY_API_KEY" ]]; then
   error_exit "API key is empty"
 fi
 
-readonly MODEL="@gcp-gemini/gemini-3-pro-preview"
+readonly MODEL="@vertex-ai/gemini-2.5-pro"
 
 readonly BASENAME="$(basename "$FILE")"
 echo "--- Transcribing: $BASENAME ---" >&2
