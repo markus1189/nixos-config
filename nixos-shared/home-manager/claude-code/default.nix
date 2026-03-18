@@ -258,6 +258,8 @@ in
       includeCoAuthoredBy = false;
       cleanupPeriodDays = 3650;
 
+      effortLevel = "high";
+
       statusLine = {
         "type" = "command";
         "command" =
