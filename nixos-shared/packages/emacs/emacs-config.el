@@ -2395,6 +2395,7 @@ Provides more detailed messages on failure."
              (:channelId "UC_x36zCEGilGpB1m-V4gmjg" :title "IndyDevDan" :tags (gamedev programming programming-general))
              (:channelId "UCsBjURrPoezykLs9EqgamOA" :title "Fireship")
              (:channelId "UCrPpaC5uLPx03XHVCfufiTQ" :title "Tim Cannon" :tags (sport running-trail))
+             (:channelId "UCHAY6kPWM1xzt0-hX-WCOZw" :title "Manuel Rides" :tags (sport))
              (:channelId "UCVX8MWUH02cXABNEdTS3CGA" :title "Tilly on a Bike" :tags (sport))
              (:channelId "UCNS-y3tEoPmBy9Q-ZYJf9QQ" :title "Kelp and Fern" :tags (sport running-trail))
              (:channelId "UCIX0OOS3khVxwpxuoqkLWMw" :title "Pfefferminz Film" :tags (sport running-trail))
