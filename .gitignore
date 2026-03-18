@@ -6,3 +6,5 @@ result/
 /nixos-shared/secrets.nix
 result
 .taskwarrior/
+__pycache__/
+*.pyc
