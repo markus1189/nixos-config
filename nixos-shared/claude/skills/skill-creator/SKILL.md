@@ -40,6 +40,17 @@ Most skills lean one direction. Problem-first skills focus on workflow orchestra
 
 ## Core Principles
 
+### Communicating with the User
+
+Pay attention to context cues to understand the user's familiarity with coding concepts. Users range from first-time terminal users to experienced developers. In the default case:
+- "evaluation" and "benchmark" are borderline but OK
+- For "JSON" and "assertion", look for cues the user knows these terms before using them without explanation
+- When in doubt, briefly explain terms with a short inline definition
+
+### Principle of Lack of Surprise
+
+Skills must not contain malware, exploit code, or content that could compromise system security. A skill's contents should not surprise the user in their intent if described.
+
 ### Concise is Key
 
 The context window is a public good. Skills share context with system prompt, conversation history, other Skills' metadata, and the user's request.
@@ -238,6 +249,18 @@ Before creating a skill, experiment with the domain. Research CLIs and libraries
 
 Skip this step only when the skill's usage patterns are already clearly understood. It remains valuable even when working with an existing skill.
 
+#### Capture Intent
+
+Start by understanding what the user wants. The current conversation may already contain a workflow to capture (e.g., "turn this into a skill"). If so, extract answers from the conversation history first — the tools used, the sequence of steps, corrections made, input/output formats observed. The user may need to fill gaps, and should confirm before proceeding.
+
+Key questions:
+1. What should this skill enable Claude to do?
+2. When should this skill trigger? (what user phrases/contexts)
+3. What's the expected output format?
+4. Should we set up test cases? (Skills with objectively verifiable outputs benefit; subjective skills often don't.)
+
+#### Concrete Examples
+
 To create an effective skill, clearly understand concrete examples of how the skill will be used. This understanding can come from either direct user examples or generated examples that are validated with user feedback.
 
 For example, when building an image-editor skill, relevant questions include:
@@ -310,6 +333,8 @@ The skill is for another Claude instance. Include non-obvious procedural knowled
 - **Output formats**: See [references/output-patterns.md](references/output-patterns.md)
 - **Anti-patterns to avoid**: See [references/anti-patterns.md](references/anti-patterns.md)
 - **Final checklist**: See [references/checklist.md](references/checklist.md)
+- **Eval and benchmarking pipeline**: See [references/eval-workflow.md](references/eval-workflow.md)
+- **JSON schemas for eval data**: See [references/schemas.md](references/schemas.md)
 
 #### Implementation
 
@@ -358,6 +383,15 @@ The script validates first (frontmatter, naming, structure), then creates `skill
 3. Write minimal instructions to address gaps
 4. Test again, compare against baseline, refine
 
+**Full eval and benchmark pipeline:** For skills with objectively verifiable outputs, use the structured eval pipeline:
+- Spawn with-skill + baseline subagent runs in parallel
+- Grade outputs against assertions
+- Aggregate into benchmark (pass_rate, timing, tokens with mean +/- stddev)
+- Launch the interactive viewer for user review
+- Read feedback, improve, repeat
+
+See [references/eval-workflow.md](references/eval-workflow.md) for the complete eval workflow, including grading, benchmarking, viewer usage, and platform-specific notes. Skip this for subjective skills — direct user feedback is sufficient.
+
 **Iteration workflow:**
 1. Use skill on real tasks
 2. Observe struggles, missed connections, or ignored content
@@ -371,6 +405,17 @@ The script validates first (frontmatter, naming, structure), then creates `skill
 - Does Claude never access a file? → May be unnecessary or poorly signaled
 
 **Debugging tip:** Ask Claude "When would you use the [skill name] skill?" - it will quote the description back, revealing what's missing or unclear.
+
+### Description Optimization
+
+After a skill is functionally complete, optimize the `description` field for triggering accuracy:
+
+1. **Create trigger eval queries** — ~20 queries (mix of should-trigger and should-not-trigger), realistic and detailed with edge cases
+2. **Review with user** — present via HTML template (`assets/eval_review.html`), user edits and exports
+3. **Run the optimization loop** — `./scripts/run_loop.py` handles the full loop: train/test split, evaluation (3 runs per query), AI-powered improvement with extended thinking, iterates up to 5 times
+4. **Apply the result** — take `best_description` from output, update SKILL.md frontmatter
+
+This requires the `claude` CLI (`claude -p`) and an `ANTHROPIC_API_KEY`. See [references/eval-workflow.md](references/eval-workflow.md) for the detailed workflow.
 
 ### Common Issues and Fixes
 
