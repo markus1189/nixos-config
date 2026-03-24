@@ -1,30 +1,32 @@
 {
-  "cursorUp": [
+  "tui.editor.cursorUp": [
     "up",
     "ctrl+p"
   ],
-  "cursorDown": [
+  "tui.editor.cursorDown": [
     "down",
     "ctrl+n"
   ],
-  "cursorLeft": [
+  "tui.editor.cursorLeft": [
     "left",
     "ctrl+b"
   ],
-  "cursorRight": [
+  "tui.editor.cursorRight": [
     "right",
     "ctrl+f"
   ],
-  "selectUp": [
+  "tui.select.up": [
     "up",
     "ctrl+p"
   ],
-  "selectDown": [
+  "tui.select.down": [
     "down",
     "ctrl+n"
   ],
-  "toggleSessionPath": "ctrl+l",
-  "cycleModelForward": [],
-  "cycleModelBackward": [],
-  "tree": ["alt+shift+t"]
+  "app.model.cycleForward": [],
+  "app.model.cycleBackward": [],
+  "app.session.tree": [
+    "alt+shift+t"
+  ],
+  "app.session.togglePath": "ctrl+l"
 }
