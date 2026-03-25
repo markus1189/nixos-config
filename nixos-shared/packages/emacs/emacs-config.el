@@ -2460,6 +2460,7 @@ Provides more detailed messages on failure."
            ("http://feeds.grack.com/grack")
            ("https://zwiftinsider.com/category/news/game-updates/feed/" sport cycling-zwift)
            ("https://zwiftinsider.com/category/tips/racing/feed/" sport cycling-zwift)
+           ("https://forums.zwift.com/top.rss" sport cycling-zwift)
            ("https://trail-magazin.de/feed/")
            ("https://geekitguide.com/blog/feed")
            ("https://writingatlarge.com/feed/" analog analog-general)
