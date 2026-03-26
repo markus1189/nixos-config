@@ -19,11 +19,17 @@
   outputs = { self, nixpkgs, nix-on-droid, home-manager}: {
 
     nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
-      pkgs = import nixpkgs { 
+      pkgs = import nixpkgs {
         system = "aarch64-linux";
         config = {
-          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "unrar"];
+          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "claude-code-bin" "unrar"];
         };
+        overlays = [
+          # Use pre-built binary to avoid npm build issues on Android/ARM
+          (final: prev: {
+            claude-code = prev.claude-code-bin;
+          })
+        ];
       };
       modules = [ ./nix-on-droid.nix ];
     };

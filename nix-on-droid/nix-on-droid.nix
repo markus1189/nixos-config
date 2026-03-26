@@ -82,11 +82,13 @@
             comma
             claude-code
             curl
+            ddgr
             fasd
             fzf
             httpie
             htop
             magic-wormhole
+            opencode
             openssh
             pass
             rclone
