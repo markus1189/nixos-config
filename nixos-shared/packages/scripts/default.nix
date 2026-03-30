@@ -1186,8 +1186,35 @@ rec {
         pure = true;
       }
       ''
+        if [[ "''${1:-}" == "--help" || "''${1:-}" == "-h" ]]; then
+          echo "Usage: add-to-raindrop <URL> [TAGS]"
+          echo ""
+          echo "Bookmark a URL to Raindrop.io with automatic tag detection."
+          echo ""
+          echo "Arguments:"
+          echo "  URL     The URL to bookmark (required)"
+          echo "  TAGS    Comma-separated tags to add (optional)"
+          echo ""
+          echo "Auto-detected tags:"
+          echo "  youtube.com/watch    → youtube,video"
+          echo "  hr-fernsehen.de     → hr,video"
+          echo "  fs.blog/raptitude   → deep"
+          echo "  reddit.com          → reddit,r/<subreddit>"
+          echo "  news.ycombinator    → hackernews"
+          echo "  xkcd/monkeyuser     → comic"
+          echo ""
+          echo "The tag 'newsboat' is always added automatically."
+          echo "Retries up to 6 times on failure."
+          exit 0
+        fi
+
+        if [[ -z "''${1:-}" ]]; then
+          echo "Error: URL is required. Use --help for usage." >&2
+          exit 1
+        fi
+
         URL="''${1}"
-        GIVEN_TAGS="''${2}"
+        GIVEN_TAGS="''${2:-}"
         TAGS="''${GIVEN_TAGS},newsboat"
 
         script_raindrop_access_token=${access_token}
