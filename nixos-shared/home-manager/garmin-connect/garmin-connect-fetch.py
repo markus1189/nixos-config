@@ -112,6 +112,13 @@ try:
     username = os.environ['GARMIN_CONNECT_USER']
     password = os.environ['GARMIN_CONNECT_PASSWORD']
     api = Garmin(username, password)
+    api.garth.sess.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/131.0.0.0 Safari/537.36"
+        )
+    })
 
     logger.info("Logging in as '%s'", username)
     api.login()
