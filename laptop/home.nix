@@ -535,18 +535,6 @@ in
           '';
         };
 
-        "aider" = {
-          target = ".aider.conf.yml";
-          text = pkgs.lib.strings.toJSON {
-            read = [ "CONVENTIONS.md" ];
-            auto-commits = false;
-            watch-files = true;
-            notifications = true;
-            gitignore = false; # in global gitignore
-            check-update = false; # only via nixpkgs
-          };
-        };
-
         "emacs-dired-desktop" = {
           target = ".local/share/applications/emacs-dired.desktop";
           text = ''

@@ -13,7 +13,6 @@ in
         #
         ack
         actkbd
-        aider-chat-full
         alsa-oss
         alsa-utils
         ammonite
