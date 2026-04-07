@@ -3,7 +3,7 @@
 let
   hostsFile = "${pkgs.ndtSources.hosts}/alternates/fakenews-gambling-porn/hosts";
   modifiedHosts = pkgs.runCommand "filtered-hosts" {} ''
-    # Some exceptions
+    # Domain allowlist exceptions
     ${pkgs.gnused}/bin/sed \
       -e '/link.m.convertkit/d' \
       -e '/\.strava.com/d' \
@@ -11,8 +11,9 @@ let
       -e '/wl.spotify.com/d' \
       -e '/fvs.io/d' \
       -e '/scrolller.com/d' \
-      -e '/fe80::1%lo0/d' \
-      ${hostsFile} > $out
+      ${hostsFile} \
+    | ${pkgs.gawk}/bin/awk '/^[^#]/ && length($2) >= 50 { next } { print }' \  # dnsmasq 2.92 IDN bug: hostnames >= 50 chars cause buffer overflow in read_hostsfile
+    > $out
   '';
 in
 {
