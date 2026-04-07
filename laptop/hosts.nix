@@ -11,6 +11,7 @@ let
       -e '/wl.spotify.com/d' \
       -e '/fvs.io/d' \
       -e '/scrolller.com/d' \
+      -e '/fe80::1%lo0/d' \
       ${hostsFile} > $out
   '';
 in
