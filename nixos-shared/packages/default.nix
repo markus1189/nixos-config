@@ -18,7 +18,7 @@ in
               xmobarLower = xmobars.lower;
               xmobarUpper = xmobars.upper;
               xmobar = pkgs.xmobar;
-              xkill = pkgs.xorg.xkill;
+              xkill = pkgs.xkill;
             };
           callPackageWith = nixpkgs: nixpkgs.lib.callPackageWith (allPkgs nixpkgs);
           callPackage = callPackageWith pkgs;

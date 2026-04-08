@@ -49,7 +49,7 @@
   writeScriptBin,
   xclip,
   xdotool,
-  xorg,
+  xrandr,
   xsel,
   zbar,
   zsh,
@@ -543,7 +543,7 @@ rec {
       {
         name = "multiheadLeft";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -563,7 +563,7 @@ rec {
       {
         name = "multiheadRight";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -583,7 +583,7 @@ rec {
       {
         name = "singlehead";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
           feh
         ];
@@ -606,7 +606,7 @@ rec {
       {
         name = "asusRight";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -624,7 +624,7 @@ rec {
       {
         name = "multihead4k";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -642,7 +642,7 @@ rec {
       {
         name = "multihead4khdmi";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -660,7 +660,7 @@ rec {
       {
         name = "widePbpRight";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
         ];
       }
@@ -678,7 +678,7 @@ rec {
       {
         name = "widePbpBoth";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
           feh
         ];
@@ -699,7 +699,7 @@ rec {
       {
         name = "wideUltra";
         deps = [
-          xorg.xrandr
+          xrandr
           libnotify
           feh
         ];

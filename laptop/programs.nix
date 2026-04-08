@@ -174,6 +174,8 @@ in
         which
         xclip
         xdotool
+        xev
+        xkill
         x11vnc
         xvfb-run
         yt-dlp
@@ -194,10 +196,6 @@ in
         # pkgs.stack
         (pkgs.ormolu)
         xmobar
-      ])
-      ++ (with pkgs.xorg; [
-        xev
-        xkill
       ])
       ++ [ pkgs.brightnessctl ]
       ++ [

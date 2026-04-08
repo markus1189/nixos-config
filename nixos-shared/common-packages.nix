@@ -49,7 +49,7 @@ in
         nix-prefetch-git
         nix-prefetch-github
         nix-index
-        nixfmt-rfc-style
+        nixfmt
         nixpkgs-lint
         nixpkgs-fmt
         niv
