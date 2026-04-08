@@ -12,8 +12,8 @@ let
       -e '/fvs.io/d' \
       -e '/scrolller.com/d' \
       ${hostsFile} \
-    | ${pkgs.gawk}/bin/awk '/^[^#]/ && length($2) >= 50 { next } { print }' \  # dnsmasq 2.92 IDN bug: hostnames >= 50 chars cause buffer overflow in read_hostsfile
-    > $out
+    | ${pkgs.gawk}/bin/awk '/^[^#]/ && length($2) >= 50 { next } { print }' \
+    > $out  # dnsmasq 2.92 IDN bug: hostnames >= 50 chars cause buffer overflow in read_hostsfile
   '';
 in
 {
