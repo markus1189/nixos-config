@@ -55,6 +55,7 @@ in
         niv
         notifySendPb
         notifySendTelegram
+        poppler-utils
         sendTelegramPoll
         viessmannOutsideTemperature
         telegramPhotosLastYear
