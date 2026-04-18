@@ -1,18 +1,33 @@
 #!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq --command bash
+#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq nixpkgs#coreutils --command bash
 # shellcheck shell=bash
 set -euo pipefail
 
-API_KEY="$(pass api/claude-maps)"
-readonly API_KEY
 readonly BASE="https://maps.googleapis.com/maps/api"
 readonly PLACES_BASE="https://places.googleapis.com/v1"
 readonly WEATHER_BASE="https://weather.googleapis.com/v1"
 
-# Field masks for Places API (New). Required — without them the API returns SKU-billed
-# full results and rejects pretty parsers expecting a slim shape.
+# Places API (New) field masks. Required — absent mask = billed-at-full-tier response.
+# Default details mask excludes `reviews` (Atmosphere SKU, most expensive tier).
+# Set MAPS_WITH_REVIEWS=1 to include reviews.
 readonly PLACES_SEARCH_MASK="places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.regularOpeningHours.openNow"
-readonly PLACE_DETAILS_MASK="id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,googleMapsUri,regularOpeningHours,rating,userRatingCount,priceLevel,reviews,location,types"
+readonly PLACE_DETAILS_MASK_BASE="id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,googleMapsUri,regularOpeningHours,rating,userRatingCount,priceLevel,location,types"
+
+place_details_mask() {
+    if [ "${MAPS_WITH_REVIEWS:-0}" = "1" ]; then
+        printf '%s,reviews' "$PLACE_DETAILS_MASK_BASE"
+    else
+        printf '%s' "$PLACE_DETAILS_MASK_BASE"
+    fi
+}
+
+# API key is loaded lazily so `help` / `--help` don't trigger a GPG prompt.
+require_api_key() {
+    if [ -z "${API_KEY:-}" ]; then
+        API_KEY="$(pass api/claude-maps)"
+        readonly API_KEY
+    fi
+}
 
 # --- Helpers ---
 
@@ -20,11 +35,37 @@ urlencode() {
     jq -rn --arg v "$1" '$v|@uri'
 }
 
-api_get() {
-    curl -sS "$1"
+# Core HTTP wrapper used by all JSON endpoints. Distinguishes transport errors,
+# HTTP 4xx/5xx (body captured via --fail-with-body), and non-JSON responses
+# (e.g. HTML 503 pages that would otherwise crash downstream jq).
+_curl_json() {
+    local body rc=0
+    body=$(curl -sS --fail-with-body "$@") || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        local err=""
+        if [ -n "$body" ]; then
+            err=$(jq -r '.error.message // .error_message // empty' <<<"$body" 2>/dev/null || true)
+        fi
+        if [ -n "$err" ]; then
+            echo "API error: $err" >&2
+        else
+            echo "API error (curl exit $rc): ${body:0:200}" >&2
+        fi
+        return 1
+    fi
+    if ! jq -e . <<<"$body" >/dev/null 2>&1; then
+        echo "API error: non-JSON response" >&2
+        printf '%s\n' "${body:0:200}" >&2
+        return 1
+    fi
+    printf '%s\n' "$body"
 }
 
-# Validate a legacy Maps Platform JSON response. Exits non-zero on real errors;
+api_get() {
+    _curl_json "$1"
+}
+
+# Validate a legacy Maps Platform JSON response — catches HTTP-200-but-status=REQUEST_DENIED.
 # ZERO_RESULTS is allowed so callers can render an empty result set.
 check_status() {
     local body="$1"
@@ -39,7 +80,7 @@ check_status() {
     return 1
 }
 
-# Validate a Places API (New) JSON response (HTTP errors come back as a JSON .error object).
+# Backup check for Places API (New); most errors already caught by _curl_json's --fail-with-body.
 check_places_status() {
     local body="$1"
     local err
@@ -169,7 +210,7 @@ places_search() {
                 }
             })
           else {} end)')
-    response=$(curl -sS -X POST "${PLACES_BASE}/places:searchText" \
+    response=$(_curl_json -X POST "${PLACES_BASE}/places:searchText" \
         -H "Content-Type: application/json" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${PLACES_SEARCH_MASK}" \
@@ -209,7 +250,7 @@ places_nearby() {
             }
          } +
          (if $t != "" then {includedTypes: [$t]} else {} end)')
-    response=$(curl -sS -X POST "${PLACES_BASE}/places:searchNearby" \
+    response=$(_curl_json -X POST "${PLACES_BASE}/places:searchNearby" \
         -H "Content-Type: application/json" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${PLACES_SEARCH_MASK}" \
@@ -229,10 +270,12 @@ places_nearby_pretty() {
 }
 
 place_details() {
-    local place_id="$1" response
-    response=$(curl -sS "${PLACES_BASE}/places/${place_id}" \
+    local place_id response mask
+    place_id=$(urlencode "$1")
+    mask=$(place_details_mask)
+    response=$(_curl_json "${PLACES_BASE}/places/${place_id}" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
-        -H "X-Goog-FieldMask: ${PLACE_DETAILS_MASK}")
+        -H "X-Goog-FieldMask: ${mask}")
     check_places_status "$response"
     printf '%s\n' "$response"
 }
@@ -374,7 +417,29 @@ static_map() {
             url+="&markers=$(urlencode "$marker")"
         done
     fi
-    curl -sS -o "$outfile" "$url"
+    local curl_out http_code content_type rc=0
+    curl_out=$(curl -sS -o "$outfile" -w '%{http_code}|%{content_type}' "$url") || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        echo "static-map: curl failed (exit $rc)" >&2
+        rm -f "$outfile"
+        return 1
+    fi
+    http_code="${curl_out%%|*}"
+    content_type="${curl_out#*|}"
+    if [ "$http_code" -ge 400 ]; then
+        echo "static-map: HTTP $http_code" >&2
+        [ -s "$outfile" ] && head -c 300 "$outfile" >&2 && echo >&2
+        rm -f "$outfile"
+        return 1
+    fi
+    case "$content_type" in
+        image/*) ;;
+        *)
+            echo "static-map: expected image, got '${content_type}' (likely an API error)" >&2
+            [ -s "$outfile" ] && head -c 300 "$outfile" >&2 && echo >&2
+            rm -f "$outfile"
+            return 1 ;;
+    esac
     echo "$outfile"
 }
 
@@ -430,7 +495,14 @@ Modes: driving (default), walking, bicycling, transit
 EOF
 }
 
-case "${1:-}" in
+cmd="${1:-}"
+case "$cmd" in
+    help|--help|-h|"") usage; exit 0 ;;
+esac
+
+require_api_key
+
+case "$cmd" in
     geocode)                       shift; geocode "$@" ;;
     geocode-pretty)                shift; geocode_pretty "$@" ;;
     reverse-geocode)               shift; reverse_geocode "$@" ;;
@@ -454,6 +526,5 @@ case "${1:-}" in
     weather-hourly-pretty)         shift; weather_hourly_pretty "$@" ;;
     weather-daily)                 shift; weather_daily "$@" ;;
     weather-daily-pretty)          shift; weather_daily_pretty "$@" ;;
-    help|--help|-h|"")             usage ;;
-    *)                             echo "Unknown command: $1" >&2; usage; exit 1 ;;
+    *)                             echo "Unknown command: $cmd" >&2; usage; exit 1 ;;
 esac

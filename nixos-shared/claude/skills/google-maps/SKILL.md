@@ -1,6 +1,6 @@
 ---
 name: google-maps
-description: "Query Google Maps for geocoding, directions, places search, distance matrix, and static map images. Use when the user asks about locations, addresses, travel times, routes, nearby places, restaurants, points of interest, or wants a map image."
+description: "Queries Google Maps Platform and Google Weather APIs for geocoding, reverse-geocoding, directions with travel times, distance matrix, places search, place details, static map images, and current/hourly/daily weather forecasts. Use when the user mentions an address or lat/lng coordinates; asks how to get somewhere, travel time, ETA, or a route (driving, walking, bicycling, transit); asks for nearby places, restaurants, cafes, bars, or points of interest (including \"near me\" or \"closest\"); wants a map image; or asks about weather, forecast, temperature, rain, or conditions at a location."
 ---
 
 # Google Maps
@@ -85,7 +85,12 @@ Marker spec: `color:red|label:A|Hamburg`. Multiple marker groups: separate with 
 
 ## Error handling
 
-All commands validate the API response and exit non-zero on real errors (printing the API's error message to stderr). `ZERO_RESULTS` is treated as success with an empty result.
+All commands validate the API response and exit non-zero on real errors (printing the API's error message to stderr). `ZERO_RESULTS` is treated as success with an empty result. `static-map` verifies the response is `image/*`; a non-image payload (e.g. over-quota error page) is treated as failure.
+
+## Cost control
+
+- `place-details` omits `reviews` by default (cheaper SKU). Set `MAPS_WITH_REVIEWS=1` to include up to 3 recent reviews.
+- Every call is billed against the GCP project; avoid tight retry loops.
 
 ## Workflows
 
