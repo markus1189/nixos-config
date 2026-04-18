@@ -1,6 +1,6 @@
 ---
 name: nzb-search
-description: "Search and download NZB files from Usenet indexers (SceneNZBs, NZBgeek, NZBFinder, NZBPlanet) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
+description: "Search and download NZB files from Usenet indexers (SceneNZBs, NZBgeek, NZBFinder, NZBPlanet, DrunkenSlug) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
 ---
 
 # NZB Search
@@ -9,12 +9,13 @@ Search Newznab-compatible Usenet indexers for movies, TV shows, books, and other
 
 ## Supported Indexers
 
-| Indexer             | Prefix       | API Key Location     | Cart Support     |
-| ------------------- | ------------ | -------------------- | ---------------- |
-| SceneNZBs (default) | `@scenenzbs` | `pass api/scenenzbs` | ✅ API           |
-| NZBgeek             | `@nzbgeek`   | `pass api/nzbgeek`   | ❌ Web-only      |
-| NZBFinder           | `@nzbfinder` | `pass api/nzbfinder` | ❌ Not supported |
-| NZBPlanet           | `@nzbplanet` | `pass api/nzbplanet` | ❌ Web-only      |
+| Indexer             | Prefix         | API Key Location       | Cart Support     |
+| ------------------- | -------------- | ---------------------- | ---------------- |
+| SceneNZBs (default) | `@scenenzbs`   | `pass api/scenenzbs`   | ✅ API           |
+| NZBgeek             | `@nzbgeek`     | `pass api/nzbgeek`     | ❌ Web-only      |
+| NZBFinder           | `@nzbfinder`   | `pass api/nzbfinder`   | ❌ Not supported |
+| NZBPlanet           | `@nzbplanet`   | `pass api/nzbplanet`   | ❌ Web-only      |
+| DrunkenSlug         | `@drunkenslug` | `pass api/drunkenslug` | ❌ Not supported |
 
 ## Workflow
 
@@ -69,6 +70,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ./scripts/nzb-api.sh @scenenzbs search "inception"
 ./scripts/nzb-api.sh @nzbfinder search "inception"
 ./scripts/nzb-api.sh @nzbplanet search "inception"
+./scripts/nzb-api.sh @drunkenslug search "inception"
 
 # Search ALL indexers at once (results include .indexer field)
 ./scripts/nzb-api.sh search_all "inception" "&cat=2000"
@@ -218,16 +220,16 @@ Number results clearly for user selection.
 
 ### Indexer Support Matrix
 
-| Operation        | SceneNZBs              | NZBgeek                      | NZBFinder          | NZBPlanet                    |
-| ---------------- | ---------------------- | ---------------------------- | ------------------ | ---------------------------- |
-| Search           | ✅ Newznab API         | ✅ Newznab API               | ✅ Newznab API     | ✅ Newznab API               |
-| Movie search     | ✅                     | ✅                           | ✅                 | ✅                           |
-| TV search        | ✅                     | ✅                           | ✅                 | ✅                           |
-| Book search      | ✅                     | ✅                           | ❌ Not supported   | ✅                           |
-| Download NZB     | ✅ `t=get&id=GUID`     | ✅ `t=get&id=GUID`           | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID`           |
-| Add to cart      | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported   | ❌ Web-only (session cookie) |
-| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  |
-| View cart        | ❌ Not implemented     | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  |
+| Operation        | SceneNZBs              | NZBgeek                      | NZBFinder          | NZBPlanet                    | DrunkenSlug        |
+| ---------------- | ---------------------- | ---------------------------- | ------------------ | ---------------------------- | ------------------ |
+| Search           | ✅ Newznab API         | ✅ Newznab API               | ✅ Newznab API     | ✅ Newznab API               | ✅ Newznab API     |
+| Movie search     | ✅                     | ✅                           | ✅                 | ✅                           | ✅                 |
+| TV search        | ✅                     | ✅                           | ✅                 | ✅                           | ✅                 |
+| Book search      | ✅                     | ✅                           | ❌ Not supported   | ✅                           | ❌ Not supported   |
+| Download NZB     | ✅ `t=get&id=GUID`     | ✅ `t=get&id=GUID`           | ✅ `t=get&id=GUID` | ✅ `t=get&id=GUID`           | ✅ `t=get&id=GUID` |
+| Add to cart      | ✅ `t=cartadd&id=GUID` | ❌ Web-only (session cookie) | ❌ Not supported   | ❌ Web-only (session cookie) | ❌ Not supported   |
+| Remove from cart | ✅ `t=cartdel&id=GUID` | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  | ❌ Not supported   |
+| View cart        | ❌ Not implemented     | ❌ Web-only                  | ❌ Not supported   | ❌ Web-only                  | ❌ Not supported   |
 
 **NZBgeek Note:** Cart operations require web session authentication with internal release IDs that aren't exposed via the Newznab API. For NZBgeek, use direct download instead of cart.
 
@@ -239,6 +241,14 @@ Number results clearly for user selection.
 - **UHD downloads:** Require a premium account. Non-UHD downloads work on free tier.
 - **No book search:** `t=book` endpoint is not supported. Use general `search` with `&cat=7000` as fallback.
 - **No cart:** Use direct download (`t=get`) instead.
+
+**DrunkenSlug Notes:**
+
+- **No book search:** `t=book` endpoint is not supported. Use general `search` with `&cat=7000` as fallback.
+- **No cart:** Use direct download (`t=get`) instead.
+- **Caps in XML only:** `t=caps&o=json` returns literal `null`. Use `t=caps` without `o=json` if you need capabilities — the parsed XML view is still in the response body.
+- **Download redirects:** `t=get` returns 302 to `/getnzb/<guid>.nzb`. The `download` function follows redirects automatically (`curl -sL`).
+- **JSON shape:** DrunkenSlug omits the `.channel` wrapper and uses `{_name,_value}` / `{_url,_length,_type}` / `guid.text` instead of the standard `{"@attributes":...}` / `guid."@content"` forms. `normalize_response` rewrites these into the canonical shape, so downstream jq patterns work unchanged.
 
 ### Download NZB (Works on All Indexers)
 
@@ -381,7 +391,7 @@ Append to search commands:
 - **URL Encoding**: The script automatically URL-encodes all search queries, so spaces and special characters are handled correctly
 - **Single vs Multiple Results**: Always use `[.channel.item] | flatten | .[]?` pattern in jq to handle both cases
 - **Newznab Compatibility**: Both indexers use the standard Newznab API, so all commands work identically
-- **API Keys**: Stored in `pass` - ensure keys exist at `api/scenenzbs`, `api/nzbgeek`, `api/nzbfinder`, and `api/nzbplanet`
+- **API Keys**: Stored in `pass` - ensure keys exist at `api/scenenzbs`, `api/nzbgeek`, `api/nzbfinder`, `api/nzbplanet`, and `api/drunkenslug`
 - **Rate Limits**: NZBFinder free tier: 15 calls/24h. Other indexers have more generous limits.
 
 ## Adding New Indexers
@@ -394,10 +404,19 @@ declare -A INDEXERS=(
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
     ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
+    ["drunkenslug"]="https://drunkenslug.com/api|api/drunkenslug"
     ["newindexer"]="https://newindexer.com/api|api/newindexer"
 )
 ```
 
 Format: `["name"]="BASE_URL|PASS_PATH"`
 
-The script normalizes response differences between indexers automatically (e.g., `newznab:attr` vs `attr`, different GUID structures). Non-JSON error responses (XML rate limit errors etc.) are handled gracefully in `search_all`.
+The script's `normalize_response` absorbs several shape divergences so downstream jq patterns stay uniform:
+
+- Top-level `.item` (DrunkenSlug) → wrapped under `.channel.item`
+- `newznab:attr` (NZBFinder, DrunkenSlug) → renamed to `attr`
+- `{_name,_value}` (DrunkenSlug) → rewritten to `{"@attributes":{name,value}}`
+- `guid."@content"` (NZBFinder) / `guid.text` (DrunkenSlug) → GUID extracted from URL and set as a flat string + added to `attr`
+- `{_url,_length,_type}` enclosure (DrunkenSlug) → rewritten to `{"@attributes":{url,length,type}}`
+
+Non-JSON error responses (XML rate limit errors etc.) are handled gracefully in `search_all`.

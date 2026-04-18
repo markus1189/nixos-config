@@ -8,6 +8,7 @@ declare -A INDEXERS=(
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
     ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
+    ["drunkenslug"]="https://drunkenslug.com/api|api/drunkenslug"
 )
 
 # Default indexer
@@ -59,9 +60,12 @@ urlencode() {
 }
 
 # Normalize JSON response to unified format across indexers
-# - Converts "newznab:attr" to "attr" (NZBFinder uses newznab:attr)
-# - Extracts GUID from guid."@content" URL into attr array (NZBFinder format)
-# - Passes through non-JSON (XML errors) to stderr gracefully
+# - Wraps top-level .item under .channel.item (DrunkenSlug drops the channel wrapper)
+# - Converts "newznab:attr" to "attr" (NZBFinder, DrunkenSlug)
+# - Rewrites {_name,_value} attribute style to {"@attributes":{name,value}} (DrunkenSlug)
+# - Extracts GUID from guid."@content" or guid.text URL into attr array (NZBFinder, DrunkenSlug)
+# - Rewrites {_url,_length,_type} enclosure to {"@attributes":{url,length,type}} (DrunkenSlug)
+# - Passes through non-JSON (XML errors) gracefully
 normalize_response() {
     local input
     input=$(cat)
@@ -71,24 +75,43 @@ normalize_response() {
         return 0
     fi
     echo "$input" | jq '
-      # Recursive walk to rename "newznab:attr" -> "attr"
+      # Step 1: DrunkenSlug — wrap top-level .item under .channel.item
+      (if .item and (.channel.item == null) then
+         .channel = ((.channel // {}) + {item: .item}) | del(.item)
+       else . end)
+      |
+      # Step 2: NZBFinder/DrunkenSlug — rename "newznab:attr" -> "attr"
       walk(if type == "object" and has("newznab:attr") and (has("attr") | not)
            then . + {"attr": ."newznab:attr"} | del(."newznab:attr")
            else . end)
       |
-      # Normalize guid: extract UUID from guid."@content" URL into attr array
+      # Step 3: DrunkenSlug — rewrite {_name,_value} -> {"@attributes":{name,value}}
+      walk(if type == "object" and has("_name") and has("_value") and (has("@attributes") | not)
+           then {"@attributes": {"name": ._name, "value": ._value}}
+           else . end)
+      |
+      # Step 4: normalize per-item guid and enclosure shapes
       if .channel.item then
         .channel.item |= (
           [., []] | flatten | map(
-            if (.guid | type) == "object" and .guid."@content" then
-              (.guid."@content" | split("/") | last) as $guid_val
-              | if .attr then
-                  .attr += [{"@attributes": {"name": "guid", "value": $guid_val}}]
-                else
-                  . + {"attr": [{"@attributes": {"name": "guid", "value": $guid_val}}]}
-                end
-              | .guid = $guid_val
-            else . end
+            # guid: handle object form with @content (NZBFinder) or text (DrunkenSlug)
+            (if (.guid | type) == "object" then
+              (.guid."@content" // .guid.text) as $guid_url
+              | if $guid_url then
+                  ($guid_url | split("/") | last) as $guid_val
+                  | (if .attr then
+                       .attr += [{"@attributes": {"name": "guid", "value": $guid_val}}]
+                     else
+                       . + {"attr": [{"@attributes": {"name": "guid", "value": $guid_val}}]}
+                     end)
+                  | .guid = $guid_val
+                else . end
+            else . end)
+            |
+            # enclosure: DrunkenSlug uses {_url,_length,_type}
+            (if (.enclosure | type) == "object" and (.enclosure | has("_url")) and (.enclosure | has("@attributes") | not) then
+              .enclosure = {"@attributes": {"url": .enclosure._url, "length": .enclosure._length, "type": .enclosure._type}}
+            else . end)
           )
           | if length == 1 then .[0] else . end
         )
@@ -175,7 +198,7 @@ nfo() {
 download() {
     local guid="$1"
     local output="${2:-${guid}.nzb}"
-    curl -s "${BASE_URL}?apikey=${API_KEY}&t=get&id=${guid}" -o "$output"
+    curl -sL "${BASE_URL}?apikey=${API_KEY}&t=get&id=${guid}" -o "$output"
     echo "$output"
 }
 
