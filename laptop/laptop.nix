@@ -101,11 +101,16 @@ rec {
       "3.nixos.pool.ntp.org"
     ];
 
-    supplicant = {
-      "${config.lib._custom_.wirelessInterface}" = {
-        configFile.path = "/etc/wpa_supplicant.conf";
-        userControlled.enable = true;
-      };
+    wireless = {
+      enable = true;
+      interfaces = [ config.lib._custom_.wirelessInterface ];
+      userControlled = true;
+      # Networks live in /etc/wpa_supplicant.conf (managed manually).
+      # Remove ctrl_interface and update_config lines from that file —
+      # the module provides them via /etc/wpa_supplicant/nixos.conf.
+      extraConfigFiles = [ "/etc/wpa_supplicant.conf" ];
+      # /etc/wpa_supplicant.conf must be readable by wpa_supplicant group:
+      # sudo chgrp wpa_supplicant /etc/wpa_supplicant.conf && sudo chmod 640 /etc/wpa_supplicant.conf
     };
   };
 
@@ -262,6 +267,7 @@ rec {
       "wireshark"
       "video"
       "dialout" # allow access to serial ports
+      "wpa_supplicant" # wpa_cli access
     ];
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${config.lib._custom_.userName}";
@@ -480,7 +486,7 @@ rec {
         FF = "${emacs}/bin/emacsclient -n";
         magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
         pwdc = "pwd | clip";
-        wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface} -p /run/wpa_supplicant";
+        wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface} -p /run/wpa_supplicant/control";
       }
     );
 

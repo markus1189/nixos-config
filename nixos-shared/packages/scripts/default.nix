@@ -731,7 +731,7 @@ rec {
         ];
       }
       ''
-        CURRENT="$(wpa_cli -i ${wirelessInterface} status | grep '^ssid' | cut -d'=' -f 2)"
+        CURRENT="$(wpa_cli -i ${wirelessInterface} -p /run/wpa_supplicant/control status | grep '^ssid' | cut -d'=' -f 2)"
 
         if [[ -z "''${CURRENT}" ]]; then
             notify-send wpa_cli "Could not find current SSID!"
@@ -768,7 +768,7 @@ rec {
       ''
         set -e
 
-        wpa_cli -i ${device} select_network ${id}
+        wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network ${id}
 
         notify-send wpa_cli "Switched network: ${network}"
       '';
@@ -902,19 +902,19 @@ rec {
         pure = true;
       }
       ''
-        NETWORK_NAME="$(wpa_cli list_networks |
+        NETWORK_NAME="$(wpa_cli -p /run/wpa_supplicant/control list_networks |
           sed -e  's/^[[:digit:]]\+[[:space:]]*\(.*\)any.*/\1/' |
             sed -e 's/[[:space:]]*$//' |
               grep -v 'network id' |
                 tail -n +2 |
                   rofi -matching fuzzy -monitor -4 -sort -dmenu -i -p ssid:)"
 
-        NETWORK_ID=$(wpa_cli -i ${device} list_networks | grep -wF "''${NETWORK_NAME}" | grep -o '^[[:digit:]]\+')
+        NETWORK_ID=$(wpa_cli -i ${device} -p /run/wpa_supplicant/control list_networks | grep -wF "''${NETWORK_NAME}" | grep -o '^[[:digit:]]\+')
 
         echo "Selecting network $NETWORK_NAME with id $NETWORK_ID"
-        echo "Using command: wpa_cli -i ${device} select_network $NETWORK_ID"
+        echo "Using command: wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network $NETWORK_ID"
 
-        if wpa_cli -i ${device} select_network $NETWORK_ID ; then
+        if wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network $NETWORK_ID ; then
           notify-send wpa_cli "Switched network: ''${NETWORK_NAME}"
         else
           notify-send -u critical select_network "Failed with code $?"
