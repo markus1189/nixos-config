@@ -255,11 +255,15 @@ in
   settings = {
     target = ".claude/settings.json";
     text = pkgs.lib.strings.toJSON {
+      "$schema" = "https://json.schemastore.org/claude-code-settings.json";
       includeCoAuthoredBy = false;
       cleanupPeriodDays = 3650;
       autoMemoryEnabled = false;
 
       effortLevel = "high";
+      alwaysThinkingEnabled = true;
+      voiceEnabled = true;
+      skipDangerousModePermissionPrompt = true;
 
       statusLine = {
         "type" = "command";
