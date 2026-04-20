@@ -1032,7 +1032,7 @@ rec {
       '';
 
   sendTelegram =
-    chatid: name: botToken:
+    chatid: name: parseMode: botToken:
     writeShellScript
       {
         inherit name;
@@ -1049,7 +1049,7 @@ rec {
          --retry-all-errors --retry 3 \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           -H 'Content-Type: application/json' \
-          -d "$(jo chat_id=${chatid} text="''${MESSAGE}")" \
+          -d "$(jo chat_id=${chatid} ${lib.optionalString (parseMode != null) "parse_mode=${parseMode}"} text="''${MESSAGE}")" \
           --url "https://api.telegram.org/bot${botToken}/sendMessage"
       '';
 
@@ -1076,9 +1076,13 @@ rec {
           --url "https://api.telegram.org/bot${botToken}/sendPoll"
       '';
 
-  notifySendTelegram = sendTelegram "299952716" "notifySendTelegram";
+  notifySendTelegram = sendTelegram "299952716" "notifySendTelegram" null;
 
-  notifySendHome = sendTelegram "-1001328938887" "notifySendHome";
+  notifySendTelegramHtml = sendTelegram "299952716" "notifySendTelegramHtml" "HTML";
+
+  notifySendTelegramMd = sendTelegram "299952716" "notifySendTelegramMd" "MarkdownV2";
+
+  notifySendHome = sendTelegram "-1001328938887" "notifySendHome" null;
 
   telegramSendPhoto =
     botToken:

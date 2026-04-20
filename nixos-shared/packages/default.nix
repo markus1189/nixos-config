@@ -35,6 +35,8 @@ in
           inherit myScripts mutate;
           notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
           notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
+          notifySendTelegramHtml = myScripts.notifySendTelegramHtml secrets.telegramBotToken;
+          notifySendTelegramMd = myScripts.notifySendTelegramMd secrets.telegramBotToken;
           sendTelegramPoll = myScripts.sendTelegramPoll secrets.telegramBotToken;
           telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
           telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;

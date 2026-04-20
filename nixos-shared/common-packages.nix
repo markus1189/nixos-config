@@ -55,6 +55,8 @@ in
         niv
         notifySendPb
         notifySendTelegram
+        notifySendTelegramHtml
+        notifySendTelegramMd
         poppler-utils
         sendTelegramPoll
         viessmannOutsideTemperature
