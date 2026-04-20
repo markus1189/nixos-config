@@ -5,6 +5,7 @@ set -euo pipefail
 
 readonly BASE="https://maps.googleapis.com/maps/api"
 readonly PLACES_BASE="https://places.googleapis.com/v1"
+readonly ROUTES_BASE="https://routes.googleapis.com"
 readonly WEATHER_BASE="https://weather.googleapis.com/v1"
 
 # Places API (New) field masks. Required — absent mask = billed-at-full-tier response.
@@ -12,6 +13,10 @@ readonly WEATHER_BASE="https://weather.googleapis.com/v1"
 # Set MAPS_WITH_REVIEWS=1 to include reviews.
 readonly PLACES_SEARCH_MASK="places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.regularOpeningHours.openNow"
 readonly PLACE_DETAILS_MASK_BASE="id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,googleMapsUri,regularOpeningHours,rating,userRatingCount,priceLevel,location,types"
+
+# Routes API field masks. All requested fields are in the "Basic" SKU tier.
+readonly ROUTES_FIELD_MASK="routes.description,routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline.encodedPolyline,routes.localizedValues,routes.legs.distanceMeters,routes.legs.duration,routes.legs.staticDuration,routes.legs.localizedValues,routes.legs.steps.navigationInstruction.instructions,routes.legs.steps.distanceMeters,routes.legs.steps.staticDuration,routes.legs.steps.localizedValues"
+readonly ROUTE_MATRIX_FIELD_MASK="originIndex,destinationIndex,distanceMeters,duration,condition,localizedValues"
 
 place_details_mask() {
     if [ "${MAPS_WITH_REVIEWS:-0}" = "1" ]; then
@@ -33,6 +38,17 @@ require_api_key() {
 
 urlencode() {
     jq -rn --arg v "$1" '$v|@uri'
+}
+
+# Map legacy mode names (driving/walking/bicycling/transit) to Routes API travelMode enum.
+travel_mode_enum() {
+    case "$1" in
+        driving)   printf 'DRIVE' ;;
+        walking)   printf 'WALK' ;;
+        bicycling) printf 'BICYCLE' ;;
+        transit)   printf 'TRANSIT' ;;
+        *) echo "Unknown travel mode: $1 (expected driving|walking|bicycling|transit)" >&2; return 1 ;;
+    esac
 }
 
 # Core HTTP wrapper used by all JSON endpoints. Distinguishes transport errors,
@@ -118,75 +134,134 @@ reverse_geocode_pretty() {
     reverse_geocode "$1" "$2" | jq -r '.results[:3][] | "\(.formatted_address)\n  types: \(.types | join(", "))\n"'
 }
 
-# --- Directions ---
+# --- Directions (Routes API v2) ---
+# Legacy /maps/api/directions + /distancematrix became end-of-life 2025-03-01.
+# All routing now uses routes.googleapis.com with POST + X-Goog-FieldMask.
+# DRIVE travel mode gets TRAFFIC_AWARE routing + current departure time, so
+# `duration` reflects live traffic and `staticDuration` is the baseline.
+# Non-DRIVE modes must not set routingPreference or departureTime.
 
 directions() {
-    local origin destination mode extra body
-    origin=$(urlencode "$1")
-    destination=$(urlencode "$2")
-    mode="${3:-driving}"
-    extra=""
-    if [ "${4:-}" = "alternatives" ]; then
-        extra="&alternatives=true"
-    fi
-    body=$(api_get "${BASE}/directions/json?origin=${origin}&destination=${destination}&mode=${mode}${extra}&key=${API_KEY}")
-    check_status "$body"
-    printf '%s\n' "$body"
+    local origin="$1" destination="$2" mode="${3:-driving}" alternatives="${4:-}"
+    local travel_mode body response alt_flag=false
+    travel_mode=$(travel_mode_enum "$mode") || return 1
+    [ "$alternatives" = "alternatives" ] && alt_flag=true
+    body=$(jq -nc \
+        --arg o "$origin" \
+        --arg d "$destination" \
+        --arg m "$travel_mode" \
+        --argjson alt "$alt_flag" \
+        '{origin: {address: $o}, destination: {address: $d}, travelMode: $m, computeAlternativeRoutes: $alt} +
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+    response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
+        -H "Content-Type: application/json" \
+        -H "X-Goog-Api-Key: ${API_KEY}" \
+        -H "X-Goog-FieldMask: ${ROUTES_FIELD_MASK}" \
+        -d "$body")
+    check_places_status "$response"
+    printf '%s\n' "$response"
 }
 
+# Render Routes API v2 response. `duration` is traffic-aware for DRIVE with
+# TRAFFIC_AWARE; `staticDuration` is the free-flow baseline. Shown only when
+# they differ. Step `navigationInstruction.instructions` is plain text — no
+# HTML-strip needed.
 format_routes() {
     jq -r '
         .routes[] |
-        ([.legs[].distance.text] | join(" + ")) as $dist |
-        ([.legs[].duration.text] | join(" + ")) as $dur |
-        "Route: \(.summary // "unnamed")  [\($dist), \($dur)]" +
-        (if .legs[0].duration_in_traffic then "  (in traffic: \(.legs[0].duration_in_traffic.text))" else "" end) +
+        ([.legs[].localizedValues.distance.text] | join(" + ")) as $dist |
+        ([.legs[].localizedValues.duration.text] | join(" + ")) as $dur |
+        (.localizedValues.duration.text // "") as $rdur |
+        (.localizedValues.staticDuration.text // "") as $sdur |
+        "Route: \(.description // "unnamed")  [\($dist), \($dur)]" +
+        (if $sdur != "" and $sdur != $rdur then "  (no traffic: \($sdur))" else "" end) +
         "\n" +
-        ([.legs[].steps[] | "  \(.html_instructions | gsub("<[^>]*>"; ""))  [\(.distance.text), \(.duration.text)]"] | join("\n")) +
+        ([.legs[].steps[]? |
+            "  \(.navigationInstruction.instructions // "(no instruction)")  " +
+            "[\(.localizedValues.distance.text // "?"), \(.localizedValues.staticDuration.text // "?")]"
+        ] | join("\n")) +
         "\n"
     '
 }
 
 directions_pretty() {
-    local origin="$1" destination="$2" mode="${3:-driving}"
-    directions "$origin" "$destination" "$mode" "${4:-}" | format_routes
+    directions "$@" | format_routes
 }
 
 # --- Directions with waypoints ---
 
 directions_waypoints() {
-    local origin destination waypoints mode body
-    origin=$(urlencode "$1")
-    destination=$(urlencode "$2")
-    waypoints=$(urlencode "$3")
-    mode="${4:-driving}"
-    body=$(api_get "${BASE}/directions/json?origin=${origin}&destination=${destination}&waypoints=${waypoints}&mode=${mode}&key=${API_KEY}")
-    check_status "$body"
-    printf '%s\n' "$body"
+    local origin="$1" destination="$2" waypoints_raw="$3" mode="${4:-driving}"
+    local travel_mode body response
+    travel_mode=$(travel_mode_enum "$mode") || return 1
+    body=$(jq -nc \
+        --arg o "$origin" \
+        --arg d "$destination" \
+        --arg w "$waypoints_raw" \
+        --arg m "$travel_mode" \
+        '{
+            origin: {address: $o},
+            destination: {address: $d},
+            intermediates: ($w | split("|") | map(select(. != "") | {address: .})),
+            travelMode: $m
+         } +
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+    response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
+        -H "Content-Type: application/json" \
+        -H "X-Goog-Api-Key: ${API_KEY}" \
+        -H "X-Goog-FieldMask: ${ROUTES_FIELD_MASK}" \
+        -d "$body")
+    check_places_status "$response"
+    printf '%s\n' "$response"
 }
 
 directions_waypoints_pretty() {
     directions_waypoints "$@" | format_routes
 }
 
-# --- Distance Matrix ---
+# --- Distance Matrix (Routes API v2) ---
+# Returns a JSON array of elements keyed by originIndex/destinationIndex.
+# No labels are echoed back, so pretty-output must be passed the input lists.
 
 distance_matrix() {
-    local origins destinations mode body
-    origins=$(urlencode "$1")
-    destinations=$(urlencode "$2")
-    mode="${3:-driving}"
-    body=$(api_get "${BASE}/distancematrix/json?origins=${origins}&destinations=${destinations}&mode=${mode}&key=${API_KEY}")
-    check_status "$body"
-    printf '%s\n' "$body"
+    local origins_raw="$1" destinations_raw="$2" mode="${3:-driving}"
+    local travel_mode body response
+    travel_mode=$(travel_mode_enum "$mode") || return 1
+    body=$(jq -nc \
+        --arg origins "$origins_raw" \
+        --arg dests "$destinations_raw" \
+        --arg m "$travel_mode" \
+        '{
+            origins: ($origins | split("|") | map({waypoint: {address: .}})),
+            destinations: ($dests | split("|") | map({waypoint: {address: .}})),
+            travelMode: $m
+         } +
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+    response=$(_curl_json -X POST "${ROUTES_BASE}/distanceMatrix/v2:computeRouteMatrix" \
+        -H "Content-Type: application/json" \
+        -H "X-Goog-Api-Key: ${API_KEY}" \
+        -H "X-Goog-FieldMask: ${ROUTE_MATRIX_FIELD_MASK}" \
+        -d "$body")
+    printf '%s\n' "$response"
 }
 
 distance_matrix_pretty() {
-    distance_matrix "$1" "$2" "${3:-driving}" | jq -r '
-        . as $root |
-        range(.rows | length) as $i |
-        range(.rows[$i].elements | length) as $j |
-        "\($root.origin_addresses[$i]) → \($root.destination_addresses[$j]): \(.rows[$i].elements[$j].distance.text), \(.rows[$i].elements[$j].duration.text)"'
+    local origins_raw="$1" destinations_raw="$2" mode="${3:-driving}"
+    local response
+    response=$(distance_matrix "$origins_raw" "$destinations_raw" "$mode")
+    jq -r \
+        --arg origins "$origins_raw" \
+        --arg dests "$destinations_raw" \
+        '
+        ($origins | split("|")) as $oarr |
+        ($dests   | split("|")) as $darr |
+        .[] |
+        if .condition == "ROUTE_EXISTS" then
+            "\($oarr[.originIndex]) → \($darr[.destinationIndex]): \(.localizedValues.distance.text // "?"), \(.localizedValues.duration.text // "?")"
+        else
+            "\($oarr[.originIndex]) → \($darr[.destinationIndex]): \(.condition // "UNKNOWN")"
+        end
+        ' <<<"$response"
 }
 
 # --- Places API (New) ---
