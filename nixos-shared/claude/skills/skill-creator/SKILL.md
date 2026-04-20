@@ -392,6 +392,8 @@ The script validates first (frontmatter, naming, structure), then creates `skill
 
 See [references/eval-workflow.md](references/eval-workflow.md) for the complete eval workflow, including grading, benchmarking, viewer usage, and platform-specific notes. Skip this for subjective skills — direct user feedback is sufficient.
 
+**Author-agent / test-agent loop (Claude A / Claude B):** Work with one Claude instance as the *author* (helps design and refine the skill) and a separate, fresh instance as the *tester* (loads the skill and runs real tasks). The author understands skill structure; the tester reveals gaps through actual usage. Loop: tester runs a real task → observe specific failure → return to author with the observation ("tester forgot to filter test accounts — filter rule is present but not prominent") → apply refinement → retest. This beats self-review because the tester has no prior context and can't compensate for unclear instructions.
+
 **Iteration workflow:**
 1. Use skill on real tasks
 2. Observe struggles, missed connections, or ignored content

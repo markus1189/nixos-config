@@ -4,6 +4,8 @@
 - Sequential Workflows
 - Conditional Workflows
 - Feedback Loops
+- Plan-Validate-Execute
+- Visual Analysis
 - Checklist Pattern
 - Multi-MCP Coordination
 - Context-Aware Tool Selection
@@ -71,6 +73,50 @@ The "run validator → fix errors → repeat" pattern greatly improves output qu
    - Review checklist again
 4. Only finalize when all requirements met
 ```
+
+## Plan-Validate-Execute
+
+For complex open-ended tasks (batch operations, destructive changes, high-stakes mutations), insert a verifiable intermediate output between analysis and execution. Claude first writes a plan as structured data, a script validates the plan, then execution consumes it.
+
+**Pattern: analyze → plan file → validate → execute → verify**
+
+```markdown
+## Bulk field update workflow
+
+1. **Analyze**: `./scripts/extract_fields.py input.pdf > fields.json`
+2. **Plan**: Write proposed changes to `changes.json` (field → new value)
+3. **Validate**: `./scripts/validate_changes.py fields.json changes.json`
+   - Checks field existence, type compatibility, required-field coverage
+   - Fix errors in changes.json and re-validate until clean
+4. **Execute**: `./scripts/apply_changes.py input.pdf changes.json output.pdf`
+5. **Verify**: `./scripts/verify_output.py output.pdf`
+```
+
+**Why this works:**
+- Catches errors before they touch the artifact
+- Machine-verifiable (objective assertions, not vibes)
+- Plan is reversible — iterate freely without re-running expensive steps
+- Validation errors point at a single line in a small file, not a failed multi-step operation
+
+**When to use:** batch operations over N items, destructive/irreversible steps, non-trivial validation rules, anything where partial failure is expensive to recover from.
+
+**Implementation tip:** Make validators verbose with actionable error messages. `"Field 'signature_date' not found. Available: customer_name, order_total, signature_date_signed"` beats `"Invalid field"`.
+
+## Visual Analysis
+
+When inputs have spatial structure (forms, diagrams, layouts, rendered UI), convert them to images and let Claude's vision do the analysis instead of parsing raw structure.
+
+```markdown
+## Form layout analysis
+
+1. Render pages to images: `./scripts/pdf_to_images.py form.pdf`
+2. Claude reads each page image and identifies field locations, types, and groupings visually
+3. Output structured field map
+```
+
+**When to use:** PDF form layouts, chart/diagram interpretation, screenshot-driven UI testing, OCR-free document structure extraction, visual diffs. Cheaper and more robust than writing brittle coordinate-parsing code for inputs humans read visually.
+
+**When NOT to use:** pure text content (extract text directly), high-volume batch processing where vision cost dominates, inputs with reliable structured representations (use the structure).
 
 ## Checklist Pattern
 
