@@ -257,6 +257,7 @@ in
     text = pkgs.lib.strings.toJSON {
       includeCoAuthoredBy = false;
       cleanupPeriodDays = 3650;
+      autoMemoryEnabled = false;
 
       effortLevel = "high";
 
