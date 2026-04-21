@@ -8,6 +8,8 @@ let
 
     export PATH=${lib.makeBinPath [ curl jq coreutils ]}
 
+    : "${HC_PING_URL:=}"
+
     ${builtins.replaceStrings [ "@cacert@" ] [ "${cacert}" ]
       (builtins.readFile ./sync-weight-to-zwift.sh)}
   '';

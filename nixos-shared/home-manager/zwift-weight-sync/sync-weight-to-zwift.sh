@@ -1,5 +1,18 @@
 CACERT="@cacert@/etc/ssl/certs/ca-bundle.crt"
 
+hc_ping() {
+  if [[ -n "${HC_PING_URL:-}" ]]; then
+    curl -fsS -m 10 --retry 5 -o /dev/null --cacert "$CACERT" "$@" || true
+  fi
+}
+
+# Capture all output for healthcheck log
+LOG_FILE=$(mktemp -t sync-weight.XXXXXX.log)
+exec > >(tee -a "$LOG_FILE") 2>&1
+trap 'EXIT_CODE=$?; if [[ -n "${HC_PING_URL:-}" ]]; then curl -fsS -m 10 --retry 5 --cacert "$CACERT" --data-raw "$(cat "$LOG_FILE")" "${HC_PING_URL}/${EXIT_CODE}" -o /dev/null || true; fi; rm -f "$LOG_FILE"' EXIT
+
+hc_ping "${HC_PING_URL}/start"
+
 : "${BEEMINDER_USER:?Set BEEMINDER_USER}"
 : "${BEEMINDER_TOKEN:?Set BEEMINDER_TOKEN}"
 : "${ZWIFT_USER:?Set ZWIFT_USER}"
@@ -96,5 +109,6 @@ NEW_WEIGHT=$(echo "$VERIFY" | jq -r '.weight')
 if [[ "$NEW_WEIGHT" == "$WEIGHT_GRAMS" ]]; then
   log "Success: weight updated to ${WEIGHT_KG} kg (${WEIGHT_GRAMS} g)"
 else
-  die "Verification failed: expected ${WEIGHT_GRAMS} but got ${NEW_WEIGHT}"
+  log "ERROR: Verification failed: expected ${WEIGHT_GRAMS} but got ${NEW_WEIGHT}" >&2
+  exit 1
 fi
