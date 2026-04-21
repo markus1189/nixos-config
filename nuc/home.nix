@@ -8,6 +8,10 @@ let
       targetDir = "/home/mediacenter/Syncthing/activities";
       password = secrets.garminConnect.password;
     }) { });
+  zwiftWeightSync = pkgs.callPackage
+    (import ../nixos-shared/home-manager/zwift-weight-sync/default.nix {
+      environmentFile = "/run/agenix/zwiftWeightSync";
+    }) { };
 in {
   home = {
     stateVersion = "18.09";
@@ -52,6 +56,7 @@ in {
       rsstail = pkgs.mkRsstailToRaindropUnitWithSecrets;
       otherServices = {
         garminConnectSync = garmin.service;
+        syncWeightToZwift = zwiftWeightSync.service;
       };
       rssTailServices = map rsstail [
         {
@@ -83,4 +88,5 @@ in {
   };
 
   systemd.user.timers.garminConnectSync = garmin.timer;
+  systemd.user.timers.syncWeightToZwift = zwiftWeightSync.timer;
 }

@@ -21,6 +21,7 @@ in {
     ../nixos-shared/packages/services.nix
     ../nixos-shared/prometheus.nix
     ../nixos-shared/my-agenix.nix
+    ../nixos-shared/zwift-weight-sync.nix
     ../nixos-shared/rclone-mounts.nix
     ../nixos-shared/restic/module.nix
     ../nixos-shared/ripgrep.nix

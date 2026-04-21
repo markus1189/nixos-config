@@ -9,6 +9,7 @@ let
   };
 
   nixpkgsMaster = import nixpkgsMasterSrc { };
+
 in
 {
   home = {
