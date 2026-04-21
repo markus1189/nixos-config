@@ -31,6 +31,18 @@ Commands validate responses and exit non-zero on real errors (printing the API m
 - `place-details` omits `reviews` by default (cheaper SKU). Set `MAPS_WITH_REVIEWS=1` to include up to 3 recent reviews.
 - Every call is billed against the GCP project; avoid tight retry loops.
 
+## Scheduled departures
+
+DRIVE-mode traffic estimates default to departing ~now. Set `MAPS_DEPARTURE_TIME` to any `date -d` compatible string to get traffic predictions for a future departure. Applies to `directions`, `directions-waypoints`, and `distance-matrix`. The API requires a future timestamp.
+
+```bash
+MAPS_DEPARTURE_TIME="2026-04-21 17:45 CEST" \
+  ./scripts/maps-api.sh directions-pretty "Lorsbach" "Frankfurt Ostend" driving
+
+MAPS_DEPARTURE_TIME="tomorrow 08:00" \
+  ./scripts/maps-api.sh distance-matrix-pretty "Hamburg|Bremen" "Berlin"
+```
+
 ## Limits & truncation (pretty output)
 
 - `reverse-geocode-pretty`: 3 results

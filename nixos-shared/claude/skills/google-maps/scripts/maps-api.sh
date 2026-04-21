@@ -34,6 +34,21 @@ require_api_key() {
     fi
 }
 
+# Emit an ISO-8601 UTC timestamp for the DRIVE `departureTime` field.
+# Default: now + 5 seconds (API requires a future timestamp).
+# Override with MAPS_DEPARTURE_TIME — any `date -d` compatible string,
+# e.g. "2026-04-21 17:45 CEST", "today 18:00", "2026-04-21T17:45:00+02:00".
+_departure_time_iso() {
+    if [ -n "${MAPS_DEPARTURE_TIME:-}" ]; then
+        if ! date -u -d "$MAPS_DEPARTURE_TIME" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null; then
+            echo "Invalid MAPS_DEPARTURE_TIME: $MAPS_DEPARTURE_TIME" >&2
+            return 1
+        fi
+    else
+        date -u -d '+5 seconds' +"%Y-%m-%dT%H:%M:%SZ"
+    fi
+}
+
 # --- Helpers ---
 
 urlencode() {
@@ -143,16 +158,18 @@ reverse_geocode_pretty() {
 
 directions() {
     local origin="$1" destination="$2" mode="${3:-driving}" alternatives="${4:-}"
-    local travel_mode body response alt_flag=false
+    local travel_mode body response alt_flag=false dep
     travel_mode=$(travel_mode_enum "$mode") || return 1
     [ "$alternatives" = "alternatives" ] && alt_flag=true
+    dep=$(_departure_time_iso) || return 1
     body=$(jq -nc \
         --arg o "$origin" \
         --arg d "$destination" \
         --arg m "$travel_mode" \
+        --arg dep "$dep" \
         --argjson alt "$alt_flag" \
         '{origin: {address: $o}, destination: {address: $d}, travelMode: $m, computeAlternativeRoutes: $alt} +
-         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
     response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
         -H "Content-Type: application/json" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
@@ -192,20 +209,22 @@ directions_pretty() {
 
 directions_waypoints() {
     local origin="$1" destination="$2" waypoints_raw="$3" mode="${4:-driving}"
-    local travel_mode body response
+    local travel_mode body response dep
     travel_mode=$(travel_mode_enum "$mode") || return 1
+    dep=$(_departure_time_iso) || return 1
     body=$(jq -nc \
         --arg o "$origin" \
         --arg d "$destination" \
         --arg w "$waypoints_raw" \
         --arg m "$travel_mode" \
+        --arg dep "$dep" \
         '{
             origin: {address: $o},
             destination: {address: $d},
             intermediates: ($w | split("|") | map(select(. != "") | {address: .})),
             travelMode: $m
          } +
-         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
     response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
         -H "Content-Type: application/json" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
@@ -225,18 +244,20 @@ directions_waypoints_pretty() {
 
 distance_matrix() {
     local origins_raw="$1" destinations_raw="$2" mode="${3:-driving}"
-    local travel_mode body response
+    local travel_mode body response dep
     travel_mode=$(travel_mode_enum "$mode") || return 1
+    dep=$(_departure_time_iso) || return 1
     body=$(jq -nc \
         --arg origins "$origins_raw" \
         --arg dests "$destinations_raw" \
         --arg m "$travel_mode" \
+        --arg dep "$dep" \
         '{
             origins: ($origins | split("|") | map({waypoint: {address: .}})),
             destinations: ($dests | split("|") | map({waypoint: {address: .}})),
             travelMode: $m
          } +
-         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: ((now + 5) | todateiso8601)} else {} end)')
+         (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
     response=$(_curl_json -X POST "${ROUTES_BASE}/distanceMatrix/v2:computeRouteMatrix" \
         -H "Content-Type: application/json" \
         -H "X-Goog-Api-Key: ${API_KEY}" \
