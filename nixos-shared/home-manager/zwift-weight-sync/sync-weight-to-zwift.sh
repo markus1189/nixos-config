@@ -24,30 +24,32 @@ ZWIFT_API_URL="https://us-or-rly101.zwift.com"
 log() { echo "[sync-weight] $(date +%H:%M:%S) $*"; }
 die() { log "ERROR: $*" >&2; exit 1; }
 
-# --- 1. Fetch latest weight from Beeminder ---
-log "Fetching latest weight from Beeminder..."
-DATAPOINT=$(curl --silent --fail --cacert "$CACERT" \
-  "https://www.beeminder.com/api/v1/users/${BEEMINDER_USER}/goals/weight/datapoints.json?auth_token=${BEEMINDER_TOKEN}&count=1&sort=daystamp") \
+# --- 1. Fetch last 7 datapoints from Beeminder ---
+log "Fetching last 7 weight datapoints from Beeminder..."
+DATAPOINTS=$(curl --silent --fail --cacert "$CACERT" \
+  "https://www.beeminder.com/api/v1/users/${BEEMINDER_USER}/goals/weight/datapoints.json?auth_token=${BEEMINDER_TOKEN}&count=7&sort=daystamp") \
   || die "Failed to fetch from Beeminder"
 
-DAYSTAMP=$(echo "$DATAPOINT" | jq -r '.[0].daystamp')
-WEIGHT_KG=$(echo "$DATAPOINT" | jq -r '.[0].value')
+NUM_POINTS=$(echo "$DATAPOINTS" | jq 'length')
+[[ "$NUM_POINTS" -eq 0 ]] && die "No datapoints found"
 
-[[ "$DAYSTAMP" == "null" || "$WEIGHT_KG" == "null" ]] && die "No datapoint found"
+LATEST_DAYSTAMP=$(echo "$DATAPOINTS" | jq -r '.[0].daystamp')
+log "Got ${NUM_POINTS} datapoints, latest from ${LATEST_DAYSTAMP}"
+echo "$DATAPOINTS" | jq -r '.[] | "  \(.daystamp): \(.value) kg"'
 
-log "Beeminder datapoint: ${WEIGHT_KG} kg on ${DAYSTAMP}"
-
-# --- 2. Staleness check: must be from yesterday ---
+# --- 2. Staleness check: most recent must be within last 2 days ---
 YESTERDAY=$(date -d 'yesterday' +%Y%m%d)
-DAYSTAMP_CLEAN=$(echo "$DAYSTAMP" | tr -d '-')
+TODAY=$(date +%Y%m%d)
+DAYSTAMP_CLEAN=$(echo "$LATEST_DAYSTAMP" | tr -d '-')
 
-if [[ "$DAYSTAMP_CLEAN" != "$YESTERDAY" ]]; then
-  die "Stale data: datapoint is from ${DAYSTAMP}, expected ${YESTERDAY}"
+if [[ "$DAYSTAMP_CLEAN" != "$YESTERDAY" && "$DAYSTAMP_CLEAN" != "$TODAY" ]]; then
+  die "Stale data: most recent datapoint is from ${LATEST_DAYSTAMP}, expected ${YESTERDAY} or ${TODAY}"
 fi
 
-# --- 3. Convert to Zwift grams ---
-WEIGHT_GRAMS=$(echo "$WEIGHT_KG" | jq -r '. * 1000 | round')
-log "Weight in grams for Zwift: ${WEIGHT_GRAMS}"
+# --- 3. Compute 7-day rolling average and convert to Zwift grams ---
+WEIGHT_KG=$(echo "$DATAPOINTS" | jq '[.[].value] | add / length | . * 100 | round / 100')
+WEIGHT_GRAMS=$(echo "$DATAPOINTS" | jq '[.[].value] | add / length * 1000 | round')
+log "7-day avg weight: ${WEIGHT_KG} kg (${WEIGHT_GRAMS} g)"
 
 # --- 4. Authenticate with Zwift ---
 log "Authenticating with Zwift..."
