@@ -27,7 +27,7 @@ in {
     Unit.After = [ "time-set.target" "time-sync.target" ];
     Install.WantedBy = [ "timers.target" ];
     Timer = {
-      OnCalendar = "*-*-* 07:00:00";
+      OnCalendar = "*-*-* 00/4:00:00";
       Persistent = true;
     };
   };
