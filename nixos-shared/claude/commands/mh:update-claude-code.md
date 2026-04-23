@@ -139,7 +139,19 @@ rm "$BODY_FILE"
 nohup bash -c 'DISPLAY=:0 xdg-open $PR_URL' >/dev/null 2>&1 &
 ```
 
-### 12. Check for Obsolete PRs
+### 12. Trigger nixpkgs-review-gha
+**Do not dispatch automatically — wait for explicit user request.** Surface the command so the user can invoke it. Posts result as PR comment; `on-success=mark_as_ready` flips draft → ready.
+```bash
+gh workflow run review --repo markus1189/nixpkgs-review-gha \
+  -f pr=NUM \
+  -f x86_64-linux=true -f aarch64-linux=true \
+  -f x86_64-darwin=yes_sandbox_relaxed -f aarch64-darwin=yes_sandbox_relaxed \
+  -f push-to-cache=true -f upterm=false \
+  -f post-result=true -f on-success=mark_as_ready
+```
+Recent runs: `gh run list --workflow=review --repo markus1189/nixpkgs-review-gha --limit 5`
+
+### 13. Check for Obsolete PRs
 Search for open claude-code update PRs that are now superseded:
 ```bash
 gh pr list --repo NixOS/nixpkgs --search "claude-code in:title" --state open \
@@ -154,3 +166,11 @@ List any version-update PRs targeting older versions to the user so they can dec
 **Versions don't match** - Dirty branch. Reset to master, delete bad branch, start over.
 
 **npmDepsHash mismatch** - Copy "got:" hash from build error to package.nix, rebuild.
+
+**vscode-ext hash mismatch (only surfaces on CI)** - Update script bumps `version` but NOT `hash` in `anthropic.claude-code/default.nix`. Local builds can pass from stale FOD cache while CI fails; marketplace also occasionally re-rolls vsix bytes. Fetch CI's `got:` hash from the failed review run, paste into `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
+```bash
+RUN=<run id>
+JOB=$(gh api repos/markus1189/nixpkgs-review-gha/actions/runs/$RUN/jobs \
+      --jq '.jobs[] | select(.name=="review (x86_64-linux)") | .id')
+gh api repos/markus1189/nixpkgs-review-gha/actions/jobs/$JOB/logs | grep -E "got:|specified:"
+```
