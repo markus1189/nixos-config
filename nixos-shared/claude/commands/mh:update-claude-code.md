@@ -3,13 +3,13 @@ Update claude-code in nixpkgs. Arguments: $ARGUMENTS
 ## Quick Reference
 
 **Files:**
-- `pkgs/by-name/cl/claude-code/package.nix` - Main npm package
-- `pkgs/by-name/cl/claude-code/package-lock.json` - npm lockfile
-- `pkgs/by-name/cl/claude-code-bin/package.nix` - Binary distribution package
-- `pkgs/by-name/cl/claude-code-bin/manifest.json` - Binary manifest
+- `pkgs/by-name/cl/claude-code/package.nix` - Binary distribution package (formerly claude-code-bin)
+- `pkgs/by-name/cl/claude-code/manifest.json` - Binary manifest (version source)
 - `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix` - VSCode extension
 
-**Branch naming:** `claude-code-OLD-to-NEW` (e.g., `claude-code-2.1.6-to-2.1.7`)
+Note: `claude-code-bin` was folded into `claude-code` (nixpkgs PR #511120, merged 2026-04-23). There is no longer a separate `-bin` package, no `package-lock.json`, and no npm build — `claude-code` now pulls a prebuilt binary from the manifest.
+
+**Branch naming:** `claude-code-OLD-to-NEW` (e.g., `claude-code-2.1.118-to-2.1.119`)
 
 ## Workflow
 
@@ -24,8 +24,8 @@ If not clean or on wrong branch: `git reset --hard upstream/master`
 
 ### 2. Check Versions
 ```bash
-# Current version in nixpkgs
-grep -E '^  version = ' pkgs/by-name/cl/claude-code/package.nix
+# Current version in nixpkgs (manifest is the source of truth)
+jq -r '.version' pkgs/by-name/cl/claude-code/manifest.json
 
 # Latest on npm
 curl -s https://registry.npmjs.org/@anthropic-ai/claude-code/latest | jq -r '.version'
@@ -39,43 +39,39 @@ git checkout -b claude-code-OLD-to-NEW
 ```
 
 ### 4. Run Update Script
-Pipe empty input to handle interactive prompt:
+Pipe empty input to handle interactive prompt. The `claude-code-bin` attr no longer exists but leaving it in the predicate is harmless (unmatched entries are ignored):
 ```bash
 echo "" | nix-shell maintainers/scripts/update.nix --arg predicate \
-  '(path: pkg: builtins.elem path [["claude-code"] ["claude-code-bin"] ["vscode-extensions" "anthropic" "claude-code"]])'
+  '(path: pkg: builtins.elem path [["claude-code"] ["vscode-extensions" "anthropic" "claude-code"]])'
 ```
 **Timeout:** 300000ms (5 minutes)
 
 **If script fails:** Do NOT fix manually. Ask user or retry with higher timeout.
 
 ### 5. Verify Versions Match
-All four must show the same version:
+Both must show the same version:
 ```bash
-grep -E '^  version = ' pkgs/by-name/cl/claude-code/package.nix
-jq -r '.version' pkgs/by-name/cl/claude-code-bin/manifest.json
+jq -r '.version' pkgs/by-name/cl/claude-code/manifest.json
 grep 'version = ' pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
-grep '"version":' pkgs/by-name/cl/claude-code/package-lock.json | head -1
 ```
 
 ### 6. Format
 ```bash
 nix fmt pkgs/by-name/cl/claude-code/package.nix \
-       pkgs/by-name/cl/claude-code-bin/package.nix \
        pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
 ```
 
-### 7. Build All Packages
+### 7. Build Both Packages
 ```bash
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
-env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code-bin
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 ```
 
-**If npmDepsHash mismatch:** Copy the "got:" hash from error, update `npmDepsHash` in package.nix, rebuild.
+The `claude-code` build runs `versionCheckHook` against `claude --version` — a successful build confirms the binary reports the expected version.
 
-### 8. Commit (THREE separate commits)
+### 8. Commit (TWO separate commits)
 ```bash
-# First: claude-code npm package
+# First: claude-code binary package
 git add pkgs/by-name/cl/claude-code/
 git commit -m "$(cat <<'EOF'
 claude-code: OLD -> NEW
@@ -84,16 +80,7 @@ https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 EOF
 )"
 
-# Second: claude-code-bin binary package
-git add pkgs/by-name/cl/claude-code-bin/
-git commit -m "$(cat <<'EOF'
-claude-code-bin: OLD -> NEW
-
-https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
-EOF
-)"
-
-# Third: vscode extension
+# Second: vscode extension
 git add pkgs/applications/editors/vscode/extensions/anthropic.claude-code/
 git commit -m "$(cat <<'EOF'
 vscode-extensions.anthropic.claude-code: OLD -> NEW
@@ -113,7 +100,7 @@ git push origin claude-code-OLD-to-NEW
 # Prepare PR body from template with summary prepended and boxes ticked
 BODY_FILE=$(mktemp)
 cat > "$BODY_FILE" <<SUMMARY
-Update claude-code, claude-code-bin, and vscode-extensions.anthropic.claude-code to NEW.
+Update claude-code and vscode-extensions.anthropic.claude-code to NEW.
 
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 
@@ -164,8 +151,6 @@ List any version-update PRs targeting older versions to the user so they can dec
 **"Not updating version, already X.X.X"** - Not on clean master. Reset: `git checkout master && git reset --hard upstream/master`
 
 **Versions don't match** - Dirty branch. Reset to master, delete bad branch, start over.
-
-**npmDepsHash mismatch** - Copy "got:" hash from build error to package.nix, rebuild.
 
 **vscode-ext hash mismatch (only surfaces on CI)** - Update script bumps `version` but NOT `hash` in `anthropic.claude-code/default.nix`. Local builds can pass from stale FOD cache while CI fails; marketplace also occasionally re-rolls vsix bytes. Fetch CI's `got:` hash from the failed review run, paste into `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
 ```bash
