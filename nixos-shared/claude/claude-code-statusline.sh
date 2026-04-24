@@ -29,7 +29,7 @@ shorten_bedrock_model() {
 }
 
 get_model_name() {
-    local model_name style_suffix indicator_suffix
+    local model_name style_suffix effort_suffix indicator_suffix
     model_name=$(echo "$input" | jq -r '.model.display_name')
 
     # Shorten Bedrock model names
@@ -44,6 +44,15 @@ get_model_name() {
         style_suffix=""
     fi
 
+    # Add effort level (text) if present
+    local effort
+    effort=$(echo "$input" | jq -r '.effort.level // empty')
+    if [ -n "$effort" ]; then
+        effort_suffix=" (${effort})"
+    else
+        effort_suffix=""
+    fi
+
     # Add indicator emojis
     indicator_suffix=""
     if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
@@ -52,8 +61,13 @@ get_model_name() {
     if [ "${ANTHROPIC_BASE_URL:-}" = "https://api.portkey.ai" ]; then
         indicator_suffix+="🔑"
     fi
+    local thinking_enabled
+    thinking_enabled=$(echo "$input" | jq -r '.thinking.enabled // false')
+    if [ "$thinking_enabled" = "true" ]; then
+        indicator_suffix+="🧠"
+    fi
 
-    echo "${model_name}${style_suffix}${indicator_suffix}"
+    echo "${model_name}${style_suffix}${effort_suffix}${indicator_suffix}"
 }
 get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
 get_project_dir() { echo "$input" | jq -r '.workspace.project_dir' | sed "s|^$HOME|~|"; }
@@ -192,6 +206,43 @@ get_context_with_bar() {
     echo "${formatted_context}[${bar}]"
 }
 
+get_rate_limit_5h() {
+    local pct
+    pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+    if [ -z "$pct" ]; then
+        echo ""
+    else
+        printf "5h %.0f%%" "$pct"
+    fi
+}
+
+get_rate_limit_5h_color() {
+    local pct pct_int
+    pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+    if [ -z "$pct" ]; then
+        echo "180;140;255"  # Default purple
+        return
+    fi
+    pct_int="${pct%.*}"
+    if [ "$pct_int" -gt 75 ]; then
+        echo "255;120;120"  # Red
+    elif [ "$pct_int" -gt 50 ]; then
+        echo "255;180;100"  # Orange
+    else
+        echo "120;220;120"  # Green
+    fi
+}
+
+get_exceeds_200k_indicator() {
+    local exceeds
+    exceeds=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
+    if [ "$exceeds" = "true" ]; then
+        echo "🔥"
+    else
+        echo ""
+    fi
+}
+
 get_context_color() {
     local context window_size threshold_red threshold_orange
     context=$(get_context_size)
@@ -261,8 +312,20 @@ main() {
 
     # Row 3: Cost and context metrics
     echo -en "$(segment "$PURPLE" "$(get_cost)$")"
-    echo -en "$(separator "$PURPLE" "$context_color")"
-    echo -en "$(segment "$context_color" "$(get_context_with_bar)")"
+
+    # Optional 5h rate limit segment (only when field present)
+    local rate_limit_5h rate_limit_5h_color
+    rate_limit_5h=$(get_rate_limit_5h)
+    if [ -n "$rate_limit_5h" ]; then
+        rate_limit_5h_color=$(get_rate_limit_5h_color)
+        echo -en "$(separator "$PURPLE" "$rate_limit_5h_color")"
+        echo -en "$(segment "$rate_limit_5h_color" "$rate_limit_5h")"
+        echo -en "$(separator "$rate_limit_5h_color" "$context_color")"
+    else
+        echo -en "$(separator "$PURPLE" "$context_color")"
+    fi
+
+    echo -en "$(segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)")"
     echo -en "$(separator "$context_color" "$YELLOW")"
     echo -en "$(segment "$YELLOW" "$(get_context_percentage)")"
     echo -en "$(separator "$YELLOW" "$CYAN")"

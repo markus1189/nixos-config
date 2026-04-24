@@ -248,3 +248,128 @@ EOF
     assert_success
     assert_output "⌀"
 }
+
+# Tests for get_model_name effort and thinking extensions
+
+@test "get_model_name: effort level appended as text" {
+    input='{"model": {"display_name": "opus"}, "effort": {"level": "high"}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    run get_model_name
+    assert_success
+    assert_output "opus (high)"
+}
+
+@test "get_model_name: effort level absent when field missing" {
+    input='{"model": {"display_name": "opus"}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    run get_model_name
+    assert_success
+    assert_output "opus"
+}
+
+@test "get_model_name: thinking enabled appends brain emoji" {
+    input='{"model": {"display_name": "opus"}, "thinking": {"enabled": true}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    run get_model_name
+    assert_success
+    assert_output "opus🧠"
+}
+
+@test "get_model_name: thinking disabled omits brain emoji" {
+    input='{"model": {"display_name": "opus"}, "thinking": {"enabled": false}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    run get_model_name
+    assert_success
+    assert_output "opus"
+}
+
+@test "get_model_name: style, effort, and thinking combined" {
+    input='{"model": {"display_name": "opus"}, "output_style": {"name": "concise"}, "effort": {"level": "medium"}, "thinking": {"enabled": true}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    run get_model_name
+    assert_success
+    assert_output "opus (concise) (medium)🧠"
+}
+
+# Tests for get_rate_limit_5h function
+
+@test "get_rate_limit_5h: present percentage rendered as integer" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 23.5}}}'
+    run get_rate_limit_5h
+    assert_success
+    assert_output "5h 24%"
+}
+
+@test "get_rate_limit_5h: zero percentage rendered" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 0}}}'
+    run get_rate_limit_5h
+    assert_success
+    assert_output "5h 0%"
+}
+
+@test "get_rate_limit_5h: missing field yields empty string" {
+    input='{}'
+    run get_rate_limit_5h
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_5h: null field yields empty string" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": null}}}'
+    run get_rate_limit_5h
+    assert_success
+    assert_output ""
+}
+
+# Tests for get_rate_limit_5h_color function
+
+@test "get_rate_limit_5h_color: low usage (25%) is green" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 25}}}'
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "120;220;120"
+}
+
+@test "get_rate_limit_5h_color: medium usage (60%) is orange" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 60}}}'
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "255;180;100"
+}
+
+@test "get_rate_limit_5h_color: high usage (80%) is red" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 80}}}'
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_rate_limit_5h_color: missing field defaults to purple" {
+    input='{}'
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "180;140;255"
+}
+
+# Tests for get_exceeds_200k_indicator function
+
+@test "get_exceeds_200k_indicator: true returns fire emoji" {
+    input='{"exceeds_200k_tokens": true}'
+    run get_exceeds_200k_indicator
+    assert_success
+    assert_output "🔥"
+}
+
+@test "get_exceeds_200k_indicator: false returns empty string" {
+    input='{"exceeds_200k_tokens": false}'
+    run get_exceeds_200k_indicator
+    assert_success
+    assert_output ""
+}
+
+@test "get_exceeds_200k_indicator: missing field returns empty string" {
+    input='{}'
+    run get_exceeds_200k_indicator
+    assert_success
+    assert_output ""
+}
