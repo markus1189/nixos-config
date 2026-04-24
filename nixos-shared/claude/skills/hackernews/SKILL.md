@@ -182,6 +182,10 @@ The most valuable HN finds are often **linked in comments, not described** — s
 
 Academic papers, formal institutional documents, and research cited in comments are **always worth surfacing** — treat them like linked artifacts but with higher signal. Commenters who cite specific papers (not just "I read somewhere that...") are usually practitioners with domain expertise. The sub-agent includes a "Cited Papers & Research" section in its output. After reading deep-dive results, call these out prominently alongside linked artifacts.
 
+## Primary Sources for New Releases
+
+For stories about **new model releases** (GPT, Claude, DeepSeek, Gemini, Llama, etc.): after presenting deep-dive summaries, **proactively offer to chase** the system card, technical report, or paper. Find them via the announcement URL, comments, or known locations (e.g., `deploymentsafety.openai.com`, arxiv, HuggingFace model cards). Distill: architecture, full benchmark grid (not cherry-picked), pricing, safety/alignment findings, and practical gotchas.
+
 **When the user asks to chase an artifact**:
 1. Fetch the actual content — `curl` the raw GitHub URL, read the file, present it
 2. Navigate the repo structure if needed (API: `https://api.github.com/repos/OWNER/REPO/contents/PATH`)
