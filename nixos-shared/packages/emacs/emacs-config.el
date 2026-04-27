@@ -2534,6 +2534,7 @@ Provides more detailed messages on failure."
            ("https://lastweekin.ai/feed" llm)
            ("https://dariusforoux.com/feed/")
            ("https://thequilltolive.com/feed/" reading qtl)
+           ("https://blog.the-ebook-reader.com/feed/" reading)
            ("https://www.raptitude.com/feed/")
            ("https://mathwithbaddrawings.com/feed")
            ("https://photographylife.com/feed")
