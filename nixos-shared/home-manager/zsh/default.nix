@@ -77,6 +77,11 @@
         dir=$(find ~/Stuff -mindepth 2 -maxdepth 2 -type d 2>/dev/null | fzf --height 40% --layout=reverse --border --preview 'ls -A {1}')
         [ -n "$dir" ] && cd "$dir"
       }
+
+      # Force plain file completion on C-x f, bypassing context-aware completers
+      zle -C complete-files complete-word _generic
+      zstyle ':completion:complete-files:*' completer _files
+      bindkey '^Xf' complete-files
     '';
   };
 }
