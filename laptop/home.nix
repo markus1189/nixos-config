@@ -8,7 +8,11 @@ let
     url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   };
 
-  nixpkgsMaster = import nixpkgsMasterSrc { };
+  nixpkgsMaster = import nixpkgsMasterSrc {
+    config = {
+      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" "claude-code-bin" ];
+    };
+  };
 
 in
 {
@@ -995,6 +999,60 @@ in
           Restart = "always";
         };
       };
+
+    claude-remote-control =
+      let
+        claudePackage = nixpkgsMaster.claude-code-bin;
+      in
+      {
+        Unit = {
+          Description = "claude remote-control long-running process";
+          Wants = [ "network-online.target" ];
+          After = [ "network-online.target" ];
+          StartLimitIntervalSec = 0;
+        };
+
+        Install = {
+          WantedBy = [ "default.target" ];
+        };
+
+        Service = {
+          Type = "simple";
+          WorkingDirectory = "/home/markus/Syncthing/ePubs";
+          ExecStart = "${pkgs.util-linux}/bin/script -q -c '${claudePackage}/bin/claude remote-control' /dev/null";
+          Restart = "always";
+          RestartSec = 10;
+          RestartSteps = 6;
+          RestartMaxDelaySec = "30min";
+        };
+      };
+
+    claude-remote-control-restart = {
+      Unit = {
+        Description = "Periodic restart of claude-remote-control (every 2h, even hours)";
+      };
+
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.systemd}/bin/systemctl --user restart claude-remote-control.service";
+      };
+    };
+  };
+
+  systemd.user.timers.claude-remote-control-restart = {
+    Unit = {
+      Description = "Timer: restart claude-remote-control every 2 hours on even hours";
+    };
+
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
+
+    Timer = {
+      OnCalendar = "*-*-* 00/2:00:00";
+      Persistent = false;
+      Unit = "claude-remote-control-restart.service";
+    };
   };
 
   xdg = {
