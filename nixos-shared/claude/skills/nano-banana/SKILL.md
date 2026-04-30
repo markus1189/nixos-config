@@ -41,6 +41,10 @@ The script validates aspect/size against the chosen model and rejects unsupporte
 ./scripts/nano-banana.sh --no-stream "..."   # quieter, no SSE
 ```
 
+## Crafting prompts
+
+For non-trivial generations (text in images, multi-image composition, photorealism, brand work), read [references/prompting.md](references/prompting.md) before writing the prompt.
+
 ## Failure modes
 
 - `pass api/openrouter returned empty` — entry missing in the user's password store.
