@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # Hook script to block dangerous command patterns before execution.
 #
-# Primarily targets rm -rf and its variations to prevent accidental
-# destructive operations.
+# Detects rm invocations that combine recursive (-r/-R/--recursive) with
+# force (-f/--force) and lack interactive confirmation (-i/-I/--interactive).
+#
+# Detection is AST-based: the command is parsed by ast-grep + tree-sitter-bash
+# so flags belonging to other commands, content inside strings, and shell
+# comments do not trigger false positives.
 
 set -euo pipefail
 
 # ============================================================================
-# Helper Functions - Output formatting
+# Output formatting
 # ============================================================================
 
 output_allow() {
@@ -42,7 +46,7 @@ EOF
 }
 
 # ============================================================================
-# Input Parsing Functions - Unit testable
+# Input parsing
 # ============================================================================
 
 parse_tool_name() {
@@ -56,7 +60,7 @@ parse_command() {
 }
 
 # ============================================================================
-# Detection Functions - Unit testable
+# Detection
 # ============================================================================
 
 is_nix_sandboxed() {
@@ -64,118 +68,131 @@ is_nix_sandboxed() {
     [[ "$command" =~ ^[[:space:]]*(,|nix[[:space:]]+(run|shell)|nix-shell) ]]
 }
 
-contains_rm_command() {
-    local command="$1"
-    [[ "$command" =~ (^|[[:space:]|&;\(])rm([[:space:]]|$) ]]
+# Inspect a flat token stream of rm-style flags. Returns 0 (dangerous) when
+# both a recursive and a force flag are present and no interactive flag is.
+analyze_flag_tokens() {
+    local has_r=0 has_f=0 has_i=0
+    local tok
+    for tok in "$@"; do
+        case "$tok" in
+            --) break ;;
+            --recursive)   has_r=1 ;;
+            --force)       has_f=1 ;;
+            --interactive) has_i=1 ;;
+            --*) ;;
+            -?*)
+                local rest="${tok#-}"
+                local i ch
+                for ((i=0; i<${#rest}; i++)); do
+                    ch="${rest:i:1}"
+                    case "$ch" in
+                        r|R) has_r=1 ;;
+                        f|F) has_f=1 ;;
+                        i|I) has_i=1 ;;
+                    esac
+                done
+                ;;
+        esac
+    done
+    (( has_r && has_f && ! has_i ))
 }
 
-is_interactive_rm() {
-    local command="$1"
-    # Match -i or -I flags (with or without other letters like -rfi)
-    # Must be preceded by whitespace to avoid matching '--recursive'
-    [[ "$command" =~ [[:space:]]-[a-zA-Z]*[iI][a-zA-Z]*([[:space:]]|$) ]]
+# Decide whether a single rm match (e.g. "rm -rf foo") is dangerous.
+is_dangerous_rm_match() {
+    local match_text="$1"
+    local rest="${match_text#rm}"
+    local -a tokens=()
+    # shellcheck disable=SC2206  # intentional word-splitting on the rm args
+    tokens=( $rest )
+    analyze_flag_tokens "${tokens[@]}"
 }
 
-has_combined_rf_flags() {
-    local command="$1"
-    [[ "$command" =~ (^|[[:space:]|&;\(])rm[[:space:]]+-[a-zA-Z]*[rR][a-zA-Z]*[fF] ]] || \
-    [[ "$command" =~ (^|[[:space:]|&;\(])rm[[:space:]]+-[a-zA-Z]*[fF][a-zA-Z]*[rR] ]]
+# Decide whether an xargs match (e.g. "xargs -I {} rm -rf {}") embeds a
+# dangerous rm. tree-sitter-bash parses `xargs rm -rf` as a single command,
+# so we have to handle this shape separately.
+is_dangerous_xargs_match() {
+    local match_text="$1"
+    local rest="${match_text#xargs}"
+    local -a tokens=()
+    # shellcheck disable=SC2206
+    tokens=( $rest )
+    local i
+    for ((i=0; i<${#tokens[@]}; i++)); do
+        if [[ "${tokens[i]}" == "rm" ]]; then
+            analyze_flag_tokens "${tokens[@]:i+1}"
+            return $?
+        fi
+    done
+    return 1
 }
 
-has_recursive_flag() {
+# Run ast-grep against the command text using the given pattern; emit one
+# matched node text per line.
+extract_matches() {
     local command="$1"
-    [[ "$command" =~ -[a-zA-Z]*[rR] ]] || [[ "$command" =~ --recursive ]]
-}
-
-has_force_flag() {
-    local command="$1"
-    [[ "$command" =~ -[a-zA-Z]*[fF] ]] || [[ "$command" =~ --force ]]
-}
-
-has_separated_rf_flags() {
-    local command="$1"
-    has_recursive_flag "$command" && has_force_flag "$command"
+    local pattern="$2"
+    printf '%s\n' "$command" \
+        | ast-grep --lang bash --pattern "$pattern" --stdin --json=stream 2>/dev/null \
+        | jq -r '.text'
 }
 
 is_dangerous_rm_command() {
     local command="$1"
+    [[ -z "$command" ]] && return 1
 
-    # Must contain rm
-    if ! contains_rm_command "$command"; then
-        return 1
-    fi
+    local match
+    while IFS= read -r match; do
+        [[ -z "$match" ]] && continue
+        if is_dangerous_rm_match "$match"; then
+            return 0
+        fi
+    done < <(extract_matches "$command" 'rm $$$')
 
-    # Interactive rm is safe
-    if is_interactive_rm "$command"; then
-        return 1
-    fi
-
-    # Check for dangerous patterns
-    if has_combined_rf_flags "$command"; then
-        return 0
-    fi
-
-    if has_separated_rf_flags "$command"; then
-        return 0
-    fi
+    while IFS= read -r match; do
+        [[ -z "$match" ]] && continue
+        if is_dangerous_xargs_match "$match"; then
+            return 0
+        fi
+    done < <(extract_matches "$command" 'xargs $$$')
 
     return 1
 }
 
 # ============================================================================
-# Main Hook Logic
+# Main hook entry point
 # ============================================================================
 
 main() {
-    # Read hook input from stdin
     local input
     input=$(cat)
 
-    # Extract tool name and command
-    local tool_name
-    local command
+    local tool_name command
     tool_name=$(parse_tool_name "$input")
     command=$(parse_command "$input")
 
-    # Only process Bash tool calls
     if [[ "$tool_name" != "Bash" ]]; then
         output_allow "Non-Bash tool"
         return 0
     fi
 
-    # Skip check if command is empty
     if [[ -z "$command" ]]; then
         output_allow "Empty command"
         return 0
     fi
 
-    # Skip check if command uses Nix-based invocation
     if is_nix_sandboxed "$command"; then
         output_allow "Nix-sandboxed invocation"
         return 0
     fi
 
-    # Check if command is dangerous
     if is_dangerous_rm_command "$command"; then
-        if has_combined_rf_flags "$command"; then
-            block_dangerous_command "rm with combined -rf flags"
-        else
-            block_dangerous_command "rm with separated -r and -f flags"
-        fi
+        block_dangerous_command "rm with recursive + force flags (no interactive)"
     fi
 
-    # No rm command present
-    if ! contains_rm_command "$command"; then
-        output_allow "No rm command present"
-        return 0
-    fi
-
-    # Command is safe to execute
     output_allow "No dangerous patterns detected"
     return 0
 }
 
-# Run main function if script is executed (not sourced for testing)
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

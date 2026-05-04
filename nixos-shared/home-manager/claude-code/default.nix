@@ -86,7 +86,7 @@ let
   # Dangerous command check hook script
   dangerousCommandCheckScript = pkgs.writeShellApplication {
     name = "check-dangerous-commands";
-    runtimeInputs = with pkgs; [ bash jq coreutils ];
+    runtimeInputs = with pkgs; [ bash jq coreutils ast-grep ];
     text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 

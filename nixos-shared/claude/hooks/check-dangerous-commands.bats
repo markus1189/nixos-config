@@ -59,41 +59,71 @@ setup() {
 }
 
 # ============================================================================
-# Minimal helper function tests (main coverage is via is_dangerous_rm_command)
+# Helper function tests for the AST-based detector
 # ============================================================================
 
-@test "contains_rm_command: detects rm" {
-    run contains_rm_command "rm -rf /tmp"
+@test "analyze_flag_tokens: combined -rf is dangerous" {
+    run analyze_flag_tokens -rf /tmp
     assert_success
 }
 
-@test "contains_rm_command: 'rm' as part of word not matched" {
-    run contains_rm_command "format file.txt"
+@test "analyze_flag_tokens: separated -r -f is dangerous" {
+    run analyze_flag_tokens -r -f /tmp
+    assert_success
+}
+
+@test "analyze_flag_tokens: long --recursive --force is dangerous" {
+    run analyze_flag_tokens --recursive --force /tmp
+    assert_success
+}
+
+@test "analyze_flag_tokens: -i present cancels danger" {
+    run analyze_flag_tokens -i -rf /tmp
     assert_failure
 }
 
-@test "is_interactive_rm: detects -i/-I flags" {
-    run is_interactive_rm "rm -i file.txt"
-    assert_success
-}
-
-@test "has_combined_rf_flags: detects combined flags" {
-    run has_combined_rf_flags "rm -rf /tmp"
-    assert_success
-}
-
-@test "has_combined_rf_flags: separated flags not matched" {
-    run has_combined_rf_flags "rm -r -f /tmp"
+@test "analyze_flag_tokens: combined -rfi cancels danger" {
+    run analyze_flag_tokens -rfi /tmp
     assert_failure
 }
 
-@test "has_separated_rf_flags: detects separated flags" {
-    run has_separated_rf_flags "rm -r -f /tmp"
+@test "analyze_flag_tokens: only -r is safe" {
+    run analyze_flag_tokens -r /tmp
+    assert_failure
+}
+
+@test "analyze_flag_tokens: bare path is safe" {
+    run analyze_flag_tokens file.txt
+    assert_failure
+}
+
+@test "analyze_flag_tokens: -- ends option scanning" {
+    run analyze_flag_tokens -rf -- /tmp
     assert_success
 }
 
-@test "has_separated_rf_flags: only -r fails" {
-    run has_separated_rf_flags "rm -r /tmp"
+@test "is_dangerous_rm_match: rm -rf foo dangerous" {
+    run is_dangerous_rm_match "rm -rf foo"
+    assert_success
+}
+
+@test "is_dangerous_rm_match: rm -i -rf foo safe" {
+    run is_dangerous_rm_match "rm -i -rf foo"
+    assert_failure
+}
+
+@test "is_dangerous_xargs_match: xargs rm -rf dangerous" {
+    run is_dangerous_xargs_match "xargs rm -rf"
+    assert_success
+}
+
+@test "is_dangerous_xargs_match: xargs -I {} rm -rf {} dangerous" {
+    run is_dangerous_xargs_match "xargs -I {} rm -rf {}"
+    assert_success
+}
+
+@test "is_dangerous_xargs_match: xargs -r echo not dangerous" {
+    run is_dangerous_xargs_match "xargs -r echo"
     assert_failure
 }
 
@@ -161,4 +191,95 @@ setup() {
 @test "is_dangerous_rm_command: empty command allowed" {
     run is_dangerous_rm_command ""
     assert_failure
+}
+
+# ============================================================================
+# Known false positives — current regex implementation incorrectly blocks
+# these. Tests document desired behaviour and will fail until the detector is
+# rewritten (e.g. against an AST). See discussion in commit history.
+# ============================================================================
+
+@test "FP: rm -rf inside a quoted git commit message is allowed" {
+    run is_dangerous_rm_command 'git commit -m "fix rm -rf bug"'
+    assert_failure
+}
+
+@test "FP: rm -rf inside a shell comment is allowed" {
+    run is_dangerous_rm_command 'rm foo.txt # rm -rf /'
+    assert_failure
+}
+
+@test "FP: tar -rf alongside safe rm is allowed" {
+    run is_dangerous_rm_command 'rm foo.txt && tar -rf a.tar bar'
+    assert_failure
+}
+
+@test "FP: curl -fR alongside safe rm is allowed" {
+    run is_dangerous_rm_command 'rm foo.txt && curl -fR https://example'
+    assert_failure
+}
+
+@test "FP: rm -rf inside a double-quoted echo string is allowed" {
+    run is_dangerous_rm_command 'echo "; rm -rf /"'
+    assert_failure
+}
+
+@test "FP: rm -rf inside a single-quoted printf string is allowed" {
+    run is_dangerous_rm_command "printf 'rm -rf /'"
+    assert_failure
+}
+
+@test "FP: grep -r and unrelated safe rm are allowed" {
+    run is_dangerous_rm_command 'grep -r pattern src/ && rm foo.txt'
+    assert_failure
+}
+
+@test "FP: --recursive on a different command is allowed" {
+    run is_dangerous_rm_command 'rsync --recursive --force-delete a/ b/ && rm foo.txt'
+    assert_failure
+}
+
+# ============================================================================
+# Known false negatives — current regex implementation incorrectly allows
+# these. Tests document desired behaviour and will fail until rewritten.
+# ============================================================================
+
+@test "FN: rm -rf is blocked even if a later command has -i" {
+    run is_dangerous_rm_command 'rm -rf foo && cp -i bar baz'
+    assert_success
+}
+
+@test "FN: dangerous rm -rf in chain after a safe interactive rm is blocked" {
+    run is_dangerous_rm_command 'rm -i a.txt && rm -rf /tmp/cache'
+    assert_success
+}
+
+# ============================================================================
+# Additional positive coverage — these should already pass and guard
+# against future regressions.
+# ============================================================================
+
+@test "is_dangerous_rm_command: rm -fr (reversed) blocked" {
+    run is_dangerous_rm_command 'rm -fr /tmp'
+    assert_success
+}
+
+@test "is_dangerous_rm_command: rm -Rf (capital R) blocked" {
+    run is_dangerous_rm_command 'rm -Rf /tmp'
+    assert_success
+}
+
+@test "is_dangerous_rm_command: rm -rf with -- separator blocked" {
+    run is_dangerous_rm_command 'rm -rf -- /tmp/x'
+    assert_success
+}
+
+@test "is_dangerous_rm_command: rm -r --force blocked" {
+    run is_dangerous_rm_command 'rm -r --force dist/'
+    assert_success
+}
+
+@test "is_dangerous_rm_command: rm --recursive -f blocked" {
+    run is_dangerous_rm_command 'rm --recursive -f dist/'
+    assert_success
 }
