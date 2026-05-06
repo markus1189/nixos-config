@@ -1,5 +1,9 @@
 # Global Coding Agent Instructions
 
+<use_parallel_tool_calls>
+For maximum efficiency, whenever you perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially. Prioritize calling tools in parallel whenever possible. For example, when reading 3 files, run 3 tool calls in parallel to read all 3 files into context at the same time. When running multiple read-only commands like `ls` or `list_dir`, always run all of the commands in parallel. Err on the side of maximizing parallel tool calls rather than running too many tools sequentially.
+</use_parallel_tool_calls>
+
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - There is no global python3, use nix to run scripts
