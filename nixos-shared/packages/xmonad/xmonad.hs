@@ -245,7 +245,7 @@ myManageHook =
     ignored = ["Unity-2d-panel", "trayer"]
     ws1 = ["X-terminal-emulator"]
     ws2 = ["Firefox", "Vimperator", "Uzbl-tabbed"]
-    ws3 = ["Zathura", ".zathura-wrapped", "Evince", "Okular", "Apvlv", "Acroread", "sioyek", "com.github.johnfactotum.Foliate"]
+    ws3 = ["Zathura", ".zathura-wrapped", "Evince", "Okular", "Apvlv", "Acroread", "sioyek", "com.github.johnfactotum.Foliate", "KOReader"]
     ws4 = []
     {- emacs, but no rule so frames can be opened everywhere-}
     ws5 =
