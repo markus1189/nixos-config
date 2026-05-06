@@ -61,13 +61,53 @@ nix fmt pkgs/by-name/cl/claude-code/package.nix \
        pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
 ```
 
-### 7. Build Both Packages
+### 7. Build and Validate
+
 ```bash
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A claude-code
 env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 ```
 
 The `claude-code` build runs `versionCheckHook` against `claude --version` — a successful build confirms the binary reports the expected version.
+
+The vscode-ext build only validates the **host** arch's vsix hash. The update script bumps `version` but only refreshes the host's `hash`, so the other three stay stale and would only fail in CI's clean sandbox. Force-fetch all four directly from the marketplace and compare against `default.nix`:
+
+```bash
+F=pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
+VERSION=$(awk -F'"' '/version = "/{print $2; exit}' "$F")
+URL_BASE="https://anthropic.gallery.vsassets.io/_apis/public/gallery/publisher/anthropic/extension/claude-code/$VERSION/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+
+check() {
+  local sys=$1 arch=$2 expected raw actual
+  expected=$(grep -A2 "\"$sys\"" "$F" | grep -oE 'sha256-[A-Za-z0-9+/=]+' | head -1)
+  for _ in 1 2 3; do
+    raw=$(nix-prefetch-url --type sha256 "$URL_BASE?targetPlatform=$arch" 2>/dev/null)
+    [ -n "$raw" ] && break
+    sleep 2
+  done
+  if [ -z "$raw" ]; then
+    printf '%-16s FETCH-FAILED\n' "$sys"; return
+  fi
+  actual=$(nix hash convert --hash-algo sha256 --to sri "$raw" 2>/dev/null)
+  if [ "$expected" = "$actual" ]; then
+    printf '%-16s OK   %s\n' "$sys" "$expected"
+  else
+    printf '%-16s MISMATCH\n  specified: %s\n  got:       %s\n' "$sys" "$expected" "$actual"
+  fi
+}
+
+tmp=$(mktemp -d -t claude-code.XXXXXX)
+trap 'rm -rf "$tmp"' EXIT
+echo "version=$VERSION"
+check x86_64-linux   linux-x64    > "$tmp/1" &
+check aarch64-linux  linux-arm64  > "$tmp/2" &
+check x86_64-darwin  darwin-x64   > "$tmp/3" &
+check aarch64-darwin darwin-arm64 > "$tmp/4" &
+wait
+cat "$tmp"/{1,2,3,4}
+```
+
+Any `MISMATCH` line shows `specified:` and `got:` — paste each `got:` value into the matching arch entry in `default.nix`, re-run until clean. Marketplace occasionally drops one of the four parallel connections; the inline retry covers it.
 
 ### 8. Commit (TWO separate commits)
 ```bash
