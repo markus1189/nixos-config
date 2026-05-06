@@ -73,8 +73,9 @@ in
         inkscape
         insomnia
         jqp # interactive jq queries
-        keynav
         k9s
+        keynav
+        koreader
         libnotify
         # libreoffice
         llm
