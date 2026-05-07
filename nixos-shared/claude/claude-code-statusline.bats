@@ -10,6 +10,10 @@ setup() {
 
     # Source the statusline script to get access to its functions
     source "$BATS_TEST_DIRNAME/claude-code-statusline.sh"
+
+    # Ensure deterministic state: bats inherits the parent shell env, and
+    # this var is set in the user's normal shell.
+    unset CLAUDE_CODE_ENABLE_TELEMETRY
 }
 
 # Test fixture helpers
@@ -289,6 +293,23 @@ EOF
     run get_model_name
     assert_success
     assert_output "opus (concise) (medium)🧠"
+}
+
+@test "get_model_name: OTEL indicator when CLAUDE_CODE_ENABLE_TELEMETRY is set" {
+    input='{"model": {"display_name": "opus"}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
+    export CLAUDE_CODE_ENABLE_TELEMETRY=1
+    run get_model_name
+    assert_success
+    assert_output "opus📡"
+}
+
+@test "get_model_name: OTEL indicator omitted when CLAUDE_CODE_ENABLE_TELEMETRY is unset" {
+    input='{"model": {"display_name": "opus"}}'
+    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL CLAUDE_CODE_ENABLE_TELEMETRY
+    run get_model_name
+    assert_success
+    assert_output "opus"
 }
 
 # Tests for get_rate_limit_5h function

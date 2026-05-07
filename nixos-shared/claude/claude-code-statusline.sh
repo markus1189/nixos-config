@@ -66,6 +66,9 @@ get_model_name() {
     if [ "$thinking_enabled" = "true" ]; then
         indicator_suffix+="🧠"
     fi
+    if [ -n "${CLAUDE_CODE_ENABLE_TELEMETRY:-}" ]; then
+        indicator_suffix+="📡"
+    fi
 
     echo "${model_name}${style_suffix}${effort_suffix}${indicator_suffix}"
 }
