@@ -1178,7 +1178,12 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook (markdown-mode . emmet-mode)
   :init
   (setq emmet-move-cursor-between-quotes t
-        emmet-preview-default nil))
+        emmet-preview-default nil)
+  :config
+  ;; Drop HTML-aware per-tag magic (default attrs, self-closing) so
+  ;; every tag expands as plain <foo></foo>. Used here for XML-style
+  ;; prompt structuring, not HTML.
+  (clrhash (gethash "tags" (gethash "html" emmet-preferences))))
 
 (use-package csv-mode
   :ensure t)
