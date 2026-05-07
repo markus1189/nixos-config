@@ -81,6 +81,7 @@ in emacsPackages.withPackages (epkgs:
       elfeed-score
       embark
       embark-consult
+      emmet-mode
       eros
       evil
       evil-numbers

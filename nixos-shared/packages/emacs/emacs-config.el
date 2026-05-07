@@ -1162,6 +1162,13 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package markdown-preview-mode
   :ensure t)
 
+(use-package emmet-mode
+  :ensure t
+  :hook (markdown-mode . emmet-mode)
+  :init
+  (setq emmet-move-cursor-between-quotes t
+        emmet-preview-default nil))
+
 (use-package csv-mode
   :ensure t)
 
