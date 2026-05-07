@@ -253,7 +253,18 @@
 
 (use-package with-editor
   :ensure t
-  :hook (server-visit . with-editor-mode))
+  :demand t
+  :config
+  (defun mh/with-editor-mode-on ()
+    (with-editor-mode 1)
+    ;; Win C-c C-c / C-c C-k against any minor mode (emmet) or major
+    ;; mode (markdown) that uses them as a prefix. minor-mode-overriding-
+    ;; map-alist outranks minor-mode-map-alist and the local map.
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "C-c C-c") #'with-editor-finish)
+      (define-key map (kbd "C-c C-k") #'with-editor-cancel)
+      (push (cons 'with-editor-mode map) minor-mode-overriding-map-alist)))
+  (add-hook 'server-visit-hook #'mh/with-editor-mode-on))
 
 ;; (use-package projectile
 ;;   :ensure t
