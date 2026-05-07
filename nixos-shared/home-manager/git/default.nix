@@ -20,6 +20,7 @@ let
     .claude
     CLAUDE.md
     .worktrees
+    .plan
   '';
 
   gitPrettyLog = writeScript "git-pretty-log.sh" ''
