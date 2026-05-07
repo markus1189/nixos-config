@@ -14,6 +14,11 @@ let
     };
   };
 
+  otelCollector = pkgs.callPackage
+    (import ../nixos-shared/home-manager/otel-collector {
+      dataDir = "${config.home.homeDirectory}/.local/share/claude-otel";
+    }) { };
+
 in
 {
   home = {
@@ -1000,6 +1005,8 @@ in
         };
       };
 
+    otel-collector = otelCollector.service;
+
     claude-remote-control =
       let
         claudePackage = nixpkgsMaster.claude-code-bin;
@@ -1008,7 +1015,7 @@ in
         Unit = {
           Description = "claude remote-control long-running process";
           Wants = [ "network-online.target" ];
-          After = [ "network-online.target" ];
+          After = [ "network-online.target" "otel-collector.service" ];
           StartLimitIntervalSec = 0;
         };
 
@@ -1019,6 +1026,18 @@ in
         Service = {
           Type = "simple";
           WorkingDirectory = "/home/markus/Syncthing/ePubs";
+          Environment = [
+            "CLAUDE_CODE_ENABLE_TELEMETRY=1"
+            "OTEL_METRICS_EXPORTER=otlp"
+            "OTEL_LOGS_EXPORTER=otlp"
+            "OTEL_EXPORTER_OTLP_PROTOCOL=grpc"
+            "OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317"
+            "OTEL_SERVICE_NAME=claude-code-remote-control"
+            "OTEL_METRIC_EXPORT_INTERVAL=10000"
+            "OTEL_LOGS_EXPORT_INTERVAL=5000"
+            "OTEL_LOG_USER_PROMPTS=1"
+            "OTEL_LOG_TOOL_DETAILS=1"
+          ];
           ExecStart = "${pkgs.util-linux}/bin/script -q -c '${claudePackage}/bin/claude remote-control' /dev/null";
           Restart = "always";
           RestartSec = 10;
