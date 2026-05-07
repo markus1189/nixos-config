@@ -251,6 +251,10 @@
    (magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
    (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
 
+(use-package with-editor
+  :ensure t
+  :hook (server-visit . with-editor-mode))
+
 ;; (use-package projectile
 ;;   :ensure t
 ;;   :diminish projectile-mode

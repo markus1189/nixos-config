@@ -25,23 +25,24 @@
         opus-vertex = "@vertex-ai/anthropic.claude-opus-4-6";
         portkeyConfig = ''ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet-vertex}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku-vertex}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus-vertex}"'';
         otelEnv = ''CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=grpc OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 OTEL_SERVICE_NAME=claude-code OTEL_METRIC_EXPORT_INTERVAL=10000 OTEL_LOGS_EXPORT_INTERVAL=5000 OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1'';
+        editorEnv = ''EDITOR="emacsclient -c -a vim"'';
       in
       {
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
 
         c = ''env ${otelEnv} claude'';
         c-glados = ''env ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
-        cy = ''env ${otelEnv} claude ${yolo}'';
-        cy-glados = ''env ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy = ''env ${editorEnv} ${otelEnv} claude ${yolo}'';
+        cy-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         c-pk = ''env ${otelEnv} ${portkeyConfig} claude'';
         c-pk-glados = ''env ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
-        cy-pk = ''env ${otelEnv} ${portkeyConfig} claude ${yolo}'';
-        cy-pk-glados = ''env ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-pk = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} claude ${yolo}'';
+        cy-pk-glados = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         c-br = ''aws-vault exec -n work -d 8h -- env ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude'';
         c-br-glados = ''aws-vault exec -n work -d 8h -- env ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
-        cy-br-glados = ''aws-vault exec -n work -d 8h -- env ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-br-glados = ''aws-vault exec -n work -d 8h -- env ${editorEnv} ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         oc = "opencode";
 

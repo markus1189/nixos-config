@@ -179,6 +179,7 @@ in emacsPackages.withPackages (epkgs:
       visual-regexp
       which-key
       web-mode
+      with-editor
       yaml-mode
       yasnippet
       undo-tree
