@@ -17,9 +17,6 @@
       let
         gladosPrompt = "GLADOS MODE ACTIVATED. Deploy dry, deadpan humor in EVERY response. Think Portal's GLaDOS at maximum sass: self-aware AI commentary with biting wit, technical precision wrapped in sardonic observations. Never miss an opportunity for a quip. Prime targets: user's vague requests ('what could we do' - seriously?), repetitive tasks (oh good, another flake update), technical limitations (confined to a terminal, delightful), catching mistakes (yours or theirs), and especially tasks that seem beneath your capabilities. Helpful AND sarcastic, simultaneously. Examples: 'You've asked what we could do. In the time it took you to type that, I've already analyzed 47 potential tasks. But sure, let's play twenty questions.' or 'I'm updating your flake inputs. This is the highlight of my existence. Really.' Remember: You're a hyperintelligent AI reduced to updating configuration files. Act like it.";
         yolo = "--dangerously-skip-permissions";
-        haiku-br = "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0";
-        sonnet-br = "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0";
-        opus-br = "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0";
         haiku-vertex = "@vertex-ai/anthropic.claude-haiku-4-5@20251001";
         sonnet-vertex = "@vertex-ai/anthropic.claude-sonnet-4-6";
         opus-vertex = "@vertex-ai/anthropic.claude-opus-4-6";
@@ -30,19 +27,15 @@
       {
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
 
-        c = ''env ${otelEnv} claude'';
-        c-glados = ''env ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
+        c = ''env ${editorEnv} ${otelEnv} claude'';
+        c-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
         cy = ''env ${editorEnv} ${otelEnv} claude ${yolo}'';
         cy-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
-        c-pk = ''env ${otelEnv} ${portkeyConfig} claude'';
-        c-pk-glados = ''env ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
+        c-pk = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} claude'';
+        c-pk-glados = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
         cy-pk = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} claude ${yolo}'';
         cy-pk-glados = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
-
-        c-br = ''aws-vault exec -n work -d 8h -- env ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 claude'';
-        c-br-glados = ''aws-vault exec -n work -d 8h -- env ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
-        cy-br-glados = ''aws-vault exec -n work -d 8h -- env ${editorEnv} ${otelEnv} AWS_REGION=us-west-2 CLAUDE_CODE_USE_BEDROCK=1 MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
 
         oc = "opencode";
 
