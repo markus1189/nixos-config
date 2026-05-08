@@ -144,7 +144,7 @@ if ! jq -n \
         }
       ]}
     ],
-    max_tokens: 16384
+    max_tokens: 65536
   }' > "$TMPPAYLOAD"; then
   error_exit "Failed to build JSON payload"
 fi
