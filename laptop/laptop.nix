@@ -456,6 +456,7 @@ rec {
   environment = {
     variables = {
       EDITOR = "${pkgs.vim}/bin/vim";
+      VISUAL = "emacsclient -c -a vim";
       "_JAVA_AWT_WM_NONREPARENTING" = "1";
       LIBGL_DRI3_DISABLE = "1";
     };
