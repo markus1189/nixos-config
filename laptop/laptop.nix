@@ -473,6 +473,14 @@ rec {
       callPackage() {
         nix-shell -p "with import <nixpkgs> {}; (callPackage ( import $1 ) {})";
       }
+
+      pwdc() {
+        if [ $# -eq 0 ]; then
+          pwd | ${pkgs.xclip}/bin/xclip -i -selection clipboard
+        else
+          realpath "$1" | ${pkgs.xclip}/bin/xclip -i -selection clipboard
+        fi
+      }
     '';
 
     shellAliases = (
@@ -486,7 +494,6 @@ rec {
         ff = "${emacs}/bin/emacsclient -n -c";
         FF = "${emacs}/bin/emacsclient -n";
         magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
-        pwdc = "pwd | clip";
         wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface} -p /run/wpa_supplicant/control";
       }
     );
