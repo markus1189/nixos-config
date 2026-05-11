@@ -22,8 +22,10 @@
       clock24 = true;
       keyMode = "vi";
 
-      extraConfig = with pkgs; ''
-        ${pkgs.lib.readFile ./tmux.conf}
+      extraConfig = with pkgs; let
+        popupScratch = pkgs.writeShellScript "popup-scratch" (pkgs.lib.readFile ./popup-scratch.sh);
+      in ''
+        ${builtins.replaceStrings ["@popup-scratch@"] ["${popupScratch}"] (builtins.readFile ./tmux.conf)}
         run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
 
         run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
