@@ -178,6 +178,8 @@ gh workflow run review --repo markus1189/nixpkgs-review-gha \
 ```
 Recent runs: `gh run list --workflow=review --repo markus1189/nixpkgs-review-gha --limit 5`
 
+After dispatch, loop to check the report for any failed builds.
+
 ### 13. Check for Obsolete PRs
 Search for open claude-code update PRs that are now superseded:
 ```bash
