@@ -26,6 +26,7 @@ in
         comma
         dnsutils
         ed
+        ffmpeg-full
         # edbrowse
         gnupg
         gnupg1
