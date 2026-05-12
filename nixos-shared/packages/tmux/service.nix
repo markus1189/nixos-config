@@ -24,8 +24,12 @@
 
       extraConfig = with pkgs; let
         popupScratch = pkgs.writeShellScript "popup-scratch" (pkgs.lib.readFile ./popup-scratch.sh);
+        nextBell = pkgs.writeShellScript "tmux-next-bell" (pkgs.lib.readFile ./next-bell.sh);
       in ''
-        ${builtins.replaceStrings ["@popup-scratch@"] ["${popupScratch}"] (builtins.readFile ./tmux.conf)}
+        ${builtins.replaceStrings
+            ["@popup-scratch@" "@next-bell@"]
+            ["${popupScratch}" "${nextBell}"]
+            (builtins.readFile ./tmux.conf)}
         run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
 
         run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
