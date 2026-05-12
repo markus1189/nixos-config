@@ -1,50 +1,32 @@
-#!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
-# shellcheck shell=bash
-set -euo pipefail
+# Deep-Dive Subagent Prompt
 
-# Deep-dive into a single HN story using a sub-agent with isolated context.
-# Spawns `pi -p --no-session` to fetch article + comments, returns structured summary.
-#
-# Usage: hn-deepdive.sh <story_id> <article_url> <story_title>
-#        hn-deepdive.sh <story_id> "" <story_title>    # no article URL (Ask HN, etc.)
-#
-# Output: Structured markdown summary on stdout. Progress on stderr.
+This is the prompt template for an HN deep-dive subagent. Before launching it, substitute:
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+- `{{STORY_ID}}` — the HN item id
+- `{{ARTICLE_URL}}` — the article URL, or empty for Ask HN / Show HN with no link
+- `{{STORY_TITLE}}` — the story title
+- `{{HN_CLI}}` — absolute path to this skill's `scripts/hn-cli.sh`
+  (e.g. `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`)
 
-if [[ $# -lt 3 ]]; then
-    echo "Usage: ${0##*/} <story_id> <article_url> <story_title>" >&2
-    exit 1
-fi
+If `{{ARTICLE_URL}}` is empty, drop the "Fetch the article content" step and renumber.
 
-readonly STORY_ID="$1"
-readonly ARTICLE_URL="$2"
-readonly STORY_TITLE="$3"
+---
 
-# Build the prompt for the sub-agent
-build_prompt() {
-    local fetch_article_instruction=""
-    if [[ -n "$ARTICLE_URL" ]]; then
-        fetch_article_instruction="
-1. Fetch the article content:
-   curl -sL '$ARTICLE_URL' | pandoc -f html -t gfm-raw_html
-   If this fails or returns garbage, note it and move on."
-    fi
-
-    cat <<PROMPT
 You are summarizing a Hacker News story for a technical user. Be direct, opinionated, and technically accurate.
 
 ## Tasks
-${fetch_article_instruction}
-$([[ -n "$fetch_article_instruction" ]] && echo "2." || echo "1.") Fetch the HN comments:
-   ${SCRIPT_DIR}/hn-cli.sh -c ${STORY_ID} -d 2 -n 50
+
+1. Fetch the article content:
+   `curl -sL '{{ARTICLE_URL}}' | pandoc -f html -t gfm-raw_html`
+   If this fails or returns garbage, note it and move on.
+2. Fetch the HN comments:
+   `{{HN_CLI}} -c {{STORY_ID}} -d 2 -n 50`
 
 ## Output Format
 
 Return a single structured markdown summary with these sections:
 
-### ${STORY_TITLE}
+### {{STORY_TITLE}}
 
 **TL;DR**: 2-3 sentence summary of the article content (or the Ask HN question).
 
@@ -80,14 +62,5 @@ Academic papers, formal institutional documents, and research referenced in comm
 - Be concise. This summary replaces reading the full article + comments.
 - Preserve technical accuracy. Don't simplify jargon.
 - If the article is paywalled or empty, say so and focus on comments.
-- Output ONLY the markdown summary, nothing else.
-PROMPT
-}
-
-echo "⏳ Deep-diving into [${STORY_ID}] ${STORY_TITLE}..." >&2
-
-PROMPT="$(build_prompt)"
-RESULT="$(echo "$PROMPT" | pi -p --no-session 2>/dev/null)"
-
-echo "$RESULT"
-echo "✓ Done: [${STORY_ID}] ${STORY_TITLE}" >&2
+- If the discussion is a **ghost thread** (≤5 comments, thin) that explicitly points to another HN item as the real discussion, say so clearly and include that item's id/URL so the caller can follow it.
+- Your final message must be ONLY the markdown summary, nothing else.

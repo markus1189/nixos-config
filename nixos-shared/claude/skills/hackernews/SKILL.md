@@ -50,29 +50,30 @@ Story IDs appear in brackets `[12345678]` in output — use these for `--comment
 
 ## Deep-Dive Sub-Agent
 
-**Script**: [`scripts/hn-deepdive.sh`](scripts/hn-deepdive.sh)
+**Prompt template**: [`deepdive-prompt.md`](deepdive-prompt.md)
 
-Spawns an isolated `pi` subprocess to fetch article + comments and return a structured markdown summary. This keeps the raw content out of the main context.
+A deep dive runs as a **subagent** — it fetches the article + comments and returns a
+structured markdown summary, keeping the raw content out of the main context.
 
-```bash
-./scripts/hn-deepdive.sh STORY_ID "https://article-url.com" "Story Title"
-./scripts/hn-deepdive.sh STORY_ID "" "Ask HN: Story Title"   # no article URL
-```
+**How to launch one:**
+1. Read [`deepdive-prompt.md`](deepdive-prompt.md).
+2. Substitute the placeholders: `{{STORY_ID}}`, `{{ARTICLE_URL}}` (empty for Ask HN / no link),
+   `{{STORY_TITLE}}`, and `{{HN_CLI}}` → the absolute path to `scripts/hn-cli.sh` (resolve
+   `./scripts/` against this skill's directory, e.g.
+   `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`). Drop the article-fetch step
+   when there's no URL.
+3. Spawn a subagent with that filled-in text as its prompt. Its result *is* the summary —
+   read it directly, no temp files.
 
-**Parallel deep-dives** — run multiple in background and collect results:
-```bash
-HN=/home/markus/.claude/skills/hackernews/scripts
-$HN/hn-deepdive.sh 12345 "https://example.com/a" "Title A" > /tmp/hn-12345.md 2>/dev/null &
-$HN/hn-deepdive.sh 67890 "https://example.com/b" "Title B" > /tmp/hn-67890.md 2>/dev/null &
-wait
-# Then read each /tmp/hn-*.md file
-```
+**Parallel deep-dives** — spawn **multiple deep-dive subagents in parallel**; collect each
+one's summary when they return. (No `&`/`wait`, no `/tmp` files.)
 
-Output is structured markdown (TL;DR, key points, discussion themes table, notable comments). Progress goes to stderr.
+Output is structured markdown (TL;DR, key points, discussion themes table, ⭐ high-profile
+commenters, notable comments, linked artifacts, cited papers, meta).
 
 ### Ghost thread auto-follow
 
-If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically run a second deep dive on that linked thread — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
+If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically launch a second deep-dive subagent on that linked thread — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
 
 ## Daily State Tracking
 
@@ -143,8 +144,8 @@ When user asks casually about hacker news stories, use this style:
 1. Check for existing daily state file (see Daily State Tracking above)
 2. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
 3. User picks stories they want to dig into
-4. **Spawn `hn-deepdive.sh` for each pick** (in parallel via `&` + `wait`, writing to temp files). Do NOT fetch articles or comments directly into main context.
-5. Read the summary files
+4. **Launch a deep-dive subagent for each pick** (launch them in parallel — see "Deep-Dive Sub-Agent" above). Do NOT fetch articles or comments directly into main context.
+5. Collect each subagent's summary from its final message
 6. **Write all file updates first** (state file, deep dive notes appended to daily file) — before writing any conversational output. The text summary the user reads is always last.
 7. Present summaries to the user
 8. Group related stories together
