@@ -17,7 +17,10 @@
   adl (macro down left)
   adr (macro down right)
   all (macro C-end C-S-home)
-  cap (tap-hold-release 100 100 esc lctl)
+  ;; plain tap-hold (not -release): a fast same-finger Esc-Esc stays two taps
+  ;; instead of resolving to lctl; trade-off is Ctrl-chords need a deliberate
+  ;; ~150ms hold of caps rather than working on a lightning roll.
+  cap (tap-hold 1 150 esc lctl)
   dup (macro up up up up up)
   dwn (macro down down down down down)
   gwt (macro / / spc S-g i v e n ret ret / / spc S-w h e n ret ret / / spc S-t h e n ret)
@@ -32,7 +35,7 @@
   ae RA-q
   oe RA-p
   ue RA-y
-  ss RA-s
+  ss (fork RA-s (unicode §) (lsft rsft))
   jj RA-j
   kk RA-k
   eur RA-5
