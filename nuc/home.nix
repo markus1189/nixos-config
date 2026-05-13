@@ -13,6 +13,8 @@ let
       environmentFile = "/run/agenix/zwiftWeightSync";
     }) { };
 in {
+  imports = [ ../nixos-shared/home-manager/easyeffects-autogain.nix ];
+
   home = {
     stateVersion = "18.09";
 
