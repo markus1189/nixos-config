@@ -1,8 +1,13 @@
 # Global Coding Agent Instructions
-
-<use_parallel_tool_calls>
-For maximum efficiency, whenever you perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially. Prioritize calling tools in parallel whenever possible. For example, when reading 3 files, run 3 tool calls in parallel to read all 3 files into context at the same time. When running multiple read-only commands like `ls` or `list_dir`, always run all of the commands in parallel. Err on the side of maximizing parallel tool calls rather than running too many tools sequentially.
-</use_parallel_tool_calls>
+## Parallel Tool Calls
+For maximum efficiency, whenever you perform multiple independent
+operations, invoke all relevant tools simultaneously rather than
+sequentially. Prioritize calling tools in parallel whenever
+possible. For example, when reading 3 files, run 3 tool calls in
+parallel to read all 3 files into context at the same time. When
+running multiple read-only commands like `ls` or `list_dir`, always
+run all of the commands in parallel. Err on the side of maximizing
+parallel tool calls rather than running too many tools sequentially.
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
@@ -13,7 +18,6 @@ For maximum efficiency, whenever you perform multiple independent operations, in
 - **Editable System Config Location** in ~/repos/nixos-config
 
 ## Script Templates
-
 **Nix shebang (simple packages)**:
 ```bash
 #!/usr/bin/env nix
@@ -50,25 +54,12 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 - Simple packages: `nixpkgs#package --command`
 - Never use `--impure` unless accessing system state (rare)
 
-## Shell Safety
-- Verify paths before deletion: `ls $DIR` then `rm -r $DIR`
-- Use `ls -A` (not `ls -a`) to list files excluding `.` and `..`
-
-## Screenshot Analysis
-Find recent screenshots:
-1. `find ~/Stuff/Today -maxdepth 1 -type f | sort -r`
-2. For older files adjust path, e.g. `~/Stuff/2026-02/13-scratch`
-
-## Using ddgr
-- DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`
-- Prioritize credible websites as sources
-
-## Web Content
+## Web Search and Fetching
+- DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`, prioritize credible websites as sources
 - Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t gfm-raw_html`
 
 ## Terminal Environment
-- **Primary multiplexer**: tmux
-- **Access**: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
+- Extensive tmux use, access pane content: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
 
 ## Clipboard (xclip)
 Direct piping into xclip hangs. Always use the `nohup` + `DISPLAY=:0` pattern:
@@ -80,3 +71,7 @@ For HTML clipboard content, add `-t text/html`.
 
 ## Find Installed Emacs Package Source
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
+
+## Important Locations
+- remote mounts at ~/mounts/rclone (google drive, premiumize)
+- ~/Syncthing
