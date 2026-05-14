@@ -1,0 +1,122 @@
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#findutils --command bash
+set -eu
+
+readonly PROJECTS_DIR="${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}"
+
+usage() {
+  cat <<'EOF'
+cc-show — Pretty-print a past Claude Code session.
+
+Usage:
+  cc-show UUID_OR_PREFIX [OPTIONS]
+
+Options:
+  --full         Include thinking and tool_use/tool_result content too.
+  --tools        Show only the sequence of tool_use calls (compact action log).
+  --raw          Dump the raw JSONL.
+  -h, --help     This help.
+
+UUID may be a full session UUID or any unique prefix (>=4 chars).
+By default prints USER/ASSISTANT text only.
+
+Tip: pipe through `less -R`.
+EOF
+}
+
+MODE="text"   # text | full | tools | raw
+QUERY=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --full) MODE="full"; shift;;
+    --tools) MODE="tools"; shift;;
+    --raw) MODE="raw"; shift;;
+    -h|--help) usage; exit 0;;
+    -*) echo "cc-show: unknown option: $1" >&2; usage >&2; exit 2;;
+    *) QUERY="$1"; shift;;
+  esac
+done
+
+[[ -z "$QUERY" ]] && { usage >&2; exit 2; }
+(( ${#QUERY} >= 4 )) || { echo "cc-show: prefix must be >=4 chars" >&2; exit 2; }
+
+mapfile -t hits < <(find "$PROJECTS_DIR" -maxdepth 2 -type f -name "${QUERY}*.jsonl" 2>/dev/null)
+if (( ${#hits[@]} == 0 )); then
+  echo "cc-show: no session matching '$QUERY'" >&2
+  exit 1
+fi
+if (( ${#hits[@]} > 1 )); then
+  {
+    echo "cc-show: ambiguous prefix '$QUERY', matches:"
+    printf '  %s\n' "${hits[@]}"
+  } >&2
+  exit 1
+fi
+f="${hits[0]}"
+
+if [[ "$MODE" == "raw" ]]; then
+  cat "$f"
+  exit 0
+fi
+
+uuid=$(basename "$f" .jsonl)
+cwd=$(jq -r 'select(.cwd != null and .cwd != "") | .cwd' "$f" 2>/dev/null | head -n1)
+title=$(jq -r 'select(.type=="ai-title") | .aiTitle' "$f" 2>/dev/null | head -n1)
+started=$(jq -r 'select(.timestamp != null and .timestamp != "") | .timestamp' "$f" 2>/dev/null | head -n1)
+
+{
+  printf '═══ %s ═══\n' "$uuid"
+  printf 'cwd:     %s\n' "${cwd:-—}"
+  printf 'title:   %s\n' "${title:-—}"
+  printf 'started: %s\n' "${started:-—}"
+  printf 'file:    %s\n\n' "$f"
+}
+
+if [[ "$MODE" == "tools" ]]; then
+  jq -r '
+    select(.type=="assistant")
+    | ((.timestamp // "") | .[11:19]) as $ts
+    | .message.content[]?
+    | select(.type=="tool_use")
+    | "[" + $ts + "] " + .name + " " + (.input | tostring | .[:200])
+  ' "$f"
+  exit 0
+fi
+
+# text (default) and full modes
+jq -r --argjson full "$( [[ "$MODE" == "full" ]] && echo true || echo false )" '
+  def fmt_ts: (.timestamp // "") | .[11:19];
+  if .type == "user" then
+    ( .message.content
+      | if type == "string" then .
+        else ([ .[]?
+                | if .type == "text" then .text
+                  elif .type == "tool_result" and $full then
+                    "[tool_result] " + ((.content | tostring) | .[:600])
+                  else empty end
+              ] | join("\n"))
+        end
+    ) as $body
+    | ($body
+        | gsub("<[a-zA-Z][a-zA-Z0-9_-]*>[^<]*</[a-zA-Z][a-zA-Z0-9_-]*>"; "")
+        | gsub("\\s+$"; "")
+      ) as $clean
+    | if ($clean | length) > 0
+      then "── USER " + fmt_ts + " ──\n" + $clean + "\n"
+      else empty end
+  elif .type == "assistant" then
+    ( .message.content
+      | [ .[]?
+          | if .type == "text" then .text
+            elif .type == "thinking" and $full then "[thinking] " + .thinking
+            elif .type == "tool_use" and $full then
+              "[tool_use:" + .name + "] " + ((.input | tostring) | .[:400])
+            else empty end
+        ] | join("\n")
+    ) as $body
+    | if ($body | length) > 0
+      then "── ASSISTANT " + fmt_ts + " ──\n" + $body + "\n"
+      else empty end
+  else empty end
+' "$f"

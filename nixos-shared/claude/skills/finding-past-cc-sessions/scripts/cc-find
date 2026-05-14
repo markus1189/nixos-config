@@ -1,0 +1,152 @@
+#!/usr/bin/env nix
+#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#ripgrep nixpkgs#findutils nixpkgs#gnused nixpkgs#gawk --command bash
+# pipefail intentionally omitted: every `jq ... | head -n1` would otherwise
+# raise SIGPIPE and abort the script via `set -e`.
+set -eu
+
+readonly PROJECTS_DIR="${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}"
+
+usage() {
+  cat <<'EOF'
+cc-find — Search past Claude Code sessions by topic.
+
+Usage:
+  cc-find [OPTIONS] PATTERN
+
+Options:
+  --cwd PATTERN          Only sessions whose project dir contains PATTERN
+                         (e.g. --cwd nixpkgs, --cwd nixos-config).
+  --since DATE           Only sessions modified after DATE (GNU date string).
+                         e.g. --since '2 weeks ago' or --since 2025-10-01.
+  --until DATE           Only sessions modified before DATE.
+  --limit N              Max results (default 10).
+  -s, --case-sensitive   Case-sensitive PATTERN (default: case-insensitive).
+  -h, --help             This help.
+
+PATTERN is a ripgrep regex matched against the raw JSONL of each candidate
+session file. Matching sessions are then enriched with ai-title + first
+substantive user prompt and sorted by recency (newest first).
+
+Output (TSV): TIMESTAMP \t UUID \t CWD \t TITLE \t FIRST_USER_PROMPT
+
+Pipe through `column -t -s $'\t'` for aligned columns.
+
+Tips:
+  • Distinctive nouns beat common terms — "kanata" not "keyboard".
+  • For common English words used as env vars / flags, anchor:
+      cc-find -s 'export VISUAL|VISUAL='
+  • Pre-filter by project when you know the repo:
+      cc-find --cwd nixpkgs backport
+  • Pre-filter by date when you remember when:
+      cc-find --since '1 month ago' otel
+
+Examples:
+  cc-find easyeffects
+  cc-find --cwd nixpkgs 'backport.*claude-code'
+  cc-find --since '2 weeks ago' kanata
+  cc-find -s 'OTEL_|OpenTelemetry'
+EOF
+}
+
+CWD_FILTER=""
+SINCE=""
+UNTIL=""
+LIMIT=10
+CASE_FLAG="-i"
+PATTERN=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --cwd) CWD_FILTER="$2"; shift 2;;
+    --since) SINCE="$2"; shift 2;;
+    --until) UNTIL="$2"; shift 2;;
+    --limit) LIMIT="$2"; shift 2;;
+    -s|--case-sensitive) CASE_FLAG=""; shift;;
+    -h|--help) usage; exit 0;;
+    --) shift; PATTERN="${PATTERN:-$*}"; break;;
+    -*) echo "cc-find: unknown option: $1" >&2; usage >&2; exit 2;;
+    *)
+      if [[ -z "$PATTERN" ]]; then PATTERN="$1"
+      else PATTERN="$PATTERN $1"
+      fi
+      shift;;
+  esac
+done
+
+[[ -z "$PATTERN" ]] && { usage >&2; exit 2; }
+[[ -d "$PROJECTS_DIR" ]] || { echo "cc-find: missing $PROJECTS_DIR" >&2; exit 1; }
+
+TMPDIR=$(mktemp -d -t claude-code.XXXXXX)
+trap 'rm -rf "$TMPDIR"' EXIT
+CANDS="$TMPDIR/cands"
+MATCHES="$TMPDIR/matches"
+
+# Stage 1: candidate files (date + cwd pre-filter).
+# -maxdepth 2 keeps top-level session files only, excluding sub-session logs
+# under <uuid>/subagents/ and <uuid>/tool-results/.
+find_args=( "$PROJECTS_DIR" -maxdepth 2 -type f -name '*.jsonl' )
+[[ -n "$SINCE" ]] && find_args+=( -newermt "$SINCE" )
+[[ -n "$UNTIL" ]] && find_args+=( ! -newermt "$UNTIL" )
+find "${find_args[@]}" > "$CANDS"
+
+if [[ -n "$CWD_FILTER" ]]; then
+  grep -F -- "$CWD_FILTER" "$CANDS" > "$CANDS.f" || true
+  mv "$CANDS.f" "$CANDS"
+fi
+
+[[ -s "$CANDS" ]] || exit 0
+
+# Stage 2: rg pattern over candidate files.
+xargs -a "$CANDS" -d '\n' -r rg $CASE_FLAG -l -- "$PATTERN" 2>/dev/null > "$MATCHES" || true
+
+[[ -s "$MATCHES" ]] || exit 0
+
+# Stage 3: enrich each match with title + first substantive user prompt + timestamp.
+extract_prompt() {
+  local f="$1" line cleaned lines
+  # First 5 user-message text bodies, newlines collapsed; pick the first that
+  # has substantive content after stripping XML-style wrappers
+  # (<command-name>, <local-command-caveat>, <system-reminder>, etc.).
+  lines=$(jq -r '
+    select(.type=="user")
+    | (.message.content
+        | if type=="string" then .
+          else ([.[]? | select(.type=="text") | .text] | join(" "))
+          end)
+    | gsub("\n"; " ")
+  ' "$f" 2>/dev/null | head -n 5)
+  while IFS= read -r line; do
+    cleaned=$(printf '%s' "$line" | sed -E '
+      s|<[a-zA-Z][a-zA-Z0-9_-]*>[^<]*</[a-zA-Z][a-zA-Z0-9_-]*>||g
+      s|<[a-zA-Z][a-zA-Z0-9_-]*[[:space:]]*/?>||g
+      s|</[a-zA-Z][a-zA-Z0-9_-]*>||g
+    ' | tr -s '[:space:]' ' ' | sed -E 's/^ +| +$//g')
+    if [[ -n "$cleaned" ]]; then
+      printf '%s' "$cleaned"
+      return
+    fi
+  done <<< "$lines"
+}
+
+ENRICHED="$TMPDIR/enriched"
+while IFS= read -r f; do
+  [[ -z "$f" ]] && continue
+  uuid=$(basename "$f" .jsonl)
+  cwd=$(jq -r 'select(.cwd != null and .cwd != "") | .cwd' "$f" 2>/dev/null | head -n1)
+  [[ -z "$cwd" ]] && cwd=$(basename "$(dirname "$f")")
+  title=$(jq -r 'select(.type=="ai-title") | .aiTitle' "$f" 2>/dev/null | head -n1)
+  ts=$(jq -r 'select(.timestamp != null and .timestamp != "") | .timestamp' "$f" 2>/dev/null | head -n1)
+  prompt=$(extract_prompt "$f")
+  prompt=${prompt:0:160}
+  # Relevance tier: 1 if PATTERN matches title or first prompt, 0 otherwise
+  # (i.e. matched only in tool output / assistant text / etc.). Sorting by
+  # tier first surfaces "session was *about* X" above "session *mentioned* X".
+  tier=0
+  if printf '%s\n%s' "${title:-}" "${prompt:-}" \
+       | rg -q $CASE_FLAG -- "$PATTERN" 2>/dev/null; then
+    tier=1
+  fi
+  printf '%d\t%s\t%s\t%s\t%s\t%s\n' "$tier" "${ts:-0000}" "$uuid" "$cwd" "${title:-—}" "${prompt:-—}"
+done < "$MATCHES" > "$ENRICHED"
+
+sort -r "$ENRICHED" | head -n "$LIMIT" | cut -f2-
