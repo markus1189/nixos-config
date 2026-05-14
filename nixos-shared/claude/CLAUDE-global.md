@@ -73,5 +73,6 @@ For HTML clipboard content, add `-t text/html`.
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
 
 ## Important Locations
-- remote mounts at ~/mounts/rclone (google drive, premiumize)
-- ~/Syncthing
+- ~/mounts/rclone = remote mounts (Ablage = /gdrive/Ablage)
+- ~/Syncthing (/ePubs for eBooks)
+- ~/Stuff/yyyy-mm/dd-scratch (daily directories)
