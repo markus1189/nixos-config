@@ -576,6 +576,15 @@ in
     {
       starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
 
+      zathura = {
+        enable = true;
+        options = {
+          selection-clipboard = "clipboard";
+        };
+        mappings = {
+          y = ''exec "sh -c 'echo -n $FILE | xclip -i -sel clip'"'';
+        };
+      };
 
       alacritty = # config documentation at https://alacritty.org/config-alacritty.html
         let
