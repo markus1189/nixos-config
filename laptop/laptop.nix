@@ -129,6 +129,7 @@ rec {
                 src = self.ndtSources.darktable.outPath;
                 patches = [ ];
                 dontVersionCheck = true;
+                buildInputs = (old.buildInputs or []) ++ [ super.potrace ];
                 postPatch = ''
                   patchShebangs tools/generate_styles_string.sh
                 '';
