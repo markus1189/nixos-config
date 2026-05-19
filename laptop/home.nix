@@ -581,9 +581,6 @@ in
         options = {
           selection-clipboard = "clipboard";
         };
-        mappings = {
-          y = ''exec "sh -c 'echo -n $FILE | xclip -i -sel clip'"'';
-        };
       };
 
       alacritty = # config documentation at https://alacritty.org/config-alacritty.html
