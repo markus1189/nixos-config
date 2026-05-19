@@ -48,7 +48,7 @@ rec {
     ../nixos-shared/nix-ld.nix
     ../nixos-shared/rss-bridge.nix
     ../nixos-shared/reddit-top-rss.nix
-    /etc/nixos/cachix.nix
+    ../nixos-shared/cachix.nix
   ];
 
   documentation = {
