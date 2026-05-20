@@ -7,6 +7,7 @@
     ../laptop/laptop.nix
     ./p1.nix
     ./globalprotect/default.nix
+    (import ../nixos-shared/wireguard.nix "p1")
   ];
 
   # Custom sudo with insults
