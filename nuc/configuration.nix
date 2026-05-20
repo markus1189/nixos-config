@@ -36,7 +36,6 @@ in {
     ./kodi.nix
     ./adguard.nix
     (import ../nixos-shared/wireguard.nix "nuc")
-    ./iwlwifi-issue.nix
   ];
 
   lib = {
