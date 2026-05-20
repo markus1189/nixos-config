@@ -11,6 +11,14 @@ rec {
     ndtSources = import ../ndt/sources.nix { };
   };
 
+  wallpapersOverlay = self: super: {
+    markus-wallpapers = {
+      orange-cube-left     = ./assets/wallpapers/orange-cube-6x5-left.png;
+      orange-cube-right    = ./assets/wallpapers/orange-cube-6x5-right.png;
+      orange-cube-internal = ./assets/wallpapers/orange-cube-16x9.png;
+    };
+  };
+
   visidataOverlay = self: super:
     let
       pypkgs = with self.python3Packages; [
@@ -106,6 +114,7 @@ rec {
   overlays = [
     ndtOverlay
     ndtSourcesOverlay
+    wallpapersOverlay
     visidataOverlay
     xclipOverlay
     spotifyOverlay

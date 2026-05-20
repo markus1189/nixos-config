@@ -831,6 +831,9 @@ in
                   rate = "60.00";
                 };
               };
+              hooks.postswitch = ''
+                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
+              '';
             };
 
             "double" = {
@@ -940,6 +943,9 @@ in
                 };
                 "eDP-1".enable = false;
               };
+              hooks.postswitch = ''
+                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
+              '';
             };
           };
       };

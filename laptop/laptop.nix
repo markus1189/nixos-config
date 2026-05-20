@@ -6,7 +6,6 @@ let
   secrets = import ../nixos-shared/secrets.nix;
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
-  myWallpaper = "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/wallpapers/nineish-dark-gray-2020-07-02/contents/images/nix-wallpaper-nineish-dark-gray.png";
 in
 rec {
   lib = {
@@ -198,7 +197,7 @@ rec {
           ${pkgs.xorg.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xorg.xsetroot}/bin/xsetroot -cursor_name left_ptr
           ${pkgs.xorg.xset}/bin/xset r rate 250 30
-          ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${myWallpaper} &
+          ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right} &
           ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
         '';
       };
