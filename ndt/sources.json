@@ -53,6 +53,24 @@
     "type": "github",
     "url": "https://github.com/darktable-org/darktable"
   },
+  "disko": {
+    "branch": "master",
+    "date": "2026-05-19T21:37:54Z",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "fetchTags": false,
+    "hash": "sha256-wuOkjI6pRiN4sEn/EPBRnNW5cmcpvd7xtIM8y5LooAs=",
+    "leaveDotGit": false,
+    "owner": "nix-community",
+    "path": "/nix/store/3vdx3dvvqpc5z3w15qddm44wz9zvbfzd-disko",
+    "repo": "disko",
+    "rev": "65fb947964bd44fc0008faf77d1fcb7a9f40bb32",
+    "rootDir": "",
+    "sha256": "02x0x29cng43nkqxxg99cxrbkmcwa7q11zs9n1w26im9is6a9qy2",
+    "type": "github",
+    "url": "https://github.com/nix-community/disko"
+  },
   "emacs-dired-plus": {
     "sha256": "07xpdxf1p31ixd3q1gw7pl53wbxsbkb6iw7xj2k9i47bpfccrw4j",
     "type": "url",
@@ -248,6 +266,24 @@
     "sha256": "1yr0pcw0cwnil6y6fr2njlknv960xiimwc0a4a8s06wkm221vwgx",
     "type": "github",
     "url": "https://github.com/lizqwerscott/mcp.el"
+  },
+  "nixos-hardware": {
+    "branch": "master",
+    "date": "2026-05-20T06:26:11Z",
+    "deepClone": false,
+    "fetchLFS": false,
+    "fetchSubmodules": false,
+    "fetchTags": false,
+    "hash": "sha256-j1iZsLy6oFApqR1oiDmHhvkwxXqcNi0aoSJj643LuwU=",
+    "leaveDotGit": false,
+    "owner": "NixOS",
+    "path": "/nix/store/1gbp0xzf8ji0vvd1pn7zcmz6mxs0jy3v-nixos-hardware",
+    "repo": "nixos-hardware",
+    "rev": "c97bc4d15bd3473dd095e8e8ba57330ab1943a77",
+    "rootDir": "",
+    "sha256": "01dvrf6ynqr2l4d2sdlwgb2k1yc6hwwqhs0xm4lm185spjq9jn4g",
+    "type": "github",
+    "url": "https://github.com/NixOS/nixos-hardware"
   },
   "nixpkgs-2305": {
     "branch": "nixos-23.05",
