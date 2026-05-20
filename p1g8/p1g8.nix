@@ -19,6 +19,10 @@
   boot.loader.systemd-boot.configurationLimit = 20;   # decision #6: bounded for 1 G ESP
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;    # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
+  # Disable Panel Self Refresh — i915 hangs the eDP-1 PHY after 10 min DPMS
+  # idle on Arrow Lake-P (8086:7d51) / kernel 7.0.8. Symptom: black screen
+  # with "Failed to bring PHY A to idle" + flip_done timeouts. (2026-05-20)
+  boot.kernelParams = [ "i915.enable_psr=0" ];
   hardware.enableRedistributableFirmware = true;
 
   # NOTE: do NOT carry p1.nix's hand-set `boot.initrd.luks.devices` —
