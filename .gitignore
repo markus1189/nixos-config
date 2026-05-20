@@ -8,3 +8,5 @@ result
 .taskwarrior/
 __pycache__/
 *.pyc
+.gitsecret/keys/tofu.db
+.gitsecret/keys/crls.d/
