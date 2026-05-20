@@ -48,6 +48,20 @@
   ## Memory #################################################################
   zramSwap.enable = true;                # daily working-set; the disko 32 G swapfile is OOM backstop
 
+  ## SSD hygiene ############################################################
+  # Required for `LUKS allowDiscards = true` (disko.nix) to actually do
+  # TRIM — without this, the documented address-pattern leak buys nothing.
+  services.fstrim.enable = true;
+
+  ## TrackPoint (ported from p1.nix; same Elan device on P1 Gen 8) ###########
+  hardware.trackpoint = {
+    device = "TPPS/2 Elan TrackPoint";
+    emulateWheel = true;
+    enable = true;
+    sensitivity = 112;
+    speed = 97;
+  };
+
   ## Snapshots — snapper (decision #6) ######################################
   # The NixOS snapper module wires the timeline timer + cleanup +
   # `snapshotRootOnBoot`. There is no built-in pre/post `nixos-rebuild`
