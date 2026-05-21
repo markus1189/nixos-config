@@ -704,43 +704,42 @@ Position the cursor at its beginning, according to the current mode."
   :bind
   ("C-s-f" . find-temp-file)
   :config
-  (setq find-temp-file-prefix (list "etf-alpha"
-                                    "etf-bravo"
-                                    "etf-charlie"
-                                    "etf-delta"
-                                    "etf-echo"
-                                    "etf-foxtrot"
-                                    "etf-golf"
-                                    "etf-hotel"
-                                    "etf-india"
-                                    "etf-juliet"
-                                    "etf-kilo"
-                                    "etf-lima"
-                                    "etf-mike"
-                                    "etf-november"
-                                    "etf-oscar"
-                                    "etf-papa"
-                                    "etf-quebec"
-                                    "etf-romeo"
-                                    "etf-sierra"
-                                    "etf-tango"
-                                    "etf-uniform"
-                                    "etf-victor"
-                                    "etf-whiskey"
-                                    "etf-x-ray"
-                                    "etf-yankee"
-                                    "etf-zulu"))
+  ;; Keep the explicit `emacs-tmpfile-' tag so the files self-identify
+  ;; (otherwise downstream tools/agents mistake them for project files).
+  (setq find-temp-file-prefix
+        (mapcar (lambda (n) (format "emacs-tmp-%02d" n))
+                (number-sequence 1 26)))
+
+  ;; Quick-extension chords inside the find-temp-file minibuffer prompt.
+  (defmacro mh/find-temp-ext (key ext)
+    `(define-key find-temp-file-keymap (kbd ,key)
+       (lambda ()
+         (interactive)
+         (delete-minibuffer-contents)
+         (insert ,ext)
+         (exit-minibuffer))))
+
+  (mh/find-temp-ext "C-c e" "el")
+  (mh/find-temp-ext "C-c m" "md")
+  (mh/find-temp-ext "C-c j" "json")
+  (mh/find-temp-ext "C-c y" "yaml")
+  (mh/find-temp-ext "C-c s" "sh")
+  (mh/find-temp-ext "C-c n" "nix")
+  (mh/find-temp-ext "C-c o" "org")
+  (mh/find-temp-ext "C-c x" "txt")
 
   ;; Route temp files into ~/Stuff date dirs instead of /tmp/
   ;; Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
   (defun mh/set-stuff-dir (&rest _)
-    "Set find-temp-file-directory to today's Stuff dir."
-    (let* ((month-dir (expand-file-name (format-time-string "%Y-%m") "~/Stuff"))
-           (day-dir (expand-file-name (format-time-string "%d-scratch") month-dir))
+    "Ensure today's ~/Stuff scratch dir exists and ~/Stuff/Today points at it."
+    (let* ((day-dir (expand-file-name
+                     (format-time-string "%Y-%m/%d-scratch")
+                     "~/Stuff"))
            (symlink (expand-file-name "Today" "~/Stuff")))
       (make-directory day-dir t)
-      (when (file-symlink-p symlink) (delete-file symlink))
-      (make-symbolic-link day-dir symlink)
+      (unless (file-equal-p symlink day-dir)
+        (when (file-exists-p symlink) (delete-file symlink))
+        (make-symbolic-link day-dir symlink))
       (setq find-temp-file-directory (file-name-as-directory day-dir))))
 
   (advice-add 'find-temp-file :before #'mh/set-stuff-dir))
