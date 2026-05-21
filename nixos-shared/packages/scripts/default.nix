@@ -1665,4 +1665,31 @@ rec {
       fi
     '';
   };
+
+  rofiDownloadsPicker =
+    writeShellScript
+      {
+        name = "rofiDownloadsPicker";
+        deps = [
+          coreutils
+          rofi
+          xclip
+          libnotify
+        ];
+      }
+      ''
+        downloads="$HOME/Downloads"
+        if [ ! -d "$downloads" ]; then
+          notify-send "rofi-downloads" "no ~/Downloads"
+          exit 1
+        fi
+
+        choice=$(ls -1t "$downloads" 2>/dev/null \
+          | rofi -dmenu -i -matching fuzzy -sort -p "downloads")
+        [ -z "$choice" ] && exit 0
+
+        full="$downloads/$choice"
+        printf '%s' "$full" | xclip -i -selection clipboard
+        notify-send "Copied path" "$choice"
+      '';
 }

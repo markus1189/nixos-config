@@ -508,6 +508,25 @@ in
           target = ".config/rofi/config.rasi";
           text = ''
             @theme "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi"
+
+            * {
+              accent:                       #f3843d;
+              accent-text:                  #000000;
+              selected-normal-background:   @accent;
+              selected-normal-foreground:   @accent-text;
+              selected-active-background:   @accent;
+              selected-active-foreground:   @accent-text;
+              selected-urgent-background:   #cc4444;
+              selected-urgent-foreground:   #ffffff;
+            }
+
+            element selected,
+            element selected.active,
+            element-text selected,
+            element-text selected.active {
+              background-color: @accent;
+              text-color:       @accent-text;
+            }
           '';
         };
 

@@ -379,6 +379,7 @@ myKeys =
     --
     ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
     ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
+    ((myModShift, xK_d), spawn "@rofiDownloadsPicker@/bin/rofiDownloadsPicker"),
     ((myModKey, xK_e), swapNextScreen),
     ((myModKey, xK_grave), withDisplay $ withFocused . maximizeFloatWindow),
     ((myModKey, xK_minus), sendMessage Shrink),

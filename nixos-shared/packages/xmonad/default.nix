@@ -24,6 +24,7 @@ args@{
   pulseaudio,
   rofi,
   rofiDefaults,
+  rofiDownloadsPicker,
   singlehead,
   takeScreenshot,
   tesseract4,
