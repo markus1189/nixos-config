@@ -35,6 +35,7 @@ in {
     })
     ./kodi.nix
     ./adguard.nix
+    ./atuin.nix
     (import ../nixos-shared/wireguard.nix "nuc")
   ];
 
