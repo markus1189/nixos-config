@@ -1371,32 +1371,99 @@ rec {
         DEVICE_ID=0
         REFRESH_TOKEN="${viessmannRefreshToken}"
 
+        # Returns: 0 on success (prints temperature), 1 on transient failure, 2 on terminal failure.
+        # On failure prints a human-readable reason to stderr.
         getOutsideTemperature() {
-            ACCESS_TOKEN="$(curl -s \
-                             --fail \
-                             -X POST \
-                             --url "https://iam.viessmann-climatesolutions.com/idp/v2/token" \
-                             -H "Content-Type: application/x-www-form-urlencoded" \
-                             -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}" | jq -r .access_token)"
+            local token_body token_status access_token features_body features_status
 
-        curl -s \
-             --fail \
-             -X GET \
-             -H "Authorization: Bearer ''${ACCESS_TOKEN}" \
-             --url "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features" |
-            jq -r '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value'
+            token_body="$(mktemp -t claude-code.viessmann-token.XXXXXX)"
+            features_body="$(mktemp -t claude-code.viessmann-features.XXXXXX)"
+            trap 'rm -f "''${token_body}" "''${features_body}"' RETURN
+
+            token_status="$(curl -sS \
+                                 -o "''${token_body}" \
+                                 -w '%{http_code}' \
+                                 -X POST \
+                                 --url "https://iam.viessmann-climatesolutions.com/idp/v2/token" \
+                                 -H "Content-Type: application/x-www-form-urlencoded" \
+                                 -d "grant_type=refresh_token&client_id=45e59eb93fb498140de733c44637d8df&refresh_token=''${REFRESH_TOKEN}")" || {
+                echo "token request: network error" >&2
+                return 1
+            }
+
+            if [[ "''${token_status}" == "400" || "''${token_status}" == "401" ]]; then
+                local err
+                err="$(jq -r '.error // "unknown"' < "''${token_body}" 2>/dev/null || echo unknown)"
+                echo "token request: HTTP ''${token_status} (''${err}) — refresh token likely expired, see packages/default.nix for renewal" >&2
+                return 2
+            fi
+
+            if [[ "''${token_status}" != "200" ]]; then
+                echo "token request: HTTP ''${token_status}" >&2
+                return 1
+            fi
+
+            access_token="$(jq -r .access_token < "''${token_body}")"
+            if [[ -z "''${access_token}" || "''${access_token}" == "null" ]]; then
+                echo "token request: response had no access_token" >&2
+                return 2
+            fi
+
+            features_status="$(curl -sS \
+                                    -o "''${features_body}" \
+                                    -w '%{http_code}' \
+                                    -X GET \
+                                    -H "Authorization: Bearer ''${access_token}" \
+                                    --url "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/''${INSTALLATION_ID}/gateways/''${GATEWAY_SERIAL}/devices/''${DEVICE_ID}/features")" || {
+                echo "features request: network error" >&2
+                return 1
+            }
+
+            if [[ "''${features_status}" != "200" ]]; then
+                echo "features request: HTTP ''${features_status}" >&2
+                # 401/403/404 won't fix themselves by retrying.
+                case "''${features_status}" in
+                    401|403|404) return 2 ;;
+                    *) return 1 ;;
+                esac
+            fi
+
+            local temp
+            temp="$(jq -r '.data[] | select(.feature == "heating.sensors.temperature.outside") | .properties.value.value' < "''${features_body}")"
+            if [[ -z "''${temp}" || "''${temp}" == "null" ]]; then
+                echo "features response: outside temperature feature missing" >&2
+                return 2
+            fi
+            printf '%s' "''${temp}"
         }
 
-        unset c
-        until TEMP="$(getOutsideTemperature)" && [[ ! -z "''${TEMP}" ]]; do
-            ((c++)) && ((c==10)) && break
+        TEMP=""
+        REASON=""
+        ERR_FILE="$(mktemp -t claude-code.viessmann-err.XXXXXX)"
+        trap 'rm -f "''${ERR_FILE}"' EXIT
+        c=0
+        while :; do
+            c=$((c + 1))
+            : > "''${ERR_FILE}"
+            TEMP_OUT="$(getOutsideTemperature 2>"''${ERR_FILE}")" && rc=0 || rc=$?
+            if (( rc == 0 )); then
+                TEMP="''${TEMP_OUT}"
+                break
+            fi
+            REASON="$(< "''${ERR_FILE}")"
+            if (( rc == 2 )); then
+                break
+            fi
+            if (( c >= 10 )); then
+                break
+            fi
             sleep 3
         done
 
-        if [[ ! -z "''${TEMP}" ]]; then
+        if [[ -n "''${TEMP}" ]]; then
           notifySendHome "$(printf "Aktuelle Temperatur: %.01f °C" "''${TEMP}")"
         else
-          notifySendHome "Aktuelle Temperatur konnte nicht ermittelt werden nach $c Versuchen"
+          notifySendHome "Aktuelle Temperatur konnte nicht ermittelt werden (Versuche: $c): ''${REASON:-unbekannter Fehler}"
         fi
       '';
 
