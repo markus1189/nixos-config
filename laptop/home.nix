@@ -730,6 +730,11 @@ in
           history_filter = [ "DONOTTRACK" ];
           inline_height = 25;
           update_check = false;
+
+          # Self-hosted sync via SSH tunnel to nuc. Tunnel + sync is driven
+          # by the atuin-sync systemd user timer (see atuin-sync.nix).
+          sync_address = "http://127.0.0.1:49888";
+          auto_sync = false;
         };
       };
 
