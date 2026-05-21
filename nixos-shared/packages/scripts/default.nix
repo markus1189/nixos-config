@@ -47,6 +47,7 @@
   wpa_supplicant,
   writeScriptBin,
   xclip,
+  xdg-utils,
   xdotool,
   xrandr,
   xsel,
@@ -1676,6 +1677,7 @@ rec {
           xclip
           libnotify
           dragon-drop
+          xdg-utils
         ];
       }
       ''
@@ -1689,13 +1691,17 @@ rec {
         choice=$(ls -1t "$downloads" 2>/dev/null \
           | rofi -dmenu -i -matching fuzzy -sort -p "downloads" \
               -kb-custom-1 "Alt+d" \
-              -mesg "Enter: copy path  |  Alt+d: drag (xdragon)") || ret=$?
+              -kb-custom-2 "Alt+o" \
+              -mesg "Enter: copy path  |  Alt+d: drag  |  Alt+o: open") || ret=$?
         [ -z "$choice" ] && exit 0
 
         full="$downloads/$choice"
         case "$ret" in
           10)
             xdragon -x "$full"
+            ;;
+          11)
+            xdg-open "$full"
             ;;
           *)
             printf '%s' "$full" | xclip -i -selection clipboard
