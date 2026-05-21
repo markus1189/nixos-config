@@ -1,6 +1,10 @@
 { }: {
   value = {
     enable = true;
+    # Pin the legacy profile path. Home Manager's new default moved this to
+    # $XDG_CONFIG_HOME/mozilla/firefox; we keep ~/.mozilla/firefox so the
+    # existing 5.6G profile (and native messaging hosts) stay put.
+    configPath = ".mozilla/firefox";
     profiles = {
       "managed" = {
         id = 0;
