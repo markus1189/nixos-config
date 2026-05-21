@@ -1,6 +1,9 @@
-# CLAUDE.md
+# Agents documentation for nixos-configuration
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This repository is the source of truth for shared and per-machine
+configuration of nixos machines: servers, laptops, mobile phones.
+
+WARNING: this repo is public
 
 ## Architecture Overview
 
