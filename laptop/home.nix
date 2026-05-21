@@ -21,6 +21,8 @@ let
 
 in
 {
+  imports = [ ./atuin-sync.nix ];
+
   home = {
     stateVersion = "18.09";
 
