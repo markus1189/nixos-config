@@ -1671,6 +1671,9 @@ rec {
     writeShellScript
       {
         name = "rofiDownloadsPicker";
+        # pure = false: xdg-open dispatches to whatever handler the user
+        # has installed, so it needs the session PATH, not just deps.
+        pure = false;
         deps = [
           coreutils
           rofi
