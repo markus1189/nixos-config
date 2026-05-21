@@ -1675,6 +1675,7 @@ rec {
           rofi
           xclip
           libnotify
+          dragon-drop
         ];
       }
       ''
@@ -1684,12 +1685,22 @@ rec {
           exit 1
         fi
 
+        ret=0
         choice=$(ls -1t "$downloads" 2>/dev/null \
-          | rofi -dmenu -i -matching fuzzy -sort -p "downloads")
+          | rofi -dmenu -i -matching fuzzy -sort -p "downloads" \
+              -kb-custom-1 "Alt+d" \
+              -mesg "Enter: copy path  |  Alt+d: drag (xdragon)") || ret=$?
         [ -z "$choice" ] && exit 0
 
         full="$downloads/$choice"
-        printf '%s' "$full" | xclip -i -selection clipboard
-        notify-send "Copied path" "$choice"
+        case "$ret" in
+          10)
+            xdragon -x "$full"
+            ;;
+          *)
+            printf '%s' "$full" | xclip -i -selection clipboard
+            notify-send "Copied path" "$choice"
+            ;;
+        esac
       '';
 }
