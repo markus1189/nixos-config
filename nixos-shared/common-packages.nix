@@ -6,7 +6,7 @@ let
   };
   nixpkgsMaster = import nixpkgsMasterSrc {
     config = {
-      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" "claude-code-bin" ];
+      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
       firefox = {
         enableOfficialBranding = true;
       };
@@ -17,7 +17,7 @@ in
 {
   environment = {
     systemPackages =
-      (with nixpkgsMaster; [ claude-code-bin ])
+      (with nixpkgsMaster; [ claude-code ])
       ++ (with pkgs; [
         aws-vault
         bat

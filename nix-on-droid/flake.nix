@@ -22,14 +22,8 @@
       pkgs = import nixpkgs {
         system = "aarch64-linux";
         config = {
-          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "claude-code-bin" "unrar"];
+          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "unrar"];
         };
-        overlays = [
-          # Use pre-built binary to avoid npm build issues on Android/ARM
-          (final: prev: {
-            claude-code = prev.claude-code-bin;
-          })
-        ];
       };
       modules = [ ./nix-on-droid.nix ];
     };

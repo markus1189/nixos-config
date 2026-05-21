@@ -10,7 +10,7 @@ let
 
   nixpkgsMaster = import nixpkgsMasterSrc {
     config = {
-      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" "claude-code-bin" ];
+      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
     };
   };
 
@@ -1021,7 +1021,7 @@ in
 
     claude-remote-control =
       let
-        claudePackage = nixpkgsMaster.claude-code-bin;
+        claudePackage = nixpkgsMaster.claude-code;
       in
       {
         Unit = {
