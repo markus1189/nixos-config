@@ -74,6 +74,7 @@ in
         (myScripts.recordMeeting)
         (myScripts.tmuxPollPane)
         (myScripts.chronic-file)
+        (myScripts.gemini-vision)
       ]);
   };
 }

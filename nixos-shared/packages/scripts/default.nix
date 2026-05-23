@@ -29,6 +29,7 @@
   mozillavpn,
   nixos-artwork,
   oathToolkit,
+  pass,
   playerctl,
   procps,
   psmisc,
@@ -1623,6 +1624,17 @@ rec {
   claude-history = writers.writePython3Bin "claude-history" {
     libraries = [ python3Packages.colorama ];
   } (builtins.readFile ./claude-history.py);
+
+  gemini-vision = writeShellApplication {
+    name = "gemini-vision";
+    runtimeInputs = [
+      coreutils
+      curl
+      jq
+      pass
+    ];
+    text = builtins.readFile ./gemini-vision.sh;
+  };
 
   chronic-file = writeShellApplication {
     name = "chronic-file";
