@@ -52,71 +52,11 @@ rec {
       });
   };
 
-  # Workaround: nixpkgs HEAD pins spotify linux to a snap rev that's no longer
-  # mirrored by snapcraft, and api.snapcraft.io doesn't resolve from this host.
-  # Pivot to Spotify's official Debian repo (repository.spotify.com) and
-  # unpack the .deb with `dpkg` instead of `unsquashfs`.
-  # The eval will THROW once upstream nixpkgs moves past the broken pin — a
-  # forced reminder to verify the original derivation works and delete this
-  # overlay.
-  # To bump (if the new upstream is *also* broken):
-  #   1. curl -sL http://repository.spotify.com/pool/non-free/s/spotify-client/ \
-  #        | grep -oE 'spotify-client_[^"]+_amd64\.deb' | sort -uV | tail -1
-  #   2. nix store prefetch-file --hash-type sha256 \
-  #        http://repository.spotify.com/pool/non-free/s/spotify-client/<filename>
-  #   3. Update brokenUpstream to the new upstream (version, rev).
-  spotifyOverlay = self: super:
-    let
-      debVersion = "1.2.86.502.g8cd7fb22";
-      debHash = "sha256-brbtv0VAeNstmUWEIdfd5Vgx0ue0xjO7suD6Hx0KdDs=";
-      brokenUpstream = {
-        version = "1.2.84.475.ga1a748ff";
-        rev = "93";
-      };
-      upstreamVersion = super.spotify.version or "<unknown>";
-      upstreamRev = super.spotify.rev or "<unknown>";
-    in {
-      spotify =
-        if upstreamVersion != brokenUpstream.version
-           || upstreamRev != brokenUpstream.rev
-        then
-          throw ''
-            spotifyOverlay: upstream nixpkgs has moved past the broken pin.
-              upstream now: ${upstreamVersion}-rev${upstreamRev}
-              overlay knew: ${brokenUpstream.version}-rev${brokenUpstream.rev}
-            Verify the upstream snap URL downloads, then DELETE spotifyOverlay
-            from nixos-shared/shared-overlays.nix. If the new upstream is also
-            broken, bump `brokenUpstream` in the overlay to silence this.
-          ''
-        else
-          builtins.trace
-            "INFO: Using spotify overlay pinned to deb ${debVersion} from repository.spotify.com (workaround for snapcraft mirror rotation)"
-            (super.spotify.overrideAttrs (finalAttrs: prev: {
-              version = debVersion;
-              src = super.fetchurl {
-                name = "spotify-client_${debVersion}_amd64.deb";
-                url = "http://repository.spotify.com/pool/non-free/s/spotify-client/spotify-client_${debVersion}_amd64.deb";
-                hash = debHash;
-              };
-              nativeBuildInputs =
-                (super.lib.remove super.squashfsTools (prev.nativeBuildInputs or []))
-                ++ [ super.dpkg ];
-              unpackPhase = ''
-                runHook preUnpack
-                mkdir squashfs-root
-                dpkg-deb -x "$src" squashfs-root
-                cd squashfs-root
-                runHook postUnpack
-              '';
-            }));
-    };
-
   overlays = [
     ndtOverlay
     ndtSourcesOverlay
     wallpapersOverlay
     visidataOverlay
     xclipOverlay
-    spotifyOverlay
   ];
 }
