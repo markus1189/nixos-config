@@ -19,10 +19,22 @@
   boot.loader.systemd-boot.configurationLimit = 20;   # decision #6: bounded for 1 G ESP
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;    # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
-  # Disable Panel Self Refresh — i915 hangs the eDP-1 PHY after 10 min DPMS
-  # idle on Arrow Lake-P (8086:7d51) / kernel 7.0.8. Symptom: black screen
-  # with "Failed to bring PHY A to idle" + flip_done timeouts. (2026-05-20)
-  boot.kernelParams = [ "i915.enable_psr=0" ];
+  # i915 cx0_phy / C10 DPLL state-restore race on Arrow Lake-P (8086:7d51)
+  # under kernel 7.0.x — see Ubuntu bug #2150605. Symptoms: "Failed to bring
+  # PHY A to idle", flip_done timeouts, pixel_rate/port_clock mismatch on
+  # resume from long s2idle dwell (≥2 h). PSR-off alone downgrades hard
+  # hangs to slow (~10–50 s) recovery; DC/FBC-off shave more. Reassess once
+  # the cx0_phy fix lands upstream.  (2026-05-20, expanded 2026-05-27)
+  boot.kernelParams = [
+    "i915.enable_psr=0"
+    "i915.enable_dc=0"
+    "i915.enable_fbc=0"
+  ];
+  # DDR5 SPD sensor: under Intel SPD-Write-Disable the driver fails to
+  # resume (`returns -6`, ENXIO). Canonical's i801 "don't instantiate
+  # spd5118" patch isn't in mainline 7.0.8 yet; blacklisting is safe — the
+  # module only exposes memory-stick SPD metadata.  (2026-05-27)
+  boot.blacklistedKernelModules = [ "spd5118" ];
   hardware.enableRedistributableFirmware = true;
 
   # NOTE: do NOT carry p1.nix's hand-set `boot.initrd.luks.devices` —
