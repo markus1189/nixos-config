@@ -39,9 +39,9 @@
 
         oc = "opencode";
 
-        pi = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y @mariozechner/pi-coding-agent'';
+        pi = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent'';
 
-        pi-glados = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y @mariozechner/pi-coding-agent --append-system-prompt "${gladosPrompt}"'';
+        pi-glados = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent --append-system-prompt "${gladosPrompt}"'';
       };
 
     initContent = ''
