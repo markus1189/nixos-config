@@ -19,7 +19,6 @@
   gnuplot,
   gnused,
   haskellPackages,
-  i3lock,
   imagemagick,
   jo,
   jq,
@@ -920,11 +919,30 @@ rec {
     writeShellScript
       {
         name = "lockScreen";
-        deps = [ i3lock ];
+        deps = [ ];
       }
       ''
-        i3lock -p win -e -f -i ${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png
-
+        # i3lock binary comes from programs.i3lock in laptop/programs.nix
+        # (setuid wrapper, required for PAM auth; package is i3lock-color)
+        /run/wrappers/bin/i3lock \
+          --image=${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png \
+          --blur=5 \
+          --clock \
+          --indicator \
+          --time-str="%H:%M" \
+          --date-str="%A, %Y-%m-%d" \
+          --pointer=win \
+          --ignore-empty-password \
+          --show-failed-attempts \
+          --ring-color=ffffffff \
+          --ringver-color=00ff00ff \
+          --ringwrong-color=ff0000ff \
+          --keyhl-color=88ccffff \
+          --bshl-color=ff8888ff \
+          --time-color=ffffffff \
+          --date-color=ffffffff \
+          --verif-color=ffffffff \
+          --wrong-color=ff8888ff
       '';
 
   currentSpotifySong =
