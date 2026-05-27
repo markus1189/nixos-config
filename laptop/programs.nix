@@ -6,6 +6,8 @@ in
 {
   nixpkgs = { };
 
+  programs.i3lock.enable = true;
+
   environment = {
     systemPackages = (
       with pkgs;
@@ -65,7 +67,6 @@ in
         hledger
         hledger-ui
         html2text
-        i3lock
         inotify-tools
         inetutils
         imagemagick
