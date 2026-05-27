@@ -77,6 +77,19 @@
       zle -C complete-files complete-word _generic
       zstyle ':completion:complete-files:*' completer _files
       bindkey '^Xf' complete-files
+
+      # Alt+Enter: prepend `cdt; ` to the current buffer and submit.
+      # Empty buffer runs `cdt` on its own.
+      function cdt-then-accept() {
+        if [[ -z "$BUFFER" ]]; then
+          BUFFER="cdt"
+        else
+          BUFFER="cdt; $BUFFER"
+        fi
+        zle accept-line
+      }
+      zle -N cdt-then-accept
+      bindkey '^[^M' cdt-then-accept
     '';
   };
 }
