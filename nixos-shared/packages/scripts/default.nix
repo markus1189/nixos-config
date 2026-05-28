@@ -457,33 +457,20 @@ rec {
       {
         name = "btHeadphoneBattery";
         deps = [
-          bluez
-          gnused
-          gnugrep
+          systemd
         ];
         failFast = false;
       }
       ''
         readonly HEADPHONE_MAC="04:52:C7:34:62:44"
+        readonly DEV="/org/bluez/hci0/dev_''${HEADPHONE_MAC//:/_}"
 
-        # Check if headphones are connected
-        if ! bluetoothctl info "$HEADPHONE_MAC" 2>/dev/null | grep -q "Connected: yes"; then
-            exit 0
-        fi
+        connected=$(busctl get-property org.bluez "$DEV" org.bluez.Device1 Connected 2>/dev/null)
+        [[ "$connected" == *true* ]] || exit 0
 
-        # Extract battery percentage
-        battery_info=$(bluetoothctl info "$HEADPHONE_MAC" 2>/dev/null | grep "Battery Percentage:")
-        if [[ -z "$battery_info" ]]; then
-            exit 0
-        fi
-
-        # Parse battery percentage from format like "Battery Percentage: 0x50 (80)"
-        battery_hex=$(echo "$battery_info" | sed -n 's/.*Battery Percentage: 0x\([0-9a-fA-F]*\).*/\1/p')
-        if [[ -z "$battery_hex" ]]; then
-            exit 0
-        fi
-
-        battery_percent=$((16#$battery_hex))
+        battery=$(busctl get-property org.bluez "$DEV" org.bluez.Battery1 Percentage 2>/dev/null)
+        battery_percent=''${battery##* }
+        [[ "$battery_percent" =~ ^[0-9]+$ ]] || exit 0
 
         # Color code based on battery level
         if [[ $battery_percent -gt 70 ]]; then
