@@ -19,7 +19,7 @@
         yolo = "--dangerously-skip-permissions";
         haiku-vertex = "@vertex-ai/anthropic.claude-haiku-4-5@20251001";
         sonnet-vertex = "@vertex-ai/anthropic.claude-sonnet-4-6";
-        opus-vertex = "@vertex-ai/anthropic.claude-opus-4-6";
+        opus-vertex = "@vertex-eu-global/anthropic.claude-opus-4-7";
         portkeyConfig = ''ANTHROPIC_BASE_URL=https://api.portkey.ai ANTHROPIC_AUTH_TOKEN='dummy' ANTHROPIC_CUSTOM_HEADERS=$'x-portkey-api-key: '"$(pass api/portkey-claude)"$'\nx-portkey-debug: false' ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet-vertex}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku-vertex}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus-vertex}"'';
         otelEnv = ''CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=grpc OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 OTEL_SERVICE_NAME=claude-code OTEL_METRIC_EXPORT_INTERVAL=10000 OTEL_LOGS_EXPORT_INTERVAL=5000 OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1'';
         editorEnv = ''EDITOR="emacsclient -c -a vim"'';
@@ -36,8 +36,6 @@
         c-pk-glados = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
         cy-pk = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} claude ${yolo}'';
         cy-pk-glados = ''env ${editorEnv} ${otelEnv} ${portkeyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
-
-        oc = "opencode";
 
         pi = ''env PORTKEY_API_KEY_CC="$(pass api/portkey-claude)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent'';
 
