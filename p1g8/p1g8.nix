@@ -19,17 +19,18 @@
   boot.loader.systemd-boot.configurationLimit = 20;   # decision #6: bounded for 1 G ESP
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;    # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
-  # i915 cx0_phy / C10 DPLL state-restore race on Arrow Lake-P (8086:7d51)
-  # under kernel 7.0.x — see Ubuntu bug #2150605. Symptoms: "Failed to bring
-  # PHY A to idle", flip_done timeouts, pixel_rate/port_clock mismatch on
-  # resume from long s2idle dwell (≥2 h). PSR-off alone downgrades hard
-  # hangs to slow (~10–50 s) recovery; DC/FBC-off shave more. Reassess once
-  # the cx0_phy fix lands upstream.  (2026-05-20, expanded 2026-05-27)
-  boot.kernelParams = [
-    "i915.enable_psr=0"
-    "i915.enable_dc=0"
-    "i915.enable_fbc=0"
-  ];
+  # i915 cx0_phy / C10 DPLL state-restore bug on Arrow Lake-P (8086:7d51),
+  # kernel 7.0.x — Ubuntu bug #2150605 (same HW: P1 Gen 8). The PHY parks at
+  # the 61 MHz idle clock and fails to retrain on power-up: "Failed to bring
+  # PHY A to idle" + flip_done timeouts + pixel_rate/port_clock mismatch, a
+  # ~40–50 s retry storm. Fires on BOTH s2idle-resume AND DPMS off→on.
+  # Per the bug, enable_dc/fbc=0 are INEFFECTIVE (tested) and dc=0 wastes
+  # idle power, so they're dropped. psr=0 is kept only as cheap insurance
+  # against a hard hang. The actual mitigation is disabling DPMS so the
+  # broken power-down path is never entered (serverFlagsSection below).
+  # No upstream fix as of 2026-05-28; xe driver makes it worse (engine
+  # resets). Revisit when the cx0_phy fix lands.  (2026-05-20..28)
+  boot.kernelParams = [ "i915.enable_psr=0" ];
   # DDR5 SPD sensor: under Intel SPD-Write-Disable the driver fails to
   # resume (`returns -6`, ENXIO). Canonical's i801 "don't instantiate
   # spd5118" patch isn't in mainline 7.0.8 yet; blacklisting is safe — the
@@ -61,6 +62,20 @@
   };
   hardware.graphics.enable = true;
   services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
+
+  # Disable X11 DPMS + screen blanking. The i915 cx0_phy bug (see boot
+  # section) is triggered by the eDP-1 PHY power-down→power-up transition;
+  # X's default 10-min DPMS-off was firing it on every idle return (~40–50 s
+  # hang). Panel is 1920x1200 IPS w/ intel_backlight PWM — no OLED burn-in
+  # risk from leaving it lit. Screen now stays on until manual i3lock
+  # (mod+ctrl+l). Drop this once the kernel bug is fixed.  (2026-05-28)
+  services.xserver.serverFlagsSection = ''
+    Option "BlankTime"   "0"
+    Option "StandbyTime" "0"
+    Option "SuspendTime" "0"
+    Option "OffTime"     "0"
+    Option "DPMS"        "false"
+  '';
 
   ## Memory #################################################################
   zramSwap.enable = true;                # daily working-set; the disko 32 G swapfile is OOM backstop
