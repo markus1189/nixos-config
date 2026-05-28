@@ -63,6 +63,16 @@
   hardware.graphics.enable = true;
   services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
 
+  # Docker ≥28 discovers GPUs through CDI; with no spec it bails with
+  # "failed to discover GPU vendor from CDI: no known GPU vendor found"
+  # even though the driver works. This installs nvidia-ctk and generates
+  # the CDI spec at /var/run/cdi/nvidia-container-toolkit.json (kind
+  # nvidia.com/gpu). NOTE: on Docker 29 `--gpus all` still fails ("AMD CDI
+  # spec not found"); the working invocation is the explicit CDI device
+  # `--device nvidia.com/gpu=all` (e.g. the netbrain/zwift container — see
+  # ~/Stuff/2026-05/28-scratch/zwift-nvidia-docker.md).  (2026-05-28)
+  hardware.nvidia-container-toolkit.enable = true;
+
   # Disable X11 DPMS + screen blanking. The i915 cx0_phy bug (see boot
   # section) is triggered by the eDP-1 PHY power-down→power-up transition;
   # X's default 10-min DPMS-off was firing it on every idle return (~40–50 s
