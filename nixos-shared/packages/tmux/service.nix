@@ -32,12 +32,12 @@
             (builtins.readFile ./tmux.conf)}
         run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
 
-        run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
         set -g @extrakto_copy_key "enter"
         set -g @extrakto_insert_key "tab"
         set -g @extrakto_key "e"
         set -g @extrakto_grab_area "recent"
         set -g @extrakto_filter_order "path url line word quote s-quote all"
+        run-shell ${tmuxPlugins.extrakto}/share/tmux-plugins/extrakto/extrakto.tmux
 
         run-shell ${tmuxPlugins.fingers}/share/tmux-plugins/tmux-fingers/tmux-fingers.tmux
       '';
