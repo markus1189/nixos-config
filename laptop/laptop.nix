@@ -281,6 +281,7 @@ rec {
     packages =
       with pkgs;
       [
+        atkinson-hyperlegible-next
         corefonts
         google-fonts
         inconsolata
