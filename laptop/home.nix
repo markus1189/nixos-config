@@ -1073,7 +1073,11 @@ in
       daemonSettings = {
         daemonize = true; # overridden by the unit's --no-daemon; kept for module parity
         max_history = 9999; # was CM_MAX_CLIPS=9999
-        synchronize_selection_with_clipboard = true;
+        # MUST stay false (and be set explicitly - clipcat defaults it true):
+        # with sync on, clipcatd takes ownership of both PRIMARY and CLIPBOARD,
+        # which breaks its own change-detection (BadAtom on GetProperty) and it
+        # captures nothing. False = watch both independently, like clipmenu did.
+        synchronize_selection_with_clipboard = false;
 
         watcher = {
           enable_clipboard = true;
