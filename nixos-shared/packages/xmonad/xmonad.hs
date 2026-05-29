@@ -406,7 +406,7 @@ myKeys =
     ((myModKey, xK_n), rofiWorkspaceSwitch),
     ((myModShift, xK_n), rofiWorkspaceShift),
     ((myModCtrl, xK_n), removeEmptyWorkspace),
-    ((myModShiftCtrl, xK_h), spawn "env CM_MAX_CLIPS=9999 CM_LAUNCHER=rofi CM_HISTLENGTH=30 @clipmenu@/bin/clipmenu -i"),
+    ((myModShiftCtrl, xK_h), spawn "@clipcat@/bin/clipcat-menu insert"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     -- Copy to all, kill again
     ((myModKey, xK_a), windows copyToAll),

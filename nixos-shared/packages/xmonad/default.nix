@@ -8,7 +8,7 @@ args@{
   dunst,
   centerMouse,
   chooseNetwork,
-  clipmenu,
+  clipcat,
   ddgr,
   emacsAnywhere,
   ffmpeg,

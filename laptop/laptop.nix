@@ -216,9 +216,7 @@ rec {
       # libinput configuration moved to services.libinput
     };
 
-    clipmenu = {
-      enable = true;
-    };
+    # clipmenu replaced by home-manager services.clipcat (laptop/home.nix)
 
     libinput = {
       enable = true;

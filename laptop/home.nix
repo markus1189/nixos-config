@@ -1064,6 +1064,42 @@ in
 
     flameshot.enable = true;
 
+    clipcat = {
+      enable = true;
+      # We have our own zsh clipboard widget (nixos-shared/zsh.nix) and the
+      # integration would bind ^\ / ^] - leave it off to avoid a turf war.
+      enableZshIntegration = false;
+
+      daemonSettings = {
+        daemonize = true; # overridden by the unit's --no-daemon; kept for module parity
+        max_history = 9999; # was CM_MAX_CLIPS=9999
+        synchronize_selection_with_clipboard = true;
+
+        watcher = {
+          enable_clipboard = true;
+          enable_primary = true;
+          capture_image = true;
+          # Skip clips tagged sensitive by password managers.
+          sensitive_mime_types = [ "x-kde-passwordManagerHint" ];
+          # Never store clips matching these regexes (tune to taste). Example:
+          #   "^[0-9]{6,8}$"  -> bare OTP codes
+          denied_text_regex_patterns = [ ];
+        };
+
+        # dunst already handles our toasts; clipcat notifying on every copy is noise.
+        desktop_notification.enable = false;
+      };
+
+      menuSettings = {
+        finder = "rofi";
+        rofi = {
+          menu_length = 30; # was CM_HISTLENGTH=30
+          line_length = 100;
+          menu_prompt = "Clipcat";
+        };
+      };
+    };
+
     dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix { }).value;
 
     gpg-agent = {
