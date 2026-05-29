@@ -265,7 +265,7 @@ in
             drawThickness=3
             saveAfterCopy=true
             ; flameshot 14 defaults to xdg-desktop-portal capture; xmonad has no portal
-            useX11LegacyScreenshot=true
+            ; useX11LegacyScreenshot=true
             ; Symlink managed by cdt/Emacs to today's Stuff directory
             savePath=/home/markus/Stuff/Today
             uiColor=#ee8903
