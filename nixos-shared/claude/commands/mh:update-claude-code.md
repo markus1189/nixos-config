@@ -137,6 +137,7 @@ sed -i 's/- \[ \] aarch64-darwin/- [x] aarch64-darwin/' "$BODY_FILE"
 sed -i 's/- \[ \] Ran `nixpkgs-review`/- [x] Ran `nixpkgs-review`/' "$BODY_FILE"
 sed -i 's/- \[ \] Tested basic functionality/- [x] Tested basic functionality/' "$BODY_FILE"
 sed -i 's/- \[ \] Fits \[CONTRIBUTING/- [x] Fits [CONTRIBUTING/' "$BODY_FILE"
+sed -i 's/- \[ \] Follows the \[automation\/AI policy\]/- [x] Follows the [automation\/AI policy]/' "$BODY_FILE"
 
 gh pr create --draft --title "claude-code: OLD -> NEW" \
   --body-file "$BODY_FILE" --repo NixOS/nixpkgs
