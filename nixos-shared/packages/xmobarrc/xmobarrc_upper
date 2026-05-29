@@ -66,9 +66,11 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
                     , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
                     , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 60
+                    -- 15s: this is the energy_now delta sampling window, not just a refresh
+                    , Run Com "@chargeRate@/bin/chargeRate" [] "charge" 150
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %wifi% %vpn%  %battery%%btheadphones%  %dunst%%sharing%<fc=orange>%date%</fc>"
+       , template = "%multicpu% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %wifi% %vpn%  %charge%%battery%%btheadphones%  %dunst%%sharing%<fc=orange>%date%</fc>"
        }

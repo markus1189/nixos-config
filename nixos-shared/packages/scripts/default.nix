@@ -484,6 +484,51 @@ rec {
         echo "''${color} 󰂯 ''${battery_percent}%</fc>"
       '';
 
+  chargeRate =
+    writeShellScript
+      {
+        name = "chargeRate";
+        deps = [ ]; # all-builtins (read/printf/arith): no runtime deps
+        failFast = false;
+      }
+      ''
+        shopt -s nullglob
+
+        # Only meaningful on external power; the %battery% widget covers
+        # the on-battery case.
+        plugged=
+        for u in /sys/class/power_supply/ucsi-source-psy-*; do
+          if read -r online 2>/dev/null < "$u/online" && [[ "$online" == 1 ]]; then
+            plugged=1
+            break
+          fi
+        done
+        [[ -n "$plugged" ]] || exit 0
+
+        read -r e2 2>/dev/null < /sys/class/power_supply/BAT0/energy_now
+        [[ "$e2" =~ ^[0-9]+$ ]] || exit 0
+        printf -v t2 '%(%s)T' -1
+
+        # Net rate from the energy_now delta between runs. status/power_now
+        # lie in the weak-charger "Not charging" limbo (report 0 / not-charging
+        # while the battery actually drains); the energy_now delta does not.
+        state="''${XDG_RUNTIME_DIR:-/tmp}/xmobar-chargeRate"
+        read -r e1 t1 2>/dev/null < "$state" || true
+        printf '%s %s\n' "$e2" "$t2" > "$state"
+
+        [[ "$e1" =~ ^[0-9]+$ && "$t1" =~ ^[0-9]+$ ]] || exit 0
+        dt=$(( t2 - t1 ))
+        (( dt >= 3 && dt <= 120 )) || exit 0
+
+        # Integer math (truncates); the 2W deadband below covers the ~+-2W
+        # energy_now quantization noise, so sub-watt rounding is irrelevant.
+        net=$(( (e2 - e1) * 3600 / (1000000 * dt) ))
+
+        if   (( net >=  2 )); then echo "<fc=lightgreen>󱐋 +''${net}W</fc> "
+        elif (( net <= -2 )); then echo "<fc=red>󱐋 ''${net}W</fc> "
+        fi
+      '';
+
   togglTimer =
     togglApiToken:
     writeShellScript

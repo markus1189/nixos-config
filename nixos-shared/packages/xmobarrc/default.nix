@@ -1,4 +1,4 @@
-{ mutate, dunstStatus, xmobarSharingIndicator, currentSpotifySong, isVpnActive, wirelessInterface, togglTimer, btHeadphoneBattery, writeShellApplication, iw }:
+{ mutate, dunstStatus, xmobarSharingIndicator, currentSpotifySong, isVpnActive, wirelessInterface, togglTimer, btHeadphoneBattery, chargeRate, writeShellApplication, iw }:
 
 let
   # Replacement for xmobar's `Run Wireless`, which reads /proc/net/wireless via
@@ -30,6 +30,6 @@ let
   };
 in
 {
-  upper = mutate ./xmobarrc_upper { inherit isVpnActive wirelessInterface togglTimer dunstStatus xmobarSharingIndicator btHeadphoneBattery wirelessSsid; };
+  upper = mutate ./xmobarrc_upper { inherit isVpnActive wirelessInterface togglTimer dunstStatus xmobarSharingIndicator btHeadphoneBattery chargeRate wirelessSsid; };
   lower = mutate ./xmobarrc_lower { inherit currentSpotifySong; };
 }
