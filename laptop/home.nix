@@ -1091,12 +1091,21 @@ in
       };
 
       menuSettings = {
+        # Use the loopback TCP endpoint, not the default unix socket: the
+        # socket can lag on first boot (daemon comes up TCP-only briefly),
+        # which makes the keybinding silently fail. TCP is always up.
+        server_endpoint = "http://127.0.0.1:45045";
         finder = "rofi";
         rofi = {
           menu_length = 30; # was CM_HISTLENGTH=30
           line_length = 100;
           menu_prompt = "Clipcat";
         };
+      };
+
+      # Keep clipcatctl on the same endpoint so CLI debugging Just Works.
+      ctlSettings = {
+        server_endpoint = "http://127.0.0.1:45045";
       };
     };
 
