@@ -67,8 +67,8 @@
           }
         },
         {
-          "id": "@vertex-eu-global/anthropic.claude-opus-4-7",
-          "name": "Claude Opus 4.7 (Portkey/Vertex EU)",
+          "id": "@vertex-eu-global/anthropic.claude-opus-4-8",
+          "name": "Claude Opus 4.8 (Portkey/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
