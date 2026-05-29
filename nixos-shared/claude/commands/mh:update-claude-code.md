@@ -70,46 +70,21 @@ env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 
 The `claude-code` build runs `versionCheckHook` against `claude --version` — a successful build confirms the binary reports the expected version.
 
-The vscode-ext build only validates the **host** arch's vsix hash. The update script bumps `version` but only refreshes the host's `hash`, so the other three stay stale and would only fail in CI's clean sandbox. Force-fetch all four directly from the marketplace and compare against `default.nix`:
+The update script now refreshes **all four** vsix hashes in `default.nix` (one per arch). The local `nix-build` above only validates the **host** arch's hash; the other three are validated by the all-arch `nixpkgs-review-gha` run (step 12). So instead of force-fetching from the marketplace, just confirm the updater actually rewrote all four hash lines:
 
 ```bash
 F=pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
-VERSION=$(awk -F'"' '/version = "/{print $2; exit}' "$F")
-URL_BASE="https://anthropic.gallery.vsassets.io/_apis/public/gallery/publisher/anthropic/extension/claude-code/$VERSION/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
-
-check() {
-  local sys=$1 arch=$2 expected raw actual
-  expected=$(grep -A2 "\"$sys\"" "$F" | grep -oE 'sha256-[A-Za-z0-9+/=]+' | head -1)
-  for _ in 1 2 3; do
-    raw=$(nix-prefetch-url --type sha256 "$URL_BASE?targetPlatform=$arch" 2>/dev/null)
-    [ -n "$raw" ] && break
-    sleep 2
-  done
-  if [ -z "$raw" ]; then
-    printf '%-16s FETCH-FAILED\n' "$sys"; return
-  fi
-  actual=$(nix hash convert --hash-algo sha256 --to sri "$raw" 2>/dev/null)
-  if [ "$expected" = "$actual" ]; then
-    printf '%-16s OK   %s\n' "$sys" "$expected"
-  else
-    printf '%-16s MISMATCH\n  specified: %s\n  got:       %s\n' "$sys" "$expected" "$actual"
-  fi
-}
-
-tmp=$(mktemp -d -t claude-code.XXXXXX)
-trap 'rm -rf "$tmp"' EXIT
-echo "version=$VERSION"
-check x86_64-linux   linux-x64    > "$tmp/1" &
-check aarch64-linux  linux-arm64  > "$tmp/2" &
-check x86_64-darwin  darwin-x64   > "$tmp/3" &
-check aarch64-darwin darwin-arm64 > "$tmp/4" &
-wait
-cat "$tmp"/{1,2,3,4}
+changed=$(git diff -- "$F" | grep -cE '^\+ *hash = "sha256-')
+echo "$changed of 4 vsix hashes updated"
+[ "$changed" -eq 4 ] || echo "WARNING: expected 4 updated hashes — updater may have regressed to host-only; CI (step 12) will flag any stale arch, fix per Troubleshooting"
 ```
 
-Any `MISMATCH` line shows `specified:` and `got:` — paste each `got:` value into the matching arch entry in `default.nix`, re-run until clean. Marketplace occasionally drops one of the four parallel connections; the inline retry covers it.
+If the count is 4, all hashes are fresh and CI will confirm them. If it is not 4 (updater regression), let CI surface the stale arch and patch it per Troubleshooting.
 
 ### 8. Commit (TWO separate commits)
+
+Per the nixpkgs [Automation/AI policy](https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#automationai-policy), LLM-assisted commits **must** carry an `Assisted-by:` trailer naming the tool plus the primary model name and version (a `Co-authored-by:` does **not** satisfy this). Replace the model/version in the trailer with the actual model used this session (e.g. `Claude Opus 4.8`).
+
 ```bash
 # First: claude-code binary package
 git add pkgs/by-name/cl/claude-code/
@@ -117,6 +92,8 @@ git commit -m "$(cat <<'EOF'
 claude-code: OLD -> NEW
 
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+
+Assisted-by: Claude Code (Claude Opus 4.8)
 EOF
 )"
 
@@ -126,6 +103,8 @@ git commit -m "$(cat <<'EOF'
 vscode-extensions.anthropic.claude-code: OLD -> NEW
 
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+
+Assisted-by: Claude Code (Claude Opus 4.8)
 EOF
 )"
 ```
@@ -143,6 +122,9 @@ cat > "$BODY_FILE" <<SUMMARY
 Update claude-code and vscode-extensions.anthropic.claude-code to NEW.
 
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
+
+> [!NOTE]
+> Prepared with the assistance of Claude Code (Claude Opus 4.8). Version and hash bumps were produced by the standard \`maintainers/scripts/update.nix\` script; the change was built locally and validated across all four arches via \`nixpkgs-review\`, and reviewed by a human (@markus1189) before being marked ready.
 
 SUMMARY
 cat .github/PULL_REQUEST_TEMPLATE.md >> "$BODY_FILE"
@@ -167,7 +149,7 @@ nohup bash -c 'DISPLAY=:0 xdg-open $PR_URL' >/dev/null 2>&1 &
 ```
 
 ### 12. Trigger nixpkgs-review-gha
-**Do not dispatch automatically — wait for explicit user request.** Surface the command so the user can invoke it. Posts result as PR comment; `on-success=mark_as_ready` flips draft → ready.
+**Do not dispatch automatically — wait for explicit user request.** This is the human-in-the-loop checkpoint required by the AI policy: the draft exemption only holds while the PR is a draft, and `on-success=mark_as_ready` flips it to ready, so the responsible person must have reviewed the change before dispatching. Surface the command so the user can invoke it. Posts result as PR comment; `on-success=mark_as_ready` flips draft → ready.
 ```bash
 gh workflow run review --repo markus1189/nixpkgs-review-gha \
   -f pr=NUM \
@@ -194,7 +176,7 @@ List any version-update PRs targeting older versions to the user so they can dec
 
 **Versions don't match** - Dirty branch. Reset to master, delete bad branch, start over.
 
-**vscode-ext hash mismatch (only surfaces on CI)** - Update script bumps `version` but NOT `hash` in `anthropic.claude-code/default.nix`. Local builds can pass from stale FOD cache while CI fails; marketplace also occasionally re-rolls vsix bytes. Fetch CI's `got:` hash from the failed review run, paste into `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
+**vscode-ext hash mismatch (only surfaces on CI)** - Normally the updater refreshes all four hashes, but if one is stale (updater regression, or marketplace re-rolled the vsix bytes) it only fails in CI's clean sandbox. Fetch CI's `got:` hash from the failed review run, paste into the matching arch entry in `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
 ```bash
 RUN=<run id>
 JOB=$(gh api repos/markus1189/nixpkgs-review-gha/actions/runs/$RUN/jobs \
