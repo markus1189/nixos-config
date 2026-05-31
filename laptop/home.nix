@@ -883,6 +883,7 @@ in
               };
               config = {
                 "DP-4" = {
+                  primary = true;
                   enable = true;
                   crtc = 0;
                   position = "0x0";
@@ -890,7 +891,6 @@ in
                   rate = "59.95";
                 };
                 "DP-5" = {
-                  primary = true;
                   enable = true;
                   crtc = 2;
                   position = "1920x0";
