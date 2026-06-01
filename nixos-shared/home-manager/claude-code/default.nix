@@ -262,6 +262,10 @@ in
       voiceEnabled = true;
       skipDangerousModePermissionPrompt = true;
 
+      # Use bash for the Bash tool instead of the login shell (zsh), so
+      # exit-code idioms like ${PIPESTATUS[0]} behave as written.
+      defaultShell = "bash";
+
       statusLine = {
         "type" = "command";
         "command" =
