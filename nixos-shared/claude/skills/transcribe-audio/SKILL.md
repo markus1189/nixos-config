@@ -1,6 +1,6 @@
 ---
 name: transcribe-audio
-description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) using Gemini API via Portkey, saves transcripts as markdown, and supports follow-up analysis. Use when the user asks to transcribe audio, summarize a meeting recording, check a voice note, extract action items from a recording, asks what was discussed in an audio file, or mentions processing audio files in any way."
+description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) using Gemini API via Requesty, saves transcripts as markdown, and supports follow-up analysis. Use when the user asks to transcribe audio, summarize a meeting recording, check a voice note, extract action items from a recording, asks what was discussed in an audio file, or mentions processing audio files in any way."
 ---
 
 # Audio Transcription
@@ -63,7 +63,7 @@ After transcription (or when an existing transcript is available), support any f
 ## Key Details
 
 - **Supported formats**: `.mp3`, `.wav`, `.ogg`, `.m4a`, `.flac`, `.webm`
-- **API**: Gemini via Portkey (key from `pass api/portkey-claude`)
+- **API**: Gemini via Requesty (key from `pass api/requesty/playground`)
 - **Timeout**: 600s per file — long recordings take time
 - **Max file size**: 200MB per file
 

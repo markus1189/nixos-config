@@ -3,7 +3,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-# Transcribe audio files using Gemini via Portkey API
+# Transcribe audio files using Gemini via Requesty API
 # Usage: transcribe.sh <audio-file> [prompt]
 
 readonly SCRIPT_NAME="$(basename "$0")"
@@ -85,15 +85,15 @@ WORK_DIR="$(mktemp -d -t transcribe.XXXXXX)" || error_exit "Failed to create tem
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 # Get API key
-if ! PORTKEY_API_KEY="$(pass api/portkey-claude 2>/dev/null)"; then
-  error_exit "Failed to retrieve API key from pass (api/portkey-claude)"
+if ! REQUESTY_API_KEY="$(pass api/requesty/playground 2>/dev/null)"; then
+  error_exit "Failed to retrieve API key from pass (api/requesty/playground)"
 fi
 
-if [[ -z "$PORTKEY_API_KEY" ]]; then
+if [[ -z "$REQUESTY_API_KEY" ]]; then
   error_exit "API key is empty"
 fi
 
-readonly MODEL="@vertex-eu-global/gemini-3.5-flash"
+readonly MODEL="vertex/gemini-2.5-flash@europe-west1"
 
 readonly BASENAME="$(basename "$FILE")"
 echo "--- Transcribing: $BASENAME ---" >&2
@@ -154,9 +154,9 @@ echo "Calling Gemini API (this may take a few minutes)..." >&2
 RESPONSE_FILE="$WORK_DIR/response.json"
 HTTP_CODE="$(curl -sS -w "%{http_code}" --max-time 600 \
   -o "$RESPONSE_FILE" \
-  https://api.portkey.ai/v1/chat/completions \
+  https://router.eu.requesty.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "x-portkey-api-key: $PORTKEY_API_KEY" \
+  -H "Authorization: Bearer $REQUESTY_API_KEY" \
   -d @"$TMPPAYLOAD" 2>"$WORK_DIR/curl_error.log")" || {
   if [[ -s "$WORK_DIR/curl_error.log" ]]; then
     cat "$WORK_DIR/curl_error.log" >&2

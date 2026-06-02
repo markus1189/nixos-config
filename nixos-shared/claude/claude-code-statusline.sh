@@ -58,7 +58,7 @@ get_model_name() {
     if [ -n "${CLAUDE_CODE_USE_BEDROCK:-}" ]; then
         indicator_suffix+="🪨"
     fi
-    if [ "${ANTHROPIC_BASE_URL:-}" = "https://api.portkey.ai" ]; then
+    if [ "${ANTHROPIC_BASE_URL:-}" = "https://router.eu.requesty.ai" ]; then
         indicator_suffix+="🔑"
     fi
     local thinking_enabled

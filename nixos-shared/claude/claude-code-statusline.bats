@@ -90,7 +90,7 @@ EOF
     input=$(mock_input_basic)
     run get_model_name
     assert_success
-    # May have indicator suffixes (🔑 for portkey, 🪨 for bedrock)
+    # May have indicator suffixes (🔑 for requesty, 🪨 for bedrock)
     assert_regex "$output" '^sonnet-4\.5'
 }
 
@@ -111,10 +111,10 @@ EOF
     assert_output "sonnet-4.5🪨"
 }
 
-@test "get_model_name: Portkey indicator when ANTHROPIC_BASE_URL is portkey" {
+@test "get_model_name: Requesty indicator when ANTHROPIC_BASE_URL is requesty" {
     input=$(mock_input_basic)
     unset CLAUDE_CODE_USE_BEDROCK
-    export ANTHROPIC_BASE_URL="https://api.portkey.ai"
+    export ANTHROPIC_BASE_URL="https://router.eu.requesty.ai"
     run get_model_name
     assert_success
     assert_output "sonnet-4.5🔑"

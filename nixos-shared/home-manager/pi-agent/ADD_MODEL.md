@@ -1,20 +1,24 @@
 # Pi Agent Configuration Guide
 
-## Converting Portkey Model Slugs to models.json Entries
+## Converting Requesty Model Slugs to models.json Entries
 
-Portkey uses virtual key slugs to route requests to different providers. This guide shows how to configure these models in pi agent's `models.json`.
+Requesty routes requests to different providers via a unified EU gateway. This guide shows how to configure these models in pi agent's `models.json`.
 
 ### Model Slug Format
 
-Portkey virtual key slugs follow this pattern:
+Requesty model slugs follow this pattern:
 ```
-@<provider>/<model-id>
+<provider>/<model-id>[@<region>]
 ```
 
 Examples:
-- `@vertex-ai/anthropic.claude-sonnet-4-6`
-- `@azure-openai-foundry/gpt-5.1-codex`
-- `@openai/gpt-4`
+- `vertex/claude-sonnet-4-6@europe-west1`
+- `bedrock/claude-opus-4-8@eu-central-1`
+- `azure/openai-responses/gpt-5.4@swedencentral`
+- `nebius/moonshotai/kimi-k2.5`
+
+Only models on the organization's **Approved Models / Access List** are routable. Check the
+Requesty dashboard (or the `cc Playground` group's access list) for the current set.
 
 ### Step 1: Find Model Specifications
 
@@ -22,17 +26,17 @@ Use the models.dev API to get accurate model specifications:
 
 ```bash
 # Search for a specific model
-curl -s https://models.dev/api.json | jq '.anthropic.models[] | select(.id == "claude-sonnet-4-5-20250929")'
+curl -s https://models.dev/api.json | jq '.anthropic.models[] | select(.id == "claude-sonnet-4-6")'
 
 # Or browse by provider
-curl -s https://models.dev/api.json | jq '.openai.models[] | select(.id | contains("gpt-5.1-codex"))'
+curl -s https://models.dev/api.json | jq '.openai.models[] | select(.id | contains("gpt-5.4"))'
 ```
 
 The API returns specifications like:
 ```json
 {
-  "id": "claude-sonnet-4-5-20250929",
-  "name": "Claude Sonnet 4.5",
+  "id": "claude-sonnet-4-6",
+  "name": "Claude Sonnet 4.6",
   "reasoning": true,
   "modalities": {
     "input": ["text", "image", "pdf"],
@@ -57,8 +61,8 @@ Pi agent's schema has some differences from the API format:
 
 | models.dev API | models.json | Notes |
 |----------------|-------------|-------|
-| `id` | `id` | Use Portkey slug, not base model ID |
-| `name` | `name` | Add provider context (e.g., "via Portkey/Vertex") |
+| `id` | `id` | Use the Requesty `provider/model` slug, not the base model ID |
+| `name` | `name` | Add provider context (e.g., "(Requesty/Vertex EU)") |
 | `reasoning` | `reasoning` | Direct mapping |
 | `modalities.input` | `input` | Array, but **exclude "pdf"** - schema only accepts "text" and "image" |
 | `cost.input` | `cost.input` | Direct mapping ($/M tokens) |
@@ -72,18 +76,21 @@ Pi agent's schema has some differences from the API format:
 
 Location: `~/.pi/agent/models.json`
 
+Requesty supports the Anthropic SDK directly (Bearer auth, no custom header). Use the bare
+host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoints:
+
 ```json
 {
   "providers": {
-    "portkey": {
-      "baseUrl": "https://api.portkey.ai/v1",
-      "apiKey": "PORTKEY_API_KEY_CC",
-      "api": "openai-completions",
+    "requesty-anthropic": {
+      "baseUrl": "https://router.eu.requesty.ai",
+      "apiKey": "REQUESTY_API_KEY_CC",
+      "api": "anthropic-messages",
       "authHeader": true,
       "models": [
         {
-          "id": "@vertex-ai/anthropic.claude-sonnet-4-6",
-          "name": "Claude Sonnet 4.5 (Portkey/Vertex)",
+          "id": "vertex/claude-sonnet-4-6@europe-west1",
+          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": ["text", "image"],
           "cost": {
@@ -94,16 +101,24 @@ Location: `~/.pi/agent/models.json`
           },
           "contextWindow": 200000,
           "maxTokens": 64000
-        },
+        }
+      ]
+    },
+    "requesty-openai": {
+      "baseUrl": "https://router.eu.requesty.ai/v1",
+      "apiKey": "REQUESTY_API_KEY_CC",
+      "api": "openai-responses",
+      "authHeader": true,
+      "models": [
         {
-          "id": "@azure-openai-foundry/gpt-5.1-codex",
-          "name": "GPT-5.1 Codex (Portkey/Azure)",
+          "id": "azure/openai-responses/gpt-5.4@swedencentral",
+          "name": "GPT-5.4 (Requesty/Azure EU)",
           "reasoning": true,
           "input": ["text", "image"],
           "cost": {
-            "input": 1.25,
-            "output": 10,
-            "cacheRead": 0.125,
+            "input": 1.75,
+            "output": 14,
+            "cacheRead": 0.175,
             "cacheWrite": 0
           },
           "contextWindow": 400000,
@@ -120,37 +135,39 @@ Location: `~/.pi/agent/models.json`
 Pi agent resolves API keys from environment variables:
 
 ```bash
-export PORTKEY_API_KEY_CC="your-portkey-api-key"
+export REQUESTY_API_KEY_CC="your-requesty-api-key"
 ```
 
-Add to `~/.bashrc` or `~/.zshrc` for persistence.
+The `pi` shell alias wires this up automatically from `pass api/requesty/agent`. For manual use, add
+the export to `~/.bashrc` or `~/.zshrc` for persistence.
 
 ### Common Schema Validation Errors
 
-**Error**: `/providers/portkey/models/0/input/2: must be equal to constant`
+**Error**: `/providers/requesty-anthropic/models/0/input/2: must be equal to constant`
 - **Cause**: Using "pdf" in input array
 - **Fix**: Remove "pdf", only use "text" and "image"
 
-**Error**: `/providers/portkey/models/0/cost: must have required property 'cacheRead'`
+**Error**: `/providers/requesty-anthropic/models/0/cost: must have required property 'cacheRead'`
 - **Cause**: Missing cache pricing fields
 - **Fix**: Add `"cacheRead": 0` and `"cacheWrite": 0` if not applicable
 
 ### Supported APIs
 
 The `api` field determines the protocol:
-- `openai-completions`: OpenAI-compatible (recommended for Portkey)
-- `openai-responses`: Alternative OpenAI format
-- `anthropic-messages`: Native Anthropic format
+- `anthropic-messages`: Native Anthropic format (Claude models — recommended)
+- `openai-responses`: OpenAI Responses format (GPT / Gemini via the `/v1` endpoint)
+- `openai-completions`: OpenAI-compatible chat completions
 - `google-generative-ai`: Google Gemini format
 
-### Quick Reference: Common Portkey Providers
+### Quick Reference: Common Requesty Providers
 
 | Provider | Slug Prefix | Example |
 |----------|-------------|---------|
-| Vertex AI (Anthropic) | `@vertex-ai/` | `@vertex-ai/anthropic.claude-sonnet-4-6` |
-| Azure OpenAI Foundry | `@azure-openai-foundry/` | `@azure-openai-foundry/gpt-5.1-codex` |
-| OpenAI | `@openai/` | `@openai/gpt-4o` |
-| Bedrock | `@bedrock/` | `@bedrock/anthropic.claude-sonnet-4-5` |
+| Vertex AI (EU) | `vertex/` | `vertex/claude-sonnet-4-6@europe-west1` |
+| Bedrock (EU) | `bedrock/` | `bedrock/claude-opus-4-8@eu-central-1` |
+| Azure OpenAI (EU) | `azure/` | `azure/openai-responses/gpt-5.4@swedencentral` |
+| Mistral | `mistral/` | `mistral/mistral-medium-latest` |
+| OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/moonshotai/kimi-k2.5` |
 
 ### Verification
 
@@ -158,16 +175,17 @@ Test your configuration:
 
 ```bash
 # Validate schema
-pi --provider portkey --model @vertex-ai/anthropic.claude-sonnet-4-6
+pi --provider requesty-anthropic --model vertex/claude-sonnet-4-6@europe-west1
 
 # Interactive test
 pi
 > /model
-# Select your Portkey model
+# Select your Requesty model
 ```
 
 If validation fails, check:
 1. All required cost fields present (`input`, `output`, `cacheRead`, `cacheWrite`)
 2. Input array only contains "text" and/or "image"
 3. JSON syntax is valid (trailing commas, quotes, brackets)
-4. Environment variable `PORTKEY_API_KEY_CC` is set
+4. The model is on the organization's Approved Models / Access List
+5. Environment variable `REQUESTY_API_KEY_CC` is set

@@ -83,25 +83,25 @@ in
             };
 
             provider = {
-              portkey = {
-                name = "Portkey Codecentric";
+              requesty = {
+                name = "Requesty Codecentric";
                 npm = "@ai-sdk/openai-compatible";
                 options = {
-                  baseURL = "https://api.portkey.ai/v1";
-                  apiKey = "{env:PORTKEY_API_KEY_CC}";
+                  baseURL = "https://router.eu.requesty.ai/v1";
+                  apiKey = "{env:REQUESTY_API_KEY_CC}";
                 };
 
                 models = {
-                  "@gcp-gemini/gemini-3-pro-preview" = {
-                    name = "Gemini 3 Pro Preview";
+                  "vertex/gemini-2.5-pro@europe-west1" = {
+                    name = "Gemini 2.5 Pro";
                   };
 
-                  "@azure-openai-foundry/gpt-5.1-chat" = {
-                    name = "GPT 5.1 Chat";
+                  "azure/gpt-5.4@swedencentral" = {
+                    name = "GPT 5.4 Chat";
                   };
 
-                  "@vertex-ai/anthropic.claude-opus-4-6" = {
-                    name = "Claude Opus 4.6";
+                  "vertex/claude-opus-4-8@eu" = {
+                    name = "Claude Opus 4.8";
                     thinking = {
                       type = "enabled";
                       budgetTokens = 16000;
@@ -112,7 +112,7 @@ in
                     };
                   };
 
-                  "@vertex-ai/anthropic.claude-sonnet-4-6" = {
+                  "vertex/claude-sonnet-4-6@europe-west1" = {
                     name = "Claude Sonnet 4.6";
                     thinking = {
                       type = "enabled";
@@ -124,8 +124,8 @@ in
                     };
                   };
 
-                  "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0" = {
-                    name = "Claude Opus 4.5";
+                  "bedrock/claude-opus-4-8@eu-central-1" = {
+                    name = "Claude Opus 4.8 (Bedrock)";
                     thinking = {
                       type = "enabled";
                       budgetTokens = 16000;
@@ -136,8 +136,8 @@ in
                     };
                   };
 
-                  "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0" = {
-                    name = "Claude Sonnet 4.5";
+                  "bedrock/claude-sonnet-4-6@eu-central-1" = {
+                    name = "Claude Sonnet 4.6 (Bedrock)";
                     thinking = {
                       type = "enabled";
                       budgetTokens = 16000;
@@ -148,7 +148,7 @@ in
                     };
                   };
 
-                  "@vertex-ai/anthropic.claude-haiku-4-5@20251001" = {
+                  "vertex/claude-haiku-4-5@europe-west1" = {
                     name = "Claude Haiku 4.5";
                     thinking = {
                       type = "enabled";
@@ -160,8 +160,8 @@ in
                     };
                   };
 
-                  "@ovh/Qwen3-Coder-30B-A3B-Instruct" = {
-                    name = "Qwen3 Coder 30B A3B Instruct";
+                  "nebius/moonshotai/kimi-k2.5" = {
+                    name = "Kimi K2.5 (OpenWeight EU)";
                   };
                 };
               };

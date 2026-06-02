@@ -1,14 +1,14 @@
 {
   "providers": {
-    "portkey-anthropic": {
-      "baseUrl": "https://api.portkey.ai",
-      "apiKey": "PORTKEY_API_KEY_CC",
+    "requesty-anthropic": {
+      "baseUrl": "https://router.eu.requesty.ai",
+      "apiKey": "REQUESTY_API_KEY_CC",
       "api": "anthropic-messages",
       "authHeader": true,
       "models": [
         {
-          "id": "@vertex-ai/anthropic.claude-sonnet-4-6",
-          "name": "Claude Sonnet 4.6 (Portkey/Vertex)",
+          "id": "vertex/claude-sonnet-4-6@europe-west1",
+          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -21,14 +21,11 @@
             "cacheWrite": 3.75
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@vertex-ai/anthropic.claude-opus-4-5@20251101",
-          "name": "Claude Opus 4.5 (Portkey/Vertex)",
+          "id": "vertex/claude-opus-4-7@eu",
+          "name": "Claude Opus 4.7 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -41,14 +38,11 @@
             "cacheWrite": 6.25
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@vertex-ai/anthropic.claude-opus-4-6",
-          "name": "Claude Opus 4.6 (Portkey/Vertex)",
+          "id": "vertex/claude-opus-4-8@eu",
+          "name": "Claude Opus 4.8 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -61,34 +55,11 @@
             "cacheWrite": 6.25
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@vertex-eu-global/anthropic.claude-opus-4-8",
-          "name": "Claude Opus 4.8 (Portkey/Vertex EU)",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 5,
-            "output": 25,
-            "cacheRead": 0.5,
-            "cacheWrite": 6.25
-          },
-          "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
-        },
-        {
-          "id": "@vertex-ai/anthropic.claude-haiku-4-5@20251001",
-          "name": "Claude Haiku 4.5 (Portkey/Vertex)",
+          "id": "vertex/claude-haiku-4-5@europe-west1",
+          "name": "Claude Haiku 4.5 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -101,14 +72,11 @@
             "cacheWrite": 1.25
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0",
-          "name": "Claude Haiku 4.5 (Portkey/Bedrock EU)",
+          "id": "bedrock/claude-haiku-4-5@eu-central-1",
+          "name": "Claude Haiku 4.5 (Requesty/Bedrock EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -121,14 +89,11 @@
             "cacheWrite": 1.25
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0",
-          "name": "Claude Opus 4.5 (Portkey/Bedrock EU)",
+          "id": "bedrock/claude-opus-4-8@eu-central-1",
+          "name": "Claude Opus 4.8 (Requesty/Bedrock EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -141,15 +106,11 @@
             "cacheWrite": 6.25
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC",
-            "DONOTCOMMIT": "true"
-          }
+          "maxTokens": 64000
         },
         {
-          "id": "@bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
-          "name": "Claude Sonnet 4.5 (Portkey/Bedrock EU)",
+          "id": "bedrock/claude-sonnet-4-6@eu-central-1",
+          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -162,39 +123,19 @@
             "cacheWrite": 3.75
           },
           "contextWindow": 200000,
-          "maxTokens": 64000,
-          "headers": {
-            "x-portkey-api-key": "PORTKEY_API_KEY_CC"
-          }
+          "maxTokens": 64000
         }
       ]
     },
-    "portkey-openai": {
-      "baseUrl": "https://api.portkey.ai/v1",
-      "apiKey": "PORTKEY_API_KEY_CC",
+    "requesty-openai": {
+      "baseUrl": "https://router.eu.requesty.ai/v1",
+      "apiKey": "REQUESTY_API_KEY_CC",
       "api": "openai-responses",
       "authHeader": true,
       "models": [
         {
-          "id": "@azure-openai-foundry/gpt-5.1-codex",
-          "name": "GPT-5.1 Codex (Portkey/Azure)",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 1.25,
-            "output": 10,
-            "cacheRead": 0.125,
-            "cacheWrite": 0
-          },
-          "contextWindow": 400000,
-          "maxTokens": 128000
-        },
-        {
-          "id": "@azure-openai-foundry/gpt-5.2-codex",
-          "name": "GPT-5.2 Codex (Portkey/Azure)",
+          "id": "azure/openai-responses/gpt-5.4@swedencentral",
+          "name": "GPT-5.4 (Requesty/Azure EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -210,8 +151,8 @@
           "maxTokens": 128000
         },
         {
-          "id": "@azure-openai-foundry/gpt-5.3-codex",
-          "name": "GPT-5.3 Codex (Portkey/Azure)",
+          "id": "azure/openai-responses/gpt-5.5@swedencentral",
+          "name": "GPT-5.5 (Requesty/Azure EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -227,8 +168,8 @@
           "maxTokens": 128000
         },
         {
-          "id": "@vertex-ai/gemini-3-pro-preview",
-          "name": "Gemini 3 Pro Preview (Portkey/Vertex)",
+          "id": "vertex/gemini-2.5-pro@europe-west1",
+          "name": "Gemini 2.5 Pro (Requesty/Vertex EU)",
           "reasoning": true,
           "input": [
             "text",
@@ -242,23 +183,6 @@
           },
           "contextWindow": 1048576,
           "maxTokens": 65536
-        },
-        {
-          "id": "@gcp-gemini/gemini-3-pro-preview",
-          "name": "Gemini 3 Pro Preview (Portkey/GCP)",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 2,
-            "output": 12,
-            "cacheRead": 0.2,
-            "cacheWrite": 0
-          },
-          "contextWindow": 1000000,
-          "maxTokens": 64000
         }
       ]
     }
