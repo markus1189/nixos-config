@@ -702,6 +702,8 @@ in
 
           copy-on-select = "clipboard";
 
+          app-notifications = "no-clipboard-copy";
+
           background-opacity = 0.95;
           background = "#0d0d0d";
           background-blur = false;
