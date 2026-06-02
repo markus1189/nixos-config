@@ -34,5 +34,6 @@ in
 
   hardware.graphics.extraPackages = with pkgs; [
     intel-compute-runtime
+    intel-media-driver  # iHD VAAPI driver — lets mpv hw-decode on the Arc iGPU instead of waking the NVIDIA dGPU
   ];
 }

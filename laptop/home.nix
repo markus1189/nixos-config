@@ -407,7 +407,11 @@ in
             # Video output
             vo=gpu-next
             gpu-api=vulkan
-            hwdec=auto-safe
+            # Pin render to the Intel iGPU — libplacebo otherwise defaults to the
+            # discrete NVIDIA dGPU, which wakes it and forces an Intel->NVIDIA copy.
+            # (p1 is Intel-only, so this name simply won't match there and is ignored.)
+            vulkan-device="Intel(R) Graphics (ARL)"
+            hwdec=vaapi,nvdec-copy
 
             # Debanding
             deband=yes
