@@ -73,6 +73,19 @@
   # ~/Stuff/2026-05/28-scratch/zwift-nvidia-docker.md).  (2026-05-28)
   hardware.nvidia-container-toolkit.enable = true;
 
+  ## Steam — PRIME offload to the NVIDIA dGPU ##############################
+  # programs.steam pulls in the FHS-wrapped client + the 32-bit driver
+  # stack (depends on laptop.nix's `hardware.graphics.enable32Bit`, already
+  # set). The client UI itself renders on the Intel iGPU (offload topology —
+  # dGPU has 0 display connectors, see GPU section). To make a *game* run on
+  # the RTX PRO 2000, set its Steam launch options to:
+  #     nvidia-offload %command%
+  # (the wrapper sets __NV_PRIME_RENDER_OFFLOAD + __VK_LAYER_NV_optimus=
+  # NVIDIA_only). Verify with `nvidia-smi` showing the game process, or
+  # MANGOHUD=1 in the same launch options. OpenGL + Vulkan offload both
+  # confirmed working at the driver level (2026-06-03).
+  programs.steam.enable = true;
+
   # Disable X11 DPMS + screen blanking. The i915 cx0_phy bug (see boot
   # section) is triggered by the eDP-1 PHY power-down→power-up transition;
   # X's default 10-min DPMS-off was firing it on every idle return (~40–50 s
