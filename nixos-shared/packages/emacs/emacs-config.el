@@ -2067,6 +2067,77 @@ string). It returns t if a new completion is found, nil otherwise."
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
           (setf (elfeed-entry-link entry) comments-link)))))
 
+  ;; requesty.ai/blog ships no RSS feed; synthesize one from its sitemap.xml
+  ;; in-buffer at update time via the synthetic feed url "requesty:blog".
+  (require 'xml)  ; for xml-escape-string
+
+  (defun mh/requesty-title (slug)
+    "Turn a blog SLUG into a human title, fixing common acronyms."
+    (let ((acr '(("llm" . "LLM") ("ai" . "AI") ("eu" . "EU") ("sdk" . "SDK")
+                 ("mcp" . "MCP") ("gdpr" . "GDPR") ("api" . "API")
+                 ("gpt" . "GPT") ("rag" . "RAG") ("ui" . "UI") ("oss" . "OSS"))))
+      (mapconcat (lambda (w) (or (cdr (assoc (downcase w) acr)) (capitalize w)))
+                 (split-string (replace-regexp-in-string "[-_]+" " " slug) " " t)
+                 " ")))
+
+  (defun mh/requesty-rfc822 (iso)
+    "Convert ISO-8601 timestamp ISO to an RFC-822 date string, or nil."
+    (when (and iso (> (length iso) 0))
+      (ignore-errors
+        (format-time-string
+         "%a, %d %b %Y %H:%M:%S %z"
+         (date-to-time (replace-regexp-in-string "\\.[0-9]+" "" iso)) t))))
+
+  (defun mh/requesty-build-rss ()
+    "Fetch requesty sitemap and return an RSS 2.0 string for the blog."
+    (let* ((sitemap
+            (with-current-buffer
+                (url-retrieve-synchronously "https://requesty.ai/sitemap.xml" t t 30)
+              (prog1 (buffer-substring-no-properties (point-min) (point-max))
+                (kill-buffer))))
+           (re (concat "<loc>\\(https?://\\(?:www\\.\\)?requesty\\.ai/blog/[^<]+\\)</loc>"
+                       "[ \t\r\n]*\\(?:<lastmod>\\([^<]+\\)</lastmod>\\)?"))
+           (pos 0) (items '()))
+      (while (string-match re sitemap pos)
+        (setq pos (match-end 0))
+        (let ((loc (match-string 1 sitemap))
+              (mod (match-string 2 sitemap)))
+          (unless (string-match-p "/blog/?$" loc)        ; skip the index page
+            (push (cons loc mod) items))))
+      (setq items (nreverse items))
+      (with-temp-buffer
+        (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<rss version=\"2.0\"><channel>"
+                "<title>Requesty Blog (unofficial)</title>"
+                "<link>https://requesty.ai/blog</link>"
+                "<description>Generated from sitemap.xml</description>")
+        (dolist (it items)
+          (let* ((loc (car it))
+                 (slug (replace-regexp-in-string ".*/blog/" "" (car it)))
+                 (title (mh/requesty-title slug))
+                 (date (mh/requesty-rfc822 (cdr it))))
+            (insert "<item>"
+                    "<title>" (xml-escape-string title) "</title>"
+                    "<link>" (xml-escape-string loc) "</link>"
+                    "<guid>" (xml-escape-string loc) "</guid>"
+                    (if date (concat "<pubDate>" date "</pubDate>") "")
+                    "</item>")))
+        (insert "</channel></rss>")
+        (buffer-string))))
+
+  (defun mh/requesty-fetch (url cb)
+    "Custom `elfeed-fetch-functions' entry: synthesize the requesty feed.
+Handles only \"requesty:blog\"; returns nil for other URLs so they fall
+through to `elfeed-fetch-url'."
+    (when (equal url "requesty:blog")
+      (with-temp-buffer
+        (insert (mh/requesty-build-rss))
+        (goto-char (point-min))
+        (funcall cb :parse))
+      t))
+
+  (add-hook 'elfeed-fetch-functions #'mh/requesty-fetch)
+
   (defconst mh/elfeed-search-stack-initial '(llm hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
   (setq mh/elfeed-search-stack mh/elfeed-search-stack-initial)
 
@@ -2459,7 +2530,8 @@ Provides more detailed messages on failure."
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.eppsteiner-zeitung.de%2Fnachrichten%2Fstadtleben&cookie=&title_cleanup=&entry_element_selector=.field-title+a&url_selector=a&url_pattern=&limit=&use_article_pages=on&article_page_content_selector=.pane-content&content_cleanup=span.kicker&title_selector=h1&category_selector=&author_selector=&time_selector=&time_format=&format=Atom" news)
            ("http://localhost:9998/?action=display&bridge=CssSelectorComplexBridge&home_page=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F%40anthropic-ai%2Fclaude-code%3FactiveTab%3Dversions&cookie=&title_cleanup=&entry_element_selector=%5Baria-labelledby%3D%22version-history%22%5D+tr&url_selector=a&url_pattern=&limit=&article_page_content_selector=&content_cleanup=&title_selector=h1&category_selector=&author_selector=&time_selector=time&time_format=Y-m-d%5CTH%3Ai%3As.v%5CZ&remove_styling=on&format=Atom"))
 
-         '(("https://liore.com/rss/")
+         '(("requesty:blog" llm)
+           ("https://liore.com/rss/")
            ("https://linevariation.blot.im/feed.rss" analog analog-general)
            ("https://samcurry.net/api/feed.rss")
            ("https://fantasy-faction.com/feed")
