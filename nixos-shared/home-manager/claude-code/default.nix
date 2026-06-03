@@ -253,12 +253,23 @@ in
     target = ".claude/settings.json";
     text = pkgs.lib.strings.toJSON {
       "$schema" = "https://json.schemastore.org/claude-code-settings.json";
-      includeCoAuthoredBy = false;
+      # Empty strings suppress ALL git attribution (commit + PR trailers,
+      # including co-authored-by). Replaces deprecated includeCoAuthoredBy.
+      attribution = {
+        commit = "";
+        pr = "";
+      };
       cleanupPeriodDays = 3650;
       autoMemoryEnabled = false;
 
       effortLevel = "high";
+      viewMode = "verbose";
+      showThinkingSummaries = true;
       alwaysThinkingEnabled = true;
+
+      # Ring the terminal BEL on task-finish / permission prompts. Fires
+      # alongside the Notification sound hooks, not instead of them.
+      preferredNotifChannel = "terminal_bell";
       voiceEnabled = true;
       skipDangerousModePermissionPrompt = true;
 
