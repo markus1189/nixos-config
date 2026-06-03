@@ -2,14 +2,14 @@
   "providers": {
     "requesty-anthropic": {
       "baseUrl": "https://router.eu.requesty.ai",
-      "apiKey": "REQUESTY_API_KEY_CC",
+      "apiKey": "$REQUESTY_API_KEY_CC",
       "api": "anthropic-messages",
       "authHeader": true,
       "models": [
         {
           "id": "vertex/claude-sonnet-4-6@europe-west1",
-          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU)",
-          "reasoning": true,
+          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -25,8 +25,8 @@
         },
         {
           "id": "vertex/claude-opus-4-7@eu",
-          "name": "Claude Opus 4.7 (Requesty/Vertex EU)",
-          "reasoning": true,
+          "name": "Claude Opus 4.7 (Requesty/Vertex EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -42,8 +42,8 @@
         },
         {
           "id": "vertex/claude-opus-4-8@eu",
-          "name": "Claude Opus 4.8 (Requesty/Vertex EU)",
-          "reasoning": true,
+          "name": "Claude Opus 4.8 (Requesty/Vertex EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -59,8 +59,8 @@
         },
         {
           "id": "vertex/claude-haiku-4-5@europe-west1",
-          "name": "Claude Haiku 4.5 (Requesty/Vertex EU)",
-          "reasoning": true,
+          "name": "Claude Haiku 4.5 (Requesty/Vertex EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -76,8 +76,8 @@
         },
         {
           "id": "bedrock/claude-haiku-4-5@eu-central-1",
-          "name": "Claude Haiku 4.5 (Requesty/Bedrock EU)",
-          "reasoning": true,
+          "name": "Claude Haiku 4.5 (Requesty/Bedrock EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -93,8 +93,8 @@
         },
         {
           "id": "bedrock/claude-opus-4-8@eu-central-1",
-          "name": "Claude Opus 4.8 (Requesty/Bedrock EU)",
-          "reasoning": true,
+          "name": "Claude Opus 4.8 (Requesty/Bedrock EU, no thinking)",
+          "reasoning": false,
           "input": [
             "text",
             "image"
@@ -110,8 +110,52 @@
         },
         {
           "id": "bedrock/claude-sonnet-4-6@eu-central-1",
-          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU)",
+          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU, no thinking)",
+          "reasoning": false,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 3,
+            "output": 15,
+            "cacheRead": 0.3,
+            "cacheWrite": 3.75
+          },
+          "contextWindow": 200000,
+          "maxTokens": 64000
+        }
+      ]
+    },
+    "requesty-claude-thinking": {
+      "baseUrl": "https://router.eu.requesty.ai/v1",
+      "apiKey": "$REQUESTY_API_KEY_CC",
+      "api": "openai-completions",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "bedrock/claude-sonnet-4-6@eu-central-1",
+          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU, thinking)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 3,
+            "output": 15,
+            "cacheRead": 0.3,
+            "cacheWrite": 3.75
+          },
+          "contextWindow": 200000,
+          "maxTokens": 64000
+        },
+        {
+          "id": "vertex/claude-sonnet-4-6@europe-west1",
+          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU, thinking)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -129,7 +173,7 @@
     },
     "requesty-openai": {
       "baseUrl": "https://router.eu.requesty.ai/v1",
-      "apiKey": "REQUESTY_API_KEY_CC",
+      "apiKey": "$REQUESTY_API_KEY_CC",
       "api": "openai-responses",
       "authHeader": true,
       "models": [

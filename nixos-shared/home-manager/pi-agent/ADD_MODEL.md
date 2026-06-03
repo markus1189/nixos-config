@@ -84,7 +84,7 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
   "providers": {
     "requesty-anthropic": {
       "baseUrl": "https://router.eu.requesty.ai",
-      "apiKey": "REQUESTY_API_KEY_CC",
+      "apiKey": "$REQUESTY_API_KEY_CC",
       "api": "anthropic-messages",
       "authHeader": true,
       "models": [
@@ -106,7 +106,7 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
     },
     "requesty-openai": {
       "baseUrl": "https://router.eu.requesty.ai/v1",
-      "apiKey": "REQUESTY_API_KEY_CC",
+      "apiKey": "$REQUESTY_API_KEY_CC",
       "api": "openai-responses",
       "authHeader": true,
       "models": [
