@@ -909,6 +909,37 @@ in
                 ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
               '';
             };
+
+            # Zwift: laptop at the desk driving the living-room TV (Toshiba,
+            # 1080p@50 over DP-4) stacked above the internal panel. Internal
+            # stays primary at the bottom; the TV sits on top for the bike app.
+            "zwift" = {
+              fingerprint = {
+                "DP-4" = "00ffffffffffff005262080101010101ff150103805932780a303da1544a9b260f474aadcf0081c08180614c01010101010101010101023a80d072382d40102c458075f23100001e011d80d0721c1620102c258075f23100009e000000fc00544f53484942412d54560a2020000000fd00314c0f510e000a20202020202001a102032871521f2114131216111510050403070206012022230907076c030c001000001ec015151f1f011d00bc52d01e20b828554075f23100001e023a801871382d40582c450075f23100001e011d8018711c1620582c250075f23100009e011d007251d01e206e28550075f23100001e0000000000000000000000000000002c";
+                "eDP-1" = internalDisplayG8;
+              };
+              config = {
+                "DP-5".enable = false;
+                "DP-4" = {
+                  enable = true;
+                  crtc = 1;
+                  position = "0x0";
+                  mode = "1920x1080";
+                  rate = "50.00";
+                };
+                "eDP-1" = {
+                  enable = true;
+                  crtc = 0;
+                  primary = true;
+                  position = "0x1080";
+                  mode = "1920x1200";
+                  rate = "60.10";
+                };
+              };
+              hooks.postswitch = ''
+                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
+              '';
+            };
           }
           else {
             "mobile" = {
