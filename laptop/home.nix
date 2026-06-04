@@ -368,6 +368,10 @@ in
               ${clonedRepo "nix-community" "home-manager"}
               ${projectRepo "tiervermittlung-bot"}
               ${projectRepo "hocket"}
+              ${projectRepo "bookbuddy.koplugin"}
+              ${projectRepo "ciqt"}
+              ${projectRepo "ndt"}
+              ${projectRepo "tools"}
             '';
           };
 
