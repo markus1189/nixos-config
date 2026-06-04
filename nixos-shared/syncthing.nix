@@ -37,8 +37,8 @@ let
       id = "U7FVYJ3-47AZA2N-SGRVRPT-I26AJXU-M5C7AP4-LR7TJLI-X7KHK4O-LA4PMQ3";
       addresses = [ "dynamic" ];
     };
-    S24U = {
-      id = "X6DGBOA-UKD3Y2B-JT2TN7T-QXIG2UZ-556RGDO-BV7RCD7-NAKUBXQ-AUTKTAU";
+    S26U = {
+      id = "MFFYFYP-NZWAYWI-44U6V42-7TXKQYO-F5SGUZR-SC3EO2S-V6BXT46-XLPJCQ7";
       addresses = [ "dynamic" ];
     };
   };
@@ -46,27 +46,31 @@ let
   # Folder name -> list of all participating device names (incl. self).
   # Audit baseline = nixos-p1's config.xml @ 2026-05-20. p1g8 mirrors
   # nixos-p1 exactly (decision 2026-05-20: all 14 folders).
+  # 2026-06-04: S26U replaces S24U (new phone) across all folders;
+  # added Audiobooks (offered by S26U + nixos-p1, nuc also joins).
   folderMembership = {
-    remind        = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    ePubs         = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    timejot       = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
+    Audiobooks    = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    remind        = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    ePubs         = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    timejot       = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
     Buecher       = [ "nuc" "nixos-p1" "p1g8" ];
-    jrnl          = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    activities    = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    buku          = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    ShareToFolder = [        "nixos-p1" "p1g8" "S24U" ];
+    jrnl          = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    activities    = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    buku          = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    ShareToFolder = [        "nixos-p1" "p1g8" "S26U" ];
     rides         = [ "nuc" "nixos-p1" "p1g8" ];
     runs          = [ "nuc" "nixos-p1" "p1g8" ];
-    PhotoLogs     = [        "nixos-p1" "p1g8" "S24U" ];
-    pen_and_paper = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    Inbox         = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
-    finance       = [ "nuc" "nixos-p1" "p1g8" "S24U" ];
+    PhotoLogs     = [        "nixos-p1" "p1g8" "S26U" ];
+    pen_and_paper = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    Inbox         = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    finance       = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
   };
 
   # Folder ID -> human-readable name. IDs preserve sync continuity
   # with the existing peers; without these, Syncthing would mint
   # new IDs and nixos-p1/nuc/S24U would see them as new folders.
   folderIds = {
+    Audiobooks    = "azmve-vrodw";
     remind        = "7w3sr-tjmd4";
     ePubs         = "bldcc-uuzfe";
     timejot       = "dudaq-5whha";
