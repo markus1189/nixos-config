@@ -210,10 +210,10 @@
           enableZshIntegration = true;
         };
 
-        services.ssh-agent = {
-          enable = true;
-        };
-
+        # Note: no standalone services.ssh-agent here. gpg-agent with
+        # enableSshSupport already provides SSH_AUTH_SOCK; enabling both makes
+        # home-manager fail activation with a conflicting definition for
+        # sshAuthSock.initialization.bash.
         services.gpg-agent = {
           enable = true;
           enableSshSupport = true;
