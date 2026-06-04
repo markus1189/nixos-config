@@ -38,9 +38,18 @@
   # Read the changelog before changing this value
   system.stateVersion = "24.05";
 
-  # Set up nix for flakes
+  # Set up nix for flakes.
+  #
+  # filter-syscalls = false works around builds failing in unpackPhase with
+  #   cp: setting permissions for 'source': No such file or directory
+  # On recent nixpkgs, coreutils (glibc >= 2.39) uses the fchmodat2 syscall.
+  # Nix's seccomp syscall filter doesn't recognise it and returns EPERM, but
+  # glibc only falls back to the legacy fchmodat on ENOSYS, so cp --preserve
+  # hard-fails. Disabling the filter lets the syscall reach the kernel, which
+  # returns ENOSYS on this device and triggers the proper fallback.
   nix.extraOptions = ''
     experimental-features = nix-command flakes
+    filter-syscalls = false
   '';
 
   # Set your time zone
