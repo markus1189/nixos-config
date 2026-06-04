@@ -16,7 +16,7 @@
     killall
     diffutils
     findutils
-    utillinux
+    util-linux
     tzdata
     hostname
     man
@@ -153,10 +153,15 @@
             // claudeConfig.markdownFiles;
         };
 
+        # Disable home-manager manual generation. The options.json build
+        # (json.enable) fails to activate on nix-on-droid:
+        #   cp: setting permissions for '.../share/doc/home-manager': No such file or directory
+        # The html/manpage outputs derive from the same options data and are
+        # not useful on mobile anyway.
         manual = {
-          html.enable = true;
-          json.enable = true;
-          manpages.enable = true;
+          html.enable = false;
+          json.enable = false;
+          manpages.enable = false;
         };
 
         programs.zsh = {
