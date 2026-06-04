@@ -2421,7 +2421,8 @@ Provides more detailed messages on failure."
             (:owner "dunst-project" :repo "dunst")
             (:owner "karthink" :repo "gptel")
             (:owner "alacritty" :repo "alacritty")
-            (:owner "sst" :repo "opencode" :tags (llm))))
+            (:owner "sst" :repo "opencode" :tags (llm))
+            (:owner "neamar" :repo "kiss")))
 
          (mapcar
           (lambda (feed-spec)
