@@ -1,9 +1,9 @@
 #!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq nixpkgs#coreutils --command bash
+#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq nixpkgs#coreutils nixpkgs#ffmpeg --command bash
 # shellcheck shell=bash
 set -euo pipefail
 
-# Transcribe audio files using Gemini via Requesty API
+# Transcribe audio files using Gemini 3.5 Flash via OpenRouter
 # Usage: transcribe.sh <audio-file> [prompt]
 
 readonly SCRIPT_NAME="$(basename "$0")"
@@ -85,36 +85,36 @@ WORK_DIR="$(mktemp -d -t transcribe.XXXXXX)" || error_exit "Failed to create tem
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 # Get API key
-if ! REQUESTY_API_KEY="$(pass api/requesty/playground 2>/dev/null)"; then
-  error_exit "Failed to retrieve API key from pass (api/requesty/playground)"
+if ! OPENROUTER_API_KEY="$(pass api/openrouter/transcribe 2>/dev/null)"; then
+  error_exit "Failed to retrieve API key from pass (api/openrouter/transcribe)"
 fi
 
-if [[ -z "$REQUESTY_API_KEY" ]]; then
+if [[ -z "$OPENROUTER_API_KEY" ]]; then
   error_exit "API key is empty"
 fi
 
-readonly MODEL="vertex/gemini-2.5-flash@europe-west1"
+readonly MODEL="google/gemini-3.5-flash"
 
 readonly BASENAME="$(basename "$FILE")"
 echo "--- Transcribing: $BASENAME ---" >&2
 
-# Determine audio format from extension
-case "${FILE,,}" in
-  *.mp3)  FMT="mpeg" ;;
-  *.wav)  FMT="wav" ;;
-  *.ogg)  FMT="ogg" ;;
-  *.m4a)  FMT="mp4" ;;
-  *.flac) FMT="flac" ;;
-  *.webm) FMT="webm" ;;
-  *)      FMT="mpeg"; echo "Warning: Unknown extension, assuming MP3" >&2 ;;
-esac
+# Downsample to 16kHz mono MP3. Keeps the base64 payload under OpenRouter's
+# inline-size limit and is plenty of fidelity for speech. Also normalizes every
+# input format (wav/ogg/m4a/flac/webm/...) to a single mp3 payload.
+TMPMP3="$WORK_DIR/audio.mp3"
+readonly FMT="mp3"
+
+echo "Downsampling audio (16kHz mono)..." >&2
+if ! ffmpeg -y -i "$FILE" -ac 1 -ar 16000 -b:a 32k "$TMPMP3" >/dev/null 2>&1; then
+  error_exit "Failed to downsample audio (ffmpeg)"
+fi
 
 # Base64 encode to temp file (too large for argv)
 TMPB64="$WORK_DIR/audio.b64"
 TMPPAYLOAD="$WORK_DIR/payload.json"
 
 echo "Encoding audio file..." >&2
-if ! base64 -w0 "$FILE" > "$TMPB64"; then
+if ! base64 -w0 "$TMPMP3" > "$TMPB64"; then
   error_exit "Failed to encode audio file"
 fi
 
@@ -144,19 +144,23 @@ if ! jq -n \
         }
       ]}
     ],
-    max_tokens: 65536
+    max_tokens: 60000,
+    reasoning: { effort: "low" }
   }' > "$TMPPAYLOAD"; then
   error_exit "Failed to build JSON payload"
 fi
+# NOTE: gemini-3.5-flash forces reasoning ("cannot be disabled"). Left at default
+# effort it burns the whole output budget thinking and returns empty content, so
+# we pin effort=low — it then emits the transcript directly with ~0 reasoning tokens.
 
 # Call the API with timeout, writing response to temp file
-echo "Calling Gemini API (this may take a few minutes)..." >&2
+echo "Calling OpenRouter API (this may take a few minutes)..." >&2
 RESPONSE_FILE="$WORK_DIR/response.json"
 HTTP_CODE="$(curl -sS -w "%{http_code}" --max-time 600 \
   -o "$RESPONSE_FILE" \
-  https://router.eu.requesty.ai/v1/chat/completions \
+  https://openrouter.ai/api/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $REQUESTY_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d @"$TMPPAYLOAD" 2>"$WORK_DIR/curl_error.log")" || {
   if [[ -s "$WORK_DIR/curl_error.log" ]]; then
     cat "$WORK_DIR/curl_error.log" >&2
