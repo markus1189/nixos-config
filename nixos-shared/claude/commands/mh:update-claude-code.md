@@ -33,6 +33,8 @@ curl -s https://registry.npmjs.org/@anthropic-ai/claude-code/latest | jq -r '.ve
 
 **If already up-to-date:** Stop here, nothing to do.
 
+**If a prior version's update PR is still open (yours, unmerged) and npm has moved on:** default to a **fresh branch from `master`** targeting the newest npm version. The net diff is identical to extending the old branch, but a clean branch keeps history simple and avoids a force-push. This **supersedes** the in-flight PR — close it per step 13 (needs your approval, and only after the new PR's review is green).
+
 ### 3. Create Branch
 ```bash
 git checkout -b claude-code-OLD-to-NEW
@@ -161,7 +163,22 @@ gh workflow run review --repo markus1189/nixpkgs-review-gha \
 ```
 Recent runs: `gh run list --workflow=review --repo markus1189/nixpkgs-review-gha --limit 5`
 
-After dispatch, loop to check the report for any failed builds.
+After dispatch, babysit the run. Capture `RUN_ID` from the dispatch output URL (`gh workflow run` prints the run URL; the trailing number is the ID — or use `gh run list --workflow=review --repo markus1189/nixpkgs-review-gha --limit 1`):
+
+```bash
+# Babysit: poll until status is COMPLETED.
+# WARNING: do NOT poll for "!= in_progress" — GitHub Actions passes through a
+# `queued` state between the `prepare` phase and the arch matrix, so that
+# condition exits early reporting success when only `prepare` has finished.
+RUN_ID=<run id from dispatch URL>
+until [ "$(gh run view "$RUN_ID" --repo markus1189/nixpkgs-review-gha --json status --jq '.status')" = "completed" ]; do
+  sleep 60
+done
+gh run view "$RUN_ID" --repo markus1189/nixpkgs-review-gha \
+  --json conclusion,jobs --jq '{conclusion, jobs: [.jobs[] | {name, conclusion}]}'
+```
+
+Run this as a background task (`run_in_background`) so completion notifies the agent. Expect 6 jobs (`prepare`, 4 arch `review (...)`, `report`) all `success`.
 
 ### 13. Check for Obsolete PRs
 Search for open claude-code update PRs that are now superseded:
@@ -169,7 +186,14 @@ Search for open claude-code update PRs that are now superseded:
 gh pr list --repo NixOS/nixpkgs --search "claude-code in:title" --state open \
   --json number,title,author,url --jq '.[] | "\(.number) | \(.author.login) | \(.title) | \(.url)"'
 ```
-List any version-update PRs targeting older versions to the user so they can decide to close them.
+Handle the results by case:
+
+- **Other contributors' PRs** for older versions: list them to the user; do not act on them.
+- **Your own prior in-flight PR** superseded by this run (the step-2 fork case): closing it requires **two conditions** — (a) explicit user approval, and (b) the new PR's review is **green across all arches** (step 12 passed). Never close on faith at creation time; if the new PR fails CI, the old PR is the fallback. Suggested close command (only after both conditions met):
+  ```bash
+  gh pr close <OLD_NUM> --repo NixOS/nixpkgs \
+    --comment "Superseded by #<NEW_NUM>, which bumps straight to <NEW_VERSION>."
+  ```
 
 ## Troubleshooting
 
