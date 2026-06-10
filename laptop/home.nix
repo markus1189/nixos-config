@@ -169,6 +169,18 @@ in
           };
         };
 
+        "opencode-tui-config" = {
+          target = ".config/opencode/tui.json";
+          text = pkgs.lib.strings.toJSON {
+            "$schema" = "https://opencode.ai/tui.json";
+            attention = {
+              enabled = true;
+              notifications = true;
+              sound = false;
+            };
+          };
+        };
+
         "opencode-plugin-terminal-bell" = {
           target = ".config/opencode/plugin/terminal-bell.ts";
           text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
