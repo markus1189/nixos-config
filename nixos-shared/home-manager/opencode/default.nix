@@ -51,7 +51,15 @@ let
     "opencode-agent"
     (_: true);
 
+  # Auto-configure opencode-native agents (opencode-specific frontmatter:
+  # mode/model/permission/temperature) kept separate from Claude output-styles
+  opencodeAgentEntries = autoConfigMarkdownFiles
+    ./agents
+    "agent"
+    "opencode-native-agent"
+    (_: true);
+
 in
 {
-  markdownFiles = commandEntries // agentEntries;
+  markdownFiles = commandEntries // agentEntries // opencodeAgentEntries;
 }
