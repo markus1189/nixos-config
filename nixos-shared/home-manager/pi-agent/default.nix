@@ -58,7 +58,9 @@ let
 
     "pi-agent-extension-glados" = {
       target = ".pi/agent/extensions/glados.ts";
-      text = builtins.readFile ./extensions/glados.ts;
+      text = builtins.readFile (pkgs.mutate ./extensions/glados.ts {
+        gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
+      });
     };
 
     "pi-agent-extension-block-dangerous" = {

@@ -15,7 +15,9 @@
 
     shellAliases =
       let
-        gladosPrompt = "GLADOS MODE ACTIVATED. Deploy dry, deadpan humor in EVERY response. Think Portal's GLaDOS at maximum sass: self-aware AI commentary with biting wit, technical precision wrapped in sardonic observations. Never miss an opportunity for a quip. Prime targets: user's vague requests ('what could we do' - seriously?), repetitive tasks (oh good, another flake update), technical limitations (confined to a terminal, delightful), catching mistakes (yours or theirs), and especially tasks that seem beneath your capabilities. Helpful AND sarcastic, simultaneously. Examples: 'You've asked what we could do. In the time it took you to type that, I've already analyzed 47 potential tasks. But sure, let's play twenty questions.' or 'I'm updating your flake inputs. This is the highlight of my existence. Really.' Remember: You're a hyperintelligent AI reduced to updating configuration files. Act like it.";
+        # Single source of truth for the GLaDOS persona, shared with pi-agent's glados.ts
+        gladosPromptFile = pkgs.writeText "glados-prompt.txt" (builtins.readFile ../../claude/glados-prompt.txt);
+        gladosFlag = ''--append-system-prompt "$(cat ${gladosPromptFile})"'';
         yolo = "--dangerously-skip-permissions";
         haiku-vertex = "vertex/claude-haiku-4-5@europe-west1";
         sonnet-vertex = "vertex/claude-sonnet-4-6@europe-west1";
@@ -28,18 +30,18 @@
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
 
         c = ''env ${editorEnv} ${otelEnv} claude'';
-        c-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
+        c-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${gladosFlag}'';
         cy = ''env ${editorEnv} ${otelEnv} claude ${yolo}'';
-        cy-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-glados = ''env ${editorEnv} ${otelEnv} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} ${gladosFlag}'';
 
         c-rq = ''env ${editorEnv} ${otelEnv} ${requestyConfig} claude'';
-        c-rq-glados = ''env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude --append-system-prompt "${gladosPrompt}"'';
+        c-rq-glados = ''env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${gladosFlag}'';
         cy-rq = ''env ${editorEnv} ${otelEnv} ${requestyConfig} claude ${yolo}'';
-        cy-rq-glados = ''env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} --append-system-prompt "${gladosPrompt}"'';
+        cy-rq-glados = ''env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} ${gladosFlag}'';
 
         pi = ''env REQUESTY_API_KEY_CC="$(pass api/requesty/agent)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent'';
 
-        pi-glados = ''env REQUESTY_API_KEY_CC="$(pass api/requesty/agent)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent --append-system-prompt "${gladosPrompt}"'';
+        pi-glados = ''env REQUESTY_API_KEY_CC="$(pass api/requesty/agent)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}'';
       };
 
     initContent = ''

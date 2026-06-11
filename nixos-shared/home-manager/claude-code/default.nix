@@ -2,7 +2,6 @@
 , enableSoundHooks ? false
 , enableDenyRules ? false
 , enablePythonPathCheck ? false
-, enableGladosReminder ? true
 , enableDangerousCommandCheck ? true
 , additionalAllowedCommands ? []
 , ...
@@ -71,13 +70,6 @@ let
     name = "check-python-path";
     runtimeInputs = with pkgs; [ bash jq coreutils ];
     text = builtins.readFile ../../claude/hooks/check-python-path.sh;
-  };
-
-  # GLaDOS reminder hook script for UserPromptSubmit
-  gladosReminderPromptScript = pkgs.writeShellApplication {
-    name = "glados-reminder-prompt";
-    runtimeInputs = with pkgs; [ bash coreutils ];
-    text = builtins.readFile ../../claude/hooks/glados-reminder-prompt.sh;
   };
 
   # Dangerous command check hook script
@@ -200,16 +192,6 @@ let
     ];
   };
 
-  gladosReminderHook = {
-    hooks = [
-      {
-        type = "command";
-        command = "${gladosReminderPromptScript}/bin/glados-reminder-prompt";
-        timeout = 3;
-      }
-    ];
-  };
-
   dangerousCommandCheckHook = {
     matcher = "Bash";
     hooks = [
@@ -233,19 +215,13 @@ let
         Stop = soundStopHooks;
         SubagentStop = soundSubagentStopHooks;
       }
-      // (pkgs.lib.optionalAttrs enableGladosReminder {
-        UserPromptSubmit = [ gladosReminderHook ];
-      })
     else
       let
         preToolUseHooks = [ ]
           ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook)
           ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
       in
-      (if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { })
-      // (pkgs.lib.optionalAttrs enableGladosReminder {
-        UserPromptSubmit = [ gladosReminderHook ];
-      });
+      (if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { });
 
 in
 {
