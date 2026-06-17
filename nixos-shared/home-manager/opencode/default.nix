@@ -55,7 +55,7 @@ let
   # mode/model/permission/temperature) kept separate from Claude output-styles
   opencodeAgentEntries = autoConfigMarkdownFiles
     ./agents
-    "agent"
+    "agents"
     "opencode-native-agent"
     (_: true);
 
