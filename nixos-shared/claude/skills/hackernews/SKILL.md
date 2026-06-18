@@ -254,6 +254,8 @@ Topics that consistently engage this user:
 
 **Meta-commentary**: HN discussion quality, when communities get things right vs cargo culting, spotting LLM-generated content
 
-**Anti-patterns to highlight**: Security disasters waiting to happen, unfair benchmarks, overhyped tech with no clothes, projects that rebrand constantly
+**Developer life — craft, anti-hustle & meaning**: Reflective essays on slowing down, deliberate practice, career meaning, deep focus, and the maker's mindset (e.g. "Slowing the Fuck Down", "You Are Not Your Job", "Men Who Stare at Walls"). This is the introspective, practitioner end — surface it. NOT the same as motivational self-help/grift ("10x your life", productivity-hustle, billionaire-mindset content), which stays an anti-pattern below. The test: does it argue for *less* and *deeper*, written by someone who builds things? Then it's in scope.
+
+**Anti-patterns to highlight**: Security disasters waiting to happen, unfair benchmarks, overhyped tech with no clothes, projects that rebrand constantly, motivational/hustle self-help with no technical substance
 
 When summarizing: Structure matters. Categories, tables, direct quotes. Cynical takes alongside genuine analysis. Technical accuracy > hype.
