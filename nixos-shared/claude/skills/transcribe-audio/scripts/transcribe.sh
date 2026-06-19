@@ -139,6 +139,10 @@ fi
 WORK_DIR="$(mktemp -d -t transcribe.XXXXXX)" || error_exit "Failed to create temp directory"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
+# Per-request usage accumulator (one compact JSON object per successful call).
+# transcribe_one appends here; totals are summed after all requests finish.
+readonly USAGE_FILE="$WORK_DIR/usage.jsonl"
+
 # Get API key
 if ! OPENROUTER_API_KEY="$(pass api/openrouter/transcribe 2>/dev/null)"; then
   error_exit "Failed to retrieve API key from pass (api/openrouter/transcribe)"
@@ -238,7 +242,8 @@ transcribe_one() {
         ]}
       ],
       max_tokens: 60000,
-      reasoning: { effort: "low" }
+      reasoning: { effort: "low" },
+      usage: { include: true }
     }' > "$payload"; then
     echo "jq payload build failed ($slug)" >&2; return 1
   fi
@@ -265,6 +270,10 @@ transcribe_one() {
 
     text="$(jq -r '.choices[0].message.content // empty' "$resp")"
     if [[ -n "$text" ]]; then
+      # Record usage/cost for this call (usage.include=true yields .usage.cost in
+      # credits = USD). Single small line append is atomic enough for the parallel
+      # chunk path. Best-effort: never fail the transcription over accounting.
+      jq -c '.usage // {}' "$resp" >> "$USAGE_FILE" 2>/dev/null || true
       printf '%s' "$text"; return 0
     fi
 
@@ -355,6 +364,29 @@ else
   if (( IS_DEFAULT )); then
     TRANSCRIPT="${TRANSCRIPT}"$'\n\n'"${CHUNK_MARKER}"
   fi
+fi
+
+# --- Usage / cost -------------------------------------------------------------
+# Sum usage across all requests (one line per chunk on the long path). cost is in
+# OpenRouter credits (1 credit = 1 USD). Reported to stderr always, and stamped
+# into the output as an invisible HTML comment so it travels with the transcript.
+# Caveat: only successful 200s are counted; cost of retried empty-content 200s
+# (rare) is not included, so this is a slight under-count in that case.
+USAGE_FOOTER=""
+if [[ -s "$USAGE_FILE" ]]; then
+  read -r U_PROMPT U_COMPLETION U_COST < <(
+    jq -rs 'reduce .[] as $u ([0,0,0];
+      [ .[0] + ($u.prompt_tokens // 0),
+        .[1] + ($u.completion_tokens // 0),
+        .[2] + ($u.cost // 0) ]) | "\(.[0]) \(.[1]) \(.[2])"' "$USAGE_FILE"
+  )
+  printf -- '--- Usage: %s prompt + %s completion tokens, cost $%.4f (%s) ---\n' \
+    "$U_PROMPT" "$U_COMPLETION" "$U_COST" "$MODEL" >&2
+  USAGE_FOOTER="$(printf '<!-- transcribe usage: model=%s prompt_tokens=%s completion_tokens=%s cost_usd=%.6f -->' \
+    "$MODEL" "$U_PROMPT" "$U_COMPLETION" "$U_COST")"
+fi
+if [[ -n "$USAGE_FOOTER" ]]; then
+  TRANSCRIPT="${TRANSCRIPT}"$'\n\n'"${USAGE_FOOTER}"
 fi
 
 # --- Emit ---------------------------------------------------------------------
