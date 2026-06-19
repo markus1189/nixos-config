@@ -2136,7 +2136,12 @@ through to `elfeed-fetch-url'."
         (funcall cb :parse))
       t))
 
-  (add-hook 'elfeed-fetch-functions #'mh/requesty-fetch)
+  ;; Must run after elfeed.el loads: its `(defvar elfeed-fetch-functions
+  ;; (list #'elfeed-fetch-url))' is a no-op if the variable is already bound,
+  ;; so adding to the hook from `:init' (before load) would drop the stock
+  ;; `elfeed-fetch-url' fetcher and silently break all non-requesty feeds.
+  (with-eval-after-load 'elfeed
+    (add-hook 'elfeed-fetch-functions #'mh/requesty-fetch))
 
   (defconst mh/elfeed-search-stack-initial '(llm hackernews hackernews2 hackernews3 youtube news newsletter github sport analog reading programming reddit nil))
   (setq mh/elfeed-search-stack mh/elfeed-search-stack-initial)
