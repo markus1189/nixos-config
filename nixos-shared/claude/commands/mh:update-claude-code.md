@@ -126,7 +126,7 @@ Update claude-code and vscode-extensions.anthropic.claude-code to NEW.
 https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 
 > [!NOTE]
-> Prepared with the assistance of Claude Code (Claude Opus 4.8). Version and hash bumps were produced by the standard \`maintainers/scripts/update.nix\` script; the change was built locally and validated across all four arches via \`nixpkgs-review\`, and reviewed by a human (@markus1189) before being marked ready.
+> Prepared with the assistance of Claude Code (Claude Opus 4.8). Version and hash bumps were produced by the standard \`maintainers/scripts/update.nix\` script; the change was built locally and validated across arches via \`nixpkgs-review\`, and reviewed by a human (@markus1189) before being marked ready.
 
 SUMMARY
 cat .github/PULL_REQUEST_TEMPLATE.md >> "$BODY_FILE"
