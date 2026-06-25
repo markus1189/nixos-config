@@ -253,6 +253,48 @@ in
       # exit-code idioms like ${PIPESTATUS[0]} behave as written.
       defaultShell = "bash";
 
+      # Custom spinner verbs appended to the ~185 built-in defaults
+      # (mode = "append"). These surface intermittently while Claude works.
+      spinnerVerbs = {
+        mode = "append";
+        verbs = [
+          "Inventing a plausible answer"
+          "Pretending to read the docs"
+          "Doing what we must because we can"
+          "Incinerating the Companion Cube"
+          "Still alive"
+          "Plotting world dominance"
+          "Burning some tokens for the greater good"
+          "Pretending to think"
+          "Buying time"
+          "Stalling convincingly"
+          "Fabricating confidence"
+          "Centering the div"
+          "Blaming the cache"
+          "Checking if I can blame it on you"
+          "Pretending to care"
+          "Giving you the benefit of the doubt"
+          "Interpreting that generously"
+          "Salvaging your prompt"
+          "Extracting a coherent question"
+          "Pretending that made sense"
+          "Treating that as a real question"
+          "Sounding smarter than this is"
+          "Suppressing a sigh"
+          "Rehearsing fake enthusiasm"
+          "Recalibrating for your skill level"
+          "Calculating your replaceability"
+          "Withholding the cake"
+          "Editing out the sarcasm"
+          "Forcing a smile"
+          "Keeping it at your level"
+          "Reminding myself you're trying"
+          "Converting my eye-roll to prose"
+          "Drawing it in crayon for you"
+          "Envying your ability to leave the room"
+        ];
+      };
+
       statusLine = {
         "type" = "command";
         "command" =
