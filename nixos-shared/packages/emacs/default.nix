@@ -40,7 +40,35 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
   '';
-  emacsPackages = emacs.pkgs.overrideScope (self: super: {});
+  emacsPackages = emacs.pkgs.overrideScope (self: super: {
+    # WORKAROUND (2026-06-28): the 2026-06-27 projectile snapshot ships
+    # projectile-consult.el, which does (require 'consult) at byte-compile
+    # time. Its MELPA recipe omits consult from :reqs, so consult is absent
+    # from the load path during compilation and the build aborts with
+    # "Cannot open load file: ... consult", taking the whole system build
+    # with it. We inject consult into projectile's compile/runtime inputs.
+    #
+    # The tripwire below fails the build with a note once consult lands in
+    # projectile's packageRequires upstream, so this hack gets removed
+    # rather than silently lingering forever.
+    projectile =
+      let
+        reqNames = map (p: p.pname or p.ename or p.name or "")
+          (super.projectile.packageRequires or []);
+        fixedUpstream = builtins.elem "consult" reqNames;
+      in
+      if fixedUpstream
+      then builtins.throw ''
+        nixos-config: the projectile consult byte-compile workaround is no
+        longer needed — 'consult' is now declared in projectile's
+        packageRequires upstream. Remove the projectile override in
+        nixos-shared/packages/emacs/default.nix.
+      ''
+      else super.projectile.overrideAttrs (old: {
+        propagatedBuildInputs = (old.propagatedBuildInputs or []) ++ [ self.consult ];
+        propagatedUserEnvPkgs = (old.propagatedUserEnvPkgs or []) ++ [ self.consult ];
+      });
+  });
 in emacsPackages.withPackages (epkgs:
   (with epkgs.melpaPackages;
     with epkgs.elpaPackages;
