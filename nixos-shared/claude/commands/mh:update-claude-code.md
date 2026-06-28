@@ -23,8 +23,9 @@ git status --short  # Must be clean
 If not clean or on wrong branch: `git reset --hard upstream/master`
 
 ### 2. Check Versions
+**Read OLD only after step 1 has put you on clean master.** The session may open on an unrelated branch (e.g. a backport branch) whose manifest is stale; the value read there is NOT the OLD for the branch name, commits, or PR title. OLD = master's manifest version, read here.
 ```bash
-# Current version in nixpkgs (manifest is the source of truth)
+# Current version in nixpkgs (manifest is the source of truth; must be on clean master)
 jq -r '.version' pkgs/by-name/cl/claude-code/manifest.json
 
 # Latest on npm
@@ -134,7 +135,7 @@ cat .github/PULL_REQUEST_TEMPLATE.md >> "$BODY_FILE"
 # Tick the relevant checkboxes
 sed -i 's/- \[ \] x86_64-linux/- [x] x86_64-linux/' "$BODY_FILE"
 sed -i 's/- \[ \] aarch64-linux/- [x] aarch64-linux/' "$BODY_FILE"
-sed -i 's/- \[ \] x86_64-darwin/- [x] x86_64-darwin/' "$BODY_FILE"
+# x86_64-darwin is intentionally NOT reviewed in GHA (step 12), so leave its box unticked
 sed -i 's/- \[ \] aarch64-darwin/- [x] aarch64-darwin/' "$BODY_FILE"
 sed -i 's/- \[ \] Ran `nixpkgs-review`/- [x] Ran `nixpkgs-review`/' "$BODY_FILE"
 sed -i 's/- \[ \] Tested basic functionality/- [x] Tested basic functionality/' "$BODY_FILE"
@@ -157,7 +158,7 @@ nohup bash -c 'DISPLAY=:0 xdg-open $PR_URL' >/dev/null 2>&1 &
 gh workflow run review --repo markus1189/nixpkgs-review-gha \
   -f pr=NUM \
   -f x86_64-linux=true -f aarch64-linux=true \
-  -f x86_64-darwin=yes_sandbox_relaxed -f aarch64-darwin=yes_sandbox_relaxed \
+  -f x86_64-darwin=no -f aarch64-darwin=yes_sandbox_relaxed \
   -f push-to-cache=true -f upterm=false \
   -f post-result=true -f on-success=mark_as_ready
 ```
@@ -178,7 +179,7 @@ gh run view "$RUN_ID" --repo markus1189/nixpkgs-review-gha \
   --json conclusion,jobs --jq '{conclusion, jobs: [.jobs[] | {name, conclusion}]}'
 ```
 
-Run this as a background task (`run_in_background`) so completion notifies the agent. Expect 6 jobs (`prepare`, 4 arch `review (...)`, `report`) all `success`.
+Run this as a background task (`run_in_background`) so completion notifies the agent. Expect 5 jobs (`prepare`, 3 arch `review (...)` — x86_64-darwin skipped, `report`) all `success`.
 
 ### 13. Check for Obsolete PRs
 Search for open claude-code update PRs that are now superseded:
