@@ -95,6 +95,13 @@ Home Manager is integrated via `nixos-shared/home-manager/module.nix`. Each host
 })
 ```
 
+## Commit Conventions
+
+`<scope>: <imperative summary>`, where scope is the component that
+changed (reuse an existing one from `git log --oneline`). The scope is
+**what changed, not who changed it** — `claude-code:` means the
+claude-code package changed, not that an agent made the commit.
+
 ## Emacs Configuration
 
 ### emacs-overlay (nix-community)
