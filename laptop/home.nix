@@ -112,12 +112,14 @@ in
                     };
                   };
 
-                  "vertex/claude-sonnet-4-6@europe-west1" = {
-                    name = "Claude Sonnet 4.6";
-                    thinking = {
-                      type = "enabled";
-                      budgetTokens = 16000;
-                    };
+                  "vertex/claude-sonnet-5@eu" = {
+                    name = "Claude Sonnet 5";
+                    # No thinking block: Sonnet 5 dropped the legacy
+                    # thinking.type="enabled" API (returns HTTP 400) and requires
+                    # thinking.type="adaptive"+output_config.effort. opencode's model
+                    # config schema only accepts type enum ["enabled","disabled"], so
+                    # adaptive can't be expressed here for a custom-provider model.
+                    # Run non-thinking until opencode exposes adaptive as a config type.
                     modalities = {
                       input = ["text" "image"];
                       output = ["text"];

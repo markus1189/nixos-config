@@ -7,21 +7,23 @@
       "authHeader": true,
       "models": [
         {
-          "id": "vertex/claude-sonnet-4-6@europe-west1",
-          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU, no thinking)",
-          "reasoning": false,
+          "id": "vertex/claude-sonnet-5@eu",
+          "name": "Claude Sonnet 5 (Requesty/Vertex EU, adaptive thinking)",
+          "reasoning": true,
+          "compat": { "forceAdaptiveThinking": true },
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
           ],
           "cost": {
-            "input": 3,
-            "output": 15,
-            "cacheRead": 0.3,
-            "cacheWrite": 3.75
+            "input": 2,
+            "output": 10,
+            "cacheRead": 0.2,
+            "cacheWrite": 2.5
           },
-          "contextWindow": 200000,
-          "maxTokens": 64000
+          "contextWindow": 1000000,
+          "maxTokens": 128000
         },
         {
           "id": "vertex/claude-opus-4-7@eu",
@@ -136,24 +138,6 @@
         {
           "id": "bedrock/claude-sonnet-4-6@eu-central-1",
           "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU, thinking)",
-          "reasoning": true,
-          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 3,
-            "output": 15,
-            "cacheRead": 0.3,
-            "cacheWrite": 3.75
-          },
-          "contextWindow": 200000,
-          "maxTokens": 64000
-        },
-        {
-          "id": "vertex/claude-sonnet-4-6@europe-west1",
-          "name": "Claude Sonnet 4.6 (Requesty/Vertex EU, thinking)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [

@@ -20,7 +20,7 @@
         gladosFlag = ''--append-system-prompt "$(cat ${gladosPromptFile})"'';
         yolo = "--dangerously-skip-permissions";
         haiku-vertex = "vertex/claude-haiku-4-5@europe-west1";
-        sonnet-vertex = "vertex/claude-sonnet-4-6@europe-west1";
+        sonnet-vertex = "vertex/claude-sonnet-5@eu";
         opus-vertex = "vertex/claude-opus-4-8@eu";
         requestyConfig = ''ANTHROPIC_BASE_URL=https://router.eu.requesty.ai ANTHROPIC_AUTH_TOKEN="$(pass api/requesty/claude-code)" ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet-vertex}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku-vertex}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus-vertex}"'';
         otelEnv = ''CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=grpc OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 OTEL_SERVICE_NAME=claude-code OTEL_METRIC_EXPORT_INTERVAL=10000 OTEL_LOGS_EXPORT_INTERVAL=5000 OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1'';
