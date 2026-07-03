@@ -1,4 +1,4 @@
-{ config, pkgs, callPackage, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   services.emacs = {
@@ -6,9 +6,10 @@
     package = pkgs.emacs-unstable;
   };
 
+  # nix-community emacs-overlay as a flake input, pinned via flake.lock
+  # (previously fetched unpinned from master on every evaluation).
+  # Bump with `nix flake update emacs-overlay`.
   nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-    }))
+    inputs.emacs-overlay.overlays.default
   ];
 }

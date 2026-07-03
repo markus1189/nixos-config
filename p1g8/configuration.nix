@@ -1,9 +1,8 @@
 # Top-level NixOS module for p1g8 (Lenovo ThinkPad P1 Gen 8).
 # Counterpart of p1/configuration.nix for the new parallel host.
 #
-# Wiring: shared laptop.nix's `nix.nixPath` resolves `nixos-config` to
-# this file via `config.lib._custom_.name = "p1g8"` (set in p1g8.nix).
-# There is no flake — the channel-based path is the only mechanism.
+# Wiring: exposed as `nixosConfigurations.p1g8` in the root flake.nix;
+# build with `sudo nixos-rebuild switch --flake "path:$PWD#p1g8"`.
 #
 # See install-plan §1c for the import-list rationale.
 { config, pkgs, ... }:

@@ -1,5 +1,8 @@
+# Legacy convenience entry point: `nix-build` builds every host's system
+# closure.  The real interface is flake.nix, e.g.
+#   nix build .#nixosConfigurations.p1.config.system.build.toplevel
 let
-  builder = configuration:
-    (import <nixpkgs/nixos> { inherit configuration; }).system;
-
-in map builder [ ./xps/configuration.nix ./nuc/configuration.nix ./p1/configuration.nix ]
+  flake = builtins.getFlake (toString ./.);
+in
+builtins.mapAttrs (_: host: host.config.system.build.toplevel)
+  flake.nixosConfigurations

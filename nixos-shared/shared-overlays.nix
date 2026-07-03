@@ -1,10 +1,14 @@
+# Takes the flake inputs: the ndt CLI is built from the `ndt` flake input
+# (pinned via flake.lock, bump with `nix flake update ndt`) instead of an
+# unpinned master tarball.
+{ inputs }:
+
 rec {
   ndtOverlay = self: super: {
-    ndt = import (builtins.fetchTarball
-      "https://github.com/markus1189/ndt/archive/master.tar.gz") {
-        nixpkgs = self;
-        ghc = "ghc912";
-      };
+    ndt = import inputs.ndt {
+      nixpkgs = self;
+      ghc = "ghc912";
+    };
   };
 
   ndtSourcesOverlay = self: super: {

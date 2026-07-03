@@ -17,11 +17,14 @@ Host configs (xps/, nuc/, p1/)
 ```
 
 ### Host Configurations
+All NixOS hosts are exposed as `nixosConfigurations` in the root `flake.nix`.
+
 | Host | Build Method | User | Purpose |
 |------|--------------|------|---------|
-| `p1/` | `laptop/activate.sh` (traditional) | markus | ThinkPad P1 (primary laptop) |
-| `nuc/` | `nuc/activate.sh` (traditional) | mediacenter | Home server |
-| `xps/` | Legacy (not in use) | markus | Old XPS laptop |
+| `p1/` | `laptop/activate.sh` (flake `#p1`) | markus | ThinkPad P1 (primary laptop) |
+| `p1g8/` | `nixos-rebuild --flake "path:.#p1g8"` | markus | ThinkPad P1 Gen 8 |
+| `nuc/` | `nuc/activate.sh` (flake `#nuc`) | mediacenter | Home server |
+| `xps/` | Legacy (not in use, flake `#xps`) | markus | Old XPS laptop |
 | `nix-on-droid/` | Separate flake | n/a | Android/Termux |
 
 ### Shared Modules (`nixos-shared/`)
@@ -37,19 +40,31 @@ Two systems in use:
 - **agenix**: Runtime secrets (passwords, API keys) decrypted at boot. Files in `secrets/*.age`, config in `my-agenix.nix`
 - **git-secret**: Build-time secrets (Nix expressions with sensitive values). Decrypt before build: `git secret reveal`
 
+The revealed `nixos-shared/secrets.nix` is gitignored, so a plain git flake
+never sees it. All code imports `nixos-shared/load-secrets.nix`, which falls
+back to `secrets.dummy.nix` (dummy values, evaluates everywhere). Real
+machine builds MUST use a `path:` flake reference (the activate.sh scripts
+do) so the untracked revealed file is included; otherwise the system is
+silently built with dummy secrets. When adding a new secret, add a matching
+dummy attribute to `secrets.dummy.nix`.
+
 ### Package Sources
-- **niv**: External sources managed in `ndt/sources.nix`
+- **ndt sources**: External sources pinned in `ndt/sources.json` (niv-style, managed with the `ndt` CLI); `ndt/sources.nix` is a pure loader for it. home-manager, agenix, and disko come from here — not from flake inputs.
+- **Flake inputs** (`flake.nix`): `nixpkgs` (nixos-unstable), `nixpkgs-master` (claude-code, nix-direnv), `emacs-overlay`, `ndt` (the CLI itself). Threaded to modules via `specialArgs`/`extraSpecialArgs` as `inputs`.
 - **ndt**: Custom Nix development tools from github.com/markus1189/ndt
 
 ## System Commands
 
 ### Building Configurations
 ```bash
-# P1 ThinkPad (primary laptop) - runs sudo nixos-rebuild with p1/configuration.nix
+# P1 ThinkPad (primary laptop) - nixos-rebuild switch --flake "path:...#p1"
 laptop/activate.sh
 
-# NUC home server (traditional) - runs sudo nixos-rebuild with nuc/configuration.nix
+# NUC home server - nixos-rebuild switch --flake "path:...#nuc"
 nuc/activate.sh
+
+# Any host directly (path: includes the untracked revealed secrets.nix)
+sudo nixos-rebuild switch --flake "path:$PWD#p1g8"
 
 # Nix-on-Droid (from nix-on-droid/ directory)
 nix-on-droid switch --flake ./nix-on-droid
@@ -60,11 +75,17 @@ nix-on-droid switch --flake ./nix-on-droid
 # Syntax check before building
 nix-instantiate --parse path/to/file.nix
 
-# Test without switching
-nixos-rebuild test -I nixos-config=/path/to/configuration.nix
+# Evaluate a host without building (uses dummy secrets on a git flake)
+nix build .#nixosConfigurations.p1.config.system.build.toplevel --dry-run
 
-# Update flake inputs
+# Test without switching
+sudo nixos-rebuild test --flake "path:$PWD#p1"
+
+# Update flake inputs (nixpkgs, nixpkgs-master, emacs-overlay, ndt CLI)
 nix flake update
+
+# Update ndt-pinned sources (home-manager, agenix, disko, emacs deps, ...)
+ndt -s ndt/sources.json update <name>
 ```
 
 ### Option Reference (offline, version-matched)

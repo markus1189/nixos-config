@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
   ndtSources = import ../ndt/sources.nix { };
@@ -77,7 +77,7 @@ in {
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
-    overlays = (import ../nixos-shared/shared-overlays.nix).overlays;
+    overlays = (import ../nixos-shared/shared-overlays.nix { inherit inputs; }).overlays;
     config = { allowUnfree = true; };
   };
 

@@ -1,10 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
-  nixpkgsMasterSrc = builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
-  };
-  nixpkgsMaster = import nixpkgsMasterSrc {
+  # nixpkgs master as a flake input, pinned via flake.lock (bump with
+  # `nix flake update nixpkgs-master`) — the old unpinned fetchTarball
+  # cannot be evaluated in pure flake mode.
+  nixpkgsMaster = import inputs.nixpkgs-master {
+    system = pkgs.stdenv.hostPlatform.system;
     config = {
       allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
       firefox = {
