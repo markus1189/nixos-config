@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
+  secrets = import ./load-secrets.nix;
   shellyPlugModule = "shellyPlug";
   jsonExporterPort = 7979;
   toYAMLFile = data:

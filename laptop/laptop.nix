@@ -1,9 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-  custom = import ../nixos-shared/custom.nix;
-  secrets = import ../nixos-shared/secrets.nix;
+  secrets = import ../nixos-shared/load-secrets.nix;
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
@@ -63,11 +62,10 @@ rec {
 
     settings.sandbox = true;
 
-    nixPath = with config.lib._custom_; [
-      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-      "nixos-config=/home/${userName}/repos/nixos-config/${name}/configuration.nix"
-      "/nix/var/nix/profiles/per-user/root/channels"
-    ];
+    # Point <nixpkgs> and the flake registry at the flake's pinned nixpkgs
+    # so ad-hoc `nix-shell -p` / `nix run nixpkgs#...` match the system.
+    nixPath = [ "nixpkgs=${pkgs.path}" ];
+    registry.nixpkgs.flake = inputs.nixpkgs;
 
     extraOptions = ''
       experimental-features = nix-command flakes
@@ -116,7 +114,7 @@ rec {
 
   nixpkgs = {
     overlays = (
-      (import ../nixos-shared/shared-overlays.nix).overlays
+      (import ../nixos-shared/shared-overlays.nix { inherit inputs; }).overlays
       ++ [
         (self: super: {
           darktable =

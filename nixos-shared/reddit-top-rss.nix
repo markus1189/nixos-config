@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ./secrets.nix;
+  secrets = import ./load-secrets.nix;
 in
 {
   virtualisation.oci-containers.containers = {

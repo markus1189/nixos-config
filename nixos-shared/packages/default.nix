@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 let
-  secrets = import ../secrets.nix;
+  secrets = import ../load-secrets.nix;
   ndtSources = import ../../ndt/sources.nix { };
 in
 {

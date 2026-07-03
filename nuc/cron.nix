@@ -7,7 +7,7 @@ let
   pgrep = "${pkgs.procps}/bin/pgrep";
   find = "${pkgs.findutils}/bin/find";
   xargs = "${pkgs.findutils}/bin/xargs";
-  secrets = import ../nixos-shared/secrets.nix;
+  secrets = import ../nixos-shared/load-secrets.nix;
   rm = "${pkgs.coreutils}/bin/rm";
   sendIpAddr = "${pkgs.myScripts.sendIpAddr secrets.telegramBotToken}/bin/sendIpAddr";
   telegramSendPhoto = "${pkgs.myScripts.telegramSendPhoto secrets.telegramBotToken}/bin/telegramSendPhoto";

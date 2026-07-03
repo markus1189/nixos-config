@@ -2,7 +2,7 @@
 , pandoc, git, ndtSources }:
 
 let
-  secrets = import ../../secrets.nix;
+  secrets = import ../../load-secrets.nix;
   mutatedEmacsConfig = mutate ./emacs-config.el {
     inherit fasd plantuml pandoc;
     yesSound = ./yes.wav;

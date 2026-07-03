@@ -9,7 +9,7 @@ host:
 # 3) Update ./secrets.nix with the content of the file
 
 let
-  secrets = import ./secrets.nix;
+  secrets = import ./load-secrets.nix;
 in
 {
   networking = {

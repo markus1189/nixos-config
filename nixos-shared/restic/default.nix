@@ -1,6 +1,6 @@
 { writeText, lib, writeScriptBin, stdenv, restic, coreutils, myScripts, curl, cacert }:
 let
-  secrets = import ../secrets.nix;
+  secrets = import ../load-secrets.nix;
   excludefile = writeText "restic-excludefile" (lib.strings.concatStringsSep "\n" [
     ".git"
     ".shake"

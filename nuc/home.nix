@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
+  secrets = import ../nixos-shared/load-secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
   garmin = (pkgs.callPackage
     (import ../nixos-shared/home-manager/garmin-connect/default.nix {

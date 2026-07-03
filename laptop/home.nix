@@ -1,14 +1,13 @@
-{ config, pkgs, osConfig, ... }:
+# `inputs` arrives via home-manager.extraSpecialArgs (see
+# nixos-shared/home-manager/module.nix).
+{ config, pkgs, osConfig, inputs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
+  secrets = import ../nixos-shared/load-secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 
-  nixpkgsMasterSrc = builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
-  };
-
-  nixpkgsMaster = import nixpkgsMasterSrc {
+  nixpkgsMaster = import inputs.nixpkgs-master {
+    system = pkgs.stdenv.hostPlatform.system;
     config = {
       allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
     };
