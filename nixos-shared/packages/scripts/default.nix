@@ -1774,4 +1774,53 @@ rec {
             ;;
         esac
       '';
+
+  rofiStuffTodayPicker =
+    writeShellScript
+      {
+        name = "rofiStuffTodayPicker";
+        # pure = false: xdg-open dispatches to whatever handler the user
+        # has installed, so it needs the session PATH, not just deps.
+        pure = false;
+        deps = [
+          coreutils
+          rofi
+          xclip
+          libnotify
+          dragon-drop
+          xdg-utils
+        ];
+      }
+      ''
+        # ~/Stuff/Today is a symlink kept pointing at today's dated
+        # scratch dir by the `cdt` zsh function. -d follows it, so a
+        # dangling/missing link fails this guard.
+        today="$HOME/Stuff/Today"
+        if [ ! -d "$today" ]; then
+          notify-send "rofi-today" "no ~/Stuff/Today"
+          exit 1
+        fi
+
+        ret=0
+        choice=$(ls -1t "$today" 2>/dev/null \
+          | rofi -dmenu -i -matching fuzzy -sort -p "today" \
+              -kb-custom-1 "Alt+d" \
+              -kb-custom-2 "Alt+o" \
+              -mesg "Enter: copy path  |  Alt+d: drag  |  Alt+o: open") || ret=$?
+        [ -z "$choice" ] && exit 0
+
+        full="$today/$choice"
+        case "$ret" in
+          10)
+            xdragon -x "$full"
+            ;;
+          11)
+            xdg-open "$full"
+            ;;
+          *)
+            printf '%s' "$full" | xclip -i -selection clipboard
+            notify-send "Copied path" "$choice"
+            ;;
+        esac
+      '';
 }
