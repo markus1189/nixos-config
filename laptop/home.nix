@@ -21,7 +21,11 @@ let
 
 in
 {
-  imports = [ ./atuin-sync.nix ];
+  imports = [
+    ./atuin-sync.nix
+    # Sets programs.git and installs the global gitleaks config (xdg.configFile).
+    ../nixos-shared/home-manager/git/default.nix
+  ];
 
   home = {
     stateVersion = "18.09";
@@ -782,8 +786,6 @@ in
       };
 
       firefox = (pkgs.callPackage ../nixos-shared/home-manager/firefox/default.nix { }).value;
-
-      git = (pkgs.callPackage ../nixos-shared/home-manager/git/default.nix { }).value;
 
       delta = {
         enable = true;

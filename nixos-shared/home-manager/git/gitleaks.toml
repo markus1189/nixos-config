@@ -1,0 +1,34 @@
+# Global gitleaks config. This source file is installed to the conventional
+# path ~/.config/gitleaks/config.toml (via the xdg.configFile entry in
+# default.nix, this same module), which the git pre-commit hook passes with -c.
+# It is the FALLBACK: the hook only applies it when a repo has no .gitleaks.toml
+# of its own.
+#
+# A repo may ship its own .gitleaks.toml. It can EITHER fully replace this
+# config, OR extend it to keep these rules and add more:
+#     [extend]
+#     path = "/home/markus/.config/gitleaks/config.toml"
+#
+# Edit THIS file for global rules; use `# gitleaks:allow` inline or a repo-local
+# .gitleaksignore for one-off exceptions.
+
+title = "markus global gitleaks config"
+
+# Inherit gitleaks' full built-in secret ruleset, then add our own.
+[extend]
+useDefault = true
+
+# Replacement for the old `checkMatch "DONOTCOMMIT"` bash guard: refuse any
+# staged change that still carries the explicit do-not-commit marker.
+[[rules]]
+id = "donotcommit-marker"
+description = "Explicit DONOTCOMMIT marker left in the diff on purpose"
+regex = '''DONOTCOMMIT'''
+tags = ["marker", "manual"]
+
+[allowlist]
+description = "Don't flag files that legitimately contain rule/marker text"
+paths = [
+  '''gitleaks\.toml$''',
+  '''\.gitleaksignore$''',
+]

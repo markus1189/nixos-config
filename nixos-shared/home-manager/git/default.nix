@@ -1,14 +1,17 @@
-{ fetchurl
-, gitFull
-, writeText
-, lib
-, writeScript
-, stdenv
-, ndtSources
-, xxd
-}:
+{ lib, pkgs, ... }:
 
 let
+  inherit (pkgs)
+    gitFull
+    writeText
+    writeScript
+    writeShellScript
+    runCommandLocal
+    stdenv
+    ndtSources
+    gitleaks
+    xxd;
+
   gitPackage = gitFull;
 
   gitignoreGlobal = writeText "gitignore-global-file" ''
@@ -45,10 +48,48 @@ let
     pretty_git_log $*
   '';
 
+  # Secret/marker scanner run from the pre-commit hook. Store paths for the
+  # binary and config are baked in below so the hook works regardless of PATH
+  # (e.g. when magit invokes the commit).
+  #
+  # gitleaks' -c overrides a repo's own .gitleaks.toml (config precedence:
+  # -c > $GITLEAKS_CONFIG > (target)/.gitleaks.toml). So only pass -c when the
+  # repo ships no config of its own; otherwise let gitleaks pick up the
+  # repo-local .gitleaks.toml and let that repo fully own its ruleset.
+  #
+  # The global config lives at the stable, conventional path
+  # ~/.config/gitleaks/config.toml (installed via the xdg.configFile entry at
+  # the bottom of this module), not a hashed store path, so a repo's
+  # .gitleaks.toml can extend rather than replace it:
+  #     [extend] path = "/home/<you>/.config/gitleaks/config.toml".
+  preCommitHook = writeShellScript "pre-commit" ''
+    set -euo pipefail
+    root="$(${gitPackage}/bin/git rev-parse --show-toplevel)"
+    args=(git --pre-commit --staged --no-banner --redact)
+    if [ ! -f "$root/.gitleaks.toml" ]; then
+      cfg="$HOME/.config/gitleaks/config.toml"
+      if [ ! -f "$cfg" ]; then
+        echo "pre-commit: global gitleaks config missing at $cfg (run home-manager switch)" >&2
+        exit 1
+      fi
+      args+=(-c "$cfg")
+    fi
+    exec ${gitleaks}/bin/gitleaks "''${args[@]}"
+  '';
+
+  # git's init.templatedir seeds new repos from a directory of hooks. Copy the
+  # static hooks verbatim, then drop in the generated gitleaks pre-commit.
+  gitTemplateDir = runCommandLocal "git-template-dir" { } ''
+    cp -r ${./git_template} $out
+    chmod -R u+w $out
+    cp ${preCommitHook} $out/hooks/pre-commit
+    chmod +x $out/hooks/pre-commit
+  '';
+
   userName = "Markus Hauck";
 in
 {
-  value = {
+  programs.git = {
     enable = true;
     package = gitPackage;
     lfs.enable = true;
@@ -173,7 +214,7 @@ in
       };
 
       init = {
-        templatedir = "${./git_template}";
+        templatedir = "${gitTemplateDir}";
         defaultBranch = "main";
       };
 
@@ -184,4 +225,8 @@ in
       branch.sort = "-committerdate";
     };
   };
+
+  # Global gitleaks config at the conventional path, referenced by the
+  # pre-commit hook above and available for repos to `[extend]`.
+  xdg.configFile."gitleaks/config.toml".source = ./gitleaks.toml;
 }
