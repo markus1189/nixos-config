@@ -1755,26 +1755,36 @@ rec {
 
         ret=0
         # Recurse into subdirs; %P yields paths relative to $downloads
-        # (kept mtime-sorted, newest first) so "$downloads/$choice" holds.
+        # (kept mtime-sorted, newest first) so "$downloads/$rel" holds.
+        # -multi-select: Shift+Enter marks rows; rofi returns one per line.
         choice=$(find "$downloads" -type f -printf '%T@\t%P\n' 2>/dev/null \
           | sort -rn | cut -f2- \
-          | rofi -dmenu -i -matching fuzzy -sort -p "downloads" \
+          | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "downloads" \
               -kb-custom-1 "Alt+d" \
               -kb-custom-2 "Alt+o" \
-              -mesg "Enter: copy path  |  Alt+d: drag  |  Alt+o: open") || ret=$?
+              -mesg "Enter: copy  |  Alt+d: drag  |  Alt+o: open  |  Shift+Enter: mark") || ret=$?
         [ -z "$choice" ] && exit 0
 
-        full="$downloads/$choice"
+        # One absolute path per selected line.
+        mapfile -t rels <<< "$choice"
+        full=()
+        for rel in "''${rels[@]}"; do
+          full+=("$downloads/$rel")
+        done
+
         case "$ret" in
           10)
-            xdragon -x "$full"
+            xdragon -x "''${full[@]}"
             ;;
           11)
-            xdg-open "$full"
+            for f in "''${full[@]}"; do xdg-open "$f"; done
             ;;
           *)
-            printf '%s' "$full" | xclip -i -selection clipboard
-            notify-send "Copied path" "$choice"
+            # Command substitution strips the trailing newline, so a single
+            # selection copies clean and many copy newline-joined.
+            clip=$(printf '%s\n' "''${full[@]}")
+            printf '%s' "$clip" | xclip -i -selection clipboard
+            notify-send "Copied path(s)" "$choice"
             ;;
         esac
       '';
@@ -1808,26 +1818,36 @@ rec {
 
         ret=0
         # -L follows the Today symlink, then recurse; %P yields paths
-        # relative to $today (mtime-sorted) so "$today/$choice" holds.
+        # relative to $today (mtime-sorted) so "$today/$rel" holds.
+        # -multi-select: Shift+Enter marks rows; rofi returns one per line.
         choice=$(find -L "$today" -type f -printf '%T@\t%P\n' 2>/dev/null \
           | sort -rn | cut -f2- \
-          | rofi -dmenu -i -matching fuzzy -sort -p "today" \
+          | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "today" \
               -kb-custom-1 "Alt+d" \
               -kb-custom-2 "Alt+o" \
-              -mesg "Enter: copy path  |  Alt+d: drag  |  Alt+o: open") || ret=$?
+              -mesg "Enter: copy  |  Alt+d: drag  |  Alt+o: open  |  Shift+Enter: mark") || ret=$?
         [ -z "$choice" ] && exit 0
 
-        full="$today/$choice"
+        # One absolute path per selected line.
+        mapfile -t rels <<< "$choice"
+        full=()
+        for rel in "''${rels[@]}"; do
+          full+=("$today/$rel")
+        done
+
         case "$ret" in
           10)
-            xdragon -x "$full"
+            xdragon -x "''${full[@]}"
             ;;
           11)
-            xdg-open "$full"
+            for f in "''${full[@]}"; do xdg-open "$f"; done
             ;;
           *)
-            printf '%s' "$full" | xclip -i -selection clipboard
-            notify-send "Copied path" "$choice"
+            # Command substitution strips the trailing newline, so a single
+            # selection copies clean and many copy newline-joined.
+            clip=$(printf '%s\n' "''${full[@]}")
+            printf '%s' "$clip" | xclip -i -selection clipboard
+            notify-send "Copied path(s)" "$choice"
             ;;
         esac
       '';
