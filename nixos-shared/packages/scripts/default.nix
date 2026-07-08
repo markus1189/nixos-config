@@ -1738,6 +1738,7 @@ rec {
         pure = false;
         deps = [
           coreutils
+          findutils
           rofi
           xclip
           libnotify
@@ -1753,7 +1754,10 @@ rec {
         fi
 
         ret=0
-        choice=$(ls -1t "$downloads" 2>/dev/null \
+        # Recurse into subdirs; %P yields paths relative to $downloads
+        # (kept mtime-sorted, newest first) so "$downloads/$choice" holds.
+        choice=$(find "$downloads" -type f -printf '%T@\t%P\n' 2>/dev/null \
+          | sort -rn | cut -f2- \
           | rofi -dmenu -i -matching fuzzy -sort -p "downloads" \
               -kb-custom-1 "Alt+d" \
               -kb-custom-2 "Alt+o" \
@@ -1784,6 +1788,7 @@ rec {
         pure = false;
         deps = [
           coreutils
+          findutils
           rofi
           xclip
           libnotify
@@ -1802,7 +1807,10 @@ rec {
         fi
 
         ret=0
-        choice=$(ls -1t "$today" 2>/dev/null \
+        # -L follows the Today symlink, then recurse; %P yields paths
+        # relative to $today (mtime-sorted) so "$today/$choice" holds.
+        choice=$(find -L "$today" -type f -printf '%T@\t%P\n' 2>/dev/null \
+          | sort -rn | cut -f2- \
           | rofi -dmenu -i -matching fuzzy -sort -p "today" \
               -kb-custom-1 "Alt+d" \
               -kb-custom-2 "Alt+o" \
