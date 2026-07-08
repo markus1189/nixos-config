@@ -15,7 +15,7 @@ Invoke the wrapper script with the user's prompt:
 ./scripts/nano-banana.sh "<prompt>"
 ```
 
-The script handles the API key (`pass api/openrouter`), SSE streaming, and saving. It writes the PNG to the current working directory unless `-o` is given. After it returns, the last stdout line is `Saved: <path> (model: <id>)` — read the path with the Read tool to display the image to the user.
+The script handles the API key (`pass api/openrouter/image-editing`), SSE streaming, and saving. It writes the PNG to the current working directory unless `-o` is given. After it returns, the last stdout line is `Saved: <path> (model: <id>)` — read the path with the Read tool to display the image to the user.
 
 ## Model selection
 
@@ -47,7 +47,7 @@ For non-trivial generations (text in images, multi-image composition, photoreali
 
 ## Failure modes
 
-- `pass api/openrouter returned empty` — entry missing in the user's password store.
+- `pass api/openrouter/image-editing returned empty` — entry missing in the user's password store.
 - `API error: ...` — surfaced from OpenRouter (rate limit, model unavailable, content policy). Report it verbatim.
 - `No image returned` — model produced text only (e.g. refused). Show the response if helpful.
 

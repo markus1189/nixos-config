@@ -16,7 +16,7 @@ Usage: $0 [opts] <prompt>
   -i, --image FILE input image, repeatable (max 5 for pro)
   --no-stream      disable SSE streaming
 
-API key is read from \`pass api/openrouter\`.
+API key is read from \`pass api/openrouter/image-editing\`.
 EOF
   exit 1
 }
@@ -85,8 +85,8 @@ fi
 
 OUTPUT="${OUTPUT:-nano-banana-$(date +%Y%m%d-%H%M%S).png}"
 
-API_KEY=$(pass api/openrouter)
-[ -n "$API_KEY" ] || { echo "pass api/openrouter returned empty" >&2; exit 1; }
+API_KEY=$(pass api/openrouter/image-editing)
+[ -n "$API_KEY" ] || { echo "pass api/openrouter/image-editing returned empty" >&2; exit 1; }
 
 # Build the request body in temp files so the base64 image data never has to
 # travel through argv (--arg/--argjson) — easily blows past ARG_MAX otherwise.
