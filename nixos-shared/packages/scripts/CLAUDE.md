@@ -85,7 +85,7 @@ All `*Bin` variants create scripts in `/bin/` subdirectory.
 4. **Run linters/checks** (build the script to run automatic linters):
    ```bash
    # Build specific script attribute
-   nix-build -E 'let pkgs = import <nixpkgs> {}; in (pkgs.callPackage ./default.nix { markus-wallpapers = "dummy"; })' -A scriptName
+   nix-build -E 'let pkgs = import <nixpkgs> {}; in (pkgs.callPackage ./default.nix {})' -A scriptName
    ```
    Many script writers include automatic linting that runs at build time (Python uses flake8, Lua uses luacheck, Fish/Babashka have syntax checks, writeShellApplication uses shellcheck). Build failures indicate linting issues that must be fixed.
 
