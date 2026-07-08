@@ -25,6 +25,7 @@ args@{
   rofi,
   rofiDefaults,
   rofiDownloadsPicker,
+  rofiStuffTodayPicker,
   singlehead,
   takeScreenshot,
   tesseract4,

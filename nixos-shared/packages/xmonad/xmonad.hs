@@ -65,6 +65,7 @@ import XMonad
     xK_Tab,
     xK_a,
     xK_b,
+    xK_c,
     xK_d,
     xK_e,
     xK_grave,
@@ -76,6 +77,7 @@ import XMonad
     xK_o,
     xK_p,
     xK_q,
+    xK_r,
     xK_s,
     xK_semicolon,
     xK_space,
@@ -377,9 +379,17 @@ myKeys =
     ((myModShiftCtrl, xK_Tab), cycleWindowSets (recentNonVisibleWS isWindowSpaceInteresting) [xK_Super_L] xK_Tab xK_grave),
     ((myModKey, xK_Tab), toggleWS' ["NSP"]),
     --
-    ((myModKey, xK_b), spawn "@bukuRun@/bin/bukuRun"),
-    ((myModKey, xK_d), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
-    ((myModShift, xK_d), spawn "@rofiDownloadsPicker@/bin/rofiDownloadsPicker"),
+    -- dmenu-style leader: super+d then r/s/c/t/d/b
+    ( (myModKey, xK_d),
+      submap . M.fromList $
+        [ ((0, xK_r), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
+          ((0, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
+          ((0, xK_c), spawn "@clipcat@/bin/clipcat-menu insert"),
+          ((0, xK_t), spawn "@rofiStuffTodayPicker@/bin/rofiStuffTodayPicker"),
+          ((0, xK_d), spawn "@rofiDownloadsPicker@/bin/rofiDownloadsPicker"),
+          ((0, xK_b), spawn "@bukuRun@/bin/bukuRun")
+        ]
+    ),
     ((myModKey, xK_e), swapNextScreen),
     ((myModKey, xK_grave), withDisplay $ withFocused . maximizeFloatWindow),
     ((myModKey, xK_minus), sendMessage Shrink),
@@ -392,7 +402,6 @@ myKeys =
           ((0, xK_m), spawn "@pamixer@/bin/pamixer -t")
         ]
     ),
-    ((myModKey, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
     ((myModKey, xK_w), nextScreen'),
     ((myModShift, xK_BackSpace), clearUrgents),
     ((myModShift, xK_l), scratchTermLower),
@@ -406,7 +415,6 @@ myKeys =
     ((myModKey, xK_n), rofiWorkspaceSwitch),
     ((myModShift, xK_n), rofiWorkspaceShift),
     ((myModCtrl, xK_n), removeEmptyWorkspace),
-    ((myModShiftCtrl, xK_h), spawn "@clipcat@/bin/clipcat-menu insert"),
     ((myModShiftCtrl, xK_q), spawn "@xmonadReset@/bin/xmonadReset"),
     -- Copy to all, kill again
     ((myModKey, xK_a), windows copyToAll),
