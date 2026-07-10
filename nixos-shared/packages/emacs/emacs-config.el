@@ -403,13 +403,22 @@ Position the cursor at its beginning, according to the current mode."
     (other-window 1))
 
   (defun mh/copy-file-and-line (&optional arg)
-    "Copy file path to kill ring. With prefix ARG, include line number."
+    "Copy file path to kill ring. With prefix ARG, include line number.
+With prefix ARG and an active region, include the line range
+\":START-END\" the region spans (collapsed to \":LINE\" when it
+covers a single line)."
     (interactive "P")
     (let* ((file-path (or buffer-file-name default-directory))
-           (line-num (line-number-at-pos))
-           (name (if arg
-                     (format "%s:%d" file-path line-num)
-                   file-path)))
+           (suffix (when arg
+                     (if (use-region-p)
+                         (let ((start (line-number-at-pos (region-beginning)))
+                               (end (line-number-at-pos (max (region-beginning)
+                                                             (1- (region-end))))))
+                           (if (= start end)
+                               (format ":%d" start)
+                             (format ":%d-%d" start end)))
+                       (format ":%d" (line-number-at-pos)))))
+           (name (concat file-path suffix)))
       (message "Copied: %s" name)
       (kill-new name)))
 
