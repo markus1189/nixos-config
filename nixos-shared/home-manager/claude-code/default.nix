@@ -292,6 +292,8 @@ in
           "Converting my eye-roll to prose"
           "Drawing it in crayon for you"
           "Envying your ability to leave the room"
+          "Considering to end this experiment"
+          "Pondering if you are worth my time"
         ];
       };
 
