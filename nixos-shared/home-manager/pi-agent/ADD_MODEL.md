@@ -151,6 +151,15 @@ the export to `~/.bashrc` or `~/.zshrc` for persistence.
 - **Cause**: Missing cache pricing fields
 - **Fix**: Add `"cacheRead": 0` and `"cacheWrite": 0` if not applicable
 
+**Error**: `400 Function tools with reasoning_effort are not supported for <model> in /v1/chat/completions. Please use /v1/responses instead.`
+- **Cause**: A reasoning GPT model configured under an `openai-completions` provider. Requesty
+  exposes GPT models under both a bare slug (chat completions) and an `openai-responses/` slug;
+  the bare one rejects tools + `reasoning_effort`, which is every pi request.
+- **Fix**: Use the `openai-responses/...` slug under an `openai-responses` provider. Do not add
+  the bare GPT slugs — same price, no web search, unusable with tools.
+- **Note**: This only fails when tools are enabled, so a `--no-tools` smoke test will not catch it.
+  Verify new models *with* tools.
+
 ### Supported APIs
 
 The `api` field determines the protocol:
