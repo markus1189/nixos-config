@@ -79,6 +79,12 @@ let
     text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 
+  # Play a notification sound in the background. The timeout is load-bearing:
+  # if the audio stack wedges, aplay blocks forever on the PipeWire socket and
+  # every tool call leaks an immortal process.
+  playSound = wav:
+    "${pkgs.coreutils}/bin/timeout 5 ${pkgs.alsa-utils}/bin/aplay ${wav} >/dev/null 2>&1 &";
+
   # Hook definitions for compositional building
   soundNotificationHooks = [
     {
@@ -102,7 +108,7 @@ let
         }
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/just-maybe-577.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/just-maybe-577.wav;
         }
       ];
     }
@@ -110,29 +116,40 @@ let
 
   soundPreToolUseHooks = [
     {
-      matcher = "Task|WebSearch";
+      matcher = "Task|Agent|WebSearch";
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/happy-to-help-notification-sound.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/happy-to-help-notification-sound.wav;
         }
       ];
     }
     {
-      matcher = "Read|List|Glob|Grep|WebFetch";
+      matcher = "Read|Glob|Grep|WebFetch";
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/come-here-notification.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/come-here-notification.wav;
         }
       ];
     }
     {
-      matcher = "Bash|Write|Edit|MultiEdit|TodoWrite";
+      # Matchers are exact-match lists, not substring regexes: "Bash" does not
+      # cover "BashOutput", and "TodoWrite" does not cover "TaskCreate".
+      matcher = "Bash|Write|Edit|NotebookEdit|TodoWrite|TaskCreate|TaskUpdate";
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/intuition-561.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/intuition-561.wav;
+        }
+      ];
+    }
+    {
+      matcher = "Skill";
+      hooks = [
+        {
+          type = "command";
+          command = playSound ../../claude/sounds/graceful-285.wav;
         }
       ];
     }
@@ -144,7 +161,7 @@ let
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/involved-notification.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/involved-notification.wav;
         }
       ];
     }
@@ -153,7 +170,16 @@ let
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/pull-out-551.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/pull-out-551.wav;
+        }
+      ];
+    }
+    {
+      matcher = "compact";
+      hooks = [
+        {
+          type = "command";
+          command = playSound ../../claude/sounds/hollow-582.wav;
         }
       ];
     }
@@ -164,7 +190,7 @@ let
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/for-sure-576.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/for-sure-576.wav;
         }
       ];
     }
@@ -175,7 +201,7 @@ let
       hooks = [
         {
           type = "command";
-          command = "${pkgs.alsa-utils}/bin/aplay ${../../claude/sounds/time-is-now-585.wav} >/dev/null 2>&1 &";
+          command = playSound ../../claude/sounds/time-is-now-585.wav;
         }
       ];
     }
