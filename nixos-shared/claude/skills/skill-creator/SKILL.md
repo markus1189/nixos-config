@@ -55,6 +55,8 @@ Skills must not contain malware, exploit code, or content that could compromise 
 
 The context window is a public good. Skills share context with system prompt, conversation history, other Skills' metadata, and the user's request.
 
+An invoked SKILL.md enters the conversation as one message and stays there for the rest of the session — it is not re-read on later turns. Every line is a recurring cost, not a one-time read.
+
 **Default assumption: Claude is already very smart.** For every line in a skill, apply this three-part test:
 
 1. **Is this outside my training data?** (learned through research, experimentation, experience)
@@ -350,6 +352,7 @@ The skill is for another Claude instance. Include non-obvious procedural knowled
 
 **Body guidelines:**
 - Use imperative/infinitive form
+- Write standing instructions, not one-time steps. The body persists all session, so guidance phrased as "first, do X" reads as spent once X is done.
 - Avoid time-sensitive information (use "old patterns" sections instead)
 - Use consistent terminology throughout
 
@@ -430,6 +433,8 @@ This requires the `claude` CLI (`claude -p`) and an `ANTHROPIC_API_KEY`. See [re
 - Be more specific about scope
 
 **Instructions not followed:**
+- Before adding emphasis, subtract. A rule that keeps getting ignored is usually drowning in a too-long file; prune competing lines before shouting louder.
+- Don't assume it fell out of context. If a skill stops influencing behavior after the first response, the content is almost always still present and Claude is preferring other approaches. Strengthen the description, or move the requirement into a hook or script where it is deterministic rather than advisory.
 - Put critical instructions at the top with ## Critical headers
 - For validations, use scripts (code is deterministic; language isn't)
 - Combat model "laziness" by adding to user prompts (not SKILL.md):
@@ -441,3 +446,5 @@ This requires the `claude` CLI (`claude -p`) and an `ANTHROPIC_API_KEY`. See [re
 - Keep SKILL.md under 5,000 words
 - Move detailed docs to references/
 - If 20+ skills enabled simultaneously, recommend selective enablement
+
+**Compaction keeps only the head of the file.** After auto-compaction, the most recent invocation of each skill is re-attached, keeping the first 5,000 tokens of each, within a 25,000-token combined budget across all skills (most-recently-invoked first; older skills can be dropped entirely). Put load-bearing instructions early — content past the head is what vanishes first in a long session.
