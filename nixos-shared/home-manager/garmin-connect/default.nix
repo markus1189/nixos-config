@@ -1,4 +1,4 @@
-{ targetDir, password }:
+{ targetDir, environmentFile, tokenStore }:
 { writeScriptBin, python3 }:
 let
   myPython = python3.withPackages (ps:
@@ -23,10 +23,13 @@ in {
 
     Service = {
       Type = "oneshot";
+      # GARMIN_CONNECT_PASSWORD comes from the agenix-decrypted environmentFile,
+      # so it stays out of the world-readable nix store.
+      EnvironmentFile = environmentFile;
       Environment = [
         "GARMIN_CONNECT_TARGET_DIR=${targetDir}"
         "GARMIN_CONNECT_USER=markus1189@gmail.com"
-        "GARMIN_CONNECT_PASSWORD=${password}"
+        "GARMINTOKENS=${tokenStore}"
       ];
       ExecStart = "${fetchScript}/bin/${scriptName}";
     };

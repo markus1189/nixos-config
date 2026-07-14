@@ -1,12 +1,12 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
   garmin = (pkgs.callPackage
     (import ../nixos-shared/home-manager/garmin-connect/default.nix {
       targetDir = "/home/mediacenter/Syncthing/activities";
-      password = secrets.garminConnect.password;
+      tokenStore = "/home/mediacenter/.garminconnect";
+      environmentFile = "/run/agenix/garminConnect";
     }) { });
   zwiftWeightSync = pkgs.callPackage
     (import ../nixos-shared/home-manager/zwift-weight-sync/default.nix {

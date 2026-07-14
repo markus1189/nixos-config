@@ -13,5 +13,6 @@ in {
   "rclone-premiumize.age".publicKeys = all;
   "rclone-gdrive.age".publicKeys = all;
   "cc-wlan-certificate.age".publicKeys = all;
+  "garmin-connect.age".publicKeys = all;
   "zwift-weight-sync.age".publicKeys = all;
 }

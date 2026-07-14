@@ -17,12 +17,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 if "GARMIN_CONNECT_START_DATE" in os.environ:
-    startdate = (parser.parse(os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True))
+    startdate = parser.parse(
+        os.environ['GARMIN_CONNECT_START_DATE'], fuzzy=True).date()
 else:
     startdate = (datetime.date.today() - datetime.timedelta(days = 10))
 
 if "GARMIN_CONNECT_END_DATE" in os.environ:
-    enddate = parser.parse(os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True)
+    enddate = parser.parse(
+        os.environ['GARMIN_CONNECT_END_DATE'], fuzzy=True).date()
 else:
     enddate = datetime.date.today()
 
@@ -32,6 +34,14 @@ if "GARMIN_CONNECT_TARGET_DIR" in os.environ:
     target_dir = os.environ['GARMIN_CONNECT_TARGET_DIR']
 else:
     target_dir = "."
+
+# Garmin puts the SSO login endpoint behind Cloudflare and 429s clients that
+# log in on every run. login() loads the stored tokens when present, only falls
+# back to credentials when it must, and persists tokens afterwards. The refresh
+# token renews itself, so this logs in about once a year.
+tokenstore = os.environ.get(
+    "GARMINTOKENS",
+    os.path.expanduser("~/.garminconnect"))
 
 
 def extension(dl_fmt):
@@ -112,16 +122,9 @@ try:
     username = os.environ['GARMIN_CONNECT_USER']
     password = os.environ['GARMIN_CONNECT_PASSWORD']
     api = Garmin(username, password)
-    api.garth.sess.headers.update({
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/131.0.0.0 Safari/537.36"
-        )
-    })
 
-    logger.info("Logging in as '%s'", username)
-    api.login()
+    logger.info("Logging in as '%s', tokens in %s", username, tokenstore)
+    api.login(tokenstore)
     logger.info("Logged in!")
 
     activities = api.get_activities_by_date(
