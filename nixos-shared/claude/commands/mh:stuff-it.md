@@ -28,4 +28,5 @@ outbound prose only).
 title.
 
 If nothing durable is worth keeping, say so instead of manufacturing
-filler.
+filler.  Interview me first before making assumptions about the
+content to be written.
