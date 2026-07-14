@@ -249,17 +249,35 @@ def flatten_comments(children, acc):
     return acc
 
 
+def is_share_link(s):
+    return bool(re.search(r"/s/[A-Za-z0-9]+", s)) or "redd.it/" in s
+
+
 def resolve_redirect(u):
-    """Follow reddit's /s/ share links and redd.it shortlinks to the real URL."""
+    """Follow reddit's /s/ share links and redd.it shortlinks to the real URL.
+
+    Needs the bearer token: reddit serves a 403 to unauthenticated callers
+    *instead* of the redirect, so anonymously the link never expands.
+    """
     req = urllib.request.Request(u, method="HEAD")
     req.add_header("User-Agent", UA)
+    req.add_header("Authorization", f"bearer {get_token()[0]}")
     try:
         with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as r:
-            return r.url
+            final = r.url
     except urllib.error.HTTPError as e:
-        return getattr(e, "url", u)
-    except urllib.error.URLError:
-        return u
+        # A 403 may still arrive after a hop or two, leaving a usable url on
+        # the exception; an unexpanded one is caught by the guard below.
+        final = getattr(e, "url", None) or u
+    except urllib.error.URLError as e:
+        die(f"network error expanding {u}: {e}")
+
+    # Never hand an unexpanded share link to classify(): '/r/<sub>/s/<id>'
+    # matches its subreddit pattern, so the failure would surface as a hot
+    # listing for the subreddit rather than as an error.
+    if is_share_link(final):
+        die(f"could not expand share link: {u}")
+    return final
 
 
 def classify(s):
@@ -272,7 +290,8 @@ def classify(s):
         return ("thread", s[3:] if s.startswith("t3_") else s)
 
     # Share links and shortlinks carry no ids of their own; expand them first.
-    if re.search(r"/s/[A-Za-z0-9]+", s) or "redd.it/" in s:
+    expanded = is_share_link(s)
+    if expanded:
         s = resolve_redirect(s)
 
     path = urllib.parse.urlparse(s).path
@@ -282,6 +301,15 @@ def classify(s):
     if m:
         return ("comment", m.group(1), m.group(2)) if m.group(2) \
             else ("thread", m.group(1))
+
+    # A share link always points at a thread or comment. If it expanded to
+    # anything else, the id is dead or mistyped and reddit bounced us to the
+    # subreddit — falling through would answer with that sub's hot listing,
+    # which looks like success.
+    if expanded:
+        die(f"share link expanded to {s}, which is not a thread — the link is "
+            f"probably expired or mistyped")
+
     m = re.search(r"/(?:r)/([A-Za-z0-9_]+)", path)
     if m:
         return ("sub", m.group(1))
