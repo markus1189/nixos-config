@@ -35,7 +35,15 @@ Fetch top stories, search, and view comments from Hacker News.
 ./scripts/hn-cli.sh -c STORY_ID -n 100           # Up to 100 comments
 ```
 
-Story IDs appear in brackets `[12345678]` in output — use these for `--comments`.
+### Dump a full thread (deep dives, comment mining)
+```bash
+./scripts/hn-cli.sh -t STORY_ID                  # Whole comment tree, ONE request (Algolia), up to 300 comments
+./scripts/hn-cli.sh --thread STORY_ID -n 800     # Bigger threads
+```
+
+`-c` fetches comments one-by-one from Firebase (slow; pretty tree for casual browsing). `-t` gets the entire tree in a single request, plain text, with comment links preserved — prefer it whenever you actually need to read a discussion.
+
+Story IDs appear in brackets `[12345678]` in output — use these for `--comments`/`--thread`.
 
 **Script Execution:** Always use absolute paths when invoking scripts. Resolve `./scripts/` against this skill's directory. Example: `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`. All scripts use Nix shebangs so no manual dependency installation is required.
 
@@ -177,7 +185,9 @@ The most valuable HN finds are often **linked in comments, not described** — s
 
 **Filtering**: Surface links that are personal/hand-crafted (someone's own config, dotfiles, tool), validated by the thread (other commenters engaged with it), and relevant to User Interests below. Skip generic libraries and well-known projects.
 
-**During deep dives**: The sub-agent surfaces these in a "Linked Artifacts" section. After reading deep-dive output, **prominently call out** interesting artifacts that pass the filter — don't bury them in comment quotes. Present them as a separate callout so the user can decide whether to chase them down.
+**During deep dives**: The sub-agent surfaces these in a "Linked Artifacts" section (🎯 = most chase-worthy). After every deep-dive batch, aggregate them into a dedicated **🔗 Artifacts & Papers** block in the response — its own section, never buried inside comment quotes. The block always appears; if no dive surfaced anything, say so in one line.
+
+**Chase proactively**: For 1–3 artifacts per batch that match User Interests, don't ask — fetch the README/gist/file immediately (read-only) and attach a 2–3 sentence verdict: what it actually is, whether it's worth adopting. Ask first only when a chase would become a rabbit hole (cloning repos, long papers, multi-repo spelunking).
 
 ### Cited Papers & Research
 

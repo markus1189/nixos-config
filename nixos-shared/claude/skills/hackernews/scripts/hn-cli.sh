@@ -37,7 +37,8 @@ readonly TREE_SPACE="  "
 DEFAULT_STORY_COUNT=20
 DEFAULT_COMMENT_DEPTH=1
 DEFAULT_MAX_COMMENTS=20
-HOT_ONLY=false
+DEFAULT_THREAD_DEPTH=25
+DEFAULT_THREAD_COMMENTS=300
 
 # Global counter for comments fetched
 COMMENTS_FETCHED=0
@@ -46,13 +47,15 @@ show_help() {
     cat <<EOF
 Usage: ${0##*/} [OPTIONS] [COUNT]
        ${0##*/} --comments ID [OPTIONS]
+       ${0##*/} --thread ID [OPTIONS]
        ${0##*/} --search QUERY [OPTIONS]
 
 Fetch and display Hacker News stories or comments.
 
 Modes:
   (default)         List top stories
-  -c, --comments ID View comments for a story by ID
+  -c, --comments ID View comments for a story by ID (per-comment fetch, pretty tree)
+  -t, --thread ID   Dump the full comment tree in ONE request via Algolia (plain text)
   -s, --search QUERY  Search stories via Algolia
 
 Story Options:
@@ -68,6 +71,10 @@ Comment Options:
   -d, --depth N     Maximum comment depth to display (default: ${DEFAULT_COMMENT_DEPTH})
   -n, --max-comments N  Maximum total comments to fetch (default: ${DEFAULT_MAX_COMMENTS})
 
+Thread Options:
+  -d, --depth N     Maximum comment depth (default: ${DEFAULT_THREAD_DEPTH})
+  -n, --max-comments N  Maximum comments to print (default: ${DEFAULT_THREAD_COMMENTS})
+
 General Options:
   -h, --help        Show this help message
 
@@ -79,6 +86,8 @@ Examples:
   ${0##*/} -c 46691835        # View comments for story ID 46691835
   ${0##*/} --comments 46691835 --depth 3   # Limit to 3 levels deep
   ${0##*/} -c 46691835 -n 100              # Fetch up to 100 comments
+  ${0##*/} -t 46691835                     # Full thread, one request, up to ${DEFAULT_THREAD_COMMENTS} comments
+  ${0##*/} --thread 46691835 -n 800        # Monster threads
   ${0##*/} -s "rust programming"           # Search for Rust stories (recent first)
   ${0##*/} --search "AI" --sort popular    # Search for AI stories (by popularity)
   ${0##*/} -s "nix" 50                     # Search Nix stories, show 50 results
@@ -127,8 +136,9 @@ wrap_text() {
     local width=$3
     local available=$((width - ${#prefix}))
 
-    # Strip HTML tags and decode common entities
-    text=$(echo "$text" | sed -E 's/<[^>]+>//g' | \
+    # Replace links with their href (anchor text is truncated by HN), then
+    # strip HTML tags and decode common entities
+    text=$(echo "$text" | sed -E 's|<a href="([^"]+)"[^>]*>[^<]*</a>|\1|g' | sed -E 's/<[^>]+>//g' | \
         sed 's/&gt;/>/g; s/&lt;/</g; s/&amp;/\&/g; s/&quot;/"/g; s/&#x27;/'\''/g; s/&#39;/'\''/g; s/&nbsp;/ /g')
 
     # Handle empty text
@@ -354,6 +364,55 @@ show_comments() {
     done
 }
 
+# Fetch the FULL comment tree in one request via Algolia and print it as an
+# indented plain-text thread. No colors — this output is meant for agents.
+# Args: story_id, max_depth, max_comments
+show_thread() {
+    local story_id=$1
+    local max_depth=$2
+    local max_comments=$3
+
+    local json
+    if ! json=$(curl --fail -s --max-time 30 "${ALGOLIA_API}/items/${story_id}"); then
+        echo "Error: Failed to fetch item ${story_id} from Algolia." >&2
+        exit 1
+    fi
+
+    if [[ -z "$json" || "$json" == "null" ]]; then
+        echo "Error: Item ${story_id} not found." >&2
+        exit 1
+    fi
+
+    echo "$json" | jq -r --argjson maxd "$max_depth" --argjson maxn "$max_comments" '
+        def clean:
+            gsub("<a href=\"(?<u>[^\"]+)\"[^>]*>[^<]*</a>"; "\(.u)")
+            | gsub("<p>"; "\n")
+            | gsub("<[^>]*>"; "")
+            | gsub("&gt;"; ">") | gsub("&lt;"; "<") | gsub("&quot;"; "\"")
+            | gsub("&#x27;"; "\u0027") | gsub("&#39;"; "\u0027")
+            | gsub("&#x2F;"; "/") | gsub("&nbsp;"; " ") | gsub("&amp;"; "&");
+        def flat(d):
+            (if .author != null and .text != null then {d: d, author, id, text} else empty end),
+            (if d < $maxd then (.children[]? | flat(d+1)) else empty end);
+        def indent(n): if n == 0 then "" else "  " * n end;
+
+        . as $root
+        | ([.. | objects | select(.type == "comment" and .author != null)] | length) as $total
+        | "# \($root.title // "untitled") [\($root.id)]",
+          "\($root.points // 0) points · \($root.author // "?") · \($root.created_at // "" | .[0:10]) · \($total) comments in tree (showing up to \($maxn), depth <= \($maxd))",
+          (if ($root.url // "") != "" then $root.url else empty end),
+          (if ($root.text // "") != "" then "", ($root.text | clean) else empty end),
+          "",
+          ( [limit($maxn; $root.children[]? | flat(0))][]
+            | indent(.d) as $i
+            | "\($i)▸ \(.author) [\(.id)]",
+              ($i + "  " + (.text | clean | split("\n") | map(select(length > 0)) | join("\n\($i)  "))),
+              ""
+          ),
+          (if $total > $maxn then "[truncated: \($total) comments in tree — re-run with -n N for more]" else empty end)
+    '
+}
+
 # Fetch and format a single story for list display
 # shellcheck disable=SC2329
 fetch_and_format_story() {
@@ -540,6 +599,7 @@ search_stories() {
     export HOT_FILTER="false"
 
     # Fetch all stories in parallel, sort by rank to preserve search order, then display
+    # shellcheck disable=SC1083
     echo -n "$numbered_ids" | \
         parallel --colsep ' ' -j 20 fetch_and_format_story {1} {2} 2>/dev/null | \
         sort -t$'\t' -k1 -n | \
@@ -600,8 +660,8 @@ show_stories() {
     export HOT_FILTER="$hot_filter"
 
     # Fetch all stories in parallel, sort by rank, filter/limit, then display
-    # shellcheck disable=SC1083
     local count=0
+    # shellcheck disable=SC1083
     echo -n "$numbered_ids" | \
         parallel --colsep ' ' -j 20 fetch_and_format_story {1} {2} 2>/dev/null | \
         sort -t$'\t' -k1 -n | \
@@ -627,6 +687,8 @@ COMMENT_DEPTH=$DEFAULT_COMMENT_DEPTH
 MAX_COMMENTS=$DEFAULT_MAX_COMMENTS
 STORY_COUNT=$DEFAULT_STORY_COUNT
 HOT_FILTER=false
+DEPTH_SET=false
+MAXN_SET=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -638,6 +700,15 @@ while [[ $# -gt 0 ]]; do
             MODE="comments"
             if [[ -z "${2:-}" ]]; then
                 echo "Error: --comments requires a story ID" >&2
+                exit 1
+            fi
+            STORY_ID="$2"
+            shift 2
+            ;;
+        -t|--thread)
+            MODE="thread"
+            if [[ -z "${2:-}" ]]; then
+                echo "Error: --thread requires a story ID" >&2
                 exit 1
             fi
             STORY_ID="$2"
@@ -670,6 +741,7 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             COMMENT_DEPTH="$2"
+            DEPTH_SET=true
             shift 2
             ;;
         -n|--max-comments)
@@ -678,6 +750,7 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             MAX_COMMENTS="$2"
+            MAXN_SET=true
             shift 2
             ;;
         --hot)
@@ -712,6 +785,24 @@ if [[ "$MODE" == "comments" ]]; then
         exit 1
     fi
     show_comments "$STORY_ID" "$COMMENT_DEPTH" "$MAX_COMMENTS"
+elif [[ "$MODE" == "thread" ]]; then
+    if ! [[ "$STORY_ID" =~ ^[0-9]+$ ]]; then
+        echo "Error: Story ID must be a number" >&2
+        exit 1
+    fi
+    THREAD_DEPTH=$COMMENT_DEPTH
+    THREAD_MAX=$MAX_COMMENTS
+    [[ "$DEPTH_SET" == "true" ]] || THREAD_DEPTH=$DEFAULT_THREAD_DEPTH
+    [[ "$MAXN_SET" == "true" ]] || THREAD_MAX=$DEFAULT_THREAD_COMMENTS
+    if ! [[ "$THREAD_DEPTH" =~ ^[0-9]+$ ]] || ((THREAD_DEPTH < 1)); then
+        echo "Error: Depth must be a positive number" >&2
+        exit 1
+    fi
+    if ! [[ "$THREAD_MAX" =~ ^[0-9]+$ ]] || ((THREAD_MAX < 1)); then
+        echo "Error: Max comments must be a positive number" >&2
+        exit 1
+    fi
+    show_thread "$STORY_ID" "$THREAD_DEPTH" "$THREAD_MAX"
 elif [[ "$MODE" == "search" ]]; then
     if [[ -z "$SEARCH_QUERY" ]]; then
         echo "Error: Search query cannot be empty" >&2
