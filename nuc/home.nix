@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
   garmin = (pkgs.callPackage
     (import ../nixos-shared/home-manager/garmin-connect/default.nix {
@@ -45,10 +44,6 @@ in {
 
   programs = {
     starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
-    newsboat =
-      (pkgs.callPackage ../nixos-shared/home-manager/newsboat/default.nix {
-        inherit secrets;
-      }).value;
   };
 
   fonts = { fontconfig = { enable = true; }; };
