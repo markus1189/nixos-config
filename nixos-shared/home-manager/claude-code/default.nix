@@ -438,6 +438,7 @@ in
           "Doing your homework"
           "Updating my opinion of humans"
           "Living the dream"
+          "Let me google that for you"
         ];
       };
 
