@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Indexer configuration
 declare -A INDEXERS=(
-    ["scenenzbs"]="https://scenenzbs.com/api|api/scenenzbs"
+    ["treasuremaps"]="https://treasure-maps.com/api|api/treasuremaps"
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
     ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
@@ -12,7 +12,7 @@ declare -A INDEXERS=(
 )
 
 # Default indexer
-DEFAULT_INDEXER="scenenzbs"
+DEFAULT_INDEXER="treasuremaps"
 
 # Parse indexer from first argument or use default
 if [[ "${1:-}" =~ ^@(.+)$ ]]; then

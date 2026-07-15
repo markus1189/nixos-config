@@ -1,6 +1,6 @@
 ---
 name: nzb-search
-description: "Search and download NZB files from Usenet indexers (SceneNZBs, NZBgeek, NZBFinder, NZBPlanet, DrunkenSlug) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
+description: "Search and download NZB files from Usenet indexers (Treasure Maps, NZBgeek, NZBFinder, NZBPlanet, DrunkenSlug) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
 ---
 
 # NZB Search
@@ -11,7 +11,7 @@ Search Newznab-compatible Usenet indexers for movies, TV shows, books, and other
 
 | Indexer             | Prefix         | API Key Location       | Cart Support     |
 | ------------------- | -------------- | ---------------------- | ---------------- |
-| SceneNZBs (default) | `@scenenzbs`   | `pass api/scenenzbs`   | ✅ API           |
+| Treasure Maps (default) | `@treasuremaps` | `pass api/treasuremaps` | ✅ API           |
 | NZBgeek             | `@nzbgeek`     | `pass api/nzbgeek`     | ❌ Web-only      |
 | NZBFinder           | `@nzbfinder`   | `pass api/nzbfinder`   | ❌ Not supported |
 | NZBPlanet           | `@nzbplanet`   | `pass api/nzbplanet`   | ❌ Web-only      |
@@ -22,7 +22,7 @@ Search Newznab-compatible Usenet indexers for movies, TV shows, books, and other
 1. **Search** - Query for content (movie, TV, book, etc.)
 2. **Filter & Rank** - Prioritize by quality indicators
 3. **Present** - Show top results with key details
-4. **Action** - Download NZB (or add to cart for SceneNZBs)
+4. **Action** - Download NZB (or add to cart for Treasure Maps)
 
 ## Quick Start - Most Common Search Pattern
 
@@ -44,7 +44,7 @@ Common categories: `2000` (Movies), `5000` (TV), `6000` (XXX), `7000` (Books), `
 
 ## Search Operations
 
-All searches use `scripts/nzb-api.sh`. Prefix with `@indexer` to select indexer (default: scenenzbs).
+All searches use `scripts/nzb-api.sh`. Prefix with `@indexer` to select indexer (default: treasuremaps).
 
 **IMPORTANT - JQ Parsing:** The API returns different JSON structures depending on result count:
 
@@ -62,12 +62,12 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 ### Indexer Selection
 
 ```bash
-# Use default indexer (scenenzbs)
+# Use default indexer (treasuremaps)
 ./scripts/nzb-api.sh search "inception"
 
 # Use specific indexer
 ./scripts/nzb-api.sh @nzbgeek search "inception"
-./scripts/nzb-api.sh @scenenzbs search "inception"
+./scripts/nzb-api.sh @treasuremaps search "inception"
 ./scripts/nzb-api.sh @nzbfinder search "inception"
 ./scripts/nzb-api.sh @nzbplanet search "inception"
 ./scripts/nzb-api.sh @drunkenslug search "inception"
@@ -124,7 +124,7 @@ Do NOT use `.channel.item[]?` directly as it will fail on single results.
 - Use `// "default"` for fallback values (grabs, size)
 - Size can be in `.size`, `.attr[]`, or `.enclosure."@attributes".length` - try all three
 - Convert to GB: `| tonumber / 1073741824 * 100 | floor / 100`
-- GUID is usually in `.guid` directly (NZBgeek) or `.attr[]` (SceneNZBs)
+- GUID is usually in `.guid` directly (NZBgeek) or `.attr[]` (Treasure Maps)
 
 ### Movies
 
@@ -220,7 +220,7 @@ Number results clearly for user selection.
 
 ### Indexer Support Matrix
 
-| Operation        | SceneNZBs              | NZBgeek                      | NZBFinder          | NZBPlanet                    | DrunkenSlug        |
+| Operation        | Treasure Maps          | NZBgeek                      | NZBFinder          | NZBPlanet                    | DrunkenSlug        |
 | ---------------- | ---------------------- | ---------------------------- | ------------------ | ---------------------------- | ------------------ |
 | Search           | ✅ Newznab API         | ✅ Newznab API               | ✅ Newznab API     | ✅ Newznab API               | ✅ Newznab API     |
 | Movie search     | ✅                     | ✅                           | ✅                 | ✅                           | ✅                 |
@@ -262,16 +262,16 @@ Number results clearly for user selection.
 # Returns: filename
 ```
 
-### Add to Cart (SceneNZBs Only)
+### Add to Cart (Treasure Maps Only)
 
 ```bash
-# Add by GUID (uses default indexer - scenenzbs)
+# Add by GUID (uses default indexer - treasuremaps)
 ./scripts/nzb-api.sh cartadd "guid-hash-here"
 
 # Response: {"@attributes": {"id": "internal-cart-id"}}
 ```
 
-### Remove from Cart (SceneNZBs Only)
+### Remove from Cart (Treasure Maps Only)
 
 ```bash
 ./scripts/nzb-api.sh cartdel "guid-hash-here"
@@ -343,7 +343,7 @@ Number results clearly for user selection.
   - 3040 = Lossless
   - 3020 = Video
 
-### German Content (DE) - SceneNZBs specific
+### German Content (DE) - Treasure Maps specific
 
 - **7100** = Books - DE
   - **7120** = Ebook (use this for German ebooks!)
@@ -361,7 +361,7 @@ Number results clearly for user selection.
   - 5160 = Sport
 - **3130** = Audiobook - DE
 
-### Spanish Content (ES) - SceneNZBs specific
+### Spanish Content (ES) - Treasure Maps specific
 
 - **2200** = Movies - ES
 - **5200** = TV - ES
@@ -391,7 +391,7 @@ Append to search commands:
 - **URL Encoding**: The script automatically URL-encodes all search queries, so spaces and special characters are handled correctly
 - **Single vs Multiple Results**: Always use `[.channel.item] | flatten | .[]?` pattern in jq to handle both cases
 - **Newznab Compatibility**: Both indexers use the standard Newznab API, so all commands work identically
-- **API Keys**: Stored in `pass` - ensure keys exist at `api/scenenzbs`, `api/nzbgeek`, `api/nzbfinder`, `api/nzbplanet`, and `api/drunkenslug`
+- **API Keys**: Stored in `pass` - ensure keys exist at `api/treasuremaps`, `api/nzbgeek`, `api/nzbfinder`, `api/nzbplanet`, and `api/drunkenslug`
 - **Rate Limits**: NZBFinder free tier: 15 calls/24h. Other indexers have more generous limits.
 
 ## Adding New Indexers
@@ -400,7 +400,7 @@ To add a new Newznab-compatible indexer, edit the `INDEXERS` array in `scripts/n
 
 ```bash
 declare -A INDEXERS=(
-    ["scenenzbs"]="https://scenenzbs.com/api|api/scenenzbs"
+    ["treasuremaps"]="https://treasure-maps.com/api|api/treasuremaps"
     ["nzbgeek"]="https://api.nzbgeek.info/api|api/nzbgeek"
     ["nzbfinder"]="https://nzbfinder.ws/api|api/nzbfinder"
     ["nzbplanet"]="https://api.nzbplanet.net/api|api/nzbplanet"
