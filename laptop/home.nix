@@ -34,6 +34,8 @@ in
       source-code-pro
       dunst
       ndt
+      # OpenSpec CLI — the generated openspec-* skills shell out to it at runtime.
+      openspec
       # jrnl fails at tests (2022-02-18)
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
@@ -46,6 +48,9 @@ in
           enableSoundHooks = true;
           enableDenyRules = true;
           enablePythonPathCheck = true;
+          # Generate OpenSpec's Claude Code skills from pkgs.openspec at build
+          # time (see the module). Requires the openspec CLI in home.packages.
+          enableOpenspecSkills = true;
           additionalAllowedCommands = [
             "Bash(git commit:*)"
             "Bash(git show:*)"
