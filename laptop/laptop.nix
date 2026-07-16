@@ -498,9 +498,32 @@ rec {
     etc =
       let
         youtube-downloader-config-shared = ''
+          # ---- Filenames / output ----
           -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
           --restrict-filenames
+          --output-na-placeholder ""            # empty, not literal "NA", for missing fields
+
+          # ---- Container / quality ----
+          -S res:1080,fps,vcodec,acodec         # best quality capped at 1080p
+          --merge-output-format mkv             # lossless: holds VP9/AV1/Opus + subs + thumb + infojson
+          #  (leave -f at its default bv*+ba/b; -S above shapes quality)
+
+          # ---- Embed everything into the one file (ffmpeg is bundled) ----
+          --embed-metadata                      # title/uploader/description into tags
+          --embed-chapters                      # YouTube chapter markers
+          --embed-thumbnail                     # cover art (mkv = clean; mp4 would need AtomicParsley)
           --embed-subs
+          --sub-langs en.*,de.*                 # makes --embed-subs actually do something
+          --convert-subs srt                    # normalize so embedding always succeeds
+
+          # ---- Robustness / speed ----
+          --concurrent-fragments 4              # parallel DASH/HLS fragments = big real speedup
+          --retries infinite
+          --fragment-retries infinite
+          --throttled-rate 100K                 # re-extract & retry if a stream drops below 100 KiB/s
+
+          # ---- SponsorBlock (non-destructive) ----
+          --sponsorblock-mark all               # chapter markers for sponsor/intro/etc; cuts nothing
         '';
       in
       {
