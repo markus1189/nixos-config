@@ -11,7 +11,7 @@ readonly WEATHER_BASE="https://weather.googleapis.com/v1"
 # Places API (New) field masks. Required — absent mask = billed-at-full-tier response.
 # Default details mask excludes `reviews` (Atmosphere SKU, most expensive tier).
 # Set MAPS_WITH_REVIEWS=1 to include reviews.
-readonly PLACES_SEARCH_MASK="places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.regularOpeningHours.openNow"
+readonly PLACES_SEARCH_MASK="places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.priceLevel,places.regularOpeningHours.openNow"
 readonly PLACE_DETAILS_MASK_BASE="id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,googleMapsUri,regularOpeningHours,rating,userRatingCount,priceLevel,location,types"
 
 # Routes API field masks. All requested fields are in the "Basic" SKU tier.
