@@ -61,7 +61,12 @@ Tag every finding with an apply-tier:
 ## Persistence — Log Every Run
 
 Append a one-line-per-finding record to `~/Stuff/YYYY-MM/DD-scratch/wrap-up-log.md` (create the file if
-absent; use today's date dir). Format: `date · category · tier · title · target file · applied?`.
+absent; use today's date dir). Format: `date · session · category · tier · title · target file · applied?`.
+
+Fill `session` with a session/conversation id **if your runtime exposes one** — check scratch, temp, or
+transcript paths, env vars, or similar. It lets a recurring finding be traced back to the transcript that
+produced it. A short prefix is fine when mapped to the full id in a footer comment. If no id is available,
+write `-` and move on — never invent one.
 
 **Before presenting**, `rg` the last ~2 weeks of these logs. If a finding recurs across sessions, mark it
 **🔁 recurring** and promote it to the top — a repeated friction is a standing bug, not a fresh suggestion.
