@@ -1,0 +1,5 @@
+# git-secret's mapping.cfg holds only path:sha256 checksums of the plaintext
+# secrets, never the secrets themselves (those live encrypted in *.secret).
+# gitleaks' generic-api-key rule trips on the high-entropy hash; ignore it.
+# Fingerprint is path:rule:line, stable across hash changes on every `git secret hide`.
+.gitsecret/paths/mapping.cfg:generic-api-key:1
