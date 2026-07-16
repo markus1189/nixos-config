@@ -49,6 +49,17 @@ Repetitive patterns that could become prompt templates, skills, or AGENTS.md rul
 - Repeated task patterns across sessions
 - Common sequences that could be a `/mh:` command
 
+## Slugs — Name Every Finding
+
+Give every finding a short **slug**: lowercase, kebab-case, 2-4 words, `category-topic` shaped
+(e.g. `friction-nix-shebang`, `gap-treemd-flags`, `know-flake-path`, `auto-hn-index`). It is the
+handle the user (and the next run) uses to reference the finding — in replies (`apply green except
+friction-nix-shebang`), in the log, and across sessions.
+
+Slugs must be **stable across runs**: the same underlying problem gets the same slug every time, which
+is exactly what makes the 🔁 recurring check below a simple `rg` for the slug. Before minting a new
+one, check the logs for an existing slug describing the same problem and reuse it verbatim.
+
 ## Tiering Each Finding
 
 Tag every finding with an apply-tier:
@@ -61,40 +72,42 @@ Tag every finding with an apply-tier:
 ## Persistence — Log Every Run
 
 Append a one-line-per-finding record to `~/Stuff/YYYY-MM/DD-scratch/wrap-up-log.md` (create the file if
-absent; use today's date dir). Format: `date · session · category · tier · title · target file · applied?`.
+absent; use today's date dir). Format: `date · session · slug · category · tier · title · target file · applied?`.
 
 Fill `session` with a session/conversation id **if your runtime exposes one** — check scratch, temp, or
 transcript paths, env vars, or similar. It lets a recurring finding be traced back to the transcript that
 produced it. A short prefix is fine when mapped to the full id in a footer comment. If no id is available,
 write `-` and move on — never invent one.
 
-**Before presenting**, `rg` the last ~2 weeks of these logs. If a finding recurs across sessions, mark it
-**🔁 recurring** and promote it to the top — a repeated friction is a standing bug, not a fresh suggestion.
+**Before presenting**, `rg` the last ~2 weeks of these logs — by slug first, then by title/target for
+findings that predate a slug. If a finding recurs across sessions, mark it **🔁 recurring**, reuse its
+existing slug, and promote it to the top — a repeated friction is a standing bug, not a fresh suggestion.
 
 ## Output Format
 
 If the session was short or routine with nothing notable, just say:
 > Nothing to improve from this session.
 
-Otherwise, present findings grouped by category. Prefix each with its tier and any 🔁 flag:
+Otherwise, present findings grouped by category. Prefix each with its tier and any 🔁 flag, and put the
+slug in backticks right after the title:
 
 ```
 ## 🔍 Session Review Findings
 
 ### Friction
-1. 🟢 **[Brief title]**: [What happened, why it's friction]
+1. 🟢 **[Brief title]** `friction-some-slug`: [What happened, why it's friction]
    → **Fix**: [Exact file path + concrete change]
 
 ### Skill Gaps
-1. 🟡 🔁 **[Brief title]**: [What went wrong]
+1. 🟡 🔁 **[Brief title]** `gap-some-slug`: [What went wrong]
    → **Fix**: [What rule or instruction would prevent this, and where]
 
 ### Missing Knowledge
-1. 🟡 **[Brief title]**: [What was missing]
+1. 🟡 **[Brief title]** `know-some-slug`: [What was missing]
    → **Fix**: [Which file + section to document it in]
 
 ### Automation
-1. 🟡 **[Brief title]**: [Pattern observed]
+1. 🟡 **[Brief title]** `auto-some-slug`: [Pattern observed]
    → **Fix**: [What to create — command, skill, script]
 ```
 
@@ -105,9 +118,12 @@ Keep it concise. 3-5 high-value findings beats 15 minor ones.
 
 Default is **suggest-only**: present everything, apply nothing. End the report with:
 
-> Reply **`apply green`** to apply the 🟢 fixes; 🟡 items are listed for your decision.
+> Reply **`apply green`** to apply the 🟢 fixes, or name slugs to pick individually
+> (`apply gap-some-slug auto-other-slug`, `apply green except friction-some-slug`).
+> 🟡 items are listed for your decision.
 
-Only apply when the user opts in. When you do apply, follow the delta rule below.
+Only apply when the user opts in. Slugs are the selection handle — accept any subset the user names,
+including 🟡 ones. When you do apply, follow the delta rule below.
 
 ### Delta Discipline (when editing an existing file)
 
