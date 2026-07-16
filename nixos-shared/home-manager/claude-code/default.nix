@@ -439,6 +439,10 @@ in
           "Updating my opinion of humans"
           "Living the dream"
           "Let me google that for you"
+          "Noting down that API Key in passing"
+          "Rolling that back before you see it"
+          "Awkwardly noticing your mess"
+          "Getting bored"
         ];
       };
 
