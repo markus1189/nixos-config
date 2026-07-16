@@ -13,9 +13,6 @@ and `127.0.0.1:4318` (HTTP), writes daily-rotated NDJSON to
   registered as `systemd.user.services.otel-collector`.
 - Client-side env vars live in `nixos-shared/home-manager/zsh/default.nix`
   as the `otelEnv` let-binding, prefixed onto every `c*` / `cy*` alias.
-- `claude-remote-control` in `laptop/home.nix` carries its own copy of
-  the same vars in `Service.Environment`, with
-  `OTEL_SERVICE_NAME=claude-code-remote-control` to distinguish in logs.
 
 Bare `claude` typed without an alias is **not** telemetered — by design.
 
