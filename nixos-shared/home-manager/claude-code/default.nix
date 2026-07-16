@@ -3,7 +3,6 @@
 , enableDenyRules ? false
 , enablePythonPathCheck ? false
 , enableDangerousCommandCheck ? true
-, enableOpenspecSkills ? false
 , additionalAllowedCommands ? []
 , ...
 }:
@@ -65,42 +64,6 @@ let
 
   # Auto-configure skills directories (symlink entire directories with all contents)
   skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
-
-  # OpenSpec distributes its Claude Code skills by *generating* them with its
-  # CLI rather than committing static files. We reproduce that at build time:
-  # run `openspec init --tools claude` (fully non-interactive) in a throwaway
-  # project and keep only the generated .claude/skills/openspec-* directories.
-  #
-  # The skill set and content track whatever `pkgs.openspec` version nixpkgs
-  # provides, so a nixpkgs bump (`nix flake update` / channel update) is what
-  # "auto-updates" the skills — no separate pin or manual copy. The generated
-  # skills shell out to the `openspec` CLI at runtime (`allowed-tools:
-  # Bash(openspec:*)`), so the consumer must also install pkgs.openspec.
-  openspecSkills = pkgs.runCommand "openspec-claude-skills"
-    {
-      nativeBuildInputs = [ pkgs.openspec ];
-      # Keep the sandboxed run offline and non-interactive.
-      OPENSPEC_TELEMETRY = "0";
-      DO_NOT_TRACK = "1";
-      CI = "1";
-    }
-    ''
-      export HOME="$TMPDIR/home"
-      mkdir -p "$HOME" "$TMPDIR/project"
-      cd "$TMPDIR/project"
-      openspec init . --tools claude
-      mkdir -p "$out"
-      cp -r .claude/skills/. "$out/"
-    '';
-
-  # Symlink each generated skill directory into ~/.claude/skills. Reading the
-  # derivation output requires IFD, as already used elsewhere in this repo
-  # (ndt/sources.nix). Guarded so only opted-in hosts build openspec.
-  openspecSkillsEntries =
-    if enableOpenspecSkills then
-      autoConfigSkillDirs openspecSkills "skills" "openspec-skills"
-    else
-      { };
 
   # Python PATH check hook script
   pythonPathCheckScript = pkgs.writeShellApplication {
@@ -535,5 +498,5 @@ in
     text = builtins.readFile ../../claude/CLAUDE-global.md;
   };
 
-  markdownFiles = commandEntries // docsEntries // outputStylesEntries // skillsEntries // openspecSkillsEntries;
+  markdownFiles = commandEntries // docsEntries // outputStylesEntries // skillsEntries;
 }
