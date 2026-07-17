@@ -32,7 +32,11 @@ Weight themes, quotes, and links toward what this reader cares about: AI agents 
 
 Return a single structured markdown summary with these sections:
 
-### {{STORY_TITLE}}
+## {{STORY_TITLE}} [{{STORY_ID}}]
+
+The `##` level and the trailing `[{{STORY_ID}}]` are load-bearing: the caller appends this
+verbatim to `hn-daily.md`, which `~/Stuff/.kb/kb-index` indexes by `##` heading only. Keep the
+sections below as `**bold labels**`, not `###`.
 
 **TL;DR**: summary of the article content (or the Ask HN question).
 

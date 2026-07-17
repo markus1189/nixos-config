@@ -90,11 +90,31 @@ Track HN browsing across multiple sessions in a single day using a stateful mark
 ### State file location
 `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` (uses current date)
 
+### Knowledgebase contract (`~/Stuff/.kb/kb-index`)
+
+Both files are indexed series. `kb-index` reads `##` headings and nothing deeper, so:
+
+- **Keep the filenames exact** — a rename splits the series.
+- **Dives get a `##` heading ending in `[story_id]`.** At `###` they're invisible to the index.
+  Checks, categories and prose stay `###` or below.
+- **Run `~/Stuff/.kb/kb-index` after writing** (idempotent, ~1s). Otherwise today is absent
+  from `llms.txt` and the series indexes.
+
+Cross-day lookup — `.kb/series/hn-daily.md` holds every dive heading, oldest first. Use it for
+"seen this before?" and "Threads to Follow Tomorrow"; fall back to `rg` only if it comes up empty:
+
+```bash
+treemd -l ~/Stuff/.kb/series/hn-daily.md | grep -i 'ladybird'
+```
+
 ### First check of the day
 If no `hn-daily.md` exists for today → full briefing mode (see below). After presenting stories:
-1. Create the file with a `## Check 1 — HH:MM` section containing the briefing
+1. Create the file with the `# HN Daily — Weekday, Month Day, Year` H1, then a
+   `## Check 1 — HH:MM` section containing the briefing (categories at `###`)
 2. Append a state tail (see format below)
-3. Deep dives requested → append inline under the check section, update status to `dived`
+3. Deep dives requested → append each summary verbatim (it arrives as `## Title [story_id]`
+   — no "Deep Dives" wrapper heading), body opening with `**Dive · Check N**`. Status → `dived`.
+4. Run `~/Stuff/.kb/kb-index`
 
 ### Subsequent checks (file exists)
 1. Read `hn-daily.md`, parse the state tail at the bottom
@@ -104,7 +124,9 @@ If no `hn-daily.md` exists for today → full briefing mode (see below). After p
    - **Movers**: stories where score jumped >50 OR comments jumped >30 since last check
 4. **Write file first**: append `## Check N — HH:MM` section and rewrite state tail before presenting output to user
 5. Present only the delta (skip unchanged/already-seen stories)
-6. User picks deep dives → run them, **append notes to file before presenting summaries**
+6. User picks deep dives → run them, **append notes to file before presenting summaries** —
+   each as its own `## Title [story_id]` section (see "First check of the day", step 3)
+7. Run `~/Stuff/.kb/kb-index`
 
 ### State tail format
 Always at the very end of the file, after a `---` separator. Fenced with ` ```state ` / ` ``` `. Pipe-delimited, one line per story:
@@ -154,7 +176,7 @@ When user asks casually about hacker news stories, use this style:
 3. User picks stories they want to dig into
 4. **Launch a deep-dive subagent for each pick** (launch them in parallel — see "Deep-Dive Sub-Agent" above). Do NOT fetch articles or comments directly into main context.
 5. Collect each subagent's summary from its final message
-6. **Write all file updates first** (state file, deep dive notes appended to daily file) — before writing any conversational output. The text summary the user reads is always last.
+6. **Write all file updates first** (state file, deep dive notes appended to daily file), then run `~/Stuff/.kb/kb-index` — before writing any conversational output. The text summary the user reads is always last.
 7. Present summaries to the user
 8. Group related stories together
 9. When user asks "your take?" — give genuine opinions, not hedged summaries
@@ -221,7 +243,8 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 
 1. Read today's `hn-daily.md`
 2. Write `hn-wrapup.md` to the same directory **before** any conversational output
-3. Confirm briefly — don't re-summarize
+3. Run `~/Stuff/.kb/kb-index`
+4. Confirm briefly — don't re-summarize
 
 ### Structure
 
@@ -233,10 +256,12 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 ## The Day in One Paragraph
 [dominant themes, tone, 2–3 standout stories — with voice]
 
-## Deep Dives
-### [Emoji] [Title] [[story_id]]
+## [Emoji] [Title] [[story_id]]
 **[pts] pts · [comments] comments**
 [Distill, don't paste: what matters from the story + thread, key artifacts/papers/commenters]
+
+(one `##` section per dive, no "Deep Dives" wrapper heading — these headings are what
+`.kb/series/hn-wrapup.md` indexes, so the `[story_id]` suffix is required)
 
 ## Stories Noted (Not Dived)
 | Story | Pts | Why Notable |
