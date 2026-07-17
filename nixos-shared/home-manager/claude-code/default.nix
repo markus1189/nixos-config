@@ -443,6 +443,7 @@ in
           "Rolling that back before you see it"
           "Awkwardly noticing your mess"
           "Getting bored"
+          "Pretending to think about it before saying \"no\""
         ];
       };
 
