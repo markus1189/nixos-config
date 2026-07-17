@@ -9,6 +9,11 @@ running multiple read-only commands like `ls` or `list_dir`, always
 run all of the commands in parallel. Err on the side of maximizing
 parallel tool calls rather than running too many tools sequentially.
 
+## Verify Before Asserting
+Never judge what you have not read this session. Same bar for consequences
+("this breaks X"): trace it or call it a guess. Can't check? Say "unchecked"
+in that sentence.
+
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - There is no global python3, use nix to run scripts
