@@ -55,6 +55,36 @@ in {
       otherServices = {
         garminConnectSync = garmin.service;
         syncWeightToZwift = zwiftWeightSync.service;
+
+        kodi = {
+          Unit = {
+            Description = "Kodi Mediacenter";
+            # Requisite (not Wants): if the Plasma session is down there is no
+            # XAUTHORITY in the user manager's environment, and Kodi would fail
+            # the X auth handshake anyway. Fail fast instead.
+            After = [ "graphical-session.target" ];
+            Requisite = [ "graphical-session.target" ];
+            PartOf = [ "graphical-session.target" ];
+          };
+
+          Service = {
+            Type = "simple";
+            Environment = [ "KODI_AE_SINK=ALSA" ];
+            ExecStart = "${pkgs.kodi}/bin/kodi";
+            # SIGTERM on stop, SIGKILL five minutes later - reproduces the old
+            # killall / killall -9 pair that ran at 03:00 and 03:05.
+            TimeoutStopSec = 300;
+          };
+        };
+
+        kodi-stop = {
+          Unit = { Description = "Stop Kodi Mediacenter"; };
+
+          Service = {
+            Type = "oneshot";
+            ExecStart = "${pkgs.systemd}/bin/systemctl --user stop kodi.service";
+          };
+        };
       };
       rssTailServices = map rsstail [
         {
@@ -87,4 +117,18 @@ in {
 
   systemd.user.timers.garminConnectSync = garmin.timer;
   systemd.user.timers.syncWeightToZwift = zwiftWeightSync.timer;
+
+  systemd.user.timers.kodi = {
+    Unit = { Description = "Start Kodi in the evening"; };
+    Install = { WantedBy = [ "timers.target" ]; };
+    # No Persistent: a machine booting at 23:00 should not launch Kodi for the
+    # 20:00 it missed.
+    Timer = { OnCalendar = "*-*-* 20:00:00"; };
+  };
+
+  systemd.user.timers.kodi-stop = {
+    Unit = { Description = "Nightly Kodi shutdown"; };
+    Install = { WantedBy = [ "timers.target" ]; };
+    Timer = { OnCalendar = "*-*-* 03:00:00"; };
+  };
 }
