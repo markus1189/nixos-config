@@ -73,16 +73,17 @@ env NIXPKGS_ALLOW_UNFREE=1 nix-build -A vscode-extensions.anthropic.claude-code
 
 The `claude-code` build runs `versionCheckHook` against `claude --version` — a successful build confirms the binary reports the expected version.
 
-The update script now refreshes **all four** vsix hashes in `default.nix` (one per arch). The local `nix-build` above only validates the **host** arch's hash; the other three are validated by the all-arch `nixpkgs-review-gha` run (step 12). So instead of force-fetching from the marketplace, just confirm the updater actually rewrote all four hash lines:
+`default.nix` carries one vsix hash per arch, but the local `nix-build` only validates the **host** arch's — the rest are covered by the all-arch `nixpkgs-review-gha` run (step 12). So don't force-fetch from the marketplace; just confirm the updater rewrote every hash line the file has. Derive the count, never hardcode it — the arch list changes (`x86_64-darwin` was dropped upstream, 4 → 3 as of 2.1.212):
 
 ```bash
 F=pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix
+total=$(grep -cE '^ *hash = "sha256-' "$F")
 changed=$(git diff -- "$F" | grep -cE '^\+ *hash = "sha256-')
-echo "$changed of 4 vsix hashes updated"
-[ "$changed" -eq 4 ] || echo "WARNING: expected 4 updated hashes — updater may have regressed to host-only; CI (step 12) will flag any stale arch, fix per Troubleshooting"
+echo "$changed of $total vsix hashes updated"
+[ "$changed" -eq "$total" ] || echo "WARNING: $((total - changed)) hash(es) stale — CI (step 12) will flag the arch, fix per Troubleshooting"
 ```
 
-If the count is 4, all hashes are fresh and CI will confirm them. If it is not 4 (updater regression), let CI surface the stale arch and patch it per Troubleshooting.
+If it comes up short, let CI surface the stale arch and patch it per Troubleshooting.
 
 ### 8. Commit (TWO separate commits)
 
@@ -196,13 +197,23 @@ Handle the results by case:
     --comment "Superseded by #<NEW_NUM>, which bumps straight to <NEW_VERSION>."
   ```
 
+### 14. Report Changelog Highlights (ALWAYS finish here)
+
+```bash
+curl -sL https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md | head -80
+```
+
+Read the `## NEW` section and report the interesting bits — never from memory. The changelog often lags the npm publish by hours: if there is no `## NEW` section, say so and stop, rather than falling back to the previous version's notes.
+
+Lead with security and permission-boundary fixes, then breaking changes, then new env vars — name those exactly, they're only useful if greppable. Skip the long tail of UI fixes.
+
 ## Troubleshooting
 
 **"Not updating version, already X.X.X"** - Not on clean master. Reset: `git checkout master && git reset --hard upstream/master`
 
 **Versions don't match** - Dirty branch. Reset to master, delete bad branch, start over.
 
-**vscode-ext hash mismatch (only surfaces on CI)** - Normally the updater refreshes all four hashes, but if one is stale (updater regression, or marketplace re-rolled the vsix bytes) it only fails in CI's clean sandbox. Fetch CI's `got:` hash from the failed review run, paste into the matching arch entry in `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
+**vscode-ext hash mismatch (only surfaces on CI)** - Normally the updater refreshes every arch's hash, but if one is stale (updater regression, or marketplace re-rolled the vsix bytes) it only fails in CI's clean sandbox. Fetch CI's `got:` hash from the failed review run, paste into the matching arch entry in `default.nix`, `git commit --amend --no-edit` into the vscode-ext commit, `git push --force-with-lease`, re-trigger review.
 ```bash
 RUN=<run id>
 JOB=$(gh api repos/markus1189/nixpkgs-review-gha/actions/runs/$RUN/jobs \
