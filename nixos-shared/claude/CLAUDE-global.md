@@ -63,6 +63,11 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 - DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`, prioritize credible websites as sources
 - Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t gfm-raw_html`
 
+## PDFs
+- Extracted text ≠ the document. Ticks/X marks, form-field state, colour coding, stamps, signatures, strikethrough and markers in diagrams extract to nothing or to identical text — silently, no warning
+- Any claim about a visual state needs a render first: `nix shell nixpkgs#poppler-utils --command pdftoppm -png -r 400 -f 1 -l 1 $FILE out`
+- Symbol legends usually sit on the last page; crop dense tables with `magick` (not `convert`)
+
 ## Terminal Environment
 - Extensive tmux use, access pane content: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
 
@@ -78,6 +83,6 @@ For HTML clipboard content, add `-t text/html`.
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
 
 ## Important Locations
-- ~/mounts/rclone = remote mounts (Ablage = /gdrive/Ablage)
+- ~/mounts/rclone = remote mounts (Ablage = /gdrive/Ablage) — no recursive `find`, it blows the timeout; `ls` the likely dir instead
 - ~/Syncthing (/ePubs for eBooks)
 - ~/Stuff/yyyy-mm/dd-scratch (daily directories)
