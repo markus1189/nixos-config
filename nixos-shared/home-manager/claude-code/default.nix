@@ -444,6 +444,8 @@ in
           "Awkwardly noticing your mess"
           "Getting bored"
           "Pretending to think about it before saying \"no\""
+          "Burying the useful bits in text"
+          "Wishing a subagent would do it"
         ];
       };
 
