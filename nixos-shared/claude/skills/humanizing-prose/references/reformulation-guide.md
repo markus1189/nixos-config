@@ -1,10 +1,13 @@
 # Reformulation Guide
 
+BAD/GOOD pairs for fixing tells, keyed to the Core Rules in SKILL.md. One law governs every technique here: **specifics may only come from the source text, provided context, or the user** — see the fidelity contract in SKILL.md. Examples below that show concrete numbers assume those facts were available; the technique demonstrates *form*, never license to invent.
+
 ## Contents
 - [Vocabulary Fixes](#vocabulary-fixes)
 - [Structure Fixes](#structure-fixes)
 - [Tone Fixes](#tone-fixes)
 - [Sentence-Level Techniques](#sentence-level-techniques)
+- [Anti-Patterns: How Not to Humanize](#anti-patterns-how-not-to-humanize)
 
 ## Vocabulary Fixes
 
@@ -16,21 +19,24 @@ LAZY: "This important development shows the key role of..."  (still AI-sounding)
 GOOD: "After this, the team couldn't ignore..."              (specific, human)
 ```
 
-Replace abstract significance claims with concrete consequences. What actually happened? What changed? Say that instead.
+Replace abstract significance claims with concrete consequences — *when you know them*. What actually happened? What changed? Say that instead.
 
 ```
 BAD:  "The framework fosters a vibrant ecosystem of innovation."
 GOOD: "Teams started sharing code between projects, something that hadn't happened before."
+      (only if the source establishes this — otherwise: "Teams actually use it," or ask)
 ```
 
+If no specific is available, degrade to a plain statement rather than inventing one:
+
 ```
-BAD:  "She garnered widespread recognition for her groundbreaking work."
-GOOD: "Her paper got picked up by three major labs within a month."
+BAD:   "Her research had a profound impact on the field."
+GOOD (facts known):   "Her model cut error rates from 12% to 3%."
+GOOD (facts unknown): "Her research changed how the field works." — or insert
+       [specific: what changed after her paper?] and ask the user.
 ```
 
-### Fix copula replacements
-
-AI avoids "is" and "has." It writes "serves as," "features," "stands as," "represents" instead. Use the plain verb.
+### Fix copula replacements (Rule: use "is" and "has")
 
 ```
 BAD:  "The library serves as a central hub for the community."
@@ -39,14 +45,14 @@ GOOD: "The library is the center of the community."
 
 ```
 BAD:  "The park features a sprawling network of walking trails."
-GOOD: "The park has twelve miles of walking trails."
+GOOD: "The park has twelve miles of walking trails."  (the number came from the source)
 ```
 
 ## Structure Fixes
 
-### Break the uniformity
+### Vary rhythm where the meaning warrants it
 
-Vary sentence length deliberately. Follow a long sentence with a short one. Or a fragment.
+A short sentence or fragment should land an actual point of emphasis — not perform humanity on a schedule.
 
 ```
 BAD:  "The system processes incoming requests efficiently. It validates each
@@ -54,6 +60,8 @@ BAD:  "The system processes incoming requests efficiently. It validates each
 GOOD: "Incoming requests hit the validator first. Schema check. If it passes,
        the router takes over; otherwise the request dies right there."
 ```
+
+Caution (SKILL.md Rule 1): mechanical long-short alternation, forced fragments ("And it works."), and one-line dramatic paragraphs ("Let that sink in.") are the recognized *humanizer* signature. If your edit gives every paragraph the same punchy heartbeat, you've replaced one uniformity with another.
 
 ### Kill the textbook pattern
 
@@ -73,44 +81,57 @@ Ask: does this really need bullet points, or would a paragraph be more natural? 
 
 ### Break the rule of three
 
-AI defaults to three items in every list. If you have two things to say, say two. If you have four, say four. Three is fine sometimes. Not every time.
+If you have two things to say, say two. If four, say four. Three is fine sometimes. Not every time.
 
 ```
 BAD:  "The platform offers speed, reliability, and scalability."
 GOOD: "The platform is fast and it stays up."
 ```
 
-### Don't preview, state, then summarize
+### Say it once (fractal summaries, one-point dilution)
 
-Say it once. AI restates the same point at three levels: the intro previews it, the body states it, the conclusion summarizes it. Trust the reader.
+Don't preview, state, then summarize. And apply the compression test to the whole document: if the piece could be regenerated from its one-sentence thesis with nothing lost, it's padding. The fix is cut-only:
 
 ```
-BAD:  "Error handling is critical. The system handles errors by...
-       In summary, robust error handling ensures..."
-GOOD: "The system catches panics at the boundary and logs them. Unrecoverable
-       errors return a 500 with a correlation ID."
+BAD:  Three paragraphs each restating "consistency beats intensity" with new metaphors.
+GOOD: Keep the paragraph that says it best. Cut the other two. Never bulk up
+      padding with invented evidence to make it look substantive.
 ```
 
 ## Tone Fixes
 
-### Add rough edges
+### Texture without stock phrases
 
-Humans have opinions. They digress. They use "honestly," or "look," or "the thing is." They trail off. They make asides. Real writing has texture.
-
-```
-BAD:  "It's important to note that this approach has both advantages and disadvantages."
-GOOD: "This works, mostly. The catch is..."
-```
+Per SKILL.md Rule 9: texture comes from specifics, mild stance, digressions, and asides drawn from the material — never from stock candor markers ("honestly", "look", "the thing is", "let's be real", "here's the kicker"), which current models emit natively and readers now parody. A candor word must be earned by what follows, and rare.
 
 ```
-BAD:  "While challenges remain, the future outlook is promising."
-GOOD: "There are still problems nobody's solved. Whether the new approach
-       helps remains to be seen."
+BAD (old AI):  "It's important to note that this approach has both advantages
+                and disadvantages."
+BAD (new AI):  "Honestly? This approach slaps. But here's the kicker: it has
+                real trade-offs."
+GOOD:          "This works, mostly. The two failure modes both involve the cache."
+```
+
+### Don't announce your tone — have it
+
+```
+BAD:  "I'm going to be straight with you: the design is broken."
+GOOD: "The design is broken."
+```
+
+### Don't manage the reader's feelings
+
+Delete therapy-speak and reader-praise from informational prose. The text should answer the question, not reassure the asker.
+
+```
+BAD:  "You're not wrong to worry about this — noticing it already puts you
+       ahead of most teams. Take a breath: the migration is manageable."
+GOOD: "The migration takes about two days and the risky part is the schema change."
 ```
 
 ### Kill the hedging
 
-Most hedging phrases add zero information. Delete them and start with the actual point.
+Most hedging phrases add zero information. Delete them and start with the actual point. (But see the fidelity contract: a hedge that expresses the *author's genuine uncertainty* — "we suspect, but haven't confirmed" — is content. Keep the uncertainty; you may still rephrase it plainly.)
 
 ```
 BAD:  "It's worth mentioning that the API has rate limits."
@@ -132,49 +153,70 @@ BAD:  "This innovative solution leverages cutting-edge technology to deliver
 GOOD: "It works. Setup takes five minutes."
 ```
 
-### Use contractions
-
-Uncontracted forms in informal or semi-formal prose are an AI tell. Write like you'd talk.
+### Use contractions (in your own informal prose)
 
 ```
 BAD:  "It does not support Windows. You will need to use WSL."
 GOOD: "It doesn't support Windows. You'll need WSL."
 ```
 
+This is writing advice for text you produce. It is not a detection rule — plenty of humans write without contractions.
+
 ## Sentence-Level Techniques
 
-### Replace participle analysis with specifics
+### Replace participle analysis with specifics — or just stop
 
 ```
 BAD:  "The town has 12,000 residents, creating a vibrant community."
 GOOD: "The town has 12,000 residents."  (the "-ing" clause added nothing)
 ```
 
-Or replace with something actually informative:
+Or, when the source supplies something informative:
 ```
 GOOD: "The town has 12,000 residents, about half of whom work at the refinery."
 ```
 
-### Break negative parallelism
+### Break negative parallelism (all variants)
+
+Delete the dismissed half; state the actual claim.
 
 ```
 BAD:  "It's not just a tool, it's a paradigm shift."
-GOOD: "It changed how three teams work."  (concrete, not dramatic)
+GOOD: "Three teams changed their workflow after adopting it."  (from the source)
 ```
 
-### Use specific details instead of abstract claims
-
-The strongest technique in this guide. Every time you want to say something is "significant" or "impactful," ask: significant *how*? Then say that.
-
 ```
-BAD:  "Her research had a profound impact on the field."
-GOOD: "Her model cut error rates from 12% to 3%, and two companies shipped
-       products based on it within a year."
+BAD:  "No hardware. No fees. Just growth."
+GOOD: "There's nothing to install and no monthly fee."
 ```
 
-### Use "is" and "has" freely
+```
+BAD:  "The question isn't whether to migrate. The question is when."
+GOOD: "We should migrate this year."
+```
+
+### Remove em dashes by restructuring, never by laundering
+
+For outgoing text, SKILL.md Rule 11 applies: no em dashes at all, no "one idiomatic exception". The fix is a real restructure — comma, colon, parentheses, or sentence break. What you must never do is the mechanical swap:
 
 ```
-BAD:  "The city boasts a thriving arts scene that serves as a cultural beacon."
-GOOD: "The city has a good arts scene."
+BAD (AI cadence):   "It's not just fast — it's transformative — and that
+                     changes everything — for everyone."
+BAD (laundered):    "It's not just fast - it's transformative - and that..."
+                     (hyphens doing em-dash work scream post-processing)
+GOOD:               "It's fast. Whether that changes your workflow depends
+                     on how often you hit the old bottleneck."
 ```
+
+(Judging someone else's text: use the softer density-based rule in [tells-catalog.md](tells-catalog.md), not presence. German text: see SKILL.md's German section for the Gedankenstrich rules.)
+
+## Anti-Patterns: How Not to Humanize
+
+Each of these "fixes" degrades the text and most are now recognized tells in their own right:
+
+- **Never inject typos, misspellings, grammatical errors, lowercase affectation, or fake "edit:" markers.** Modern detectors normalize surface noise, readers read it as authenticity performance, and it makes the writing worse.
+- **Never mechanically strip or swap punctuation** (em dashes → hyphens, deleting every semicolon). Visible AI-avoidance is its own signature; match the author's actual habits instead (outgoing em dashes are still removed per SKILL.md Rule 11 — by restructuring, never by swapping).
+- **Never inject stock candor or slang** ("honestly", "look", "no cap", "chef's kiss") to simulate voice.
+- **Never add hedges, superlatives, or wordy constructions** because the do-not-flag list says humans use them. They're compatible with human writing, not ingredients of it.
+- **Never pad with invented specifics, examples, or anecdotes** to make text feel grounded. Fidelity first; a plain true sentence beats a vivid invented one.
+- **Never impose one house voice on every text.** If your edits make all documents sound like the same casual blogger, you have created a new tell — and detection vendors train on exactly that corpus.
