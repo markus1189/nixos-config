@@ -1,10 +1,6 @@
 rec {
   ndtOverlay = self: super: {
-    ndt = import (builtins.fetchTarball
-      "https://github.com/markus1189/ndt/archive/master.tar.gz") {
-        nixpkgs = self;
-        ghc = "ghc912";
-      };
+    ndt = import ./ndt-pinned.nix { nixpkgs = self; };
   };
 
   ndtSourcesOverlay = self: super: {
