@@ -1,8 +1,5 @@
 { pkgs, ... }:
 
-let
-  ndtSources = import ../ndt/sources.nix { };
-in
 {
   nixpkgs = { };
 
