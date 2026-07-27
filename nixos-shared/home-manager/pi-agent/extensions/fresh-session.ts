@@ -32,7 +32,11 @@ export default function (pi: ExtensionAPI) {
         .join("\n");
 
       const parentSession = ctx.sessionManager.getSessionFile();
-      const result = await ctx.newSession({
+      // Only plain data may cross into withSession: the old ctx/pi and anything
+      // extracted from them (sessionManager, ...) are stale after replacement.
+      const trimmed = args.trim();
+
+      await ctx.newSession({
         parentSession,
         setup: async (sm) => {
           sm.appendMessage({
@@ -41,16 +45,13 @@ export default function (pi: ExtensionAPI) {
             timestamp: Date.now(),
           });
         },
+        withSession: async (freshCtx) => {
+          if (trimmed) {
+            freshCtx.ui.setEditorText(trimmed);
+          }
+          freshCtx.ui.notify("Fresh session ready", "info");
+        },
       });
-
-      if (result.cancelled) return;
-
-      const trimmed = args.trim();
-      if (trimmed) {
-        ctx.ui.setEditorText(trimmed);
-      }
-
-      ctx.ui.notify("Fresh session ready", "info");
     },
   });
 }
