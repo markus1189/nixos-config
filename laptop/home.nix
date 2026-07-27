@@ -104,12 +104,14 @@ in
                     name = "GPT 5.4 Chat";
                   };
 
-                  "vertex/claude-opus-4-8@eu" = {
-                    name = "Claude Opus 4.8";
-                    thinking = {
-                      type = "enabled";
-                      budgetTokens = 16000;
-                    };
+                  "vertex/claude-opus-5@eu" = {
+                    name = "Claude Opus 5";
+                    # No thinking block: like Sonnet 5, Opus 5 rejects the legacy
+                    # thinking.type="enabled"/budgetTokens API (HTTP 400) and requires
+                    # thinking.type="adaptive"+output_config.effort. opencode's model
+                    # config schema only accepts type enum ["enabled","disabled"], so
+                    # adaptive can't be expressed here for a custom-provider model.
+                    # Opus 5 thinks adaptively by default when no thinking is sent.
                     modalities = {
                       input = ["text" "image"];
                       output = ["text"];

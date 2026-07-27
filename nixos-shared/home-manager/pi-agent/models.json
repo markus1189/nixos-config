@@ -43,9 +43,11 @@
           "maxTokens": 64000
         },
         {
-          "id": "vertex/claude-opus-4-8@eu",
-          "name": "Claude Opus 4.8 (Requesty/Vertex EU, no thinking)",
-          "reasoning": false,
+          "id": "vertex/claude-opus-5@eu",
+          "name": "Claude Opus 5 (Requesty/Vertex EU, adaptive thinking)",
+          "reasoning": true,
+          "compat": { "forceAdaptiveThinking": true },
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -56,8 +58,8 @@
             "cacheRead": 0.5,
             "cacheWrite": 6.25
           },
-          "contextWindow": 200000,
-          "maxTokens": 64000
+          "contextWindow": 1000000,
+          "maxTokens": 128000
         },
         {
           "id": "vertex/claude-haiku-4-5@europe-west1",
