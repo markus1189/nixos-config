@@ -23,11 +23,35 @@ let
     in
     entries;
 
+  # Helper function to symlink skill directories into the harness-neutral
+  # ~/.agents/skills location, which pi auto-discovers (see pi docs/skills.md).
+  # Only directories that actually contain a SKILL.md are linked.
+  autoConfigAgentsSkillDirs =
+    sourceDir: namePrefix:
+    let
+      entries = builtins.readDir sourceDir;
+      isSkillDir =
+        name: type: type == "directory" && builtins.pathExists (sourceDir + "/${name}/SKILL.md");
+      skillDirs = pkgs.lib.attrsets.filterAttrs isSkillDir entries;
+
+      makeEntry = dirname: {
+        target = ".agents/skills/${dirname}";
+        source = sourceDir + "/${dirname}";
+        recursive = true;
+      };
+    in
+    pkgs.lib.attrsets.mapAttrs' (
+      dirname: _: pkgs.lib.attrsets.nameValuePair "${namePrefix}-${dirname}" (makeEntry dirname)
+    ) skillDirs;
+
   # Auto-configure command files as prompts
   promptEntries = autoConfigMarkdownFiles
     ../../claude/commands
     "prompts"
     "pi-prompt";
+
+  # Expose the shared claude skills to pi via ~/.agents/skills
+  agentsSkillEntries = autoConfigAgentsSkillDirs ../../claude/skills "agents-skills";
 
   # Static pi-agent entries
   staticEntries = {
@@ -104,5 +128,5 @@ let
 
 in
 {
-  linkedFiles = staticEntries // promptEntries;
+  linkedFiles = staticEntries // promptEntries // agentsSkillEntries;
 }
