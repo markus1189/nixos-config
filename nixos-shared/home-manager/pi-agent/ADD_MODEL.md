@@ -178,6 +178,18 @@ The `api` field determines the protocol:
 | Mistral | `mistral/` | `mistral/mistral-medium-latest` |
 | OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/moonshotai/kimi-k2.5` |
 
+Enumerate the current access list rather than guessing at slugs:
+
+```bash
+curl -s https://router.eu.requesty.ai/v1/models \
+  -H "Authorization: Bearer $(pass api/requesty/agent)" | jq -r '.data[].id' | sort
+```
+
+**Gemini on the EU list is thin** (checked 2026-07): only `vertex/gemini-2.5-flash@europe-west1`,
+`vertex/gemini-2.5-pro@europe-west1` and `vertex/gemini-3.1-flash-lite@eu`. There is no Gemini 3.x
+pro or non-lite flash, so `gemini-2.5-pro` stays the Gemini entry here despite its age —
+3.1-flash-lite has `supports_reasoning: false` and is not an agent-tier replacement.
+
 ### Verification
 
 Test your configuration:
