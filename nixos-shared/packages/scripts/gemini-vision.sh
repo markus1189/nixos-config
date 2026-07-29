@@ -11,6 +11,13 @@ SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_NAME
 readonly MAX_IMAGE_SIZE=$((20 * 1024 * 1024)) # 20MB per image
 readonly MAX_IMAGES=16
+# Requesty's EU access list carries only three Gemini models: 2.5-flash,
+# 2.5-pro and 3.1-flash-lite@eu. Checked 2026-07: flash-lite is ~20%/40%
+# cheaper and matched 2.5-flash exactly on a dense file-listing screenshot, but
+# it silently normalises text — asked to transcribe verbatim "preserving any
+# spelling errors", it turned a whiteboard note's "unabängig" into "unabhängig".
+# Silent correction defeats the point of reading pixels, so stay on 2.5-flash.
+# Revisit when a non-lite Gemini 3.x reaches the EU list.
 readonly MODEL="vertex/gemini-2.5-flash@europe-west1"
 
 usage() {
