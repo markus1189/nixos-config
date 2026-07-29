@@ -3,7 +3,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-# Transcribe audio files using Gemini 3.5 Flash via OpenRouter
+# Transcribe audio files using Gemini 3.6 Flash via OpenRouter
 # Usage: transcribe.sh [-o OUTPUT.md] <audio-file> [prompt]
 #
 # Long recordings (> CHUNK_THRESHOLD_SEC) are automatically split into chunks,
@@ -23,7 +23,7 @@ readonly RETRY_BASE_SLEEP=4                 # backoff base: 4s, 8s, 16s
 readonly CURL_MAX_TIME=600                  # per-request timeout (s)
 readonly CHUNK_MARKER='<!-- chunked transcript: no summary included; the agent should read this and append a single merged "## Summary" -->'
 
-readonly MODEL="google/gemini-3.5-flash"
+readonly MODEL="google/gemini-3.6-flash"
 
 # Default prompt: transcript + summary, used for short (single-shot) files.
 readonly DEFAULT_PROMPT='You are an expert audio transcriber. Transcribe the provided audio accurately and provide a useful summary.
@@ -247,13 +247,13 @@ transcribe_one() {
     }' > "$payload"; then
     echo "jq payload build failed ($slug)" >&2; return 1
   fi
-  # NOTE: gemini-3.5-flash forces reasoning ("cannot be disabled"). Left at
+  # NOTE: gemini-3.x-flash forces reasoning ("cannot be disabled"). Left at
   # default effort it burns the whole output budget thinking and returns empty
   # content, so we pin effort=low — it emits the transcript with ~0 reasoning.
 
   # Request loop. curl_with_retry already handles transport/5xx retries; this
   # outer loop additionally retries a 200-with-empty-content response, which
-  # gemini-3.5-flash occasionally returns (it burns the budget on reasoning).
+  # gemini-3.x-flash occasionally returns (it burns the budget on reasoning).
   # An empty 200 is transient, so retrying usually recovers it.
   local attempt=1 http_code err_msg text
   while (( attempt <= MAX_ATTEMPTS )); do

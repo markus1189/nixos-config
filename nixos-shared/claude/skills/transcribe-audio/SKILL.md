@@ -1,6 +1,6 @@
 ---
 name: transcribe-audio
-description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) using Gemini 3.5 Flash via OpenRouter, saves transcripts as markdown, and supports follow-up analysis. Use when the user asks to transcribe audio, summarize a meeting recording, check a voice note, extract action items from a recording, asks what was discussed in an audio file, or mentions processing audio files in any way."
+description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) using Gemini 3.6 Flash via OpenRouter, saves transcripts as markdown, and supports follow-up analysis. Use when the user asks to transcribe audio, summarize a meeting recording, check a voice note, extract action items from a recording, asks what was discussed in an audio file, or mentions processing audio files in any way."
 ---
 
 # Audio Transcription
@@ -99,7 +99,7 @@ After transcription (or when an existing transcript is available), support any f
 ## Key Details
 
 - **Supported formats**: `.mp3`, `.wav`, `.ogg`, `.m4a`, `.flac`, `.webm`
-- **API**: `google/gemini-3.5-flash` via OpenRouter (key from `pass api/openrouter/transcribe`)
+- **API**: `google/gemini-3.6-flash` via OpenRouter (key from `pass api/openrouter/transcribe`)
 - **Preprocessing**: input is downsampled to 16kHz mono mp3 (ffmpeg) before upload — keeps payloads under the inline-size limit
 - **Reasoning**: pinned to `effort: low` (the model forces reasoning; default effort returns empty content)
 - **Auto-chunking**: recordings over ~45 min (`ffprobe` duration) are split into
