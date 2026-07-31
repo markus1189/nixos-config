@@ -185,6 +185,38 @@ curl -s https://router.eu.requesty.ai/v1/models \
   -H "Authorization: Bearer $(pass api/requesty/agent)" | jq -r '.data[].id' | sort
 ```
 
+### `supports_vision` from `/v1/models` is not trustworthy
+
+The router's `supports_vision` flag is metadata, not behaviour. A text-only model behind a
+vision-accepting gateway returns **HTTP 200 and hallucinates a description** instead of erroring —
+so a passing smoke test proves nothing. Verified 2026-07 by sending a PNG containing the single
+word "CAKE":
+
+| Model | `supports_vision` | Actual |
+|---|---|---|
+| `tensorx/kimi-k2.7-code` | true | read "CAKE" — real vision |
+| `inceptron/kimi-k2.7-Code` | true | read "CAKE" — real vision |
+| `tensorx/minimax-m3` | true | read "CAKE" — real vision |
+| `sference/kimi-k3` | false | HTTP 400 — honest rejection |
+| `tensorx/deepseek-v4-pro` | false | HTTP 200, answered "Elephant" — **silently blind** |
+| `tensorx/deepseek-v4-flash` | false | HTTP 200, answered "horizon" — **silently blind** |
+
+Only put `"image"` in `input` after a model has read known text out of a test image. Generate one
+with `magick -size 200x100 xc:white -pointsize 48 -fill black -annotate +20+65 "CAKE" test.png` and
+send it as a base64 `image_url` data URL.
+
+### Open-weight capacity varies by route
+
+The same model is often listed under several providers at different prices. Cheaper is not always
+better: `inceptron/kimi-k2.7-Code` ($0.75/$3.50) returned **429 Too Many Requests** on 2 of 4 calls
+during testing, while `tensorx/kimi-k2.7-code` ($1.25/$4.50) was reliable. Both are configured;
+prefer the tensorx route for long agent runs. Note the inceptron slug capitalises `Code` and the
+tensorx one does not — the IDs are case-sensitive.
+
+Also beware `max_output_tokens` from the router: inceptron/tensorx report it equal to the full
+context window (e.g. 1048576), which is nonsense. Cap `maxTokens` at 128000, matching the other
+entries.
+
 **Gemini on the EU list is thin** (checked 2026-07): only `vertex/gemini-2.5-flash@europe-west1`,
 `vertex/gemini-2.5-pro@europe-west1` and `vertex/gemini-3.1-flash-lite@eu`. There is no Gemini 3.x
 pro or non-lite flash, so `gemini-2.5-pro` stays the Gemini entry here despite its age —
