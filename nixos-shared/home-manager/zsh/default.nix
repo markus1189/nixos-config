@@ -25,6 +25,8 @@
         requestyConfig = ''ANTHROPIC_BASE_URL=https://router.eu.requesty.ai ANTHROPIC_AUTH_TOKEN="$(pass api/requesty/claude-code)" ANTHROPIC_DEFAULT_SONNET_MODEL='${sonnet-vertex}' ANTHROPIC_DEFAULT_HAIKU_MODEL='${haiku-vertex}' ANTHROPIC_DEFAULT_OPUS_MODEL="${opus-vertex}"'';
         otelEnv = ''CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=grpc OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 OTEL_SERVICE_NAME=claude-code OTEL_METRIC_EXPORT_INTERVAL=10000 OTEL_LOGS_EXPORT_INTERVAL=5000 OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1'';
         editorEnv = ''EDITOR="emacsclient -c -a vim"'';
+        # only shell out to pass when the key isn't already in the environment
+        requestyAgentKey = ''REQUESTY_API_KEY_CC="''${REQUESTY_API_KEY_CC:-$(pass api/requesty/agent)}"'';
       in
       {
         "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
@@ -39,9 +41,9 @@
         cy-rq = ''env ${editorEnv} ${otelEnv} ${requestyConfig} claude ${yolo}'';
         cy-rq-glados = ''env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} ${gladosFlag}'';
 
-        pi = ''env REQUESTY_API_KEY_CC="$(pass api/requesty/agent)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent'';
+        pi = ''env ${requestyAgentKey} nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent'';
 
-        pi-glados = ''env REQUESTY_API_KEY_CC="$(pass api/requesty/agent)" nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}'';
+        pi-glados = ''env ${requestyAgentKey} nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}'';
       };
 
     initContent = ''
