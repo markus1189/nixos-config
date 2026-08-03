@@ -1,14 +1,4 @@
 # Global Coding Agent Instructions
-## Parallel Tool Calls
-For maximum efficiency, whenever you perform multiple independent
-operations, invoke all relevant tools simultaneously rather than
-sequentially. Prioritize calling tools in parallel whenever
-possible. For example, when reading 3 files, run 3 tool calls in
-parallel to read all 3 files into context at the same time. When
-running multiple read-only commands like `ls` or `list_dir`, always
-run all of the commands in parallel. Err on the side of maximizing
-parallel tool calls rather than running too many tools sequentially.
-
 ## Verify Before Asserting
 Never judge what you have not read this session. Same bar for consequences
 ("this breaks X"): trace it or call it a guess. Can't check? Say "unchecked"
@@ -16,7 +6,7 @@ in that sentence.
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
-- There is no global python3, use nix to run scripts
+- (!) There is no global `python3`, use `nix` to run scripts
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
@@ -83,6 +73,6 @@ For HTML clipboard content, add `-t text/html`.
 `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'` → list dir → read source/docs
 
 ## Important Locations
-- ~/mounts/rclone = remote mounts (Ablage = /gdrive/Ablage) — no recursive `find`, it blows the timeout; `ls` the likely dir instead
+- ~/mounts/rclone = rsync remote mounts (Ablage = /gdrive/Ablage); NO recursive `find`, it blows the timeout; `ls` the likely dir instead
 - ~/Syncthing (/ePubs for eBooks)
-- ~/Stuff/yyyy-mm/dd-scratch (daily directories)
+- ~/Stuff/yyyy-mm/dd-scratch (daily directories), ~/Stuff/Today/
