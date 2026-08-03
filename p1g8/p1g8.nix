@@ -131,6 +131,9 @@
         TIMELINE_LIMIT_HOURLY = 6;
         TIMELINE_LIMIT_DAILY = 7;
         TIMELINE_LIMIT_WEEKLY = 4;
+        # boot snapshots use the `number` algorithm, which TIMELINE_CLEANUP ignores
+        NUMBER_CLEANUP = true;
+        NUMBER_LIMIT = 10;
       };
       home = {
         SUBVOLUME = "/home";
