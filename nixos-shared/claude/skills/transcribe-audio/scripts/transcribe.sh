@@ -30,11 +30,10 @@ readonly DEFAULT_PROMPT='You are an expert audio transcriber. Transcribe the pro
 
 ## Transcript
 
-Provide a verbatim transcript with speaker identification where applicable:
-- Use "Speaker 1", "Speaker 2", etc. for unknown speakers
-- Use actual names if speakers are identified or introduce themselves
-- Include timestamps in [MM:SS] format at natural breaks (every 1-2 minutes or at topic changes)
-- For single-speaker content (voice notes, lectures), just transcribe without speaker labels
+Provide a verbatim transcript:
+- For multi-speaker content: label EVERY turn on its own line as "**Speaker N:**" (or the real first name of that speaker if they introduce themselves or are addressed by name — reuse that label consistently for the same voice from then on), immediately followed by a [MM:SS] timestamp, then the text of that turn. Example: "**Speaker 2:** [03:12] Text...". Do not fall back to unlabeled prose for busy/overlapping multi-speaker audio — every turn gets its own labeled line even if short.
+- For single-speaker content (voice notes, lectures), skip speaker labels but still include [MM:SS] timestamps at natural breaks (every 1-2 minutes or at topic changes)
+- Never include reasoning/meta/XML-like tags in the output (e.g. <thought>, <m>, <laughter>). For laughter or other notable non-verbal sounds, note it briefly inline in plain brackets like [laughs], nothing else
 
 ## Summary
 
@@ -57,11 +56,10 @@ readonly CHUNK_PROMPT='You are an expert audio transcriber. Transcribe the provi
 
 ## Transcript
 
-Provide a verbatim transcript with speaker identification where applicable:
-- Use "Speaker 1", "Speaker 2", etc. for unknown speakers
-- Use actual names if speakers are identified or introduce themselves
-- Include timestamps in [MM:SS] format at natural breaks (every 1-2 minutes or at topic changes)
-- For single-speaker content (voice notes, lectures), just transcribe without speaker labels
+Provide a verbatim transcript:
+- For multi-speaker content: label EVERY turn on its own line as "**Speaker N:**" (or the real first name of that speaker if they introduce themselves or are addressed by name — reuse that label consistently for the same voice from then on), immediately followed by a [MM:SS] timestamp (relative to the start of THIS clip), then the text of that turn. Example: "**Speaker 2:** [03:12] Text...". Do not fall back to unlabeled prose for busy/overlapping multi-speaker audio — every turn gets its own labeled line even if short.
+- For single-speaker content (voice notes, lectures), skip speaker labels but still include [MM:SS] timestamps at natural breaks (every 1-2 minutes or at topic changes)
+- Never include reasoning/meta/XML-like tags in the output (e.g. <thought>, <m>, <laughter>). For laughter or other notable non-verbal sounds, note it briefly inline in plain brackets like [laughs], nothing else
 
 Do NOT produce a summary — transcript only. This audio is one slice of a longer
 recording and may begin or end mid-sentence.'
