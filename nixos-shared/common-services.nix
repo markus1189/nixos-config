@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, options, pkgs, ... }:
 
 {
   services = {
@@ -15,7 +15,15 @@
 
     locate = {
       enable = true;
-      interval = "hourly";
+      # not "daily": 00:00 is always suspend time, so it fires at lid-open
+      interval = "20:00";
+      # updatedb does not prune btrfs, so each snapshot indexes as a full tree
+      prunePaths = options.services.locate.prunePaths.default ++ [
+        "/.snapshots"
+        "/home/.snapshots"
+        "/var/lib/docker"
+        "/var/lib/containers"
+      ];
     };
 
     sysstat = { enable = false; };
