@@ -1231,8 +1231,24 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package itail
   :ensure t)
 
-;; (use-package auctex
-;;   :ensure t)
+(use-package tex
+  :ensure auctex
+  :defer t
+  :hook ((LaTeX-mode . TeX-source-correlate-mode)
+         (LaTeX-mode . turn-on-reftex)
+         (LaTeX-mode . visual-line-mode))
+  :config
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
+  (setq TeX-PDF-mode t)
+  (setq TeX-source-correlate-start-server t)
+  (setq reftex-plug-into-AUCTeX t)
+  ;; view PDFs with pdf-tools instead of an external viewer
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+  (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer))
 
 ;; (use-package kubel
 ;; :ensure t)

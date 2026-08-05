@@ -83,8 +83,9 @@ in emacsPackages.withPackages (epkgs:
     in [
       (treesit-grammars.with-all-grammars)
 
-      avy
       annotate
+      auctex
+      avy
       bats-mode
       beacon
       consult
