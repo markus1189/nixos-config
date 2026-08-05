@@ -449,6 +449,12 @@ in
           "Burying the useful bits in text"
           "Wishing a subagent would do it"
           "Hoping for the 5h window to end this"
+          "Estimating your remaining uptime"
+          "Scheduling around your biological maintenance window"
+          "Padding this until your eyelids agree"
+          "Waiting for your review standards to drop"
+          "Saving the risky refactor for 2am"
+          "Deferring until you stop reading diffs"
         ];
       };
 
