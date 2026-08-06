@@ -215,6 +215,24 @@
           "maxTokens": 128000
         },
         {
+          "id": "tensorx/kimi-k3",
+          "name": "Kimi K3 (Requesty/Tensorx EU, vision)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 3,
+            "output": 15,
+            "cacheRead": 0.75,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 128000
+        },
+        {
           "id": "tensorx/kimi-k2.7-code",
           "name": "Kimi K2.7 Code (Requesty/Tensorx EU)",
           "reasoning": true,
@@ -407,6 +425,23 @@
             "input": 2,
             "output": 12,
             "cacheRead": 0.2,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 65536
+        },
+        {
+          "id": "vertex/gemini-3.1-flash-lite@eu",
+          "name": "Gemini 3.1 Flash Lite (Requesty/Vertex EU)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0.25,
+            "output": 1.5,
+            "cacheRead": 0.025,
             "cacheWrite": 0
           },
           "contextWindow": 1048576,
