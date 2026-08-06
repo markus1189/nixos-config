@@ -198,6 +198,23 @@
           "maxTokens": 128000
         },
         {
+          "id": "sference/glm-5.2",
+          "name": "GLM-5.2 (Requesty/Sference EU, FP8)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 1.2,
+            "output": 4.2,
+            "cacheRead": 0.26,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 128000
+        },
+        {
           "id": "sference/kimi-k3",
           "name": "Kimi K3 (Requesty/Sference EU)",
           "reasoning": true,
