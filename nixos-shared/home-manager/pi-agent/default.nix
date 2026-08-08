@@ -112,6 +112,11 @@ let
       source = ./extensions/fresh-session.ts;
     };
 
+    "pi-agent-extension-tokens-per-second" = {
+      target = ".pi/agent/extensions/tokens-per-second.ts";
+      source = ./extensions/tokens-per-second.ts;
+    };
+
     # END EXTENSIONS
 
     "pi-agent-models" = {
