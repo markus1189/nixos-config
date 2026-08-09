@@ -97,11 +97,6 @@ let
       source = ./extensions/qna.ts;
     };
 
-    "pi-agent-extension-instruction-resolver" = {
-      target = ".pi/agent/extensions/instruction-resolver.ts";
-      source = ./extensions/instruction-resolver.ts;
-    };
-
     "pi-agent-extension-think" = {
       target = ".pi/agent/extensions/think.ts";
       source = ./extensions/think.ts;
