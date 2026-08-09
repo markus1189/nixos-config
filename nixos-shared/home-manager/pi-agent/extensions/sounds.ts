@@ -10,6 +10,19 @@ function playSound(name: string) {
   }).unref();
 }
 
+// Terminal bell + desktop notification (Dunst) when pi is waiting on input.
+function notifyDesktop(
+  title: string,
+  body: string,
+  urgency: "low" | "normal" | "critical" = "normal",
+): void {
+  process.stdout.write("\u0007"); // audible terminal bell
+  spawn("dunstify", ["-a", "Pi", "-u", urgency, title, body], {
+    detached: true,
+    stdio: "ignore",
+  }).unref();
+}
+
 export default function (pi: ExtensionAPI) {
   pi.on("session_start", async (event, ctx) => {
     playSound("involved-notification.wav");
@@ -38,6 +51,11 @@ export default function (pi: ExtensionAPI) {
       case "write":
       case "edit":
         playSound("intuition-561.wav");
+        break;
+      case "questionnaire":
+        // Pi is blocked waiting for the user to answer.
+        playSound("your-turn-491.wav");
+        notifyDesktop("Pi", "A question is waiting for your input");
         break;
       default:
         playSound("happy-to-help-notification-sound.wav");
