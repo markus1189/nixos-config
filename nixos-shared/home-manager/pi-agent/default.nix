@@ -53,6 +53,15 @@ let
   # Expose the shared claude skills to pi via ~/.agents/skills
   agentsSkillEntries = autoConfigAgentsSkillDirs ../../claude/skills "agents-skills";
 
+  # Reuse the shared Claude Code dangerous-command hook as the pi guard backend.
+  # Packaged with writeShellApplication so the store wrapper puts ast-grep on PATH
+  # for the subprocess spawned by the extension.
+  dangerousCommandCheckScript = pkgs.writeShellApplication {
+    name = "check-dangerous-commands";
+    runtimeInputs = with pkgs; [ bash jq coreutils ast-grep ];
+    text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
+  };
+
   # Static pi-agent entries
   staticEntries = {
     "pi-agent-global" = {
@@ -110,6 +119,13 @@ let
     "pi-agent-extension-tokens-per-second" = {
       target = ".pi/agent/extensions/tokens-per-second.ts";
       source = ./extensions/tokens-per-second.ts;
+    };
+
+    "pi-agent-extension-check-dangerous-commands" = {
+      target = ".pi/agent/extensions/check-dangerous-commands.ts";
+      text = builtins.readFile (pkgs.mutate ./extensions/check-dangerous-commands.ts {
+        checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
+      });
     };
 
     # END EXTENSIONS
