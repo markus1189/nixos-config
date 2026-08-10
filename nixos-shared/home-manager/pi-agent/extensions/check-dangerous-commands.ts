@@ -7,7 +7,9 @@
  * strings, and shell comments do not trigger false positives.
  *
  * Matches the Claude hook's strict hard-block behaviour: no confirmation prompt,
- * the tool call is blocked and terminates the turn.
+ * the tool call is blocked in place. It does NOT terminate the turn — the
+ * rule-specific reason is fed back to the model as a tool result so it can
+ * see the hint and correct course on the next turn.
  */
 
 import { spawnSync } from "child_process";
@@ -17,10 +19,13 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 // Store path to the packaged check-dangerous-commands.sh (injected via pkgs.mutate).
 const CHECK_SCRIPT = "@checkScript@";
 
-// exit code 2 == the backend found a dangerous rm and printed an error.
+// exit code 2 == the backend found a dangerous command and printed an explanation.
 const BACKEND_BLOCKED = 2;
 
-function runBackend(command: string): number {
+function runBackend(command: string): {
+  status: number;
+  message: string;
+} {
   const input = JSON.stringify({
     tool_name: "Bash",
     tool_input: { command },
@@ -30,7 +35,10 @@ function runBackend(command: string): number {
     encoding: "utf8",
     timeout: 5000,
   });
-  return res.status ?? -1;
+  // The backend writes a rule-specific explanation to stderr. Forward it so the
+  // model sees an accurate hint, not a generic one.
+  const message = (res.stderr ?? "").trim();
+  return { status: res.status ?? -1, message };
 }
 
 export default function (pi: ExtensionAPI) {
@@ -38,14 +46,17 @@ export default function (pi: ExtensionAPI) {
     if (event.toolName !== "bash") return;
     if (!isToolCallEventType("bash", event)) return;
 
-    const status = runBackend(event.input.command);
+    const { status, message } = runBackend(event.input.command);
     if (status === BACKEND_BLOCKED) {
+      // No terminate: let the tool result (with the hint) feed back to the model
+      // so it can correct course and continue on the next turn.
+      const reason =
+        message ||
+        "Blocked: dangerous command. Prefer 'rm -r' for recursion, or " +
+          "restrict 'find' to a concrete subpath.";
       return {
         block: true,
-        reason:
-          "Blocked: 'rm' with recursive+force flags ('-rf') and no interactive confirmation. " +
-          "This is forbidden. Prefer 'rm -r' for recursion, or ask the user to run a forced delete.",
-        terminate: true,
+        reason,
       };
     }
   });
