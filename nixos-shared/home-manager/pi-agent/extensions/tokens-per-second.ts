@@ -39,6 +39,7 @@ export default function (pi: ExtensionAPI) {
 	let usageSeen = false;
 	let samples: Sample[] = [];
 	let lastRender = 0;
+	let lastRate: number | null = null; // rate of the most recent completed message (idle footer)
 
 	// Session-wide stats (since extension load / session start)
 	let stats: MessageStat[] = [];
@@ -69,10 +70,25 @@ export default function (pi: ExtensionAPI) {
 
 	const fmt = (n: number): string => n.toFixed(1);
 
-	const sessionSuffix = (): string => {
-		if (stats.length === 0) return "";
-		return ` · avg ${fmt(sessionAvg())} · p90 ${fmt(percentile(90))}`;
-	};
+	// Fixed-width cell so the decimal point stays in a stable column and the
+	// following text never shifts left/right as digits change width.
+	const CELL = 5; // e.g. " 41.7"
+	const cell = (n: number): string => fmt(n).padStart(CELL, " ");
+	const dash = " ".repeat(CELL - 1) + "—"; // "    —" placeholder, same width as a number
+
+	// avg/p90 columns are ALWAYS present; dashes stand in until real data
+	// arrives. This keeps the layout constant — columns never pop in/out.
+	const sessionSuffix = (): string =>
+		` · avg ${stats.length ? cell(sessionAvg()) : dash}` +
+		` · p90 ${stats.length ? cell(percentile(90)) : dash}`;
+
+	// Indicators are always exactly IND_W chars, so swapping the "live"/"last"
+	// variants in place never shifts the avg/p90 columns either.
+	const IND_W = 11;
+	const liveInd = (rate: number): string => `${cell(rate)} tok/s`; // 5 + 6 = 11
+	const liveIndDash = `${dash} tok/s`; // placeholder while streaming, no rate yet
+	const lastInd = (rate: number): string => `last ${cell(rate)}`.padEnd(IND_W);
+	const lastIndDash = `last ${dash}`.padEnd(IND_W);
 
 	pi.on("session_start", async (_event, ctx) => {
 		stats = [];
@@ -82,6 +98,7 @@ export default function (pi: ExtensionAPI) {
 		usageSeen = false;
 		samples = [];
 		lastRender = 0;
+		lastRate = null;
 		if (ctx.hasUI) ctx.ui.setStatus(STATUS_KEY, undefined);
 	});
 
@@ -93,7 +110,8 @@ export default function (pi: ExtensionAPI) {
 		usageSeen = false;
 		samples = [];
 		lastRender = 0;
-		if (ctx.hasUI) ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `· tok/s${sessionSuffix()}`));
+		if (ctx.hasUI)
+			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `· ${liveIndDash}${sessionSuffix()}`));
 	});
 
 	pi.on("message_update", async (event, ctx) => {
@@ -129,8 +147,8 @@ export default function (pi: ExtensionAPI) {
 		lastRender = now;
 
 		const rate = slidingRate(now);
-		const live = rate > 0 ? `${fmt(rate)} tok/s` : "· tok/s";
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `${live}${sessionSuffix()}`));
+		const ind = rate > 0 ? liveInd(rate) : liveIndDash;
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `· ${ind}${sessionSuffix()}`));
 	});
 
 	pi.on("message_end", async (event, ctx) => {
@@ -158,13 +176,11 @@ export default function (pi: ExtensionAPI) {
 		}
 
 		if (!ctx.hasUI) return;
-		// Only label a rate "last" if THIS message produced one.
-		ctx.ui.setStatus(
-			STATUS_KEY,
-			stat
-				? ctx.ui.theme.fg("muted", `last ${fmt(stat.rate)}${sessionSuffix()}`)
-				: undefined,
-		);
+		// Keep the line present in idle: show the most recent completed rate
+		// (or a placeholder) instead of clearing and shifting everything left.
+		if (stat) lastRate = stat.rate;
+		const ind = lastRate !== null ? lastInd(lastRate) : lastIndDash;
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `· ${ind}${sessionSuffix()}`));
 	});
 
 	pi.registerCommand("tps", {
@@ -183,7 +199,7 @@ export default function (pi: ExtensionAPI) {
 				`avg (weighted): ${fmt(sessionAvg())} tok/s`,
 				`min ${fmt(Math.min(...rates))} · p50 ${fmt(percentile(50))} · p90 ${fmt(
 					percentile(90),
-				)} · p99 ${fmt(percentile(99))} · max ${fmt(Math.max(...rates))}`,
+				)} · p95 ${fmt(percentile(95))} · max ${fmt(Math.max(...rates))}`,
 			];
 			ctx.ui.notify(lines.join("\n"), "info");
 		},
@@ -193,6 +209,7 @@ export default function (pi: ExtensionAPI) {
 		description: "Reset tok/s session stats and clear the footer status",
 		handler: async (_args, ctx) => {
 			stats = [];
+			lastRate = null;
 			if (ctx.hasUI) ctx.ui.setStatus(STATUS_KEY, undefined);
 		},
 	});
