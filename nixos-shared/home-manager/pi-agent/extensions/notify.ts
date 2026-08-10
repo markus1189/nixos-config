@@ -28,14 +28,30 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("agent_end", async (event) => {
-    if (event.isError) return;
-
     const messages = event.messages;
 
     // Count tool calls and errors
-    const toolResults = messages.filter((m) => m.role === "toolResult");
+    const toolResults = messages.filter((m): m is Extract<typeof m, { role: "toolResult" }> =>
+      m.role === "toolResult",
+    );
     const toolCount = toolResults.length;
     const errorCount = toolResults.filter((m) => m.isError).length;
+
+    // Sum usage across assistant messages in this run
+    const usage = messages.reduce(
+      (acc, m) => {
+        if (m.role !== "assistant") return acc;
+        const u = (m as { usage?: { input?: number; output?: number; cacheRead?: number; cacheWrite?: number; cost?: { total?: number } } }).usage;
+        if (!u) return acc;
+        acc.input += u.input ?? 0;
+        acc.output += u.output ?? 0;
+        acc.cacheRead += u.cacheRead ?? 0;
+        acc.cacheWrite += u.cacheWrite ?? 0;
+        acc.cost += u.cost?.total ?? 0;
+        return acc;
+      },
+      { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0 },
+    );
 
     // Calculate duration
     const duration = Math.round((Date.now() - startTime) / 1000);
@@ -47,6 +63,13 @@ export default function (pi: ExtensionAPI) {
     }
     if (errorCount > 0) {
       parts.push(`${errorCount} error${errorCount !== 1 ? "s" : ""}`);
+    }
+    const tokens = usage.input + usage.output;
+    if (tokens > 0) {
+      parts.push(`${tokens.toLocaleString()} tok`);
+    }
+    if (usage.cost > 0) {
+      parts.push(`$${usage.cost.toFixed(4)}`);
     }
     if (duration > 0) {
       parts.push(`${duration}s`);
