@@ -59,49 +59,49 @@ setup() {
 }
 
 # ============================================================================
-# Tests for is_dangerous_rm_command function
+# Tests for is_dangerous_command function
 # ============================================================================
 
 # Blocked: combined flags
-@test "is_dangerous_rm_command: rm -rf blocked" {
-    run is_dangerous_rm_command "rm -rf /tmp/test"
+@test "is_dangerous_command: rm -rf blocked" {
+    run is_dangerous_command "rm -rf /tmp/test"
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm -rfv with extra flags blocked" {
-    run is_dangerous_rm_command "rm -rfv /tmp"
+@test "is_dangerous_command: rm -rfv with extra flags blocked" {
+    run is_dangerous_command "rm -rfv /tmp"
     assert_success
 }
 
 # Blocked: separated flags
-@test "is_dangerous_rm_command: rm -r -f blocked" {
-    run is_dangerous_rm_command "rm -r -f /var/log"
+@test "is_dangerous_command: rm -r -f blocked" {
+    run is_dangerous_command "rm -r -f /var/log"
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm --recursive --force blocked" {
-    run is_dangerous_rm_command "rm --recursive --force dist/"
+@test "is_dangerous_command: rm --recursive --force blocked" {
+    run is_dangerous_command "rm --recursive --force dist/"
     assert_success
 }
 
 # Allowed: safe operations
-@test "is_dangerous_rm_command: rm -r allowed" {
-    run is_dangerous_rm_command "rm -r /tmp/test"
+@test "is_dangerous_command: rm -r allowed" {
+    run is_dangerous_command "rm -r /tmp/test"
     assert_failure
 }
 
-@test "is_dangerous_rm_command: rm single file allowed" {
-    run is_dangerous_rm_command "rm file.txt"
+@test "is_dangerous_command: rm single file allowed" {
+    run is_dangerous_command "rm file.txt"
     assert_failure
 }
 
-@test "is_dangerous_rm_command: rm -i -rf interactive allowed" {
-    run is_dangerous_rm_command "rm -i -rf /tmp/test"
+@test "is_dangerous_command: rm -i -rf interactive allowed" {
+    run is_dangerous_command "rm -i -rf /tmp/test"
     assert_failure
 }
 
-@test "is_dangerous_rm_command: non-rm command allowed" {
-    run is_dangerous_rm_command "grep -r pattern ."
+@test "is_dangerous_command: non-rm command allowed" {
+    run is_dangerous_command "grep -r pattern ."
     assert_failure
 }
 
@@ -109,18 +109,18 @@ setup() {
 # Edge cases
 # ============================================================================
 
-@test "is_dangerous_rm_command: rm in pipeline detected" {
-    run is_dangerous_rm_command "find /tmp -name '*.tmp' | xargs rm -rf"
+@test "is_dangerous_command: rm in pipeline detected" {
+    run is_dangerous_command "find /tmp -name '*.tmp' | xargs rm -rf"
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm in subshell detected" {
-    run is_dangerous_rm_command "(cd /tmp && rm -rf test)"
+@test "is_dangerous_command: rm in subshell detected" {
+    run is_dangerous_command "(cd /tmp && rm -rf test)"
     assert_success
 }
 
-@test "is_dangerous_rm_command: empty command allowed" {
-    run is_dangerous_rm_command ""
+@test "is_dangerous_command: empty command allowed" {
+    run is_dangerous_command ""
     assert_failure
 }
 
@@ -131,42 +131,42 @@ setup() {
 # ============================================================================
 
 @test "FP: rm -rf inside a quoted git commit message is allowed" {
-    run is_dangerous_rm_command 'git commit -m "fix rm -rf bug"'
+    run is_dangerous_command 'git commit -m "fix rm -rf bug"'
     assert_failure
 }
 
 @test "FP: rm -rf inside a shell comment is allowed" {
-    run is_dangerous_rm_command 'rm foo.txt # rm -rf /'
+    run is_dangerous_command 'rm foo.txt # rm -rf /'
     assert_failure
 }
 
 @test "FP: tar -rf alongside safe rm is allowed" {
-    run is_dangerous_rm_command 'rm foo.txt && tar -rf a.tar bar'
+    run is_dangerous_command 'rm foo.txt && tar -rf a.tar bar'
     assert_failure
 }
 
 @test "FP: curl -fR alongside safe rm is allowed" {
-    run is_dangerous_rm_command 'rm foo.txt && curl -fR https://example'
+    run is_dangerous_command 'rm foo.txt && curl -fR https://example'
     assert_failure
 }
 
 @test "FP: rm -rf inside a double-quoted echo string is allowed" {
-    run is_dangerous_rm_command 'echo "; rm -rf /"'
+    run is_dangerous_command 'echo "; rm -rf /"'
     assert_failure
 }
 
 @test "FP: rm -rf inside a single-quoted printf string is allowed" {
-    run is_dangerous_rm_command "printf 'rm -rf /'"
+    run is_dangerous_command "printf 'rm -rf /'"
     assert_failure
 }
 
 @test "FP: grep -r and unrelated safe rm are allowed" {
-    run is_dangerous_rm_command 'grep -r pattern src/ && rm foo.txt'
+    run is_dangerous_command 'grep -r pattern src/ && rm foo.txt'
     assert_failure
 }
 
 @test "FP: --recursive on a different command is allowed" {
-    run is_dangerous_rm_command 'rsync --recursive --force-delete a/ b/ && rm foo.txt'
+    run is_dangerous_command 'rsync --recursive --force-delete a/ b/ && rm foo.txt'
     assert_failure
 }
 
@@ -176,12 +176,12 @@ setup() {
 # ============================================================================
 
 @test "FN: rm -rf is blocked even if a later command has -i" {
-    run is_dangerous_rm_command 'rm -rf foo && cp -i bar baz'
+    run is_dangerous_command 'rm -rf foo && cp -i bar baz'
     assert_success
 }
 
 @test "FN: dangerous rm -rf in chain after a safe interactive rm is blocked" {
-    run is_dangerous_rm_command 'rm -i a.txt && rm -rf /tmp/cache'
+    run is_dangerous_command 'rm -i a.txt && rm -rf /tmp/cache'
     assert_success
 }
 
@@ -190,27 +190,123 @@ setup() {
 # against future regressions.
 # ============================================================================
 
-@test "is_dangerous_rm_command: rm -fr (reversed) blocked" {
-    run is_dangerous_rm_command 'rm -fr /tmp'
+@test "is_dangerous_command: rm -fr (reversed) blocked" {
+    run is_dangerous_command 'rm -fr /tmp'
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm -Rf (capital R) blocked" {
-    run is_dangerous_rm_command 'rm -Rf /tmp'
+@test "is_dangerous_command: rm -Rf (capital R) blocked" {
+    run is_dangerous_command 'rm -Rf /tmp'
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm -rf with -- separator blocked" {
-    run is_dangerous_rm_command 'rm -rf -- /tmp/x'
+@test "is_dangerous_command: rm -rf with -- separator blocked" {
+    run is_dangerous_command 'rm -rf -- /tmp/x'
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm -r --force blocked" {
-    run is_dangerous_rm_command 'rm -r --force dist/'
+@test "is_dangerous_command: rm -r --force blocked" {
+    run is_dangerous_command 'rm -r --force dist/'
     assert_success
 }
 
-@test "is_dangerous_rm_command: rm --recursive -f blocked" {
-    run is_dangerous_rm_command 'rm --recursive -f dist/'
+@test "is_dangerous_command: rm --recursive -f blocked" {
+    run is_dangerous_command 'rm --recursive -f dist/'
     assert_success
+}
+
+# ============================================================================
+# Find root traversal — forbid walking /, ~, and /home/markus wholesale.
+# ============================================================================
+
+@test "is_dangerous_command: find / blocked" {
+    run is_dangerous_command 'find /'
+    assert_success
+}
+
+@test "is_dangerous_command: find /home/markus blocked" {
+    run is_dangerous_command 'find /home/markus'
+    assert_success
+}
+
+@test "is_dangerous_command: find /home/markus/ (trailing slash) blocked" {
+    run is_dangerous_command 'find /home/markus/'
+    assert_success
+}
+
+@test "is_dangerous_command: find ~ blocked" {
+    run is_dangerous_command 'find ~'
+    assert_success
+}
+
+@test "is_dangerous_command: find ~/ blocked" {
+    run is_dangerous_command 'find ~/'
+    assert_success
+}
+
+@test "is_dangerous_command: find / with -name expr blocked" {
+    run is_dangerous_command "find / -name '*.tmp'"
+    assert_success
+}
+
+@test "is_dangerous_command: find /home/markus with -delete blocked" {
+    run is_dangerous_command 'find /home/markus -delete'
+    assert_success
+}
+
+@test "is_dangerous_command: find / in pipeline blocked" {
+    run is_dangerous_command 'find / | head'
+    assert_success
+}
+
+# Allowed: concrete subpaths and non-root roots
+@test "is_dangerous_command: find /home/markus/foo allowed" {
+    run is_dangerous_command 'find /home/markus/foo'
+    assert_failure
+}
+
+@test "is_dangerous_command: find /tmp allowed" {
+    run is_dangerous_command 'find /tmp -name x'
+    assert_failure
+}
+
+@test "is_dangerous_command: find . allowed" {
+    run is_dangerous_command 'find .'
+    assert_failure
+}
+
+@test "is_dangerous_command: find /home allowed" {
+    run is_dangerous_command 'find /home'
+    assert_failure
+}
+
+@test "is_dangerous_command: find /home/markusfoo allowed" {
+    run is_dangerous_command 'find /home/markusfoo'
+    assert_failure
+}
+
+@test "is_dangerous_command: find ~/code allowed" {
+    run is_dangerous_command 'find ~/code'
+    assert_failure
+}
+
+@test "is_dangerous_command: find ~markus allowed" {
+    run is_dangerous_command 'find ~markus'
+    assert_failure
+}
+
+# Allowed: false positives in strings/comments
+@test "is_dangerous_command: find / inside git commit message allowed" {
+    run is_dangerous_command 'git commit -m "fix find / bug"'
+    assert_failure
+}
+
+@test "is_dangerous_command: find / in echo string allowed" {
+    run is_dangerous_command 'echo "find / started"'
+    assert_failure
+}
+
+@test "is_dangerous_command: find / in shell comment allowed" {
+    run is_dangerous_command '# find / should not match'
+    assert_failure
 }

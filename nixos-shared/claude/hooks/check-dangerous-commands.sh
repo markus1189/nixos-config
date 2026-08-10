@@ -10,10 +10,16 @@
 set -euo pipefail
 
 # ============================================================================
-# ast-grep rules (embedded). Two rules separated by `---`:
+# ast-grep rules (embedded). Rules separated by `---`:
 #   - dangerous-rm:        plain rm with r+f and no i
 #   - dangerous-xargs-rm:  xargs ... rm ... with r+f and no i (tree-sitter-bash
 #                          parses `xargs rm -rf` as one command)
+#   - dangerous-find-root: find traversing the whole home dir or root filesystem.
+#                          The first `find` argument is the path to walk; a path
+#                          that is /, ~, /home/markus, or its home with a trailing
+#                          slash means the agent would index the entire filesystem,
+#                          which is broadly forbidden. Subpaths (e.g. find
+#                          /home/markus/foo) remain allowed.
 # ============================================================================
 
 DANGEROUS_RULES=$(cat <<'YAML'
@@ -62,6 +68,18 @@ rule:
           stopBy: end
           kind: word
           regex: '^(--interactive|-[A-Za-z]*[iI][A-Za-z]*)$'
+---
+id: dangerous-find-root
+language: bash
+severity: error
+message: dangerous
+rule:
+  all:
+    - pattern: 'find $PATH'
+    - has:
+        stopBy: end
+        kind: word
+        regex: '^(/?|/home/markus/?|~/?)$'
 YAML
 )
 readonly DANGEROUS_RULES
@@ -84,9 +102,22 @@ EOF
 }
 
 block_dangerous_command() {
-    local reason="$1"
-    cat >&2 << EOF
-ERROR: Dangerous command blocked: $reason
+    local rule_id="$1"
+    case "$rule_id" in
+      dangerous-find-root)
+        cat >&2 << 'EOF'
+ERROR: Dangerous command blocked: find rooted at /, ~, or /home/markus
+
+The command walks the entire filesystem or home directory, which is forbidden.
+
+If you need to search:
+  - Restrict to a concrete subpath, e.g. 'find /home/markus/foo ...'
+  - Use rg or grep on the relevant tree instead
+EOF
+        ;;
+      *)
+        cat >&2 << 'EOF'
+ERROR: Dangerous command blocked: rm with recursive + force flags (no interactive)
 
 The command contains 'rm -rf' (or equivalent with flags in any order).
 This is forbidden.
@@ -98,6 +129,8 @@ If you need recursive deletion:
 If you need forced deletion:
    - ask the user to run the command for you
 EOF
+        ;;
+    esac
     exit 2
 }
 
@@ -124,7 +157,7 @@ is_nix_sandboxed() {
     [[ "$command" =~ ^[[:space:]]*(,|nix[[:space:]]+(run|shell)|nix-shell) ]]
 }
 
-is_dangerous_rm_command() {
+is_dangerous_command() {
     local command="$1"
     [[ -z "$command" ]] && return 1
     local first_match
@@ -133,7 +166,13 @@ is_dangerous_rm_command() {
             | ast-grep scan --inline-rules "$DANGEROUS_RULES" --stdin --json=stream 2>/dev/null \
             | head -n 1
     )
-    [[ -n "$first_match" ]]
+    # Print the matched ruleId on stdout for the caller to tailor the message.
+    if [[ -n "$first_match" ]]; then
+        printf '%s\n' "$first_match" \
+            | jq -r '.ruleId // "dangerous-command"'
+        return 0
+    fi
+    return 1
 }
 
 # ============================================================================
@@ -163,8 +202,9 @@ main() {
         return 0
     fi
 
-    if is_dangerous_rm_command "$command"; then
-        block_dangerous_command "rm with recursive + force flags (no interactive)"
+    local rule_id
+    if rule_id=$(is_dangerous_command "$command"); then
+        block_dangerous_command "$rule_id"
     fi
 
     output_allow "No dangerous patterns detected"
