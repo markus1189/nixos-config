@@ -132,7 +132,8 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       });
 
       try {
-        // Run ddgr with JSON output
+        // Run ddgr with JSON output. Pass query and args as an array so
+        // nothing is interpreted by a shell; avoids injection / quoting bugs.
         const result = await pi.exec(
           "ddgr",
           [
@@ -311,90 +312,139 @@ export default function webToolsExtension(pi: ExtensionAPI) {
         details: {},
       });
 
-      // Create a temp file for the pipeline
+      // Fetch into a temp file and convert from there. This lets us keep raw
+      // HTML and avoids fragile shell quoting of inline content.
       const tempFile = path.join(
         os.tmpdir(),
         `pi-web-fetch-${Date.now()}.html`,
       );
 
       try {
-        // Try httpie first, then curl, then wget.
-        // Uses a realistic User-Agent, compressed encoding, and cookie support.
-        const escapedUrl = shellEscape(url);
-        const uaRaw = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
-        const uaShell = shellEscape(uaRaw);
-        const pandocCmd = "pandoc -f html -t gfm-raw_html --wrap=none";
+        // Uses exec with arg-array (no shell), so URL/headers are passed
+        // literally and cannot inject shell syntax. Uses a realistic UA,
+        // compressed encoding, and cookie support.
+        const uaRaw =
+          "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
 
-        const httpieCmd = [
-          `http --follow --timeout=30 --print=b --quiet GET`,
-          escapedUrl,
-          shellEscape(`User-Agent:${uaRaw}`),
-          shellEscape("Accept:text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
-          shellEscape("Accept-Language:en-US,en;q=0.5"),
-        ].join(" ");
+        // Prefer httpie, then curl, then wget. Each writes to tempFile.
+        // Only accept http(s) URLs to avoid local-file / other schemes.
+        if (!/^https?:\/\//i.test(url)) {
+          throw new Error(`Refusing to fetch non-http(s) URL: ${url}`);
+        }
 
-        const curlCmd = [
-          `curl -sL`,
-          `--compressed`,
-          `-A ${uaShell}`,
-          `--max-time 30`,
-          `--max-filesize 5242880`,
-          `--retry 2 --retry-delay 1 --retry-max-time 15`,
-          `-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'`,
-          `-H 'Accept-Language: en-US,en;q=0.5'`,
-          `-b ''`, // enable cookie engine
-          escapedUrl,
-        ].join(" ");
+        const commands: Array<{ cmd: string; args: string[] }> = [
+          {
+            cmd: "http",
+            args: [
+              "--follow",
+              "--timeout=30",
+              "--quiet",
+              "GET",
+              url,
+              `User-Agent:${uaRaw}`,
+              "Accept:text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language:en-US,en;q=0.5",
+              "-o",
+              tempFile,
+            ],
+          },
+          {
+            cmd: "curl",
+            args: [
+              "-sL",
+              "--compressed",
+              "-A",
+              uaRaw,
+              "--max-time",
+              "30",
+              "--max-filesize",
+              "5242880",
+              "--retry",
+              "2",
+              "--retry-delay",
+              "1",
+              "--retry-max-time",
+              "15",
+              "-H",
+              "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "-H",
+              "Accept-Language: en-US,en;q=0.5",
+              "-b",
+              "",
+              "-o",
+              tempFile,
+              url,
+            ],
+          },
+          {
+            cmd: "wget",
+            args: [
+              "-q",
+              "-O",
+              tempFile,
+              "--compression=auto",
+              "-U",
+              uaRaw,
+              "--timeout=30",
+              "--max-redirect=10",
+              "--header=",
+              "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "--header=",
+              "Accept-Language: en-US,en;q=0.5",
+              url,
+            ],
+          },
+        ];
 
-        const wgetCmd = [
-          `wget -q -O -`,
-          `--compression=auto`,
-          `-U ${uaShell}`,
-          `--timeout=30`,
-          `--max-redirect=10`,
-          `--header='Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'`,
-          `--header='Accept-Language: en-US,en;q=0.5'`,
-          escapedUrl,
-        ].join(" ");
+        let fetched = false;
+        let fetchError = "";
+        for (const c of commands) {
+          const res = await pi.exec(
+            c.cmd,
+            c.args,
+            { signal, timeout: 30000 },
+          );
+          if (res.code === 0 && fs.existsSync(tempFile) && fs.statSync(tempFile).size > 0) {
+            fetched = true;
+            break;
+          }
+          fetchError = res.stderr || res.code ? `exit ${res.code}` : "";
+        }
 
-        // Try httpie → curl → wget, using first that succeeds with non-empty output
-        const fetchScript = `
-          html=""
-          for cmd in 'httpie' 'curl' 'wget'; do
-            case $cmd in
-              httpie) html=$(${httpieCmd} 2>/dev/null) || html="" ;;
-              curl)   html=$(${curlCmd} 2>/dev/null) || html="" ;;
-              wget)   html=$(${wgetCmd} 2>/dev/null) || html="" ;;
-            esac
-            [ -n "$html" ] && break
-          done
-          if [ -z "$html" ]; then
-            echo "FETCH_FAILED: httpie, curl, and wget all failed to retrieve content" >&2
-            exit 1
-          fi
-          printf '%s' "$html" | ${pandocCmd}
-        `;
-
-        const result = await pi.exec(
-          "bash",
-          ["-c", fetchScript],
-          { signal, timeout: 60000 },
-        );
-
-        if (result.code !== 0) {
+        if (!fetched) {
           return {
             content: [
               {
                 type: "text",
-                text: `Failed to fetch URL: ${result.stderr || "Unknown error"}`,
+                text: `Failed to fetch URL: ${fetchError || "httpie, curl, and wget all failed"}`,
               },
             ],
-            details: { error: result.stderr, url },
+            details: { error: fetchError, url },
             isError: true,
           };
         }
 
-        let content = result.stdout;
+        // Convert HTML to markdown. `-t markdown` (not gfm-raw_html) preserves
+        // tables (incl. colspan/rowspan) instead of collapsing them to [TABLE].
+        // For page content we still want readable text, so use markdown tables.
+        const conv = await pi.exec(
+          "pandoc",
+          ["-f", "html", "-t", "markdown", "--wrap=none", tempFile],
+          { signal, timeout: 30000 },
+        );
+        if (conv.code !== 0) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `HTML → markdown conversion failed: ${conv.stderr || "unknown"}`,
+              },
+            ],
+            details: { error: conv.stderr, url },
+            isError: true,
+          };
+        }
+        let content = conv.stdout;
 
         // Clean up common noise
         content = content
@@ -471,12 +521,4 @@ export default function webToolsExtension(pi: ExtensionAPI) {
       ctx.ui.notify("Web tools loaded (web_search, web_fetch)", "info");
     }
   });
-}
-
-/**
- * Shell-escape a string for use in bash commands
- */
-function shellEscape(str: string): string {
-  // Use single quotes and escape any existing single quotes
-  return "'" + str.replace(/'/g, "'\"'\"'") + "'";
 }
