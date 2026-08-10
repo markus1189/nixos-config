@@ -14,12 +14,13 @@ set -euo pipefail
 #   - dangerous-rm:        plain rm with r+f and no i
 #   - dangerous-xargs-rm:  xargs ... rm ... with r+f and no i (tree-sitter-bash
 #                          parses `xargs rm -rf` as one command)
-#   - dangerous-find-root: find traversing the whole home dir or root filesystem.
-#                          The first `find` argument is the path to walk; a path
-#                          that is /, ~, /home/markus, or its home with a trailing
-#                          slash means the agent would index the entire filesystem,
-#                          which is broadly forbidden. Subpaths (e.g. find
-#                          /home/markus/foo) remain allowed.
+#   - dangerous-find-root: find traversing the whole home dir, root filesystem,
+#                          or the nix store. The first `find` argument is the path
+#                          to walk; a path that is /, ~, /home/markus, or /nix/store
+#                          (optionally with a trailing slash) means the agent would
+#                          index the entire filesystem, home dir, or store, which
+#                          is broadly forbidden. Subpaths (e.g. find
+#                          /home/markus/foo, find /nix/store/<hash>) remain allowed.
 # ============================================================================
 
 DANGEROUS_RULES=$(cat <<'YAML'
@@ -79,7 +80,7 @@ rule:
     - has:
         stopBy: end
         kind: word
-        regex: '^(/?|/home/markus/?|~/?)$'
+        regex: '^(/?|/home/markus/?|~/?|/nix/store/?)$'
 YAML
 )
 readonly DANGEROUS_RULES
@@ -106,9 +107,9 @@ block_dangerous_command() {
     case "$rule_id" in
       dangerous-find-root)
         cat >&2 << 'EOF'
-ERROR: Dangerous command blocked: find rooted at /, ~, or /home/markus
+ERROR: Dangerous command blocked: find rooted at /, ~, /home/markus, or /nix/store
 
-The command walks the entire filesystem or home directory, which is forbidden.
+The command walks the entire filesystem, home directory, or nix store, which is forbidden.
 
 If you need to search:
   - Restrict to a concrete subpath, e.g. 'find /home/markus/foo ...'

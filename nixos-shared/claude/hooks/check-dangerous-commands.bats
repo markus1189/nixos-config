@@ -254,6 +254,21 @@ setup() {
     assert_success
 }
 
+@test "is_dangerous_command: find /nix/store blocked" {
+    run is_dangerous_command 'find /nix/store'
+    assert_success
+}
+
+@test "is_dangerous_command: find /nix/store/ (trailing slash) blocked" {
+    run is_dangerous_command 'find /nix/store/'
+    assert_success
+}
+
+@test "is_dangerous_command: find /nix/store in pipeline blocked" {
+    run is_dangerous_command 'find /nix/store | head'
+    assert_success
+}
+
 @test "is_dangerous_command: find / in pipeline blocked" {
     run is_dangerous_command 'find / | head'
     assert_success
@@ -262,6 +277,11 @@ setup() {
 # Allowed: concrete subpaths and non-root roots
 @test "is_dangerous_command: find /home/markus/foo allowed" {
     run is_dangerous_command 'find /home/markus/foo'
+    assert_failure
+}
+
+@test "is_dangerous_command: find /nix/store/<hash> subpath allowed" {
+    run is_dangerous_command 'find /nix/store/abcd1234-nonexistent-pkg'
     assert_failure
 }
 
