@@ -45,7 +45,15 @@ export default function (pi: ExtensionAPI) {
   pi.on("tool_call", async (event, ctx) => {
     switch (event.toolName) {
       case "read":
-        playSound("come-here-notification.wav");
+        // Skills load on-demand via `read` on a SKILL.md (progressive
+        // disclosure). Match Claude Code's dedicated `Skill` tool sound so
+        // loading a skill chimes `graceful-285` instead of the generic read
+        // ping (`come-here`).
+        if (/SKILL\.md$/.test(event.input?.path ?? "")) {
+          playSound("graceful-285.wav");
+        } else {
+          playSound("come-here-notification.wav");
+        }
         break;
       case "bash":
       case "write":
