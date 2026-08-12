@@ -1,15 +1,15 @@
 /**
- * Fresh Session - carry last assistant response to a clean session
+ * Popout - carry last assistant response to a clean session
  *
  * Usage:
- *   /fresh                    - new session with last assistant message as context
- *   /fresh now do X instead   - same, but pre-fills editor with args
+ *   /popout                  - new session with last assistant message as context
+ *   /popout now do X instead - same, but pre-fills editor with args
  */
 
 import type { ExtensionAPI, SessionEntry } from "@earendil-works/pi-coding-agent";
 
 export default function (pi: ExtensionAPI) {
-  pi.registerCommand("fresh", {
+  pi.registerCommand("popout", {
     description: "New session seeded with the last assistant response",
     handler: async (args, ctx) => {
       const branch = ctx.sessionManager.getBranch();
@@ -49,7 +49,7 @@ export default function (pi: ExtensionAPI) {
           if (trimmed) {
             freshCtx.ui.setEditorText(trimmed);
           }
-          freshCtx.ui.notify("Fresh session ready", "info");
+          freshCtx.ui.notify("Popout session ready", "info");
         },
       });
     },

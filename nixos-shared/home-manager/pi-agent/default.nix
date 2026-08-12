@@ -111,9 +111,9 @@ let
       source = ./extensions/think.ts;
     };
 
-    "pi-agent-extension-fresh-session" = {
-      target = ".pi/agent/extensions/fresh-session.ts";
-      source = ./extensions/fresh-session.ts;
+    "pi-agent-extension-popout" = {
+      target = ".pi/agent/extensions/popout.ts";
+      source = ./extensions/popout.ts;
     };
 
     "pi-agent-extension-tokens-per-second" = {
