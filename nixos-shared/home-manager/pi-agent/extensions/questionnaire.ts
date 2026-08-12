@@ -7,7 +7,7 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Editor, type EditorTheme, Key, matchesKey, Text, truncateToWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
+import { Editor, type EditorTheme, Key, matchesKey, Text, truncateToWidth, visibleWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 
 // Types
@@ -39,6 +39,7 @@ interface Answer {
 interface QuestionnaireResult {
         questions: Question[];
         answers: Answer[];
+        comments: [string, string][]; // questionId (or "__additional__" for the grab-bag) -> note
         cancelled: boolean;
 }
 
@@ -72,7 +73,7 @@ function errorResult(
 ): { content: { type: "text"; text: string }[]; details: QuestionnaireResult } {
         return {
                 content: [{ type: "text", text: message }],
-                details: { questions, answers: [], cancelled: true },
+                details: { questions, answers: [], comments: [], cancelled: true },
         };
 }
 
@@ -149,7 +150,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 }
 
                                 function submit(cancelled: boolean) {
-                                        done({ questions, answers: Array.from(answers.values()), cancelled });
+                                        done({ questions, answers: Array.from(answers.values()), comments: Array.from(comments.entries()), cancelled });
                                 }
 
                                 function currentQuestion(): Question | undefined {
@@ -322,10 +323,11 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 } else if (matchesKey(data, Key.escape)) {
                                                         submit(true);
                                                 } else if (data.toLowerCase() === "a" && allAnswered()) {
-                                                        // "Anything else?" option
+                                                        // "Anything else?" as a grab-bag comment on the sentinel question
+                                                        commenting = true;
                                                         inputMode = true;
                                                         inputQuestionId = "__additional__";
-                                                        editor.setText(answers.get("__additional__")?.labels[0] || "");
+                                                        editor.setText(comments.get("__additional__") ?? "");
                                                         refresh();
                                                         return;
                                                 }
@@ -459,6 +461,19 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 }
                                         };
 
+                                        // Add a labelled, word-wrapped note. Label on the first line only;
+                                        // continuation lines are indented past the label so the body lines up.
+                                        const addLabelled = (labelStyle: string, label: string, body: string) => {
+                                                const labelWidth = visibleWidth(label);
+                                                const bodyWidth = Math.max(8, width - 2 - labelWidth);
+                                                const wrapped = wrapTextWithAnsi(body, bodyWidth);
+                                                add(labelStyle + wrapped[0]);
+                                                const pad = " ".repeat(labelWidth + 2);
+                                                for (const line of wrapped.slice(1)) {
+                                                        add(pad + line);
+                                                }
+                                        };
+
                                         add(theme.fg("accent", "─".repeat(width)));
 
                                         // Tab bar (multi-question only)
@@ -529,14 +544,28 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         }
 
                                         // Content
-                                        if (inputMode && q) {
-                                                addWrapped(q.prompt, theme.fg("text", " "));
+                                        if (inputMode) {
+                                                const isGrabBag = inputQuestionId === "__additional__";
+                                                if (isGrabBag) {
+                                                        add(theme.fg("text", " Anything else?"));
+                                                        if (comments.get("__additional__")) {
+                                                                add(theme.fg("dim", " (overwrites previous grab-bag note)"));
+                                                        }
+                                                } else if (q) {
+                                                        addWrapped(q.prompt, theme.fg("text", " "));
+                                                }
                                                 lines.push("");
                                                 // Show options for reference (with current checkboxes)
-                                                renderOptions();
-                                                lines.push("");
+                                                if (q && !isGrabBag) {
+                                                        renderOptions();
+                                                        lines.push("");
+                                                }
                                                 if (commenting) {
-                                                        add(theme.fg("accent", " Comment for this question:"));
+                                                        if (isGrabBag) {
+                                                                add(theme.fg("accent", " Anything-else note:"));
+                                                        } else {
+                                                                add(theme.fg("accent", " Comment for this question:"));
+                                                        }
                                                         add(theme.fg("dim", " (leave blank to clear)"));
                                                 } else {
                                                         add(theme.fg("muted", " Your answer:"));
@@ -568,20 +597,19 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                                         theme.fg("muted", ` ${question.label}: `) + theme.fg("text", ""),
                                                                         width - 2 - (question.label.length + 2),
                                                                 );
+                                                        }
 
-                                                                const note = comments.get(question.id);
-                                                                if (note) {
-                                                                        addWrapped(note, theme.fg("accent", "   ✎ ") + theme.fg("text", ""), width - 7);
-                                                                }
+                                                        const note = comments.get(question.id);
+                                                        if (note) {
+                                                                addLabelled(theme.fg("accent", "   ✎ "), "   ✎ ", note);
                                                         }
                                                 }
                                                 lines.push("");
 
-                                                // "Anything else?" option
-                                                const additionalAnswer = answers.get("__additional__");
-                                                if (additionalAnswer) {
-                                                        add(" ");
-                                                        addWrapped(additionalAnswer.labels[0], theme.fg("muted", " Anything else: ") + theme.fg("text", ""), width - 18);
+                                                // Grab-bag "anything else" comment
+                                                const additionalComment = comments.get("__additional__");
+                                                if (additionalComment) {
+                                                        addLabelled(theme.fg("muted", " Anything else: "), " Anything else: ", additionalComment);
                                                         lines.push("");
                                                 }
 
@@ -648,10 +676,6 @@ export default function questionnaire(pi: ExtensionAPI) {
                         }
 
                         const answerLines = result.answers.map((a) => {
-                                if (a.id === "__additional__") {
-                                        return `Additional notes: ${a.labels[0]}`;
-                                }
-
                                 const qLabel = questions.find((q) => q.id === a.id)?.label || a.id;
                                 const parts: string[] = [];
 
@@ -674,8 +698,22 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 return `${qLabel}: ${parts.join(" and ")}`;
                         });
 
+                        // Append per-question comments (excluding the grab-bag, shown separately)
+                        const commentLines = result.comments
+                                .filter(([id]) => id !== "__additional__")
+                                .map(([id, note]) => {
+                                        const qLabel = questions.find((q) => q.id === id)?.label || id;
+                                        return `# ${qLabel}: ${note}`;
+                                });
+                        const grabBagComment = result.comments.find(([id]) => id === "__additional__");
+                        if (grabBagComment) {
+                                commentLines.push(`# Anything else: ${grabBagComment[1]}`);
+                        }
+
+                        const allLines = [...answerLines, ...commentLines];
+
                         return {
-                                content: [{ type: "text", text: answerLines.join("\n") }],
+                                content: [{ type: "text", text: allLines.join("\n") }],
                                 details: result,
                         };
                 },
@@ -702,9 +740,6 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 return new Text(theme.fg("warning", "Cancelled"), 0, 0);
                         }
                         const lines = details.answers.map((a) => {
-                                if (a.id === "__additional__") {
-                                        return `${theme.fg("success", "✓ ")}${theme.fg("muted", "Additional: ")}${a.labels[0]}`;
-                                }
                                 if (a.wasCustom && a.labels.length === 1) {
                                         return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${theme.fg("muted", "(wrote) ")}${a.labels[0]}`;
                                 }
@@ -719,7 +754,14 @@ export default function questionnaire(pi: ExtensionAPI) {
                                 }
                                 return `${theme.fg("success", "✓ ")}${theme.fg("accent", a.id)}: ${displayParts.join(", ")}`;
                         });
-                        return new Text(lines.join("\n"), 0, 0);
+                        const commentLines = (details.comments || []).map(([id, note]) => {
+                                if (id === "__additional__") {
+                                        return `${theme.fg("muted", "✎ Anything else: ")}${note}`;
+                                }
+                                return `${theme.fg("muted", "✎ ")}${theme.fg("accent", id)}: ${theme.fg("muted", "")}${note}`;
+                        });
+                        const rendered = [...lines, ...commentLines];
+                        return new Text(rendered.join("\n"), 0, 0);
                 },
         });
 }
