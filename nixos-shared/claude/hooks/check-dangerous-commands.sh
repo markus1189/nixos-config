@@ -21,6 +21,14 @@ set -euo pipefail
 #                          index the entire filesystem, home dir, or store, which
 #                          is broadly forbidden. Subpaths (e.g. find
 #                          /home/markus/foo, find /nix/store/<hash>) remain allowed.
+#   - dangerous-fd-root:   same forbidden roots for `fd`, which the find message
+#                          recommends. fd takes the path as a *trailing* argument
+#                          (`fd PATTERN PATH`) rather than a leading one, and also
+#                          accepts --search-path/--base-directory, so the rule
+#                          matches the root as a bare word anywhere in the fd
+#                          command instead of pinning it to a position. Without
+#                          this, recommending fd would just reopen the hole
+#                          dangerous-find-root closes.
 # ============================================================================
 
 DANGEROUS_RULES=$(cat <<'YAML'
@@ -81,6 +89,18 @@ rule:
         stopBy: end
         kind: word
         regex: '^(/?|/home/markus/?|~/?|/nix/store/?)$'
+---
+id: dangerous-fd-root
+language: bash
+severity: error
+message: dangerous
+rule:
+  all:
+    - pattern: 'fd $$$ARGS'
+    - has:
+        stopBy: end
+        kind: word
+        regex: '^(/|/home/markus/?|~/?|/nix/store/?)$'
 YAML
 )
 readonly DANGEROUS_RULES
@@ -113,6 +133,24 @@ The command walks the entire filesystem, home directory, or nix store, which is 
 
 If you need to search:
   - Restrict to a concrete subpath, e.g. 'find /home/markus/foo ...'
+  - Prefer 'fd' over 'find' on a subpath: 'fd PATTERN /home/markus/foo'
+    (faster, respects .gitignore, skips hidden files by default)
+  - Use rg or grep on the relevant tree instead
+
+Note: 'fd' is subject to the same root restriction. Scope it to a subpath.
+EOF
+        ;;
+      dangerous-fd-root)
+        cat >&2 << 'EOF'
+ERROR: Dangerous command blocked: fd rooted at /, ~, /home/markus, or /nix/store
+
+fd is the preferred replacement for find, but not as a way around the root
+restriction: walking the entire filesystem, home directory, or nix store is
+forbidden regardless of which tool does the walking.
+
+If you need to search:
+  - Restrict to a concrete subpath, e.g. 'fd PATTERN /home/markus/foo'
+  - Same applies to --search-path and --base-directory
   - Use rg or grep on the relevant tree instead
 EOF
         ;;

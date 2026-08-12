@@ -455,7 +455,7 @@ enablePythonPathCheck = true;  # in default.nix
 
 #### 2. Dangerous Command Check Hook (`check-dangerous-commands.sh`)
 
-**Purpose**: Blocks `rm -rf` and its variations to prevent accidental destructive operations.
+**Purpose**: Blocks `rm -rf` and its variations to prevent accidental destructive operations, plus whole-filesystem traversals with `find`/`fd`.
 
 **Configuration**:
 ```nix
@@ -468,12 +468,21 @@ enableDangerousCommandCheck = true;  # in default.nix (default)
 - Long flags: `rm --recursive --force`, `rm -r --force`, `rm --recursive -f`
 - In pipelines: `find | xargs rm -rf`
 - In subshells: `(cd /tmp && rm -rf test)`
+- Root traversal with `find`: `find /`, `find ~`, `find /home/markus`, `find /nix/store`
+- Root traversal with `fd`: `fd PATTERN /`, `fd PATTERN ~`, also via `--search-path` / `--base-directory`
 
 **What It Allows**:
 - Safe recursive: `rm -r /tmp` (without force)
 - Single files: `rm file.txt`
 - Interactive: `rm -i -rf /tmp` (confirmation enabled)
 - Nix-sandboxed: `nix-shell -p coreutils --run "rm -rf /tmp"`
+- Scoped traversal: `find /home/markus/foo`, `fd PATTERN /home/markus/foo`, `fd PATTERN` (cwd)
+
+**Note on `fd`**: the `find` block message recommends `fd` as the faster
+replacement, so `fd` carries the *same* root restriction — otherwise the
+recommendation would hand out a bypass. `fd` takes its path as a trailing
+argument rather than a leading one, so the rule matches the forbidden root as a
+bare word anywhere in the `fd` command.
 
 **Alternatives Suggested**:
 ```bash

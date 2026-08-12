@@ -330,3 +330,143 @@ setup() {
     run is_dangerous_command '# find / should not match'
     assert_failure
 }
+
+# ============================================================================
+# fd root traversal — the find message recommends fd, so fd must honour the
+# same forbidden roots. Unlike find, fd takes the path as a trailing argument
+# (fd PATTERN PATH) and also via --search-path/--base-directory, so the rule
+# matches the root as a bare word anywhere in the fd command.
+# ============================================================================
+
+@test "is_dangerous_command: fd rooted at / blocked" {
+    run is_dangerous_command 'fd foo /'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at ~ blocked" {
+    run is_dangerous_command 'fd foo ~'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at ~/ blocked" {
+    run is_dangerous_command 'fd foo ~/'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at /home/markus blocked" {
+    run is_dangerous_command 'fd foo /home/markus'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at /home/markus/ (trailing slash) blocked" {
+    run is_dangerous_command 'fd foo /home/markus/'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at /nix/store blocked" {
+    run is_dangerous_command 'fd foo /nix/store'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at /nix/store/ (trailing slash) blocked" {
+    run is_dangerous_command 'fd foo /nix/store/'
+    assert_success
+}
+
+@test "is_dangerous_command: fd with flags before root blocked" {
+    run is_dangerous_command 'fd -H -t f foo /'
+    assert_success
+}
+
+@test "is_dangerous_command: fd --search-path / blocked" {
+    run is_dangerous_command 'fd --search-path / foo'
+    assert_success
+}
+
+@test "is_dangerous_command: fd --base-directory ~ blocked" {
+    run is_dangerous_command 'fd --base-directory ~ foo'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at / in pipeline blocked" {
+    run is_dangerous_command 'fd . / | head'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at / in subshell blocked" {
+    run is_dangerous_command '(cd /tmp && fd foo /)'
+    assert_success
+}
+
+@test "is_dangerous_command: fd -x rm rooted at / blocked" {
+    run is_dangerous_command 'fd foo / -x rm'
+    assert_success
+}
+
+# Allowed: fd scoped to a concrete subpath
+@test "is_dangerous_command: fd /home/markus/repos allowed" {
+    run is_dangerous_command 'fd foo /home/markus/repos'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd /nix/store/<hash> subpath allowed" {
+    run is_dangerous_command 'fd foo /nix/store/abcd1234-nonexistent-pkg'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd /tmp allowed" {
+    run is_dangerous_command 'fd foo /tmp'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd with implicit cwd allowed" {
+    run is_dangerous_command 'fd foo'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd . allowed" {
+    run is_dangerous_command 'fd foo .'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd ~/code allowed" {
+    run is_dangerous_command 'fd foo ~/code'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd /home allowed" {
+    run is_dangerous_command 'fd foo /home'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd ~markus allowed" {
+    run is_dangerous_command 'fd foo ~markus'
+    assert_failure
+}
+
+# Allowed: / belonging to a neighbouring command, not to fd
+@test "is_dangerous_command: fd scoped with unrelated ls / allowed" {
+    run is_dangerous_command 'fd foo /tmp && ls /'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd scoped piped into ls / allowed" {
+    run is_dangerous_command 'fd foo /tmp | xargs -I{} ls /'
+    assert_failure
+}
+
+# Allowed: false positives in strings/comments
+@test "is_dangerous_command: fd / in git commit message allowed" {
+    run is_dangerous_command 'git commit -m "fd / bug"'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd / in echo string allowed" {
+    run is_dangerous_command 'echo "fd foo / started"'
+    assert_failure
+}
+
+@test "is_dangerous_command: fd / in shell comment allowed" {
+    run is_dangerous_command '# fd foo / should not match'
+    assert_failure
+}
