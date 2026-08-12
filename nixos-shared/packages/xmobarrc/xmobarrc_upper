@@ -68,7 +68,6 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 60
                     -- 15s: this is the energy_now delta sampling window, not just a refresh
                     , Run Com "@chargeRate@/bin/chargeRate" [] "charge" 150
-                    , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"

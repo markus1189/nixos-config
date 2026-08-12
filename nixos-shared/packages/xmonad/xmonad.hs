@@ -1,10 +1,9 @@
 import Control.Monad (filterM)
 import Data.Char (toLower)
-import Data.Functor (void, (<&>))
+import Data.Functor ((<&>))
 import Data.List (isInfixOf, isPrefixOf)
 import Data.Map qualified as M
 import Data.Ratio ((%))
-import System.IO (hPutStrLn)
 import XMonad
   ( Button,
     ButtonMask,
@@ -23,7 +22,6 @@ import XMonad
         focusFollowsMouse,
         focusedBorderColor,
         layoutHook,
-        logHook,
         manageHook,
         modMask,
         mouseBindings,
@@ -106,14 +104,12 @@ import XMonad.Hooks.DynamicLog
   ( PP
       ( ppCurrent,
         ppLayout,
-        ppOutput,
         ppSep,
         ppTitle,
         ppUrgent,
         ppVisible,
         ppWsSep
       ),
-    dynamicLogWithPP,
     xmobarColor,
     xmobarPP,
     xmobarStrip,
@@ -122,6 +118,7 @@ import XMonad.Hooks.EwmhDesktops (ewmh)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
+import XMonad.Hooks.StatusBar (StatusBarConfig, statusBarGeneric, statusBarProp, withSB)
 import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
 import XMonad.Layout.AutoMaster (autoMaster)
 import XMonad.Layout.BinarySpacePartition (emptyBSP)
@@ -165,7 +162,6 @@ import XMonad.Util.NamedScratchpad
     namedScratchpadAction,
     namedScratchpadManageHook,
   )
-import XMonad.Util.Run (spawnPipe)
 
 myWorkspaces :: [String]
 myWorkspaces = map show ([(1 :: Int) .. 9] ++ [0]) ++ myNamedWorkspaces
@@ -591,11 +587,30 @@ runTerminal :: String -> String -> String
 runTerminal termTitle arg =
   unwords [myTerminal, "--title=" ++ termTitle, "-e", "bash", "-c", "'" ++ arg ++ "'"]
 
+myLowerPP :: PP
+myLowerPP =
+  xmobarPP
+    { ppTitle = xmobarColor "orange" "",
+      ppUrgent = xmobarColor "black" "orange" . xmobarStrip,
+      ppVisible = xmobarColor "red" "black",
+      ppCurrent = xmobarColor "orange" "black",
+      ppWsSep = " | ",
+      ppSep = " | ",
+      ppLayout = xmobarColor "gray" "black" . workspaceRenamer
+    }
+
+-- withSB tracks bar PIDs in persistent state and its startup hook kills
+-- stale instances before respawning, so bars survive mod-q restarts without
+-- the old spawnPipe/StdinReader EOF trick. The lower bar reads the workspace
+-- log from the _XMONAD_LOG property (Run XMonadLog on the xmobar side).
+myStatusBars :: StatusBarConfig
+myStatusBars =
+  statusBarProp "@xmobar@/bin/xmobar @xmobarLower@" (pure myLowerPP)
+    <> statusBarGeneric "@xmobar@/bin/xmobar @xmobarUpper@" mempty
+
 main :: IO ()
-main = do
-  xmobarBottom <- spawnPipe "@xmobar@/bin/xmobar @xmobarLower@"
-  void $ spawnPipe "@xmobar@/bin/xmobar @xmobarUpper@"
-  xmonad $
+main =
+  xmonad . withSB myStatusBars $
     ewmh $
       docks $
         withUrgencyHook NoUrgencyHook $
@@ -609,18 +624,6 @@ main = do
               focusedBorderColor = "orange",
               layoutHook = avoidStruts myLayoutHook,
               startupHook = setWMName "LG3D",
-              logHook =
-                dynamicLogWithPP
-                  xmobarPP
-                    { ppOutput = hPutStrLn xmobarBottom,
-                      ppTitle = xmobarColor "orange" "",
-                      ppUrgent = xmobarColor "black" "orange" . xmobarStrip,
-                      ppVisible = xmobarColor "red" "black",
-                      ppCurrent = xmobarColor "orange" "black",
-                      ppWsSep = " | ",
-                      ppSep = " | ",
-                      ppLayout = xmobarColor "gray" "black" . workspaceRenamer
-                    },
               modMask = myModKey,
               mouseBindings = myNewMouseBindings
             }

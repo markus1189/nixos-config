@@ -4,10 +4,10 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , position = BottomW L 91
        , pickBroadest = False
        , lowerOnStart = False
-       , commands = [ Run StdinReader
+       , commands = [ Run XMonadLog
                     , Run Com "@currentSpotifySong@/bin/currentSpotifySong" [] "spotify" 30
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %spotify% "
+       , template = "%XMonadLog% }{ %spotify% "
        }
