@@ -334,13 +334,13 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 return;
                                         }
 
-                                        // Option navigation (shared)
-                                        if (matchesKey(data, Key.up)) {
+                                        // Option navigation (shared): ↑↓/j/k
+                                        if (matchesKey(data, Key.up) || data.toLowerCase() === "k") {
                                                 optionIndex = Math.max(0, optionIndex - 1);
                                                 refresh();
                                                 return;
                                         }
-                                        if (matchesKey(data, Key.down)) {
+                                        if (matchesKey(data, Key.down) || data.toLowerCase() === "j") {
                                                 optionIndex = Math.min(opts.length - 1, optionIndex + 1);
                                                 refresh();
                                                 return;
@@ -541,6 +541,12 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                                 addWrapped(opt.description, "     " + theme.fg("muted", ""), width - 7);
                                                         }
                                                 }
+
+                                                // Inline comment visibility: show the current question's note right here,
+                                                // so entering a c comment is confirmed without needing the submit review.
+                                                if (q && comments.get(q.id)) {
+                                                        addLabelled(theme.fg("accent", "   ✎ "), "   ✎ ", comments.get(q.id)!);
+                                                }
                                         }
 
                                         // Content
@@ -644,12 +650,12 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 let help: string;
                                                 if (q?.multiple) {
                                                         help = isMulti
-                                                                ? " Tab/←→ navigate • ↑↓ move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel"
-                                                                : " ↑↓ move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel";
+                                                                ? " Tab/←→ navigate • ↑↓/jk move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel"
+                                                                : " ↑↓/jk move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel";
                                                 } else {
                                                         help = isMulti
-                                                                ? " Tab/←→ navigate • ↑↓/1-9 select • C comment • Enter confirm • Esc cancel"
-                                                                : " ↑↓/1-9 select • C comment • Enter confirm • Esc cancel";
+                                                                ? " Tab/←→ navigate • ↑↓/jk select • C comment • Enter confirm • Esc cancel"
+                                                                : " ↑↓/jk select • C comment • Enter confirm • Esc cancel";
                                                 }
                                                 add(theme.fg("dim", help));
                                         }
