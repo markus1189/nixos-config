@@ -6,11 +6,10 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , pickBroadest = False
        , commands = [ Run Network "@wirelessInterface@"
                         [ "-t", "<rx> 󰁅 <tx> 󰁝"
-                        , "--normal","#42d3a5"
                         , "--minwidth", "2"
                         , "--maxwidth", "8"
                         , "-L" , "20"
-                        , "-H" ,"100"
+                        , "-H" ,"1000"
                         , "--normal","#42d3a5"
                         , "--high", "red"
                         ] 10
@@ -23,15 +22,18 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "--normal","#42d3a5"
                         , "--high","red"
                         , "-p", "3"
-                        , "-W", "10"
                         , "-S", "True"
                         ] 10
                     , Run Memory
                         [ "-t", "<usedratio>%"
                         ] 300
-                    , Run ThermalZone 0
-                        ["-t", "<temp>°C"
-                        ] 300
+                    , Run MultiCoreTemp
+                        [ "-t", "<max>°C"
+                        , "-L", "60"
+                        , "-H", "85"
+                        , "--normal", "#42d3a5"
+                        , "--high", "red"
+                        ] 50
                     , Run TopProc
                         [ "-t", "<both1>  <both2>  <mboth1>  <mboth2>"
                         , "-L", "25"
@@ -52,16 +54,20 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "-i","<fc=lightgreen>󰂄</fc>"
                         , "-O","<fc=orange>󱧥</fc>"
                         , "-o","<fc=red>󰂃</fc>"
+                        -- re-fires every refresh while below threshold and
+                        -- discharging; dunstify -r replaces its own popup
+                        , "-a", "@dunst@/bin/dunstify -r 42001 -u critical 'Battery low'"
+                        , "-A", "5"
                         ] 50
                     , Run DiskU
                         [("/","<usedp>% <used>/<size>")]
-                        ["-L", "20", "-H", "50", "-m", "1", "-p", "2"]
+                        ["-L", "80", "-H", "90", "-m", "1", "-p", "2"]
                         100
                     , Run DiskIO
                         [("/", "<read> <write>")]
                         []
                         10
-                    , Run Date "%F %T" "date" 1
+                    , Run Date "%F %T" "date" 10
                     , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
                     , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
                     , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
@@ -71,5 +77,5 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%multicpu% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %wifi% %vpn%  %charge%%battery%%btheadphones%  %dunst%%sharing%<fc=orange>%date%</fc>"
+       , template = "%multicpu% 󰔏 %multicoretemp% %top% }{  󰍛 %memory%  󰋊 %disku% %diskio%  %@wirelessInterface@% %wifi% %vpn%  %charge%%battery%%btheadphones%  %dunst%%sharing%<fc=orange>%date%</fc>"
        }
