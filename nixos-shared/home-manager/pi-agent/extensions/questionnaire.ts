@@ -7,7 +7,7 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Editor, type EditorTheme, Key, matchesKey, Text, truncateToWidth } from "@earendil-works/pi-tui";
+import { Editor, type EditorTheme, Key, matchesKey, Text, truncateToWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 
 // Types
@@ -124,6 +124,10 @@ export default function questionnaire(pi: ExtensionAPI) {
 
                                 // Multi-select state: question id → { indices: Set of 0-based option indices, custom?: string }
                                 const multiSelections = new Map<string, { indices: Set<number>; custom?: string }>();
+
+                                // Comment state: user notes attached to questions, entered via the C key
+                                const comments = new Map<string, string>();
+                                let commenting = false;
 
                                 // Editor for "Type something" option
                                 const editorTheme: EditorTheme = {
@@ -242,6 +246,22 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         const trimmed = value.trim() || "(no response)";
                                         const q = questions.find((q) => q.id === inputQuestionId);
 
+                                        if (commenting) {
+                                                // Comment mode: store the note (blank clears it), stay on the question
+                                                const note = value.trim();
+                                                if (note) {
+                                                        comments.set(inputQuestionId, note);
+                                                } else {
+                                                        comments.delete(inputQuestionId);
+                                                }
+                                                commenting = false;
+                                                inputMode = false;
+                                                inputQuestionId = null;
+                                                editor.setText("");
+                                                refresh();
+                                                return;
+                                        }
+
                                         if (q?.multiple) {
                                                 // Multi-select: store custom text, stay on question so user can confirm
                                                 const sel = getMultiSelection(inputQuestionId);
@@ -266,6 +286,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 if (matchesKey(data, Key.escape)) {
                                                         inputMode = false;
                                                         inputQuestionId = null;
+                                                        commenting = false;
                                                         editor.setText("");
                                                         refresh();
                                                         return;
@@ -319,6 +340,16 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         }
                                         if (matchesKey(data, Key.down)) {
                                                 optionIndex = Math.min(opts.length - 1, optionIndex + 1);
+                                                refresh();
+                                                return;
+                                        }
+
+                                        // Comment: attach a free-text note to the current question
+                                        if (data.toLowerCase() === "c" && q) {
+                                                commenting = true;
+                                                inputMode = true;
+                                                inputQuestionId = q.id;
+                                                editor.setText(comments.get(q.id) ?? "");
                                                 refresh();
                                                 return;
                                         }
@@ -421,6 +452,13 @@ export default function questionnaire(pi: ExtensionAPI) {
                                         // Helper to add truncated line
                                         const add = (s: string) => lines.push(truncateToWidth(s, width));
 
+                                        // Helper to add a word-wrapped block of text (ANSI-preserving)
+                                        const addWrapped = (s: string, prefix = "", contentWidth = width - 2) => {
+                                                for (const line of wrapTextWithAnsi(s, contentWidth)) {
+                                                        add(prefix + line);
+                                                }
+                                        };
+
                                         add(theme.fg("accent", "─".repeat(width)));
 
                                         // Tab bar (multi-question only)
@@ -485,19 +523,24 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                         }
 
                                                         if (opt.description) {
-                                                                add(`     ${theme.fg("muted", opt.description)}`);
+                                                                addWrapped(opt.description, "     " + theme.fg("muted", ""), width - 7);
                                                         }
                                                 }
                                         }
 
                                         // Content
                                         if (inputMode && q) {
-                                                add(theme.fg("text", ` ${q.prompt}`));
+                                                addWrapped(q.prompt, theme.fg("text", " "));
                                                 lines.push("");
                                                 // Show options for reference (with current checkboxes)
                                                 renderOptions();
                                                 lines.push("");
-                                                add(theme.fg("muted", " Your answer:"));
+                                                if (commenting) {
+                                                        add(theme.fg("accent", " Comment for this question:"));
+                                                        add(theme.fg("dim", " (leave blank to clear)"));
+                                                } else {
+                                                        add(theme.fg("muted", " Your answer:"));
+                                                }
                                                 for (const line of editor.render(width - 2)) {
                                                         add(` ${line}`);
                                                 }
@@ -520,7 +563,16 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                                         }
                                                                         labelText = parts.join(", ");
                                                                 }
-                                                                add(`${theme.fg("muted", ` ${question.label}: `)}${theme.fg("text", labelText)}`);
+                                                                addWrapped(
+                                                                        labelText,
+                                                                        theme.fg("muted", ` ${question.label}: `) + theme.fg("text", ""),
+                                                                        width - 2 - (question.label.length + 2),
+                                                                );
+
+                                                                const note = comments.get(question.id);
+                                                                if (note) {
+                                                                        addWrapped(note, theme.fg("accent", "   ✎ ") + theme.fg("text", ""), width - 7);
+                                                                }
                                                         }
                                                 }
                                                 lines.push("");
@@ -528,7 +580,8 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 // "Anything else?" option
                                                 const additionalAnswer = answers.get("__additional__");
                                                 if (additionalAnswer) {
-                                                        add(theme.fg("muted", " Anything else: ") + theme.fg("text", additionalAnswer.labels[0]));
+                                                        add(" ");
+                                                        addWrapped(additionalAnswer.labels[0], theme.fg("muted", " Anything else: ") + theme.fg("text", ""), width - 18);
                                                         lines.push("");
                                                 }
 
@@ -543,7 +596,7 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                         add(theme.fg("warning", ` Unanswered: ${missing}`));
                                                 }
                                         } else if (q) {
-                                                add(theme.fg("text", ` ${q.prompt}`));
+                                                addWrapped(q.prompt, theme.fg("text", " "));
                                                 lines.push("");
                                                 renderOptions();
 
@@ -563,12 +616,12 @@ export default function questionnaire(pi: ExtensionAPI) {
                                                 let help: string;
                                                 if (q?.multiple) {
                                                         help = isMulti
-                                                                ? " Tab/←→ navigate • ↑↓ move • 1-9/Space toggle • Enter confirm • Esc cancel"
-                                                                : " ↑↓ move • 1-9/Space toggle • Enter confirm • Esc cancel";
+                                                                ? " Tab/←→ navigate • ↑↓ move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel"
+                                                                : " ↑↓ move • 1-9/Space toggle • C comment • Enter confirm • Esc cancel";
                                                 } else {
                                                         help = isMulti
-                                                                ? " Tab/←→ navigate • ↑↓/1-9 select • Enter confirm • Esc cancel"
-                                                                : " ↑↓/1-9 select • Enter confirm • Esc cancel";
+                                                                ? " Tab/←→ navigate • ↑↓/1-9 select • C comment • Enter confirm • Esc cancel"
+                                                                : " ↑↓/1-9 select • C comment • Enter confirm • Esc cancel";
                                                 }
                                                 add(theme.fg("dim", help));
                                         }
