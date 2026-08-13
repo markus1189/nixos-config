@@ -2,8 +2,6 @@
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-  custom = import ../nixos-shared/custom.nix;
-  secrets = import ../nixos-shared/secrets.nix;
   ndtSources = import ../ndt/sources.nix { };
   homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
@@ -42,6 +40,7 @@ rec {
     })
     (import ./syncthing.nix config.lib._custom_.userName)
     ../nixos-shared/my-agenix.nix
+    ../nixos-shared/runtime-secrets.nix
     ./codecentric.nix
     ../nixos-shared/nix-ld.nix
     ../nixos-shared/rss-bridge.nix
@@ -157,7 +156,7 @@ rec {
     x11vnc = {
       enable = true;
       auth = "/home/${config.lib._custom_.userName}/.Xauthority";
-      password = secrets.x11vnc.password;
+      passwordFile = config.age.secrets.x11vnc.path;
       viewonly = false;
       shared = true;
       autoStart = false;

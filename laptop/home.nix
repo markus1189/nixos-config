@@ -1,7 +1,6 @@
 { config, pkgs, osConfig, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 
   nixpkgsMasterSrc = builtins.fetchTarball {
@@ -37,7 +36,7 @@ in
       # jrnl fails at tests (2022-02-18)
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
-      (myScripts.addToRaindropScript { access_token = secrets.raindrop.test_token; })
+      myScripts.addToRaindropScript
     ];
 
     file =
@@ -224,7 +223,7 @@ in
             options.disp_float_fmt = '{:.04f}'
 
             options.reddit_client_id = 'AM6u5feracoVWJ3gJWTnCA'
-            options.reddit_client_secret = '${secrets.reddit.visidata}'
+            options.reddit_client_secret = open('/run/agenix/reddit-visidata').read().strip()
 
             Sheet.bindkey(ALT + '.', 'repeat-input')
             Sheet.bindkey('z' + ALT + '.', 'repeat-last')

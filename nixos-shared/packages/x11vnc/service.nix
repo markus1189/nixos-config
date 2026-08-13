@@ -14,9 +14,10 @@ in {
       example = "/home/me/.Xauthority";
     };
 
-    password = mkOption {
-      description = "X11vnc password";
+    passwordFile = mkOption {
+      description = "Path to a file whose first line is the x11vnc password";
       type = types.str;
+      example = "/run/agenix/x11vnc";
     };
 
     autoStart = mkOption {
@@ -49,7 +50,7 @@ in {
       "-forever"
       "-display :0"
       "-auth ${cfg.auth}"
-      "-passwd ${cfg.password}"
+      "-passwdfile ${cfg.passwordFile}"
       "-ncache"
       "-rfbport ${toString cfg.port}"
     ] ++ optional cfg.viewonly "-viewonly"

@@ -1,7 +1,11 @@
 { config, pkgs, ... }:
 
 let
-  secrets = import ../nixos-shared/secrets.nix;
+  # Shelly gen1 web UI login; the username is not sensitive, the password
+  # arrives at runtime via systemd LoadCredential (see below).
+  shellyUsername = "admin";
+  shellyPasswordCredential =
+    "/run/credentials/prometheus-json-exporter.service/shelly-password";
   shellyPlugModule = "shellyPlug";
   jsonExporterPort = 7979;
   toYAMLFile = data:
@@ -24,6 +28,16 @@ let
     dishwasher = "spuehlmaschine";
   };
 in {
+  age.secrets.shellyWebUIPassword = {
+    file = ../secrets/shelly-webui-password.age;
+    name = "shelly-webui-password";
+  };
+
+  # json exporter runs with DynamicUser and cannot read /run/agenix directly;
+  # systemd hands it the password as a credential instead.
+  systemd.services.prometheus-json-exporter.serviceConfig.LoadCredential =
+    [ "shelly-password:${config.age.secrets.shellyWebUIPassword.path}" ];
+
   services.prometheus = rec {
     enable = true;
 
@@ -184,6 +198,9 @@ in {
       enable = true;
       port = 9093;
       listenAddress = "0.0.0.0";
+      # systemd (as root) loads the env file; envsubst interpolates the token
+      # into the config at service start.
+      environmentFile = config.age.secrets.telegramEnv.path;
       configuration = rec {
         route = {
           group_wait = "30s";
@@ -195,7 +212,7 @@ in {
         receivers = [{
           name = "smart-home-telegram";
           telegram_configs = [{
-            bot_token = secrets.telegramBotToken;
+            bot_token = "$TELEGRAM_BOT_TOKEN";
             chat_id = -1001896177541;
             api_url = "https://api.telegram.org";
             parse_mode = "HTML";
@@ -236,7 +253,8 @@ in {
               }];
               http_client_config = {
                 basic_auth = {
-                  inherit (secrets.shellyWebUI) username password;
+                  username = shellyUsername;
+                  password_file = shellyPasswordCredential;
                 };
               };
             };
@@ -259,7 +277,8 @@ in {
               }];
               http_client_config = {
                 basic_auth = {
-                  inherit (secrets.shellyWebUI) username password;
+                  username = shellyUsername;
+                  password_file = shellyPasswordCredential;
                 };
               };
             };

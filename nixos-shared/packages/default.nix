@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  secrets = import ../secrets.nix;
   ndtSources = import ../../ndt/sources.nix { };
 in
 {
@@ -26,23 +25,23 @@ in
           myScripts = pkgs.callPackage ./scripts { };
           xmobars = callPackage ./xmobarrc {
             inherit mutate;
-            togglTimer = myScripts.togglTimer secrets.toggl;
+            togglTimer = myScripts.togglTimer;
             wirelessInterface = config.lib._custom_.wirelessInterface;
           };
           mutate = callPackage ./mutate { };
         in
         rec {
           inherit myScripts mutate;
-          notifySendPb = myScripts.notifySendPb secrets.pushBulletToken;
-          notifySendTelegram = myScripts.notifySendTelegram secrets.telegramBotToken;
-          notifySendTelegramHtml = myScripts.notifySendTelegramHtml secrets.telegramBotToken;
-          notifySendTelegramMd = myScripts.notifySendTelegramMd secrets.telegramBotToken;
-          sendTelegramPoll = myScripts.sendTelegramPoll secrets.telegramBotToken;
-          telegramSendPhoto = myScripts.telegramSendPhoto secrets.telegramBotToken;
-          telegramPhotosLastYear = myScripts.telegramPhotosLastYear secrets.telegramBotToken;
-          mkRsstailToRaindropUnitWithSecrets = myScripts.mkRsstailToRaindropUnit {
-            access_token = secrets.raindrop.test_token;
-          };
+          inherit (myScripts)
+            notifySendPb
+            notifySendTelegram
+            notifySendTelegramHtml
+            notifySendTelegramMd
+            sendTelegramPoll
+            telegramSendPhoto
+            telegramPhotosLastYear
+            mkRsstailToRaindropUnit
+            ;
           # Viessmann refresh token expires every 180 days. To renew, run:
           # , oauth2c https://iam.viessmann-climatesolutions.com/idp/v3 \
           #   --client-id=45e59eb93fb498140de733c44637d8df \
@@ -53,18 +52,13 @@ in
           #   --auth-method=none \
           #   --response-mode=query \
           #   --pkce
-          viessmannOutsideTemperature = myScripts.viessmannOutsideTemperature {
-            botToken = secrets.telegramBotToken;
-            viessmannRefreshToken = secrets.viessmannRefreshToken;
-          };
+          # then store it: agenix -e secrets/viessmann-refresh-token.age
+          inherit (myScripts) viessmannOutsideTemperature;
           myConfigFiles = {
             xmonad =
               let
                 audioRecordScript = pkgs.writeShellApplication {
                   name = "recordScript";
-                  runtimeEnv = {
-                    OPENAI_API_KEY = secrets.gptel.openai;
-                  };
                   runtimeInputs = with pkgs; [
                     pulseaudio
                     ffmpeg
@@ -74,8 +68,12 @@ in
                     coreutils
                     xdotool
                     xclip
+                    gawk
                   ];
-                  text = builtins.readFile ./xmonad/recordScript.sh;
+                  text = ''
+                    OPENAI_API_KEY="$(awk '$2 == "api.openai.com" { print $NF }' /run/agenix/authinfo)"
+                    export OPENAI_API_KEY
+                  '' + builtins.readFile ./xmonad/recordScript.sh;
                 };
 
               in
@@ -88,10 +86,6 @@ in
               };
             xmobarLower = xmobars.lower;
             xmobarUpper = xmobars.upper;
-            offlineimap = callPackage ./offlineimap {
-              inherit mutate;
-              googlepw = secrets.googlepw;
-            };
           };
           emacs = callPackageWith pkgs ./emacs { inherit mutate ndtSources; };
         };

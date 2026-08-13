@@ -530,7 +530,6 @@ rec {
       '';
 
   togglTimer =
-    togglApiToken:
     writeShellScript
       {
         name = "togglTimer";
@@ -543,8 +542,10 @@ rec {
         failFast = false;
       }
       ''
-        if curl -s -u ${togglApiToken}:api_token -X GET https://api.track.toggl.com/api/v9/me/time_entries/current | jq -e '.' > /dev/null; then
-          OUTPUT_SUM=$(curl -s -u ${togglApiToken}:api_token -G --data-urlencode "start_date=$(date -d '12 hours ago' --iso-8601=s)" --data-urlencode "end_date=$(date --iso-8601=s)" 'https://api.track.toggl.com/api/v9/me/time_entries' |
+        TOGGL_AUTH="$(< /run/agenix/toggl):api_token"
+
+        if curl -s -u "''${TOGGL_AUTH}" -X GET https://api.track.toggl.com/api/v9/me/time_entries/current | jq -e '.' > /dev/null; then
+          OUTPUT_SUM=$(curl -s -u "''${TOGGL_AUTH}" -G --data-urlencode "start_date=$(date -d '12 hours ago' --iso-8601=s)" --data-urlencode "end_date=$(date --iso-8601=s)" 'https://api.track.toggl.com/api/v9/me/time_entries' |
               jq -e -r 'map(if .duration < 0 then now + .duration else .duration end) | add')
 
           if [[ "$?" == 0 ]]; then
@@ -1056,7 +1057,6 @@ rec {
       '';
 
   notifySendPb =
-    pushBulletToken:
     writeShellScript
       {
         name = "notifySendPb";
@@ -1069,7 +1069,7 @@ rec {
       ''
         curl --silent --fail \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-         --header 'Access-Token: ${pushBulletToken}' \
+         --header "Access-Token: $(< /run/agenix/pushbullet)" \
          --header 'Content-Type: application/json' \
          --data-binary "$(jo -- -s type=note -s title="''${1:-no-title}" -s body="''${2:-no-body}")" \
          --request POST \
@@ -1077,7 +1077,7 @@ rec {
       '';
 
   sendTelegram =
-    chatid: name: parseMode: botToken:
+    chatid: name: parseMode:
     writeShellScript
       {
         inherit name;
@@ -1089,17 +1089,20 @@ rec {
         pure = true;
       }
       ''
+        set -a
+        . /run/agenix/telegram.env
+        set +a
+
         MESSAGE=''${1:?"Error: no message given!"}
         curl --silent --fail -XPOST \
          --retry-all-errors --retry 3 \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           -H 'Content-Type: application/json' \
           -d "$(jo chat_id=${chatid} ${lib.optionalString (parseMode != null) "parse_mode=${parseMode}"} text="''${MESSAGE}")" \
-          --url "https://api.telegram.org/bot${botToken}/sendMessage"
+          --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendMessage"
       '';
 
   sendTelegramPoll =
-    botToken:
     writeShellScript
       {
         name = "sendTelegramPoll";
@@ -1111,6 +1114,10 @@ rec {
         pure = true;
       }
       ''
+        set -a
+        . /run/agenix/telegram.env
+        set +a
+
         QUESTION=''${1:?"Error: no message given!"}
         shift
         curl --silent --fail -XPOST \
@@ -1118,7 +1125,7 @@ rec {
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           -H 'Content-Type: application/json' \
           -d "$(jo allows_multiple_answers=true chat_id=299952716 question="''${QUESTION}" options="$(jo -a $*)")" \
-          --url "https://api.telegram.org/bot${botToken}/sendPoll"
+          --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendPoll"
       '';
 
   notifySendTelegram = sendTelegram "299952716" "notifySendTelegram" null;
@@ -1130,7 +1137,6 @@ rec {
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome" null;
 
   telegramSendPhoto =
-    botToken:
     writeShellScript
       {
         name = "telegramSendPhoto";
@@ -1142,6 +1148,10 @@ rec {
         pure = true;
       }
       ''
+        set -a
+        . /run/agenix/telegram.env
+        set +a
+
         LIMIT=5
 
         buildArray() {
@@ -1168,7 +1178,7 @@ rec {
 
             curl --silent --fail -XPOST \
                     --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-                    --url "https://api.telegram.org/bot${botToken}/sendMediaGroup" \
+                    --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendMediaGroup" \
                     -F chat_id=299952716 \
                     -F media="$(buildArray "$@")" \
                     $(buildParams "$@")
@@ -1178,13 +1188,12 @@ rec {
       '';
 
   telegramPhotosLastYear =
-    botToken:
     writeShellScript
       {
         name = "telegramPhotosLastYear";
         deps = [
           findutils
-          (telegramSendPhoto botToken)
+          telegramSendPhoto
         ];
         pure = true;
       }
@@ -1221,7 +1230,6 @@ rec {
       '';
 
   addToRaindropScript =
-    { access_token }:
     writeShellScript
       {
         name = "add-to-raindrop";
@@ -1266,7 +1274,7 @@ rec {
         GIVEN_TAGS="''${2:-}"
         TAGS="''${GIVEN_TAGS},newsboat"
 
-        script_raindrop_access_token=${access_token}
+        script_raindrop_access_token="$(< /run/agenix/raindrop)"
 
         if echo "''${URL}" | grep 'youtube.com/watch'; then
             TAGS="$TAGS,youtube,video"
@@ -1312,7 +1320,6 @@ rec {
       '';
 
   mkRsstailToRaindropUnit =
-    { access_token }:
     {
       key,
       url,
@@ -1333,7 +1340,7 @@ rec {
               | ${gawk}/bin/awk '{print $2; system("")}' \
               | while read i; do
                   echo [rsstail-${key}]: Adding to raindrop: "$i"
-                  ${addToRaindropScript { inherit access_token; }}/bin/add-to-raindrop "$i" "rsstail"
+                  ${addToRaindropScript}/bin/add-to-raindrop "$i" "rsstail"
                 done
           '';
     in
@@ -1355,40 +1362,6 @@ rec {
         };
       };
     };
-  pyvicare =
-    let
-      mypython =
-        with python3Packages;
-        let
-          pyvicare = buildPythonPackage rec {
-            pname = "PyViCare";
-            version = "0.2.4";
-
-            src = fetchPypi {
-              inherit pname version;
-              sha256 = "sha256:1i64iazl5m0h2c862sgd5p73bnizbp2f0jq6i8k3c5x6494vklav";
-            };
-
-            propagatedBuildInputs = [
-              simplejson
-              requests_oauthlib
-            ];
-            doCheck = false;
-          };
-        in
-        python3.withPackages (ps: [ pyvicare ]);
-    in
-    { username, password }:
-    writeScriptBin "pyvicare" ''
-      #!${mypython}/bin/python
-
-      import os
-      from PyViCare.PyViCareGazBoiler import GazBoiler
-
-      t=GazBoiler('${username}','${password}')
-
-      print(t.getOutsideTemperature())
-    '';
   captureTOTP =
     writeShellScript
       {
@@ -1404,7 +1377,6 @@ rec {
       '';
 
   viessmannOutsideTemperature =
-    { viessmannRefreshToken, botToken }:
     writeShellScript
       {
         name = "viessmannOutsideTemperature";
@@ -1412,7 +1384,7 @@ rec {
           curl
           cacert
           jq
-          (notifySendHome botToken)
+          notifySendHome
           coreutils
         ];
         pure = true;
@@ -1421,7 +1393,7 @@ rec {
         INSTALLATION_ID=210377
         GATEWAY_SERIAL=7637415026914199
         DEVICE_ID=0
-        REFRESH_TOKEN="${viessmannRefreshToken}"
+        REFRESH_TOKEN="$(< /run/agenix/viessmann-refresh-token)"
 
         # Returns: 0 on success (prints temperature), 1 on transient failure, 2 on terminal failure.
         # On failure prints a human-readable reason to stderr.

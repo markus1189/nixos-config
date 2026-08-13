@@ -51,7 +51,7 @@ in {
   systemd.user = {
     startServices = true;
     services = let
-      rsstail = pkgs.mkRsstailToRaindropUnitWithSecrets;
+      rsstail = pkgs.mkRsstailToRaindropUnit;
       otherServices = {
         garminConnectSync = garmin.service;
         syncWeightToZwift = zwiftWeightSync.service;

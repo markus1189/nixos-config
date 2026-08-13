@@ -25,7 +25,7 @@ in
     ./p1g8.nix                            # host-overrides; replaces p1/p1.nix
     ./vagrant.nix                         # customer project: Vagrant + libvirt/KVM
     ../p1/globalprotect/default.nix       # reuse p1's globalprotect — same VPN config
-    (import ../nixos-shared/wireguard.nix "p1g8")  # per-host WG (§1d-1); needs mozwire bundle in secrets.nix
+    (import ../nixos-shared/wireguard.nix "p1g8")  # per-host WG (§1d-1); config in secrets/wg-nyc-p1g8.age
     (import ../nixos-shared/syncthing.nix "p1g8")  # declarative mesh; nixos-p1/nuc still GUI (see audit 2026-05-20)
   ];
 

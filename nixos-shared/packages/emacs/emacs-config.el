@@ -7,14 +7,31 @@
 ;;; Code:
 
 (progn
-  (defun mh/secrets/raindrop/testToken () "@raindropTestToken@")
-  (defun mh/secrets/gptel/perplexityApiKey () "@gptelPerplexityApiKey@")
-  (defun mh/secrets/gptel/geminiApiKey () "@gptelGeminiApiKey@")
-  (defun mh/secrets/gptel/openAiApiKey () "@gptelOpenAiApiKey@")
-  (defun mh/secrets/gptel/anthropicApiKey () "@gptelAnthropicApiKey@")
-  (defun mh/secrets/gptel/deepSeekApiKey () "@gptelDeepSeekApiKey@")
-  (defun mh/secrets/gptel/xaiApiKey () "@gptelXAIApiKey@")
-  (defun mh/secrets/gptel/openRouterApiKey () "@gptelOpenRouterApiKey@"))
+  ;; API keys live in an agenix-managed netrc file (secrets/authinfo.age),
+  ;; decrypted to /run/agenix/authinfo at boot. Read at call time, never
+  ;; baked into the store.
+  (require 'auth-source)
+  (add-to-list 'auth-sources "/run/agenix/authinfo")
+  (defun mh/secrets/read-file-trimmed (file)
+    (string-trim (with-temp-buffer
+                   (insert-file-contents file)
+                   (buffer-string))))
+  (defun mh/secrets/raindrop/testToken ()
+    (mh/secrets/read-file-trimmed "/run/agenix/raindrop"))
+  (defun mh/secrets/gptel/perplexityApiKey ()
+    (auth-source-pick-first-password :host "api.perplexity.ai"))
+  (defun mh/secrets/gptel/geminiApiKey ()
+    (auth-source-pick-first-password :host "generativelanguage.googleapis.com"))
+  (defun mh/secrets/gptel/openAiApiKey ()
+    (auth-source-pick-first-password :host "api.openai.com"))
+  (defun mh/secrets/gptel/anthropicApiKey ()
+    (auth-source-pick-first-password :host "api.anthropic.com"))
+  (defun mh/secrets/gptel/deepSeekApiKey ()
+    (auth-source-pick-first-password :host "api.deepseek.com"))
+  (defun mh/secrets/gptel/xaiApiKey ()
+    (auth-source-pick-first-password :host "api.x.ai"))
+  (defun mh/secrets/gptel/openRouterApiKey ()
+    (auth-source-pick-first-password :host "openrouter.ai")))
 
 (global-set-key (kbd "M-m") 'iy-go-to-char)
 

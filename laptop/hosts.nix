@@ -18,6 +18,8 @@ let
 in
 {
   networking = {
-    extraHosts = builtins.readFile modifiedHosts;
+    # hostFiles keeps the filtering at build time (extraHosts + readFile
+    # forced the derivation at eval time).
+    hostFiles = [ modifiedHosts ];
   };
 }

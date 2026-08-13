@@ -21,6 +21,7 @@ in {
     ../nixos-shared/packages/services.nix
     ../nixos-shared/prometheus.nix
     ../nixos-shared/my-agenix.nix
+    ../nixos-shared/runtime-secrets.nix
     ../nixos-shared/garmin-connect.nix
     ../nixos-shared/zwift-weight-sync.nix
     ../nixos-shared/rclone-mounts.nix
@@ -178,7 +179,7 @@ in {
   services.x11vnc = {
     enable = true;
     auth = "/home/${config.lib._custom_.userName}/.Xauthority";
-    password = "worldbuilding2";
+    passwordFile = config.age.secrets.x11vnc.path;
     shared = true;
     autoStart = true;
   };

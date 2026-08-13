@@ -2,22 +2,11 @@
 , pandoc, git, ndtSources }:
 
 let
-  secrets = import ../../secrets.nix;
   mutatedEmacsConfig = mutate ./emacs-config.el {
     inherit fasd plantuml pandoc;
     yesSound = ./yes.wav;
     noSound = ./no.wav;
     popSound = ./pop.wav;
-    gptelPerplexityApiKey = secrets.gptel.perplexity;
-    gptelGeminiApiKey = secrets.gptel.gemini;
-    gptelOpenAiApiKey = secrets.gptel.openai;
-    gptelAnthropicApiKey = secrets.gptel.anthropic;
-    gptelDeepSeekApiKey = secrets.gptel.deepseek;
-    gptelXAIApiKey = secrets.gptel.xai;
-    gptelOpenRouterApiKey = secrets.gptel.openrouter;
-    pocketConsumerKey = secrets.pocket.consumer_key;
-    pocketAccessToken = secrets.pocket.access_token;
-    raindropTestToken = secrets.raindrop.test_token;
   };
 
   myEmacsConfig = (runCommandLocal "create-my-emacs-config" { } ''
@@ -28,17 +17,31 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
   '';
+  # Single-file elisp packages, pinned by commit (previously moving-branch
+  # URLs in ndt/sources.json).
+  dired-plus-el = fetchurl {
+    url = "https://raw.githubusercontent.com/emacsmirror/dired-plus/56f76725b5f151ed8a4ad17a62edf2fd592edb3a/dired+.el";
+    sha256 = "0r5cyrra6q7w0cdv140pkn7y5hivlmj60bv1pniqfl2p40b67a5l";
+  };
+  iy-go-to-char-el = fetchurl {
+    url = "https://raw.githubusercontent.com/doitian/iy-go-to-char/04ab4f5f3a241cbbc9b8c178a22b412a62f632f9/iy-go-to-char.el";
+    sha256 = "0gs7d39s602ypvxgwmi93jskmx0vzkwmg5ryai9m30zdp8q881cl";
+  };
+  hurl-mode-el = fetchurl {
+    url = "https://raw.githubusercontent.com/Orange-OpenSource/hurl/7009ffc52238dc46b8d4073a447590ddb694413e/contrib/emacs/hurl-mode.el";
+    sha256 = "1aibnicrlsncs16nlcfgv1n84h5y3zb949ba5wzqpa4q6xsfn1lv";
+  };
   dired-plus = runCommandLocal "install-dired-plus" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${ndtSources.emacs-dired-plus} $out/share/emacs/site-lisp/dired+.el
+    cp ${dired-plus-el} $out/share/emacs/site-lisp/dired+.el
   '';
   iy-go-to-char = runCommandLocal "install-iy-go-to-char" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${ndtSources.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
+    cp ${iy-go-to-char-el} $out/share/emacs/site-lisp/iy-go-to-char.el
   '';
   hurl-mode = runCommandLocal "hurl-mode" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${ndtSources.emacs-hurl-mode} $out/share/emacs/site-lisp/hurl-mode.el
+    cp ${hurl-mode-el} $out/share/emacs/site-lisp/hurl-mode.el
   '';
   emacsPackages = emacs.pkgs.overrideScope (self: super: {
     # WORKAROUND (2026-06-28): the 2026-06-27 projectile snapshot ships

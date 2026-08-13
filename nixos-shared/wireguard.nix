@@ -1,21 +1,19 @@
 host:
 { config, pkgs, ... }:
 
-# Generate new relay server lists:
-# 1) Cleanup existing files: 
-# rm -v ~/mozwire/*.conf
-# 2) Save the new files:
-# nix shell nixpkgs#mozwire nixpkgs#wireguard-tools nixpkgs#remarshal --command "mozwire" relay save -o ~/mozwire 
-# 3) Update ./secrets.nix with the content of the file
+# Generate a new relay config:
+# 1) nix shell nixpkgs#mozwire nixpkgs#wireguard-tools --command mozwire relay save -o ~/mozwire
+# 2) agenix -e secrets/wg-nyc-<host>.age and paste the chosen .conf verbatim
 
-let
-  secrets = import ./secrets.nix;
-in
 {
+  age.secrets.wg-nyc = {
+    file = ../secrets + "/wg-nyc-${host}.age";
+  };
+
   networking = {
     wg-quick = {
       interfaces = {
-        wg-nyc = secrets.wireguard.mozilla.${host}.wg-nyc;
+        wg-nyc.configFile = config.age.secrets.wg-nyc.path;
       };
     };
   };

@@ -15,4 +15,19 @@ in {
   "cc-wlan-certificate.age".publicKeys = all;
   "garmin-connect.age".publicKeys = all;
   "zwift-weight-sync.age".publicKeys = all;
+
+  "wg-nyc-p1.age".publicKeys = [ mainUser nixosP1 ];
+  "wg-nyc-p1g8.age".publicKeys = [ mainUser p1g8 ];
+  "wg-nyc-nuc.age".publicKeys = [ mainUser nuc ];
+  "x11vnc.age".publicKeys = all;
+  "telegram.env.age".publicKeys = all;
+  "shelly-webui-password.age".publicKeys = [ mainUser nuc ];
+  "reddit-top-rss.env.age".publicKeys = all;
+  "restic-b2.env.age".publicKeys = [ mainUser nuc ];
+  "toggl.age".publicKeys = all;
+  "pushbullet.age".publicKeys = all;
+  "raindrop.age".publicKeys = all;
+  "viessmann-refresh-token.age".publicKeys = all;
+  "authinfo.age".publicKeys = all;
+  "reddit-visidata.age".publicKeys = all;
 }

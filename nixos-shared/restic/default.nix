@@ -1,19 +1,19 @@
 { writeText, lib, writeScriptBin, stdenv, restic, coreutils, myScripts, curl, cacert }:
 let
-  secrets = import ../secrets.nix;
   excludefile = writeText "restic-excludefile" (lib.strings.concatStringsSep "\n" [
     ".git"
     ".shake"
   ] + "\n");
-  restic-pw-file = writeText "restic-PW-file" secrets.restic.b2bucket.password;
+  # /run/agenix/restic-b2.env provides RESTIC_REPOSITORY, RESTIC_PASSWORD,
+  # B2_ACCOUNT_ID and B2_ACCOUNT_KEY (see nixos-shared/restic/module.nix)
   configuredRestic = healthcheckId: args: ''
     #!${stdenv.shell}
 
+    set -a
+    . /run/agenix/restic-b2.env
+    set +a
+
     export RESTIC_CACHE_DIR="/tmp/restic-cache-dir"
-    export RESTIC_REPOSITORY="b2:${secrets.restic.b2bucket.name}:/photos"
-    export RESTIC_PASSWORD_FILE="${restic-pw-file}"
-    export B2_ACCOUNT_ID="${secrets.restic.b2bucket.account-id}"
-    export B2_ACCOUNT_KEY="${secrets.restic.b2bucket.account-key}"
 
     echo "[$(date)] Started restic command"
     ${restic}/bin/restic --verbose unlock || echo "Unlock operation unsuccessful"
