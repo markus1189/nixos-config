@@ -8,14 +8,15 @@ let
     writeShellScript
     runCommandLocal
     stdenv
-    ndtSources
     gitleaks
     xxd;
 
   gitPackage = gitFull;
 
+  # Vendored gitignore.io API output (the URL serves generated, unpinnable
+  # content). Refresh manually by re-downloading the API URL if ever needed.
   gitignoreGlobal = writeText "gitignore-global-file" ''
-    ${lib.readFile ndtSources.gitignore-io}
+    ${lib.readFile ./gitignore-global}
     *~undo-tree~
     .direnv
     .metals

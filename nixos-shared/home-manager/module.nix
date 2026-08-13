@@ -1,5 +1,5 @@
 { homeNixFile }:
-{ config, pkgs, homeNix, ... }:
+{ config, pkgs, ... }:
 
 {
   home-manager = {

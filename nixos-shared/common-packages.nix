@@ -53,7 +53,6 @@ in
         nixfmt
         nixpkgs-lint
         nixpkgs-fmt
-        niv
         notifySendPb
         notifySendTelegram
         notifySendTelegramHtml
