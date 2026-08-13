@@ -121,6 +121,11 @@ let
       source = ./extensions/tokens-per-second.ts;
     };
 
+    "pi-agent-extension-model-shortcuts" = {
+      target = ".pi/agent/extensions/model-shortcuts.ts";
+      source = ./extensions/model-shortcuts.ts;
+    };
+
     "pi-agent-extension-check-dangerous-commands" = {
       target = ".pi/agent/extensions/check-dangerous-commands.ts";
       text = builtins.readFile (pkgs.mutate ./extensions/check-dangerous-commands.ts {
