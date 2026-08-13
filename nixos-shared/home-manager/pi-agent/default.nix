@@ -126,6 +126,11 @@ let
       source = ./extensions/model-shortcuts.ts;
     };
 
+    "pi-agent-extension-canned-responses" = {
+      target = ".pi/agent/extensions/canned-responses.ts";
+      source = ./extensions/canned-responses.ts;
+    };
+
     "pi-agent-extension-check-dangerous-commands" = {
       target = ".pi/agent/extensions/check-dangerous-commands.ts";
       text = builtins.readFile (pkgs.mutate ./extensions/check-dangerous-commands.ts {
