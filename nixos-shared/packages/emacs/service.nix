@@ -6,9 +6,6 @@
     package = pkgs.emacs-unstable;
   };
 
-  nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-    }))
-  ];
+  # The emacs overlay is applied in nixos-shared/flake-base.nix (pinned via
+  # flake.lock; update with `nix flake update emacs-overlay`).
 }

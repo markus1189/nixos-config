@@ -19,39 +19,43 @@ Host configs (xps/, nuc/, p1/)
 ### Host Configurations
 | Host | Build Method | User | Purpose |
 |------|--------------|------|---------|
-| `p1/` | `laptop/activate.sh` (traditional) | markus | ThinkPad P1 (primary laptop) |
-| `nuc/` | `nuc/activate.sh` (traditional) | mediacenter | Home server |
-| `xps/` | Legacy (not in use) | markus | Old XPS laptop |
+| `p1/` | `./activate.sh` (flake attr `p1`, hostname `nixos-p1`) | markus | ThinkPad P1 (primary laptop) |
+| `p1g8/` | `./activate.sh p1g8` | markus | ThinkPad P1 Gen 8 |
+| `nuc/` | `./activate.sh` (flake attr `nuc`) | mediacenter | Home server |
 | `nix-on-droid/` | Separate flake | n/a | Android/Termux |
 
 ### Shared Modules (`nixos-shared/`)
 - **Configuration**: `common-packages.nix`, `common-programs.nix`, `common-services.nix`
 - **Custom packages**: `packages/` - emacs, xmonad, xmobarrc, kmonad, tmux, scripts
 - **Home Manager**: `home-manager/` - user-level configs (git, zsh, dunst, firefox, vim, claude-code)
-- **LLM packages**: `llm-packages/` - custom plugins (llm-gemini, llm-bedrock-anthropic, llm-perplexity)
 - **Claude Code configs**: `claude/` - commands, skills, output-styles, docs
-- **Overlays**: `shared-overlays.nix` - ndt, visidata, xclip overlays
+- **Overlays**: `shared-overlays.nix` - wallpapers, visidata, xclip overlays; flake-level overlays (emacs-overlay, ndtSources, masterPkgs, ndt) in `flake-base.nix`
 
 ### Secrets Management
-Two systems in use:
-- **agenix**: Runtime secrets (passwords, API keys) decrypted at boot. Files in `secrets/*.age`, config in `my-agenix.nix`
-- **git-secret**: Build-time secrets (Nix expressions with sensitive values). Decrypt before build: `git secret reveal`
+All secrets are **agenix** runtime secrets, decrypted to `/run/agenix/*` at
+boot: files in `secrets/*.age`, recipient rules in `secrets/secrets.nix`,
+shared declarations in `nixos-shared/runtime-secrets.nix` (user-owned tokens)
+plus per-module `age.secrets` declarations. Edit with `agenix -e secrets/<f>.age`.
+Nothing secret is embedded in the nix store at build time.
 
 ### Package Sources
-- **niv**: External sources managed in `ndt/sources.nix`
-- **ndt**: Custom Nix development tools from github.com/markus1189/ndt
+All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
+- Modules: `home-manager` (nix-community), `agenix`, `disko`, `emacs-overlay`
+- Non-flake source trees (`flake = false`): darktable (with submodules!),
+  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, ndt (CLI tool)
+- Consumers access them as `pkgs.ndtSources.<name>` / `config.lib._custom_.ndtSources`
+  (a compat attrset with `.outPath`, `.rev`, `.date` built in `flake.nix`)
+- Update: `nix flake update <input>` (or all: `nix flake update`), then rebuild
 
 ## System Commands
 
 ### Building Configurations
 ```bash
-# P1 ThinkPad (primary laptop) - runs sudo nixos-rebuild with p1/configuration.nix
-laptop/activate.sh
+# Any host (defaults to $(hostname); p1's hostname nixos-p1 is aliased)
+./activate.sh            # sudo nixos-rebuild switch --flake .#<host>
+./activate.sh p1g8       # explicit host attr
 
-# NUC home server (traditional) - runs sudo nixos-rebuild with nuc/configuration.nix
-nuc/activate.sh
-
-# Nix-on-Droid (from nix-on-droid/ directory)
+# Nix-on-Droid (from nix-on-droid/ directory; separate flake)
 nix-on-droid switch --flake ./nix-on-droid
 ```
 
@@ -60,12 +64,24 @@ nix-on-droid switch --flake ./nix-on-droid
 # Syntax check before building
 nix-instantiate --parse path/to/file.nix
 
-# Test without switching
-nixos-rebuild test -I nixos-config=/path/to/configuration.nix
+# Evaluate a host without building (fast)
+nix eval --raw .#nixosConfigurations.p1.config.system.build.toplevel.drvPath
 
-# Update flake inputs
+# Build without switching, then inspect the delta
+nixos-rebuild build --flake .#p1
+nix store diff-closures /run/current-system ./result
+
+# Update flake inputs (all or one)
 nix flake update
+nix flake update emacs-overlay
 ```
+
+**Flake caveat**: only **git-tracked** files exist for flake evaluation —
+`git add` new files before building, or eval fails with "path does not exist".
+
+**nuc update model**: `system.autoUpgrade` rebuilds nightly from the
+committed `flake.lock` (no channel, no automatic input updates). Updating
+nuc means `nix flake update` + commit on a laptop, then pull on nuc.
 
 ### Option Reference (offline, version-matched)
 ```bash
@@ -106,7 +122,7 @@ claude-code package changed, not that an agent made the commit.
 
 ### emacs-overlay (nix-community)
 
-`nixos-shared/packages/emacs/service.nix` applies the [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay) fetched **unpinned from master**. This overlay replaces `emacs.pkgs` entirely with a newer MELPA snapshot, so all Emacs package versions come from the overlay, not base nixpkgs.
+`nixos-shared/flake-base.nix` applies the [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay), **pinned via `flake.lock`** (update with `nix flake update emacs-overlay`). This overlay replaces `emacs.pkgs` entirely with a newer MELPA snapshot, so all Emacs package versions come from the overlay, not base nixpkgs.
 
 **This is the first thing to check when an Emacs package build breaks.** Two failure modes:
 
@@ -200,7 +216,7 @@ rg ":id" nixos-shared/packages/emacs/emacs-config.el            # Newsletters
 1. Create host directory with `configuration.nix` and `hardware-configuration.nix`
 2. Import shared modules from `nixos-shared/` as needed
 3. Create `home.nix` for user-level configuration
-4. Either: create `activate.sh` (traditional) or add to `flake.nix` (flake-based)
+4. Add the host to `nixosConfigurations` in `flake.nix` (via `mkHost`)
 
 ## Claude Code Configurations
 

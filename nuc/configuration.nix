@@ -4,10 +4,7 @@
 
 { config, pkgs, ... }:
 
-let
-  ndtSources = import ../ndt/sources.nix { };
-  homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
-in {
+{
   imports = [
     (import ../nixos-shared/common-services.nix)
     (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
@@ -31,7 +28,6 @@ in {
     ../nixos-shared/zsh.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
-    homeManager
     (import ../nixos-shared/home-manager/module.nix {
       homeNixFile = ./home.nix;
     })
@@ -205,14 +201,14 @@ in {
 
   system = {
     stateVersion = "19.03";
+    # Rebuilds nightly from the committed flake.lock; updating means
+    # `nix flake update` + commit on a laptop, then pull here. No nightly
+    # lock updates as root on purpose.
     autoUpgrade = {
       enable = true;
       dates = "04:21";
-      channel = "https://nixos.org/channels/nixos-unstable";
-      flags = [
-        "-I"
-        "nixos-config=/home/mediacenter/repos/nixos-config/nuc/configuration.nix"
-      ];
+      flake = "/home/mediacenter/repos/nixos-config#nuc";
+      flags = [ ];
     };
   };
 

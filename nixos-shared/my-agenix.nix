@@ -1,11 +1,10 @@
-{ config, pkgs, ... }:
+{ inputs, pkgs, ... }:
 
-let ndtSources = import ../ndt/sources.nix { };
-in {
-  imports = [ "${ndtSources.agenix}/modules/age.nix" ];
-
+# The agenix NixOS module itself is imported in flake.nix; this only adds
+# the CLI to the system.
+{
   environment = {
     systemPackages =
-      [ (pkgs.callPackage "${ndtSources.agenix}/pkgs/agenix.nix" {}) ];
+      [ inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ];
   };
 }

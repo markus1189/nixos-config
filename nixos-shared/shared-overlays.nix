@@ -1,11 +1,5 @@
 rec {
-  ndtOverlay = self: super: {
-    ndt = import ./ndt-pinned.nix { nixpkgs = self; };
-  };
-
-  ndtSourcesOverlay = self: super: {
-    ndtSources = import ../ndt/sources.nix { };
-  };
+  # pkgs.ndt and pkgs.ndtSources come from the flake (nixos-shared/flake-base.nix).
 
   wallpapersOverlay = self: super: {
     markus-wallpapers = {
@@ -49,8 +43,6 @@ rec {
   };
 
   overlays = [
-    ndtOverlay
-    ndtSourcesOverlay
     wallpapersOverlay
     visidataOverlay
     xclipOverlay

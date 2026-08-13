@@ -2,14 +2,11 @@
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-  ndtSources = import ../ndt/sources.nix { };
-  homeManager = "${ndtSources.home-manager.outPath}/nixos/default.nix";
 in
 rec {
   lib = {
     _custom_ = {
       userName = "markus";
-      inherit ndtSources;
     };
   };
 
@@ -34,7 +31,6 @@ rec {
     ./lastpass.nix
     ./low-battery.nix
     ./programs.nix
-    homeManager
     (import ../nixos-shared/home-manager/module.nix {
       homeNixFile = ./home.nix;
     })
@@ -61,12 +57,6 @@ rec {
     };
 
     settings.sandbox = true;
-
-    nixPath = with config.lib._custom_; [
-      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-      "nixos-config=/home/${userName}/repos/nixos-config/${name}/configuration.nix"
-      "/nix/var/nix/profiles/per-user/root/channels"
-    ];
 
     extraOptions = ''
       experimental-features = nix-command flakes

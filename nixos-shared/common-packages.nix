@@ -1,23 +1,9 @@
 { config, pkgs, ... }:
 
-let
-  nixpkgsMasterSrc = builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
-  };
-  nixpkgsMaster = import nixpkgsMasterSrc {
-    config = {
-      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
-      firefox = {
-        enableOfficialBranding = true;
-      };
-    };
-  };
-in
-
 {
   environment = {
     systemPackages =
-      (with nixpkgsMaster; [ claude-code ])
+      (with pkgs.masterPkgs; [ claude-code ])
       ++ (with pkgs; [
         aws-vault
         bat

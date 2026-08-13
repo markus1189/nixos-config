@@ -3,16 +3,6 @@
 let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 
-  nixpkgsMasterSrc = builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
-  };
-
-  nixpkgsMaster = import nixpkgsMasterSrc {
-    config = {
-      allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "claude-code" ];
-    };
-  };
-
   otelCollector = pkgs.callPackage
     (import ../nixos-shared/home-manager/otel-collector {
       dataDir = "${config.home.homeDirectory}/.local/share/claude-otel";
@@ -781,7 +771,7 @@ in
         enableBashIntegration = true;
         nix-direnv = {
           enable = true;
-          package = nixpkgsMaster.nix-direnv;
+          package = pkgs.masterPkgs.nix-direnv;
         };
         enableZshIntegration = true;
       };

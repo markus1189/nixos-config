@@ -1,7 +1,4 @@
 { config, pkgs, ... }:
-let
-  ndtSources = import ../../ndt/sources.nix { };
-in
 {
   nixpkgs = {
     config = rec {
@@ -87,7 +84,10 @@ in
             xmobarLower = xmobars.lower;
             xmobarUpper = xmobars.upper;
           };
-          emacs = callPackageWith pkgs ./emacs { inherit mutate ndtSources; };
+          emacs = callPackageWith pkgs ./emacs {
+            inherit mutate;
+            ndtSources = config.lib._custom_.ndtSources;
+          };
         };
     };
   };
