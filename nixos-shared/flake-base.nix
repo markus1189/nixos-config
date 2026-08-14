@@ -23,7 +23,7 @@
 
       # marginal (rust CLI) as a normal pkgs attr, built from its own flake
       # but with our toolchain (see inputs.marginal in flake.nix).
-      marginal = inputs.marginal.packages.${final.system}.marginal;
+      marginal = inputs.marginal.packages.${final.stdenv.hostPlatform.system}.marginal;
     })
   ];
 
