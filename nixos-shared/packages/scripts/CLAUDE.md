@@ -84,8 +84,8 @@ All `*Bin` variants create scripts in `/bin/` subdirectory.
 
 4. **Run linters/checks** (build the script to run automatic linters):
    ```bash
-   # Build specific script attribute
-   nix-build -E 'let pkgs = import <nixpkgs> {}; in (pkgs.callPackage ./default.nix {})' -A scriptName
+   # Build specific script attribute (run from the repo root)
+   nix build --impure --expr 'let pkgs = import (builtins.getFlake "nixpkgs") {}; in (pkgs.callPackage ./nixos-shared/packages/scripts {}).scriptName'
    ```
    Many script writers include automatic linting that runs at build time (Python uses flake8, Lua uses luacheck, Fish/Babashka have syntax checks, writeShellApplication uses shellcheck). Build failures indicate linting issues that must be fixed.
 
@@ -119,16 +119,17 @@ until RESULT="$(command)" && [[ ! -z "$RESULT" ]]; do
 done
 ```
 
-### Scripts with secrets (pass as function parameters)
-```nix
-scriptName =
-  apiToken:
-  writeShellScript
-    { name = "scriptName"; deps = [ curl ]; }
-    ''
-      curl -H "Authorization: Bearer ${apiToken}" ...
-    '';
+### Scripts with secrets (read /run/agenix at runtime)
+Secrets are agenix runtime secrets — never bake them into the store or pass
+them as constructor parameters. Read them from `/run/agenix/<name>` when the
+script runs:
+```bash
+curl -H "Authorization: Bearer $(< /run/agenix/apiToken)" ...
+# or for env-style secrets:
+. /run/agenix/telegram.env
 ```
+Declarations live in `nixos-shared/runtime-secrets.nix` / per-module
+`age.secrets`; see the "Secrets Management" section in the repo AGENTS.md.
 
 ### XMobar status output
 ```bash

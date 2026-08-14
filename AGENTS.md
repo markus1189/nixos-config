@@ -9,7 +9,7 @@ WARNING: this repo is public
 
 ### Host Configuration Hierarchy
 ```
-Host configs (xps/, nuc/, p1/)
+Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
     └── Import shared modules from nixos-shared/
         ├── common-packages.nix, common-programs.nix, common-services.nix
         ├── packages/ (custom package definitions)
@@ -26,10 +26,10 @@ Host configs (xps/, nuc/, p1/)
 
 ### Shared Modules (`nixos-shared/`)
 - **Configuration**: `common-packages.nix`, `common-programs.nix`, `common-services.nix`
-- **Custom packages**: `packages/` - emacs, xmonad, xmobarrc, kmonad, tmux, scripts
+- **Custom packages**: `packages/` - emacs, xmonad, xmobarrc, kanata, tmux, scripts
 - **Home Manager**: `home-manager/` - user-level configs (git, zsh, dunst, firefox, vim, claude-code)
 - **Claude Code configs**: `claude/` - commands, skills, output-styles, docs
-- **Overlays**: `shared-overlays.nix` - wallpapers, visidata, xclip overlays; flake-level overlays (emacs-overlay, ndtSources, masterPkgs, ndt) in `flake-base.nix`
+- **Overlays**: `shared-overlays.nix` (a function of flake `inputs`) - wallpapers, visidata, xclip overlays; flake-level overlays (emacs-overlay, masterPkgs) in `flake-base.nix`
 
 ### Secrets Management
 All secrets are **agenix** runtime secrets, decrypted to `/run/agenix/*` at
@@ -42,9 +42,12 @@ Nothing secret is embedded in the nix store at build time.
 All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
 - Modules: `home-manager` (nix-community), `agenix`, `disko`, `emacs-overlay`
 - Non-flake source trees (`flake = false`): darktable (with submodules!),
-  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, ndt (CLI tool)
-- Consumers access them as `pkgs.ndtSources.<name>` / `config.lib._custom_.ndtSources`
-  (a compat attrset with `.outPath`, `.rev`, `.date` built in `flake.nix`)
+  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb
+- Consumers take `inputs` in their module arguments (NixOS modules get it
+  via `specialArgs`, home-manager modules via `extraSpecialArgs`, both set
+  up in `flake.nix` / `nixos-shared/flake-base.nix`) and use `inputs.<name>`
+  directly as a source path; `.rev`, `.shortRev` and `.lastModifiedDate`
+  are available for version strings
 - Update: `nix flake update <input>` (or all: `nix flake update`), then rebuild
 
 ## System Commands
