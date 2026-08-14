@@ -40,9 +40,12 @@ Nothing secret is embedded in the nix store at build time.
 
 ### Package Sources
 All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
-- Modules: `home-manager` (nix-community), `agenix`, `disko`, `emacs-overlay`
+- Modules/flakes: `home-manager` (nix-community), `agenix`, `disko`,
+  `emacs-overlay`, `marginal` (own flake output → `pkgs.marginal`),
+  `nixpkgs-master` (→ `pkgs.masterPkgs`)
 - Non-flake source trees (`flake = false`): darktable (with submodules!),
-  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb
+  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, dired-plus,
+  iy-go-to-char, hurl (whole CLI repo, used only for contrib/emacs/hurl-mode.el)
 - Consumers take `inputs` in their module arguments (NixOS modules get it
   via `specialArgs`, home-manager modules via `extraSpecialArgs`, both set
   up in `flake.nix` / `nixos-shared/flake-base.nix`) and use `inputs.<name>`

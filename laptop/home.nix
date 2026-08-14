@@ -353,7 +353,6 @@ in
               ${projectRepo "hocket"}
               ${projectRepo "bookbuddy.koplugin"}
               ${projectRepo "ciqt"}
-              ${projectRepo "ndt"}
               ${projectRepo "tools"}
             '';
           };
