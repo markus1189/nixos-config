@@ -106,9 +106,9 @@
         nixos-p1 = self.nixosConfigurations.p1;
       };
 
-      # `nix fmt` formats with RFC-style nixfmt (the tree has not been bulk
-      # reformatted yet — see the cleanup backlog before running it repo-wide).
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+      # `nix fmt` formats the whole tree with RFC-style nixfmt via treefmt
+      # (bare nixfmt reads stdin / chokes on the ./result symlink).
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
 
       # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
       # replaces the last channel-style shell.nix.
