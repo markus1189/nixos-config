@@ -14,7 +14,7 @@ Requesty model slugs follow this pattern:
 Examples:
 - `vertex/claude-sonnet-4-6@europe-west1`
 - `bedrock/claude-opus-4-8@eu-central-1`
-- `azure/openai-responses/gpt-5.4@swedencentral`
+- `azure/gpt-5.4@swedencentral`
 - `nebius/moonshotai/kimi-k2.5`
 
 Only models on the organization's **Approved Models / Access List** are routable. Check the
@@ -107,13 +107,14 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
     "requesty-openai": {
       "baseUrl": "https://router.eu.requesty.ai/v1",
       "apiKey": "$REQUESTY_API_KEY_CC",
-      "api": "openai-responses",
+      "api": "openai-completions",
       "authHeader": true,
       "models": [
         {
-          "id": "azure/openai-responses/gpt-5.4@swedencentral",
+          "id": "azure/gpt-5.4@swedencentral",
           "name": "GPT-5.4 (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": ["text", "image"],
           "cost": {
             "input": 1.75,
@@ -151,22 +152,30 @@ the export to `~/.bashrc` or `~/.zshrc` for persistence.
 - **Cause**: Missing cache pricing fields
 - **Fix**: Add `"cacheRead": 0` and `"cacheWrite": 0` if not applicable
 
-**Error**: `400 Function tools with reasoning_effort are not supported for <model> in /v1/chat/completions. Please use /v1/responses instead.`
-- **Cause**: A reasoning GPT model configured under an `openai-completions` provider. Requesty
-  exposes GPT models under both a bare slug (chat completions) and an `openai-responses/` slug;
-  the bare one rejects tools + `reasoning_effort`, which is every pi request.
-- **Fix**: Use the `openai-responses/...` slug under an `openai-responses` provider. Do not add
-  the bare GPT slugs — same price, no web search, unusable with tools.
+**Error**: `Cannot read properties of undefined (reading 'startsWith')`
+- **Cause**: The model is registered under an `openai-responses` provider (`api:
+  "openai-responses"`, slug prefixed `openai-responses/`). pi's Responses parser reads
+  `event.arguments` on the `response.function_call_arguments.done` stream event, but Requesty
+  emits that event with `delta` and **no** `arguments` field when a tool is invoked, so pi crashes
+  on the first real tool call. Every reasoning model on that route is affected.
+- **Affected**: the reasoning GPT and Gemini models previously under `requesty-openai`.
+- **Fix**: Register all Requesty models (GPT, Gemini, open-weight) under an
+  `openai-completions` provider using the **bare** slug (no `openai-responses/` prefix) e.g.
+  `azure/gpt-5.6-sol@swedencentral`
 - **Note**: This only fails when tools are enabled, so a `--no-tools` smoke test will not catch it.
-  Verify new models *with* tools.
+  Verify new models *with* tools. Verified 2026-08: bare GPT-5.6 Sol/Terra/Luna, 5.5 and 5.4
+  slugs all accept tools + `reasoning_effort` on `/v1/chat/completions`.
 
 ### Supported APIs
 
 The `api` field determines the protocol:
 - `anthropic-messages`: Native Anthropic format (Claude models — recommended)
-- `openai-responses`: OpenAI Responses format (GPT / Gemini via the `/v1` endpoint)
-- `openai-completions`: OpenAI-compatible chat completions
-- `google-generative-ai`: Google Gemini format
+- `openai-completions`: OpenAI-compatible chat completions — **use this for every non-Claude
+  Requesty model (GPT, Gemini, open-weight)**. Reasoning models get a `thinkingLevelMap` such as
+  `{ "minimal": "low", "xhigh": "high" }`.
+- `openai-responses`: OpenAI Responses format. **Avoid for Requesty** — pi crashes on tool calls
+  (see the `startsWith` error above).
+- `google-generative-ai`: Google Gemini format (AI Studio, not Requesty)
 
 ### Quick Reference: Common Requesty Providers
 
@@ -174,7 +183,7 @@ The `api` field determines the protocol:
 |----------|-------------|---------|
 | Vertex AI (EU) | `vertex/` | `vertex/claude-sonnet-4-6@europe-west1` |
 | Bedrock (EU) | `bedrock/` | `bedrock/claude-opus-4-8@eu-central-1` |
-| Azure OpenAI (EU) | `azure/` | `azure/openai-responses/gpt-5.4@swedencentral` |
+| Azure OpenAI (EU) | `azure/` | `azure/gpt-5.4@swedencentral` |
 | Mistral | `mistral/` | `mistral/mistral-medium-latest` |
 | OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/moonshotai/kimi-k2.5` |
 

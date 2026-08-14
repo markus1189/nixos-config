@@ -359,13 +359,14 @@
     "requesty-openai": {
       "baseUrl": "https://router.eu.requesty.ai/v1",
       "apiKey": "$REQUESTY_API_KEY_CC",
-      "api": "openai-responses",
+      "api": "openai-completions",
       "authHeader": true,
       "models": [
         {
-          "id": "azure/openai-responses/gpt-5.6-sol@swedencentral",
+          "id": "azure/gpt-5.6-sol@swedencentral",
           "name": "GPT-5.6 Sol (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -380,9 +381,10 @@
           "maxTokens": 128000
         },
         {
-          "id": "azure/openai-responses/gpt-5.6-terra@swedencentral",
+          "id": "azure/gpt-5.6-terra@swedencentral",
           "name": "GPT-5.6 Terra (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -397,9 +399,10 @@
           "maxTokens": 128000
         },
         {
-          "id": "azure/openai-responses/gpt-5.6-luna@swedencentral",
+          "id": "azure/gpt-5.6-luna@swedencentral",
           "name": "GPT-5.6 Luna (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -414,9 +417,10 @@
           "maxTokens": 128000
         },
         {
-          "id": "azure/openai-responses/gpt-5.4@swedencentral",
+          "id": "azure/gpt-5.4@swedencentral",
           "name": "GPT-5.4 (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -431,9 +435,10 @@
           "maxTokens": 128000
         },
         {
-          "id": "azure/openai-responses/gpt-5.5@swedencentral",
+          "id": "azure/gpt-5.5@swedencentral",
           "name": "GPT-5.5 (Requesty/Azure EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -446,11 +451,20 @@
           },
           "contextWindow": 1050000,
           "maxTokens": 128000
-        },
+        }
+      ]
+    },
+    "requesty-google": {
+      "baseUrl": "https://router.eu.requesty.ai/v1",
+      "apiKey": "$REQUESTY_API_KEY_CC",
+      "api": "openai-completions",
+      "authHeader": true,
+      "models": [
         {
           "id": "vertex/gemini-2.5-pro@europe-west1",
           "name": "Gemini 2.5 Pro (Requesty/Vertex EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -468,6 +482,7 @@
           "id": "vertex/gemini-3.1-flash-lite@eu",
           "name": "Gemini 3.1 Flash Lite (Requesty/Vertex EU)",
           "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
             "image"
@@ -480,6 +495,24 @@
           },
           "contextWindow": 1048576,
           "maxTokens": 65536
+        },
+        {
+          "id": "vertex/gemini-3.7-flash@eu",
+          "name": "Gemini 3.7 Flash (Requesty/Vertex EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0.75,
+            "output": 3.75,
+            "cacheRead": 0.075,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 65535
         }
       ]
     }
