@@ -37,6 +37,11 @@ const RESPONSES: CannedResponse[] = [
     message: "Go ahead",
   },
   {
+    shortcut: "c",
+    label: "Commit this",
+    message: "Commit this",
+  },
+  {
     shortcut: "e",
     label: "Explore",
     message: "Explore options, explain tradeoffs",
