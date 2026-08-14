@@ -1,5 +1,5 @@
-{ emacs, mutate, runCommandLocal, fetchurl, fetchzip, fasd, plantuml
-, pandoc, git, gptelSrc }:
+{ emacs, mutate, runCommandLocal, fasd, plantuml
+, pandoc, git, elispSrcs }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
@@ -17,30 +17,19 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
   '';
-  # Single-file elisp packages, pinned by commit.
-  dired-plus-el = fetchurl {
-    url = "https://raw.githubusercontent.com/emacsmirror/dired-plus/56f76725b5f151ed8a4ad17a62edf2fd592edb3a/dired+.el";
-    sha256 = "0r5cyrra6q7w0cdv140pkn7y5hivlmj60bv1pniqfl2p40b67a5l";
-  };
-  iy-go-to-char-el = fetchurl {
-    url = "https://raw.githubusercontent.com/doitian/iy-go-to-char/04ab4f5f3a241cbbc9b8c178a22b412a62f632f9/iy-go-to-char.el";
-    sha256 = "0gs7d39s602ypvxgwmi93jskmx0vzkwmg5ryai9m30zdp8q881cl";
-  };
-  hurl-mode-el = fetchurl {
-    url = "https://raw.githubusercontent.com/Orange-OpenSource/hurl/7009ffc52238dc46b8d4073a447590ddb694413e/contrib/emacs/hurl-mode.el";
-    sha256 = "1aibnicrlsncs16nlcfgv1n84h5y3zb949ba5wzqpa4q6xsfn1lv";
-  };
+  # Single-file elisp packages without a MELPA recipe; sources are flake
+  # inputs (see flake.nix), so they move with `nix flake update`.
   dired-plus = runCommandLocal "install-dired-plus" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${dired-plus-el} $out/share/emacs/site-lisp/dired+.el
+    cp ${elispSrcs.dired-plus}/dired+.el $out/share/emacs/site-lisp/dired+.el
   '';
   iy-go-to-char = runCommandLocal "install-iy-go-to-char" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${iy-go-to-char-el} $out/share/emacs/site-lisp/iy-go-to-char.el
+    cp ${elispSrcs.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
   '';
   hurl-mode = runCommandLocal "hurl-mode" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${hurl-mode-el} $out/share/emacs/site-lisp/hurl-mode.el
+    cp ${elispSrcs.hurl}/contrib/emacs/hurl-mode.el $out/share/emacs/site-lisp/hurl-mode.el
   '';
   emacsPackages = emacs.pkgs.overrideScope (self: super: {
     # WORKAROUND (2026-06-28): the 2026-06-27 projectile snapshot ships
@@ -80,9 +69,9 @@ in emacsPackages.withPackages (epkgs:
         # MELPA-style date version (YYYYMMDD.HMM) from the flake input's
         # lastModifiedDate (YYYYMMDDHHMMSS).
         version = builtins.replaceStrings [ ".00" ".0" ] [ "." "." ]
-          "${builtins.substring 0 8 gptelSrc.lastModifiedDate}.${
-            builtins.substring 8 4 gptelSrc.lastModifiedDate}";
-        src = gptelSrc;
+          "${builtins.substring 0 8 elispSrcs.gptel.lastModifiedDate}.${
+            builtins.substring 8 4 elispSrcs.gptel.lastModifiedDate}";
+        src = elispSrcs.gptel;
       });
     in [
       (treesit-grammars.with-all-grammars)

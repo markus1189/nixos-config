@@ -58,6 +58,21 @@
       url = "github:larkery/zsh-histdb";
       flake = false;
     };
+    # Single-file elisp packages without a MELPA recipe (consumed in
+    # nixos-shared/packages/emacs). hurl is the whole CLI repo pulled in
+    # for contrib/emacs/hurl-mode.el alone.
+    dired-plus = {
+      url = "github:emacsmirror/dired-plus";
+      flake = false;
+    };
+    iy-go-to-char = {
+      url = "github:doitian/iy-go-to-char";
+      flake = false;
+    };
+    hurl = {
+      url = "github:Orange-OpenSource/hurl";
+      flake = false;
+    };
 
     # Rust CLI for span-level markdown annotation. Consumed via its own flake
     # output (packages.marginal) but built against our nixpkgs for one toolchain.

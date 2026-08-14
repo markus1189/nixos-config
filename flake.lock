@@ -43,6 +43,22 @@
         "url": "https://github.com/darktable-org/darktable"
       }
     },
+    "dired-plus": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784865760,
+        "narHash": "sha256-3y3aisHglKLIOW/Tz1a8KC9//PfJ18yohRSGQAUQ344=",
+        "owner": "emacsmirror",
+        "repo": "dired-plus",
+        "rev": "56f76725b5f151ed8a4ad17a62edf2fd592edb3a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "emacsmirror",
+        "repo": "dired-plus",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -120,6 +136,38 @@
         "type": "github"
       }
     },
+    "hurl": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786693632,
+        "narHash": "sha256-YGRnlXqtO+4bGlck341LDCXIjbr58/14WdDzKWc94nM=",
+        "owner": "Orange-OpenSource",
+        "repo": "hurl",
+        "rev": "eaa421075ba0074f8f82d56a3bd11c8509212717",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Orange-OpenSource",
+        "repo": "hurl",
+        "type": "github"
+      }
+    },
+    "iy-go-to-char": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1443320780,
+        "narHash": "sha256-oZZDUNUG2ZQZ2jDxYSiBo1r2Vvnf9SHaOzPrjYcflS0=",
+        "owner": "doitian",
+        "repo": "iy-go-to-char",
+        "rev": "04ab4f5f3a241cbbc9b8c178a22b412a62f632f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "doitian",
+        "repo": "iy-go-to-char",
+        "type": "github"
+      }
+    },
     "marginal": {
       "inputs": {
         "nixpkgs": [
@@ -192,10 +240,13 @@
       "inputs": {
         "agenix": "agenix",
         "darktable": "darktable",
+        "dired-plus": "dired-plus",
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
         "gptel": "gptel",
         "home-manager": "home-manager",
+        "hurl": "hurl",
+        "iy-go-to-char": "iy-go-to-char",
         "marginal": "marginal",
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",

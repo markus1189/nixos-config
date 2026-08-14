@@ -86,7 +86,7 @@
           };
           emacs = callPackageWith pkgs ./emacs {
             inherit mutate;
-            gptelSrc = inputs.gptel;
+            elispSrcs = { inherit (inputs) gptel dired-plus iy-go-to-char hurl; };
           };
         };
     };
