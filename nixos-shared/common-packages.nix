@@ -21,7 +21,6 @@
         git-extras
         git-open
         hub
-        git-secret
         adwaita-icon-theme
         gron
         htop

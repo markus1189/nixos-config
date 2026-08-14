@@ -1,12 +1,8 @@
 contextual/
 *undo-tree*
 result/
-.gitsecret/keys/random_seed
 /nixos-shared/packages/xmonad/.direnv
-/nixos-shared/secrets.nix
 result
 .taskwarrior/
 __pycache__/
 *.pyc
-.gitsecret/keys/tofu.db
-.gitsecret/keys/crls.d/
