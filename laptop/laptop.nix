@@ -5,10 +5,7 @@
   ...
 }:
 
-let
-  usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
-in
-rec {
+{
   lib = {
     _custom_ = {
       userName = "markus";
@@ -16,7 +13,7 @@ rec {
   };
 
   imports = [
-    (import ../nixos-shared/common-services.nix)
+    ../nixos-shared/common-services.nix
     ../nixos-shared/aws.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
@@ -82,13 +79,6 @@ rec {
 
     firewall.allowedTCPPorts = [ ];
 
-    timeServers = [
-      "0.nixos.pool.ntp.org"
-      "1.nixos.pool.ntp.org"
-      "2.nixos.pool.ntp.org"
-      "3.nixos.pool.ntp.org"
-    ];
-
     wireless = {
       enable = true;
       interfaces = [ config.lib._custom_.wirelessInterface ];
@@ -125,10 +115,6 @@ rec {
         })
       ]
     );
-
-    config = {
-      allowUnfree = true;
-    };
   };
 
   services = {
@@ -183,7 +169,7 @@ rec {
         };
 
         sessionCommands = ''
-          ${usrPkgs.singlehead}/bin/singlehead
+          ${pkgs.myScripts.singlehead}/bin/singlehead
           ${pkgs.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xsetroot}/bin/xsetroot -cursor_name left_ptr
           ${pkgs.xset}/bin/xset r rate 250 30

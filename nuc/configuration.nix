@@ -11,9 +11,9 @@
 
 {
   imports = [
-    (import ../nixos-shared/common-services.nix)
+    ../nixos-shared/common-services.nix
     (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
-    (import ./cron.nix)
+    ./cron.nix
     ../nixos-shared/reddit-top-rss.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
@@ -67,22 +67,12 @@
     extraHosts = ''
       127.0.0.1 ${config.networking.hostName}
     '';
-
-    timeServers = [
-      "0.nixos.pool.ntp.org"
-      "1.nixos.pool.ntp.org"
-      "2.nixos.pool.ntp.org"
-      "3.nixos.pool.ntp.org"
-    ];
   };
 
   time.timeZone = "Europe/Berlin";
 
   nixpkgs = {
     overlays = (import ../nixos-shared/shared-overlays.nix inputs).overlays;
-    config = {
-      allowUnfree = true;
-    };
   };
 
   nix = {

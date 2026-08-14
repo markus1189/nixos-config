@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  callPackage,
-  ...
-}:
+{ pkgs, ... }:
 
 {
   services.emacs = {

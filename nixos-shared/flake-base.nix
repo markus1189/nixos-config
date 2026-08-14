@@ -12,6 +12,8 @@
 {
   home-manager.extraSpecialArgs = { inherit inputs; };
 
+  nixpkgs.config.allowUnfree = true;
+
   # `nixos-version --configuration-revision` names the commit a generation
   # was built from — invaluable on nuc, where autoUpgrade builds unattended.
   system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or "dirty";
