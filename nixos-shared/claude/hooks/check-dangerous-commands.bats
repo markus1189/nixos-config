@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell --impure --expr ``with import <nixpkgs> {}; bats.withLibraries (p: [ p.bats-assert p.bats-support ])`` --command bats
+#! nix shell --impure --expr ``with import (builtins.getFlake ''nixpkgs'') {}; bats.withLibraries (p: [ p.bats-assert p.bats-support ])`` --command bats
 
 # Tests for check-dangerous-commands.sh
 

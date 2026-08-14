@@ -38,7 +38,7 @@ Only for packages outside that list:
 **Haskell**:
 ```bash
 #!/usr/bin/env nix
-#! nix shell --impure --expr ``with import <nixpkgs>{}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
+#! nix shell --impure --expr ``with import (builtins.getFlake ''nixpkgs'') {}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
 
 **Syntax notes**:
