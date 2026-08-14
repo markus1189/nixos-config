@@ -1,7 +1,6 @@
 { pkgs
 , enableSoundHooks ? false
 , enableDenyRules ? false
-, enablePythonPathCheck ? false
 , enableDangerousCommandCheck ? true
 , additionalAllowedCommands ? []
 , ...
@@ -64,13 +63,6 @@ let
 
   # Auto-configure skills directories (symlink entire directories with all contents)
   skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
-
-  # Python PATH check hook script
-  pythonPathCheckScript = pkgs.writeShellApplication {
-    name = "check-python-path";
-    runtimeInputs = with pkgs; [ bash jq coreutils ];
-    text = builtins.readFile ../../claude/hooks/check-python-path.sh;
-  };
 
   # Dangerous command check hook script
   dangerousCommandCheckScript = pkgs.writeShellApplication {
@@ -207,17 +199,6 @@ let
     }
   ];
 
-  pythonPathCheckHook = {
-    matcher = "Bash";
-    hooks = [
-      {
-        type = "command";
-        command = "${pythonPathCheckScript}/bin/check-python-path";
-        timeout = 5;
-      }
-    ];
-  };
-
   dangerousCommandCheckHook = {
     matcher = "Bash";
     hooks = [
@@ -235,7 +216,6 @@ let
       {
         Notification = soundNotificationHooks;
         PreToolUse = soundPreToolUseHooks
-          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook)
           ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
         SessionStart = soundSessionStartHooks;
         Stop = soundStopHooks;
@@ -243,9 +223,7 @@ let
       }
     else
       let
-        preToolUseHooks = [ ]
-          ++ (pkgs.lib.optional enablePythonPathCheck pythonPathCheckHook)
-          ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
+        preToolUseHooks = pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook;
       in
       (if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { });
 

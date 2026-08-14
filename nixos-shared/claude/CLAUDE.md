@@ -434,26 +434,7 @@ Hooks are scripts that execute in response to Claude Code events (before tool ex
 
 ### Available Hooks
 
-#### 1. Python Path Check Hook (`check-python-path.sh`)
-
-**Purpose**: Blocks direct `python`/`python3` invocations on NixOS, requiring Nix-based execution.
-
-**Configuration**:
-```nix
-enablePythonPathCheck = true;  # in default.nix
-```
-
-**What It Blocks**:
-- `python script.py` (unless python is in PATH)
-- `python3 -m module`
-
-**What It Allows**:
-- `nix run nixpkgs#python3 -- script.py`
-- `, python3 script.py` (ephemeral shell)
-- `nix-shell -p python3 --run "python script.py"`
-- Commands where python is available in PATH
-
-#### 2. Dangerous Command Check Hook (`check-dangerous-commands.sh`)
+#### 1. Dangerous Command Check Hook (`check-dangerous-commands.sh`)
 
 **Purpose**: Blocks `rm -rf` and its variations to prevent accidental destructive operations, plus whole-filesystem traversals with `find`/`fd`.
 
@@ -502,7 +483,7 @@ cd nixos-shared/claude/hooks
 ./check-dangerous-commands.bats
 ```
 
-#### 3. GLaDOS Reminder Hook (`glados-reminder-prompt.sh`)
+#### 2. GLaDOS Reminder Hook (`glados-reminder-prompt.sh`)
 
 **Purpose**: Injects GLaDOS persona reminder when `MH_CLAUDE_USE_GLADOS=1` environment variable is set.
 
