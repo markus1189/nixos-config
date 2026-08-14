@@ -53,7 +53,6 @@
         fortune
         gcc
         gdb
-        gemini-cli-bin
         ghc
         gimp
         mesa-demos
