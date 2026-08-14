@@ -434,7 +434,7 @@
       }
 
       callPackage() {
-        nix-shell -p "with import <nixpkgs> {}; (callPackage ( import $1 ) {})";
+        nix shell --impure --expr "with import (builtins.getFlake \"nixpkgs\") {}; callPackage (import $1) {}"
       }
 
       pwdc() {

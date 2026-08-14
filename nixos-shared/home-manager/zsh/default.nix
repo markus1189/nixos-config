@@ -48,9 +48,9 @@
         cy-rq = "env ${editorEnv} ${otelEnv} ${requestyConfig} claude ${yolo}";
         cy-rq-glados = "env ${editorEnv} ${otelEnv} ${requestyConfig} MH_CLAUDE_USE_GLADOS=1 claude ${yolo} ${gladosFlag}";
 
-        pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
+        pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
 
-        pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --impure --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
+        pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
       };
 
     initContent = ''
