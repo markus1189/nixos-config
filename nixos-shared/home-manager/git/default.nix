@@ -70,7 +70,7 @@ let
     if [ ! -f "$root/.gitleaks.toml" ]; then
       cfg="$HOME/.config/gitleaks/config.toml"
       if [ ! -f "$cfg" ]; then
-        echo "pre-commit: global gitleaks config missing at $cfg (run home-manager switch)" >&2
+        echo "pre-commit: global gitleaks config missing at $cfg (run ./activate.sh in ~/repos/nixos-config)" >&2
         exit 1
       fi
       args+=(-c "$cfg")

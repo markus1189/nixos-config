@@ -28,10 +28,10 @@ The home-manager configuration in `nixos-shared/home-manager/claude-code/default
 - `skills/*.md` → `~/.claude/skills/`
 - `CLAUDE-global.md` → `~/.claude/CLAUDE.md`
 
-**No manual symlinking needed** - just add markdown files to the appropriate directory and rebuild home-manager:
+**No manual symlinking needed** - just add markdown files to the appropriate directory and rebuild (from the repo root; home-manager is a NixOS module here, there is no standalone `home-manager` CLI):
 
 ```bash
-home-manager switch
+./activate.sh
 ```
 
 ---
@@ -92,7 +92,7 @@ You are a specialized agent for [purpose].
 
 3. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 
 4. **Test the agent**:
@@ -157,7 +157,7 @@ description: Brief description shown when selecting this style
 
 3. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 
 4. **Activate the style**:
@@ -219,7 +219,7 @@ Use $ARGUMENTS for all args or $1, $2, etc. for specific positions.
 
 3. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 
 4. **Use the command**:
@@ -314,7 +314,7 @@ allowed-tools: Read, Write, Bash  # Optional, restricts tool access
 
 4. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 
 5. **Test the skill**:
@@ -564,7 +564,7 @@ enableGladosReminder = true;  # in default.nix (default)
 
 4. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 
 ### Hook Best Practices
@@ -596,7 +596,7 @@ enableGladosReminder = true;  # in default.nix (default)
 1. **Edit files** in `nixos-shared/claude/`
 2. **Apply configuration**:
    ```bash
-   home-manager switch
+   ./activate.sh
    ```
 3. **Verify** the changes are active:
    ```bash

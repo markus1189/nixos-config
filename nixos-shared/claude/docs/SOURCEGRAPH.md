@@ -7,8 +7,8 @@
 # Run once without installing
 nix shell nixpkgs#src-cli --command src --help
 
-# Or install permanently
-nix-env -iA nixpkgs.src-cli
+# Or install permanently: add src-cli to nixos-shared/common-packages.nix
+# in ~/repos/nixos-config, then ./activate.sh
 ```
 
 ### Manual Installation
