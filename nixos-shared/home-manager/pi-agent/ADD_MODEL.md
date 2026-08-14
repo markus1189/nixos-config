@@ -1,5 +1,9 @@
 # Pi Agent Configuration Guide
 
+> **See also:** [`docs/model-inventory.md`](../../../docs/model-inventory.md) — the canonical catalog of every
+> model used across this repo (pi agent, opencode, gptel, vision/transcribe/banana scripts), with the exact
+> files to touch when a model updates. Keep it in sync when you add or retire models here.
+
 ## Converting Requesty Model Slugs to models.json Entries
 
 Requesty routes requests to different providers via a unified EU gateway. This guide shows how to configure these models in pi agent's `models.json`.
