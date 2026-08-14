@@ -6,6 +6,11 @@
 {
   home-manager.extraSpecialArgs = { inherit inputs; };
 
+  # `nixos-version --configuration-revision` names the commit a generation
+  # was built from — invaluable on nuc, where autoUpgrade builds unattended.
+  system.configurationRevision =
+    inputs.self.rev or inputs.self.dirtyRev or "dirty";
+
   nixpkgs.overlays = [
     inputs.emacs-overlay.overlays.default
     (final: prev: {

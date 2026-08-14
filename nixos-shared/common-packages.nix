@@ -39,7 +39,6 @@
         nix-index
         nixfmt
         nixpkgs-lint
-        nixpkgs-fmt
         notifySendPb
         notifySendTelegram
         notifySendTelegramHtml
