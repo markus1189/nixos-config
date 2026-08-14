@@ -121,6 +121,11 @@ let
       source = ./extensions/tokens-per-second.ts;
     };
 
+    "pi-agent-extension-undo" = {
+      target = ".pi/agent/extensions/undo.ts";
+      source = ./extensions/undo.ts;
+    };
+
     "pi-agent-extension-model-shortcuts" = {
       target = ".pi/agent/extensions/model-shortcuts.ts";
       source = ./extensions/model-shortcuts.ts;
