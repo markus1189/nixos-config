@@ -120,6 +120,26 @@
         "type": "github"
       }
     },
+    "marginal": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785827796,
+        "narHash": "sha256-2/SjHHuLguRIehD6um4UPtY7XcreEpAXID1StC1Iymo=",
+        "owner": "markus1189",
+        "repo": "marginal",
+        "rev": "105ec7ed0e497a614a13ccad4c32ee5bc34b4081",
+        "type": "github"
+      },
+      "original": {
+        "owner": "markus1189",
+        "repo": "marginal",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1786599213,
@@ -176,6 +196,7 @@
         "emacs-overlay": "emacs-overlay",
         "gptel": "gptel",
         "home-manager": "home-manager",
+        "marginal": "marginal",
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",
         "stevenblack-hosts": "stevenblack-hosts",

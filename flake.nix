@@ -58,6 +58,13 @@
       url = "github:larkery/zsh-histdb";
       flake = false;
     };
+
+    # Rust CLI for span-level markdown annotation. Consumed via its own flake
+    # output (packages.marginal) but built against our nixpkgs for one toolchain.
+    marginal = {
+      url = "github:markus1189/marginal";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
