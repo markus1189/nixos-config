@@ -29,6 +29,10 @@ let
   };
 
 in {
+  # Provides the fusermount/fusermount3 setuid wrappers rclone mount needs.
+  # Defaulted to true in nixpkgs until 0e251e2 flipped it off.
+  programs.fuse.enable = true;
+
   age = {
     secrets = {
       rclonePremiumize = {
