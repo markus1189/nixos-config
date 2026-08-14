@@ -126,6 +126,11 @@ let
       source = ./extensions/undo.ts;
     };
 
+    "pi-agent-extension-chained-keys" = {
+      target = ".pi/agent/extensions/chained-keys.ts";
+      source = ./extensions/chained-keys.ts;
+    };
+
     "pi-agent-extension-model-shortcuts" = {
       target = ".pi/agent/extensions/model-shortcuts.ts";
       source = ./extensions/model-shortcuts.ts;
