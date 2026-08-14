@@ -200,18 +200,33 @@
 
   system = {
     stateVersion = "19.03";
-    # Rebuilds nightly from the committed flake.lock; updating means
-    # `nix flake update` + commit on a laptop, then pull here. No nightly
-    # lock updates as root on purpose.
+    # Rebuilds nightly from the latest commit on GitHub (repo is public) —
+    # `nix flake update` + commit + push on a laptop is the whole pipeline,
+    # no manual pull here. The module passes --refresh itself in flake mode
+    # (no stale tarball cache); -L puts build logs in the journal. Still no
+    # nightly lock updates as root on purpose (builds the committed
+    # flake.lock).
     autoUpgrade = {
       enable = true;
       dates = "04:21";
-      flake = "/home/mediacenter/repos/nixos-config#nuc";
-      flags = [ ];
+      flake = "github:markus1189/nixos-config#nuc";
+      flags = [ "-L" ];
     };
   };
 
   systemd.services = {
+    # A failed nightly upgrade is otherwise silent.
+    nixos-upgrade.onFailure = [ "notify-upgrade-failure.service" ];
+    notify-upgrade-failure = {
+      description = "telegram notification about failed nixos-upgrade";
+      serviceConfig = {
+        Type = "oneshot";
+        User = config.lib._custom_.userName;
+        Group = "users";
+        ExecStart = "${pkgs.notifySendTelegram}/bin/notifySendTelegram 'nuc: nightly nixos-upgrade failed'";
+      };
+    };
+
     remind-personal-notifications = {
       description = "remind unit for personal notifications";
       serviceConfig = {
