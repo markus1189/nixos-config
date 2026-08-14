@@ -13,8 +13,10 @@ Focus / slug hint (optional, never block on it):
 
 **Write to** `~/Stuff/Today/<slug>.md` (slug = short, lowercase,
 hyphenated, specific). First `fd -e md . ~/Stuff/Today`; extend a
-related note instead of duplicating. Don't create dated dirs; don't
-edit `llms.txt`/`INDEX.md`.
+related note instead of duplicating. If a new note supersedes or
+complements an existing one, cross-link both ways with relative
+markdown links (a bare name in backticks is not a link). Don't
+create dated dirs; don't edit `llms.txt`/`INDEX.md`.
 
 **House style:** `# Title` → _italic provenance line_ (date, source,
 method, caveats) → `## TL;DR` → dense body (`##`, bullets,
