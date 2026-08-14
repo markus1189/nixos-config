@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
 {
+  imports = [ ./python-env.nix ];
+
   environment = {
     systemPackages =
       (with pkgs.masterPkgs; [ claude-code ])

@@ -98,6 +98,8 @@ man home-configuration.nix
 - **System packages**: `nixos-shared/common-packages.nix`
 - **User packages**: Host-specific `home.nix` files
 - **Custom packages**: Create in `nixos-shared/packages/`
+- **Python packages**: `nixos-shared/python-env.nix` — the global `python3`
+  (all hosts) is a `withPackages` env; no pip.
 
 ### Adding Services
 - **Shared services**: `nixos-shared/common-services.nix`

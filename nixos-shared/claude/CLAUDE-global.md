@@ -6,7 +6,6 @@ in that sentence.
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
-- (!) There is no global `python3`, use `nix` to run scripts
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
@@ -23,23 +22,21 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Temp files: mktemp -t claude-code.XXXXXX.$EXT
 ```
 
-**With package sets** (Python/Haskell):
+**Python**: global `python3` (`nixos-shared/python-env.nix`) ships requests,
+httpx, pyyaml, rich, beautifulsoup4, lxml, python-dateutil, numpy, pandas,
+matplotlib, pillow, psutil. No pip. Use `#!/usr/bin/env python3` directly.
+Only for packages outside that list:
 ```bash
-# Python without packages
-#!/usr/bin/env nix
-#! nix shell nixpkgs#python3 --command python
-```
-
-```bash
-# Python with packages (e.g. requests)
 #! /usr/bin/env nix
 #! nix shell --impure --expr ``
 #! nix with (import (builtins.getFlake ''nixpkgs'') {});
-#! nix python3.withPackages (ps: with ps; [ requests ])
+#! nix python3.withPackages (ps: with ps; [ polars ])
 #! nix ``
 #! nix --command python3
+```
 
-# Haskell
+**Haskell**:
+```bash
 #!/usr/bin/env nix
 #! nix shell --impure --expr ``with import <nixpkgs>{}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
