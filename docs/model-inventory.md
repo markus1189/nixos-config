@@ -36,25 +36,20 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |-----------------|-------------------|
 | `vertex/claude-opus-5@eu` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2), `laptop/home.nix` (opencode), `zsh/default.nix` (opus-vertex alias) |
 | `vertex/claude-sonnet-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3), `laptop/home.nix`, `zsh/default.nix` (sonnet-vertex) |
-| `vertex/claude-opus-4-7@eu` | `pi-agent/models.json` (requesty-anthropic) |
 | `vertex/claude-haiku-4-5@europe-west1` | `pi-agent/models.json`, `zsh/default.nix` (haiku-vertex), `laptop/home.nix` |
-| `vertex/claude-sonnet-4.6@eu` (older) | `laptop/home.nix` (opencode; comment) |
-| `bedrock/claude-opus-4-8@eu-central-1` | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
-| `bedrock/claude-sonnet-4-6@eu-central-1` | `pi-agent/models.json` (both requesty-anthropic + requesty-claude-thinking), `laptop/home.nix` |
 | `bedrock/claude-haiku-4-5@eu-central-1` | `pi-agent/models.json` |
 
 **gptel/Emacs (OpenRouter slug style, separate):**
-- `anthropic/claude-opus-4`, `anthropic/claude-sonnet-4`, `anthropic/claude-3.7-sonnet`, `anthropic/claude-3.7-sonnet:thinking` → `emacs-config.el:1532-1536`.
+- `anthropic/claude-sonnet-5`, `anthropic/claude-opus-5` + `openai/gpt-5.2`, `openai/gpt-5.1`, `openai/gpt-5-mini` → `emacs-config.el:1525-1534`.
 
 ### Google Gemini (Requesty EU Vertex + OpenRouter)
 
 | Model | Consumers |
 |-------|-----------|
-| `vertex/gemini-2.5-pro@europe-west1` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode) |
+| `vertex/gemini-3.5-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode) |
 | `vertex/gemini-3.1-flash-lite@eu` | `pi-agent/models.json` |
-| `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json` |
-| `vertex/gemini-2.5-flash@europe-west1` | `gemini-vision.sh:21` (Requesty /chat) |
-| `google/gemini-2.5-pro-preview`, `google/gemini-2.5-flash-preview` | `emacs-config.el` (gptel, OpenRouter) |
+| `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json`, `gemini-vision.sh` (Requesty /chat) |
+| `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
 | `google/gemini-3.6-flash` | `transcribe.sh:26` (OpenRouter) |

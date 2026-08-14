@@ -83,8 +83,8 @@ in
                 };
 
                 models = {
-                  "vertex/gemini-2.5-pro@europe-west1" = {
-                    name = "Gemini 2.5 Pro";
+                  "vertex/gemini-3.5-flash@eu" = {
+                    name = "Gemini 3.5 Flash";
                   };
 
                   "azure/gpt-5.4@swedencentral" = {
@@ -113,30 +113,6 @@ in
                     # config schema only accepts type enum ["enabled","disabled"], so
                     # adaptive can't be expressed here for a custom-provider model.
                     # Run non-thinking until opencode exposes adaptive as a config type.
-                    modalities = {
-                      input = ["text" "image"];
-                      output = ["text"];
-                    };
-                  };
-
-                  "bedrock/claude-opus-4-8@eu-central-1" = {
-                    name = "Claude Opus 4.8 (Bedrock)";
-                    thinking = {
-                      type = "enabled";
-                      budgetTokens = 16000;
-                    };
-                    modalities = {
-                      input = ["text" "image"];
-                      output = ["text"];
-                    };
-                  };
-
-                  "bedrock/claude-sonnet-4-6@eu-central-1" = {
-                    name = "Claude Sonnet 4.6 (Bedrock)";
-                    thinking = {
-                      type = "enabled";
-                      budgetTokens = 16000;
-                    };
                     modalities = {
                       input = ["text" "image"];
                       output = ["text"];

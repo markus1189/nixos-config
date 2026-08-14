@@ -26,23 +26,6 @@
           "maxTokens": 128000
         },
         {
-          "id": "vertex/claude-opus-4-7@eu",
-          "name": "Claude Opus 4.7 (Requesty/Vertex EU, no thinking)",
-          "reasoning": false,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 5.5,
-            "output": 27.5,
-            "cacheRead": 0.55,
-            "cacheWrite": 6.875
-          },
-          "contextWindow": 1000000,
-          "maxTokens": 128000
-        },
-        {
           "id": "vertex/claude-opus-5@eu",
           "name": "Claude Opus 5 (Requesty/Vertex EU, adaptive thinking)",
           "reasoning": true,
@@ -93,66 +76,6 @@
             "cacheWrite": 1.375
           },
           "contextWindow": 200000,
-          "maxTokens": 64000
-        },
-        {
-          "id": "bedrock/claude-opus-4-8@eu-central-1",
-          "name": "Claude Opus 4.8 (Requesty/Bedrock EU, no thinking)",
-          "reasoning": false,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 5.5,
-            "output": 27.5,
-            "cacheRead": 0.55,
-            "cacheWrite": 6.875
-          },
-          "contextWindow": 1000000,
-          "maxTokens": 128000
-        },
-        {
-          "id": "bedrock/claude-sonnet-4-6@eu-central-1",
-          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU, no thinking)",
-          "reasoning": false,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 3.3,
-            "output": 16.5,
-            "cacheRead": 0.3,
-            "cacheWrite": 4.125
-          },
-          "contextWindow": 1000000,
-          "maxTokens": 64000
-        }
-      ]
-    },
-    "requesty-claude-thinking": {
-      "baseUrl": "https://router.eu.requesty.ai/v1",
-      "apiKey": "$REQUESTY_API_KEY_CC",
-      "api": "openai-completions",
-      "authHeader": true,
-      "models": [
-        {
-          "id": "bedrock/claude-sonnet-4-6@eu-central-1",
-          "name": "Claude Sonnet 4.6 (Requesty/Bedrock EU, thinking)",
-          "reasoning": true,
-          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 3.3,
-            "output": 16.5,
-            "cacheRead": 0.3,
-            "cacheWrite": 4.125
-          },
-          "contextWindow": 1000000,
           "maxTokens": 64000
         }
       ]
@@ -461,8 +384,8 @@
       "authHeader": true,
       "models": [
         {
-          "id": "vertex/gemini-2.5-pro@europe-west1",
-          "name": "Gemini 2.5 Pro (Requesty/Vertex EU)",
+          "id": "vertex/gemini-3.5-flash@eu",
+          "name": "Gemini 3.5 Flash (Requesty/Vertex EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
@@ -470,10 +393,10 @@
             "image"
           ],
           "cost": {
-            "input": 1.25,
-            "output": 10,
-            "cacheRead": 0.31,
-            "cacheWrite": 0
+            "input": 1.5,
+            "output": 9,
+            "cacheRead": 0.15,
+            "cacheWrite": 1.583
           },
           "contextWindow": 1048576,
           "maxTokens": 65536

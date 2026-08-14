@@ -1522,29 +1522,22 @@ string). It returns t if a new completion is found, nil otherwise."
     :endpoint "/api/v1/chat/completions"
     :stream t
     :key 'mh/secrets/gptel/openRouterApiKey
-    :models '((openai/gpt-4.1 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
-              (openai/gpt-4.1-mini  :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
-              (openai/gpt-4.1-nano  :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
+    :models '((openai/gpt-5.2 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
+              (openai/gpt-5.1 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
+              (openai/gpt-5-mini :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
               ;;
-              openai/gpt-4o
-              openai/gpt-4o-mini
+              (anthropic/claude-sonnet-5 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
+              (anthropic/claude-opus-5 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
               ;;
-              (anthropic/claude-opus-4 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
-              (anthropic/claude-sonnet-4 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
-              anthropic/claude-3.7-sonnet
-              anthropic/claude-3.7-sonnet:thinking
+              mistralai/codestral-2508
               ;;
-              mistralai/codestral-2501
-              mistralai/codestral-2501
-              ;;
-              deepseek/deepseek-r1:free
-              deepseek/deepseek-chat-v3-0324
-              deepseek/deepseek-chat-v3-0324:free
+              deepseek/deepseek-v4-pro
+              deepseek/deepseek-v4-flash
               ;;
               meta-llama/llama-3.3-70b-instruct
               ;;
-              google/gemini-2.5-pro-preview
-              google/gemini-2.5-flash-preview))
+              google/gemini-3.5-flash
+              google/gemini-3.1-flash-lite))
 
 
   (add-to-list 'gptel-directives '(expertMatrix . "Generate solutions from the perspectives of 5 different experts in the relevant field (e.g. doctor, psychologist, entrepreneur, engineer, etc.)."))
