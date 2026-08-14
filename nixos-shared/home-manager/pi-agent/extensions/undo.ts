@@ -38,7 +38,7 @@ export default function undoExtension(pi: ExtensionAPI) {
 			// ---- walk back to the Nth user message ----
 			// getBranch() returns ROOT->leaf; we must walk in reverse (leaf->root)
 			const branch = ctx.sessionManager.getBranch(); // root -> leaf
-			let found: { id: string; text: string } | null = null;
+			let found: { id: string; text: string; full: string } | null = null;
 
 			for (let i = branch.length - 1; i >= 0; i--) {
 				const entry = branch[i];
@@ -53,8 +53,9 @@ export default function undoExtension(pi: ExtensionAPI) {
 					if (text === "/undo" || (typeof text === "string" && text.startsWith("/undo"))) {
 						continue;
 					}
+					const full = contentToString(entry.message.content);
 					if (--n === 0) {
-						found = { id: entry.id, text: describe(entry.message.content) };
+						found = { id: entry.id, text: describe(full), full };
 						break;
 					}
 				}
@@ -72,13 +73,17 @@ export default function undoExtension(pi: ExtensionAPI) {
 
 			// ---- move the leaf ----
 			await ctx.navigateTree(found.id, { summarize: false });
+			// Overwrite the prompt edit field with the undone prompt's full text.
+			// ctx.navigateTree() itself only fills the editor when it is empty, so
+			// without this the second (and later) undos would leave the stale prompt.
+			ctx.ui.setEditorText(found.full);
 			ctx.ui.notify(`Rewound to: ${found.text}`, "info");
 		},
 	});
 }
 
-// Helpful one-line preview of a user message for the notification
-function describe(content: unknown): string {
+// Extract the full prompt text from a user message's content payload
+function contentToString(content: unknown): string {
 	let s = "";
 	if (typeof content === "string") s = content;
 	else if (Array.isArray(content)) {
@@ -87,6 +92,11 @@ function describe(content: unknown): string {
 			.filter(Boolean)
 			.join(" ");
 	}
-	s = s.replace(/\s+/g, " ").trim();
+	return s.replace(/\s+/g, " ").trim();
+}
+
+// Helpful one-line preview of a user message for the notification
+function describe(content: string): string {
+	const s = content.trim();
 	return s.length > 70 ? s.slice(0, 67) + "…" : (s || "(empty message)");
 }
