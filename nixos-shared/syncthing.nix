@@ -19,7 +19,7 @@ hostName:
 { config, lib, ... }:
 
 let
-  userHome = "/home/${config.lib._custom_.userName}";
+  userHome = "/home/${config.my.userName}";
 
   devices = {
     nixos-p1 = {
@@ -182,6 +182,6 @@ in
   # subdirs into. Syncthing creates the folder dirs themselves;
   # the parent is on us.
   systemd.tmpfiles.rules = [
-    "d ${userHome}/Syncthing 0755 ${config.lib._custom_.userName} users -"
+    "d ${userHome}/Syncthing 0755 ${config.my.userName} users -"
   ];
 }

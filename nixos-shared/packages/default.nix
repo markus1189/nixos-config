@@ -28,7 +28,7 @@
           xmobars = callPackage ./xmobarrc {
             inherit mutate;
             togglTimer = myScripts.togglTimer;
-            wirelessInterface = config.lib._custom_.wirelessInterface;
+            wirelessInterface = config.my.wirelessInterface;
           };
           mutate = callPackage ./mutate { };
         in
@@ -84,8 +84,8 @@
                 inherit mutate;
                 inherit (myScripts) bukuRun;
                 recordScript = audioRecordScript;
-                autoMonitorConfig = myScripts.autoMonitorConfig config.lib._custom_.wirelessInterface;
-                chooseNetwork = myScripts.chooseNetwork config.lib._custom_.wirelessInterface;
+                autoMonitorConfig = myScripts.autoMonitorConfig config.my.wirelessInterface;
+                chooseNetwork = myScripts.chooseNetwork config.my.wirelessInterface;
               };
             xmobarLower = xmobars.lower;
             xmobarUpper = xmobars.upper;

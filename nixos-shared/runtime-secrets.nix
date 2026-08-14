@@ -4,7 +4,7 @@
 # services at fixed /run/agenix/<name> paths. Owner defaults to root; the
 # user-owned ones are read by user-context scripts (shell, xmobar, user units).
 let
-  user = config.lib._custom_.userName;
+  user = config.my.userName;
 in
 {
   age.secrets = {

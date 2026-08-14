@@ -42,11 +42,9 @@
     (import ../nixos-shared/wireguard.nix "nuc")
   ];
 
-  lib = {
-    _custom_ = {
-      wirelessInterface = "wlp58s0";
-      userName = "mediacenter";
-    };
+  my = {
+    wirelessInterface = "wlp58s0";
+    userName = "mediacenter";
   };
 
   # Use the systemd-boot EFI boot loader.
@@ -58,7 +56,7 @@
     hostName = "nuc";
 
     supplicant = {
-      "${config.lib._custom_.wirelessInterface}" = {
+      "${config.my.wirelessInterface}" = {
         configFile.path = "/etc/wpa_supplicant.conf";
         userControlled.enable = true;
       };
@@ -138,11 +136,11 @@
   services.syncthing = {
     enable = true;
     package = pkgs.syncthing;
-    configDir = "/home/${config.lib._custom_.userName}/.config/syncthing";
-    dataDir = "/home/${config.lib._custom_.userName}/Sync";
+    configDir = "/home/${config.my.userName}/.config/syncthing";
+    dataDir = "/home/${config.my.userName}/Sync";
     openDefaultPorts = true;
     systemService = true;
-    user = "${config.lib._custom_.userName}";
+    user = "${config.my.userName}";
   };
 
   # Enable the X11 windowing system.
@@ -157,7 +155,7 @@
   services.displayManager = {
     autoLogin = {
       enable = true;
-      user = "${config.lib._custom_.userName}";
+      user = "${config.my.userName}";
     };
 
     sddm = {
@@ -172,14 +170,14 @@
 
   services.x11vnc = {
     enable = true;
-    auth = "/home/${config.lib._custom_.userName}/.Xauthority";
+    auth = "/home/${config.my.userName}/.Xauthority";
     passwordFile = config.age.secrets.x11vnc.path;
     shared = true;
     autoStart = true;
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.extraUsers.${config.lib._custom_.userName} = {
+  users.extraUsers.${config.my.userName} = {
     isNormalUser = true;
     group = "users";
     extraGroups = [
@@ -189,7 +187,7 @@
       "lp"
     ];
     shell = "${pkgs.zsh}/bin/zsh";
-    home = "/home/${config.lib._custom_.userName}";
+    home = "/home/${config.my.userName}";
     uid = 1000;
   };
 
@@ -197,7 +195,7 @@
     sudo = {
       enable = true;
       extraConfig = ''
-        Defaults: ${config.lib._custom_.userName} timestamp_timeout=30
+        Defaults: ${config.my.userName} timestamp_timeout=30
       '';
     };
   };
@@ -225,7 +223,7 @@
       description = "telegram notification about failed nixos-upgrade";
       serviceConfig = {
         Type = "oneshot";
-        User = config.lib._custom_.userName;
+        User = config.my.userName;
         Group = "users";
         ExecStart = "${pkgs.notifySendTelegram}/bin/notifySendTelegram 'nuc: nightly nixos-upgrade failed'";
       };
@@ -234,9 +232,9 @@
     remind-personal-notifications = {
       description = "remind unit for personal notifications";
       serviceConfig = {
-        User = config.lib._custom_.userName;
+        User = config.my.userName;
         Group = "users";
-        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %%s' /home/${config.lib._custom_.userName}/Syncthing/remind/reminders";
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %%s' /home/${config.my.userName}/Syncthing/remind/reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
@@ -245,9 +243,9 @@
     remind-home-notifications = {
       description = "remind unit for home notifications";
       serviceConfig = {
-        User = config.lib._custom_.userName;
+        User = config.my.userName;
         Group = "users";
-        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.lib._custom_.userName}/Syncthing/remind/home-notification-reminders";
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.my.userName}/Syncthing/remind/home-notification-reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];

@@ -10,7 +10,7 @@ let
     {
       description = "Rclone mount for ${remote}";
       serviceConfig = {
-        User = config.lib._custom_.userName;
+        User = config.my.userName;
         ExecStop = "/run/wrappers/bin/fusermount -u ${mountPoint}";
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
         ExecStart = ''
@@ -45,13 +45,13 @@ in
       rclonePremiumize = {
         file = ../secrets/rclone-premiumize.age;
         name = "rclone/premiumize";
-        owner = config.lib._custom_.userName;
+        owner = config.my.userName;
       };
 
       rcloneGDrive = {
         file = ../secrets/rclone-gdrive.age;
         name = "rclone/gdrive";
-        owner = config.lib._custom_.userName;
+        owner = config.my.userName;
       };
     };
   };
@@ -59,13 +59,13 @@ in
   systemd = {
     services = {
       rclonePremiumizeMount = mkMount {
-        mountPoint = "/home/${config.lib._custom_.userName}/mounts/rclone/premiumize";
+        mountPoint = "/home/${config.my.userName}/mounts/rclone/premiumize";
         configFile = config.age.secrets.rclonePremiumize.path;
         remote = "premiumize";
       };
 
       rcloneGdriveMount = mkMount {
-        mountPoint = "/home/${config.lib._custom_.userName}/mounts/rclone/gdrive";
+        mountPoint = "/home/${config.my.userName}/mounts/rclone/gdrive";
         configFile = config.age.secrets.rcloneGDrive.path;
         remote = "gdrive";
       };

@@ -24,7 +24,7 @@
 
   # libvirtd: manage VMs; kvm: /dev/kvm hardware accel. Merges with the
   # extraGroups list in laptop.nix (docker, vboxusers, video, ...).
-  users.extraUsers.${config.lib._custom_.userName}.extraGroups = [
+  users.extraUsers.${config.my.userName}.extraGroups = [
     "libvirtd"
     "kvm"
   ];

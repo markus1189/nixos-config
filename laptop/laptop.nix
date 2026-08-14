@@ -6,11 +6,7 @@
 }:
 
 {
-  lib = {
-    _custom_ = {
-      userName = "markus";
-    };
-  };
+  my.userName = "markus";
 
   imports = [
     ../nixos-shared/common-services.nix
@@ -36,7 +32,7 @@
     (import ../nixos-shared/home-manager/module.nix {
       homeNixFile = ./home.nix;
     })
-    (import ./syncthing.nix config.lib._custom_.userName)
+    (import ./syncthing.nix config.my.userName)
     ../nixos-shared/my-agenix.nix
     ../nixos-shared/runtime-secrets.nix
     ./codecentric.nix
@@ -81,7 +77,7 @@
 
     wireless = {
       enable = true;
-      interfaces = [ config.lib._custom_.wirelessInterface ];
+      interfaces = [ config.my.wirelessInterface ];
       userControlled = true;
       # Networks live in /etc/wpa_supplicant.conf (managed manually).
       # Remove ctrl_interface and update_config lines from that file —
@@ -132,7 +128,7 @@
 
     x11vnc = {
       enable = true;
-      auth = "/home/${config.lib._custom_.userName}/.Xauthority";
+      auth = "/home/${config.my.userName}/.Xauthority";
       passwordFile = config.age.secrets.x11vnc.path;
       viewonly = false;
       shared = true;
@@ -206,7 +202,7 @@
     displayManager = {
       autoLogin = {
         enable = true;
-        user = config.lib._custom_.userName;
+        user = config.my.userName;
       };
 
       defaultSession = "none+xmonad";
@@ -227,7 +223,7 @@
     # mozillavpn.enable = true;
   };
 
-  users.extraUsers.${config.lib._custom_.userName} = {
+  users.extraUsers.${config.my.userName} = {
     isNormalUser = true;
     uid = 1000;
     group = "users";
@@ -243,11 +239,11 @@
       "wpa_supplicant" # wpa_cli access
     ];
     shell = "${pkgs.zsh}/bin/zsh";
-    home = "/home/${config.lib._custom_.userName}";
+    home = "/home/${config.my.userName}";
     initialPassword = "markus"; # for qemu
   };
 
-  users.extraGroups.vboxusers.members = [ "${config.lib._custom_.userName}" ];
+  users.extraGroups.vboxusers.members = [ "${config.my.userName}" ];
 
   fonts = {
     fontDir.enable = true;
@@ -306,7 +302,7 @@
     sudo = {
       enable = true;
       extraConfig = ''
-        Defaults:${config.lib._custom_.userName} timestamp_timeout=30
+        Defaults:${config.my.userName} timestamp_timeout=30
         Defaults insults
       '';
     };
@@ -339,7 +335,7 @@
 
     captive-browser = {
       enable = true;
-      interface = config.lib._custom_.wirelessInterface;
+      interface = config.my.wirelessInterface;
     };
 
     zsh =
@@ -457,7 +453,7 @@
         ff = "${emacs}/bin/emacsclient -n -c";
         FF = "${emacs}/bin/emacsclient -n";
         magit = ''${emacs}/bin/emacsclient -n -c -e "(magit-status)"'';
-        wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.lib._custom_.wirelessInterface} -p /run/wpa_supplicant/control";
+        wpa_cli = "${wpa_supplicant}/bin/wpa_cli -i ${config.my.wirelessInterface} -p /run/wpa_supplicant/control";
       }
     );
 

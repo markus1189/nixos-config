@@ -5,11 +5,7 @@
 { config, pkgs, ... }:
 
 {
-  lib = {
-    _custom_ = {
-      wirelessInterface = "wlp0s20f3";
-    };
-  };
+  my.wirelessInterface = "wlp0s20f3";
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -31,7 +27,7 @@
 
   networking = {
     hostName = "nixos-p1";
-    interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
+    interfaces.${config.my.wirelessInterface}.useDHCP = true;
     dhcpcd.denyInterfaces = [
       "veth*"
       "docker*"

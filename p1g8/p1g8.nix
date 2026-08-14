@@ -11,9 +11,7 @@
   ...
 }:
 {
-  lib._custom_ = {
-    wirelessInterface = "wlp0s20f3"; # confirmed via live-ISO recon (decision #10)
-  };
+  my.wirelessInterface = "wlp0s20f3"; # confirmed via live-ISO recon (decision #10)
 
   networking.hostName = "p1g8";
   system.stateVersion = "25.11"; # decision #11 — overrides p1.nix's "20.09"

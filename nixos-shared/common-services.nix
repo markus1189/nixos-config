@@ -11,7 +11,7 @@
 
     cron = {
       enable = true;
-      mailto = config.lib._custom_.userName;
+      mailto = config.my.userName;
     };
 
     udisks2.enable = true;
