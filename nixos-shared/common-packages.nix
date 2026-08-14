@@ -31,7 +31,6 @@
         jo
         jq
         jless
-        marginal
         moreutils
         ncdu
         nix-prefetch-docker

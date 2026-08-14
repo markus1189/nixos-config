@@ -83,6 +83,7 @@
         libxml2
         lsb-release
         lsof
+        marginal
         mitmproxy
         mpc
         mr
