@@ -2,8 +2,9 @@
   description = "NixOS configurations (p1, p1g8, nuc)";
 
   inputs = {
+    # Tracks the nixos-unstable branch; the exact rev lives in flake.lock.
     # Bump with `nix flake update nixpkgs`.
-    nixpkgs.url = "github:NixOS/nixpkgs/567a49d1913ce81ac6e9582e3553dd90a955875f";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # Bleeding-edge packages (claude-code, nix-direnv); bump with
     # `nix flake update nixpkgs-master`.
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
