@@ -8,7 +8,6 @@
   lib = {
     _custom_ = {
       wirelessInterface = "wlp0s20f3";
-      name = "p1";
     };
   };
 

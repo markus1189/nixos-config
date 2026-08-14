@@ -8,7 +8,6 @@
 {
   lib._custom_ = {
     wirelessInterface = "wlp0s20f3";   # confirmed via live-ISO recon (decision #10)
-    name = "p1g8";                     # drives nix.nixPath -> ~/repos/nixos-config/p1g8/configuration.nix
   };
 
   networking.hostName = "p1g8";

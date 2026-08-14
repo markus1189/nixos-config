@@ -40,7 +40,6 @@
   lib = {
     _custom_ = {
       wirelessInterface = "wlp58s0";
-      name = "nuc";
       userName = "mediacenter";
     };
   };
