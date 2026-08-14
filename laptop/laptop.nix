@@ -1,4 +1,9 @@
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
@@ -116,7 +121,7 @@ rec {
                 src = inputs.darktable;
                 patches = [ ];
                 dontVersionCheck = true;
-                buildInputs = (old.buildInputs or []) ++ [ super.potrace ];
+                buildInputs = (old.buildInputs or [ ]) ++ [ super.potrace ];
                 postPatch = ''
                   patchShebangs tools/generate_styles_string.sh
                 '';

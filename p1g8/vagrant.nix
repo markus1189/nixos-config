@@ -13,7 +13,12 @@
 #     export CONFIGURE_ARGS="with-libvirt-include=$(nix eval --raw nixpkgs#libvirt.dev.outPath)/include with-libvirt-lib=$(nix eval --raw nixpkgs#libvirt.outPath)/lib"
 #     vagrant plugin install vagrant-libvirt'
 #
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   virtualisation.libvirtd.enable = true;
 
@@ -25,13 +30,17 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    vagrant        # the CLI itself
-    virt-manager   # optional GUI to inspect/manage the libvirt domains
+    vagrant # the CLI itself
+    virt-manager # optional GUI to inspect/manage the libvirt domains
   ];
 
   # Vagrant's libvirt networks use bridges virbr0/virbr1/...; without
   # trusting them, guests hang at "Waiting for domain to get an IP address"
   # because the firewall drops their DHCP requests. Trusting the bridges is
   # the documented fix (NixOS wiki / Discourse).
-  networking.firewall.trustedInterfaces = [ "virbr0" "virbr1" "virbr2" ];
+  networking.firewall.trustedInterfaces = [
+    "virbr0"
+    "virbr1"
+    "virbr2"
+  ];
 }

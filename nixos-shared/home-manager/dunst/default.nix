@@ -1,10 +1,11 @@
-{ bash
-, mutate
-, jo
-, systemd
-, source-code-pro
-, rofi
-, xdg-utils
+{
+  bash,
+  mutate,
+  jo,
+  systemd,
+  source-code-pro,
+  rofi,
+  xdg-utils,
 }:
 
 let

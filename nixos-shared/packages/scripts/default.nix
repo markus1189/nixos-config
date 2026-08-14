@@ -1098,7 +1098,9 @@ rec {
          --retry-all-errors --retry 3 \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           -H 'Content-Type: application/json' \
-          -d "$(jo chat_id=${chatid} ${lib.optionalString (parseMode != null) "parse_mode=${parseMode}"} text="''${MESSAGE}")" \
+          -d "$(jo chat_id=${chatid} ${
+            lib.optionalString (parseMode != null) "parse_mode=${parseMode}"
+          } text="''${MESSAGE}")" \
           --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendMessage"
       '';
 
@@ -1641,7 +1643,9 @@ rec {
         echo "Saved: $FILENAME"
       '';
 
-  mpv-watch-later-overview = writers.writePython3Bin "mpv-watch-later-overview" { } (builtins.readFile ./mpv-watch-later-overview.py);
+  mpv-watch-later-overview = writers.writePython3Bin "mpv-watch-later-overview" { } (
+    builtins.readFile ./mpv-watch-later-overview.py
+  );
 
   claude-history = writers.writePython3Bin "claude-history" {
     libraries = [ python3Packages.colorama ];

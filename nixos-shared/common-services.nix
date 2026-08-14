@@ -1,4 +1,9 @@
-{ config, options, pkgs, ... }:
+{
+  config,
+  options,
+  pkgs,
+  ...
+}:
 
 {
   services = {
@@ -26,9 +31,13 @@
       ];
     };
 
-    sysstat = { enable = false; };
+    sysstat = {
+      enable = false;
+    };
 
-    tailscale = { enable = false; };
+    tailscale = {
+      enable = false;
+    };
 
     xserver = {
       xkb = {

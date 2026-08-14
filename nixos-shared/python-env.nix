@@ -12,19 +12,21 @@
 
 {
   environment.systemPackages = [
-    (pkgs.python3.withPackages (ps: with ps; [
-      beautifulsoup4
-      httpx
-      lxml
-      matplotlib
-      numpy
-      pandas
-      pillow
-      psutil
-      python-dateutil
-      pyyaml
-      requests
-      rich
-    ]))
+    (pkgs.python3.withPackages (
+      ps: with ps; [
+        beautifulsoup4
+        httpx
+        lxml
+        matplotlib
+        numpy
+        pandas
+        pillow
+        psutil
+        python-dateutil
+        pyyaml
+        requests
+        rich
+      ]
+    ))
   ];
 }

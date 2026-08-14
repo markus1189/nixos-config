@@ -32,7 +32,11 @@
   networking = {
     hostName = "nixos-p1";
     interfaces.${config.lib._custom_.wirelessInterface}.useDHCP = true;
-    dhcpcd.denyInterfaces = [ "veth*" "docker*" "br-*" ];
+    dhcpcd.denyInterfaces = [
+      "veth*"
+      "docker*"
+      "br-*"
+    ];
   };
 
   system.stateVersion = "20.09";
@@ -59,7 +63,9 @@
 
     fstrim.enable = true;
 
-    fwupd = { enable = true; };
+    fwupd = {
+      enable = true;
+    };
 
     dnsmasq = {
       enable = true;

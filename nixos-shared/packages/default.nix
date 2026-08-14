@@ -1,4 +1,9 @@
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   nixpkgs = {
     config = rec {
@@ -70,7 +75,8 @@
                   text = ''
                     OPENAI_API_KEY="$(awk '$2 == "api.openai.com" { print $NF }' /run/agenix/authinfo)"
                     export OPENAI_API_KEY
-                  '' + builtins.readFile ./xmonad/recordScript.sh;
+                  ''
+                  + builtins.readFile ./xmonad/recordScript.sh;
                 };
 
               in
@@ -86,7 +92,14 @@
           };
           emacs = callPackageWith pkgs ./emacs {
             inherit mutate;
-            elispSrcs = { inherit (inputs) gptel dired-plus iy-go-to-char hurl; };
+            elispSrcs = {
+              inherit (inputs)
+                gptel
+                dired-plus
+                iy-go-to-char
+                hurl
+                ;
+            };
           };
         };
     };

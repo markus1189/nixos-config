@@ -2,7 +2,8 @@
 
 let
   # Helper function to check if a file starts with YAML frontmatter
-  hasYamlFrontmatter = filePath:
+  hasYamlFrontmatter =
+    filePath:
     let
       content = builtins.readFile filePath;
       lines = pkgs.lib.strings.splitString "\n" content;
@@ -19,9 +20,9 @@ let
       markdownFiles = pkgs.lib.attrsets.filterAttrs isMarkdownFile files;
 
       # Apply additional filter function
-      filteredFiles = pkgs.lib.attrsets.filterAttrs
-        (filename: _: filterFn (sourceDir + "/${filename}"))
-        markdownFiles;
+      filteredFiles = pkgs.lib.attrsets.filterAttrs (
+        filename: _: filterFn (sourceDir + "/${filename}")
+      ) markdownFiles;
 
       makeEntry = filename: {
         target = ".config/opencode/${targetSubdir}/${filename}";
@@ -38,26 +39,18 @@ let
     entries;
 
   # Auto-configure command files (exclude files with YAML frontmatter)
-  commandEntries = autoConfigMarkdownFiles
-    ../../claude/commands
-    "command"
-    "opencode-cmd"
-    (filePath: !(hasYamlFrontmatter filePath));
+  commandEntries = autoConfigMarkdownFiles ../../claude/commands "command" "opencode-cmd" (
+    filePath: !(hasYamlFrontmatter filePath)
+  );
 
   # Auto-configure output-styles as agents (no filter needed)
-  agentEntries = autoConfigMarkdownFiles
-    ../../claude/output-styles
-    "agent"
-    "opencode-agent"
-    (_: true);
+  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agent" "opencode-agent" (
+    _: true
+  );
 
   # Auto-configure opencode-native agents (opencode-specific frontmatter:
   # mode/model/permission/temperature) kept separate from Claude output-styles
-  opencodeAgentEntries = autoConfigMarkdownFiles
-    ./agents
-    "agents"
-    "opencode-native-agent"
-    (_: true);
+  opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" (_: true);
 
 in
 {

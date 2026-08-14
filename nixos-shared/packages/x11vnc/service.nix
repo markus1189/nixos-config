@@ -1,9 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
-let cfg = config.services.x11vnc;
-in {
+let
+  cfg = config.services.x11vnc;
+in
+{
   options.services.x11vnc = {
     enable = mkEnableOption "x11vnc server";
 
@@ -45,27 +52,33 @@ in {
     };
   };
 
-  config = let
-    flags = [
-      "-forever"
-      "-display :0"
-      "-auth ${cfg.auth}"
-      "-passwdfile ${cfg.passwordFile}"
-      "-ncache"
-      "-rfbport ${toString cfg.port}"
-    ] ++ optional cfg.viewonly "-viewonly"
+  config =
+    let
+      flags = [
+        "-forever"
+        "-display :0"
+        "-auth ${cfg.auth}"
+        "-passwdfile ${cfg.passwordFile}"
+        "-ncache"
+        "-rfbport ${toString cfg.port}"
+      ]
+      ++ optional cfg.viewonly "-viewonly"
       ++ (if cfg.shared then [ "-shared" ] else [ "-noshared" ]);
-  in mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    in
+    mkIf cfg.enable {
+      networking.firewall.allowedTCPPorts = [ cfg.port ];
 
-    systemd.services.x11vnc = {
-      description = "x11vnc server";
-      wantedBy = optional cfg.autoStart "graphical-session.target";
-      path = with pkgs; [ gawk nettools ];
-      serviceConfig = {
-        ExecStart = "${pkgs.x11vnc}/bin/x11vnc ${concatStringsSep " " flags}";
-        Restart = "always";
+      systemd.services.x11vnc = {
+        description = "x11vnc server";
+        wantedBy = optional cfg.autoStart "graphical-session.target";
+        path = with pkgs; [
+          gawk
+          nettools
+        ];
+        serviceConfig = {
+          ExecStart = "${pkgs.x11vnc}/bin/x11vnc ${concatStringsSep " " flags}";
+          Restart = "always";
+        };
       };
     };
-  };
 }

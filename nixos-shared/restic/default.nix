@@ -1,9 +1,22 @@
-{ writeText, lib, writeScriptBin, stdenv, restic, coreutils, myScripts, curl, cacert }:
+{
+  writeText,
+  lib,
+  writeScriptBin,
+  stdenv,
+  restic,
+  coreutils,
+  myScripts,
+  curl,
+  cacert,
+}:
 let
-  excludefile = writeText "restic-excludefile" (lib.strings.concatStringsSep "\n" [
-    ".git"
-    ".shake"
-  ] + "\n");
+  excludefile = writeText "restic-excludefile" (
+    lib.strings.concatStringsSep "\n" [
+      ".git"
+      ".shake"
+    ]
+    + "\n"
+  );
   # /run/agenix/restic-b2.env provides RESTIC_REPOSITORY, RESTIC_PASSWORD,
   # B2_ACCOUNT_ID and B2_ACCOUNT_KEY (see nixos-shared/restic/module.nix)
   configuredRestic = healthcheckId: args: ''
@@ -23,14 +36,18 @@ let
   '';
 in
 {
-  resticPhotoBackup = writeScriptBin "restic-photo-backup" (configuredRestic "16ec3eb5-482f-45d0-808a-a6fb24304d2a" [
-    "backup"
-    "--exclude-file=${excludefile}"
-    ''''${1:?no directory to backup given}''
-  ]);
-  resticPhotoForget = writeScriptBin "restic-photo-forget" (configuredRestic "b78e39ed-daf0-4c0c-b599-f8a75dfecff9" [
-    "forget"
-    "--keep-last=3"
-    "--prune"
-  ]);
+  resticPhotoBackup = writeScriptBin "restic-photo-backup" (
+    configuredRestic "16ec3eb5-482f-45d0-808a-a6fb24304d2a" [
+      "backup"
+      "--exclude-file=${excludefile}"
+      "\${1:?no directory to backup given}"
+    ]
+  );
+  resticPhotoForget = writeScriptBin "restic-photo-forget" (
+    configuredRestic "b78e39ed-daf0-4c0c-b599-f8a75dfecff9" [
+      "forget"
+      "--keep-last=3"
+      "--prune"
+    ]
+  );
 }

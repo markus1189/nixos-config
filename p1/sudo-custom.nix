@@ -39,75 +39,82 @@ let
     "I'm deleting your user account. Just kidding. I'm deleting your backups."
   ];
 
-  insultsContent = pkgs.lib.concatMapStringsSep "\n    "
-    (insult: "N_(\"${pkgs.lib.escape ["\"" "\\"] insult}\"),")
-    customInsults;
+  insultsContent = pkgs.lib.concatMapStringsSep "\n    " (
+    insult: "N_(\"${pkgs.lib.escape [ "\"" "\\" ] insult}\"),"
+  ) customInsults;
 
-  customInsultsHeader = pkgs.writeText "ins_custom.h" (''
-    #ifndef SUDOERS_INS_CUSTOM_H
-    #define SUDOERS_INS_CUSTOM_H
+  customInsultsHeader = pkgs.writeText "ins_custom.h" (
+    ''
+      #ifndef SUDOERS_INS_CUSTOM_H
+      #define SUDOERS_INS_CUSTOM_H
 
-    /*
-     * Custom insults provided via Nix package configuration.
-     */
+      /*
+       * Custom insults provided via Nix package configuration.
+       */
 
-    '' + insultsContent + ''
+    ''
+    + insultsContent
+    + ''
 
-    #endif /* SUDOERS_INS_CUSTOM_H */
-  '');
+      #endif /* SUDOERS_INS_CUSTOM_H */
+    ''
+  );
 
-in pkgs.sudo.overrideAttrs (oldAttrs: {
+in
+pkgs.sudo.overrideAttrs (oldAttrs: {
   postUnpack = ''
     ${oldAttrs.postUnpack or ""}
     cp ${customInsultsHeader} $sourceRoot/plugins/sudoers/ins_custom.h
   '';
 
   prePatch = ''
-    ${oldAttrs.prePatch}
+        ${oldAttrs.prePatch}
 
-    # Completely replace insults.h to only include our custom insults
-    cat > plugins/sudoers/insults.h <<'EOF'
-#ifndef SUDOERS_INSULTS_H
-#define SUDOERS_INSULTS_H
+        # Completely replace insults.h to only include our custom insults
+        cat > plugins/sudoers/insults.h <<'EOF'
+    #ifndef SUDOERS_INSULTS_H
+    #define SUDOERS_INSULTS_H
 
-#if defined(CUSTOM_INSULTS)
+    #if defined(CUSTOM_INSULTS)
 
-#include <sudo_rand.h>
+    #include <sudo_rand.h>
 
-/*
- * Custom insults only
- */
+    /*
+     * Custom insults only
+     */
 
-const char *insults[] = {
+    const char *insults[] = {
 
-# ifdef CUSTOM_INSULTS
-#  include "ins_custom.h"
-# endif
+    # ifdef CUSTOM_INSULTS
+    #  include "ins_custom.h"
+    # endif
 
-    NULL
+        NULL
 
-};
+    };
 
-/*
- * How may I insult you?  Let me count the ways...
- */
-#define NOFINSULTS (nitems(insults) - 1)
+    /*
+     * How may I insult you?  Let me count the ways...
+     */
+    #define NOFINSULTS (nitems(insults) - 1)
 
-/*
- * return a pseudo-random insult.
- */
-#define INSULT		(insults[arc4random_uniform(NOFINSULTS)])
+    /*
+     * return a pseudo-random insult.
+     */
+    #define INSULT		(insults[arc4random_uniform(NOFINSULTS)])
 
-#endif /* CUSTOM_INSULTS */
+    #endif /* CUSTOM_INSULTS */
 
-#endif /* SUDOERS_INSULTS_H */
-EOF
+    #endif /* SUDOERS_INSULTS_H */
+    EOF
   '';
 
   # Don't add --with-insults to configureFlags since it enables default insult sets
   # We only want our custom insults, so we set CUSTOM_INSULTS and undefine all others
 
-  env = (oldAttrs.env or {}) // {
-    NIX_CFLAGS_COMPILE = "${oldAttrs.env.NIX_CFLAGS_COMPILE or ""} -DCUSTOM_INSULTS=1 -UCLASSIC_INSULTS -UGOONS_INSULTS -UHAL_INSULTS -UCSOPS_INSULTS -UPYTHON_INSULTS";
+  env = (oldAttrs.env or { }) // {
+    NIX_CFLAGS_COMPILE = "${
+      oldAttrs.env.NIX_CFLAGS_COMPILE or ""
+    } -DCUSTOM_INSULTS=1 -UCLASSIC_INSULTS -UGOONS_INSULTS -UHAL_INSULTS -UCSOPS_INSULTS -UPYTHON_INSULTS";
   };
 })

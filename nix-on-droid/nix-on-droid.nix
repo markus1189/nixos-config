@@ -107,17 +107,17 @@
             wget
 
             # Additional essential tools
-            jq               # JSON processor
-            visidata         # Interactive data exploration
-            dig              # DNS lookup utility
-            dog              # Modern DNS lookup tool
-            nmap             # Network discovery and security auditing
-            tmux             # Terminal multiplexer
-            tree             # Directory tree visualization
-            file             # File type identification
-            which            # Command location finder
-            less             # Text pager
-            unrar            # RAR archive extractor
+            jq # JSON processor
+            visidata # Interactive data exploration
+            dig # DNS lookup utility
+            dog # Modern DNS lookup tool
+            nmap # Network discovery and security auditing
+            tmux # Terminal multiplexer
+            tree # Directory tree visualization
+            file # File type identification
+            which # Command location finder
+            less # Text pager
+            unrar # RAR archive extractor
             nixpkgs-review
             w3m
           ];

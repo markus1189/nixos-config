@@ -1,9 +1,10 @@
-{ pkgs
-, enableSoundHooks ? false
-, enableDenyRules ? false
-, enableDangerousCommandCheck ? true
-, additionalAllowedCommands ? []
-, ...
+{
+  pkgs,
+  enableSoundHooks ? false,
+  enableDenyRules ? false,
+  enableDangerousCommandCheck ? true,
+  additionalAllowedCommands ? [ ],
+  ...
 }:
 
 let
@@ -44,10 +45,7 @@ let
       };
 
       dirEntries = pkgs.lib.attrsets.mapAttrs' (
-        dirname: _:
-        pkgs.lib.attrsets.nameValuePair "${namePrefix}-${dirname}" (
-          makeEntry dirname
-        )
+        dirname: _: pkgs.lib.attrsets.nameValuePair "${namePrefix}-${dirname}" (makeEntry dirname)
       ) skillDirs;
     in
     dirEntries;
@@ -59,7 +57,9 @@ let
   docsEntries = autoConfigMarkdownFiles ../../claude/docs "user-docs" "claude-docs";
 
   # Auto-configure output-styles files
-  outputStylesEntries = autoConfigMarkdownFiles ../../claude/output-styles "output-styles" "claude-output-styles";
+  outputStylesEntries =
+    autoConfigMarkdownFiles ../../claude/output-styles "output-styles"
+      "claude-output-styles";
 
   # Auto-configure skills directories (symlink entire directories with all contents)
   skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
@@ -67,15 +67,20 @@ let
   # Dangerous command check hook script
   dangerousCommandCheckScript = pkgs.writeShellApplication {
     name = "check-dangerous-commands";
-    runtimeInputs = with pkgs; [ bash jq coreutils ast-grep ];
+    runtimeInputs = with pkgs; [
+      bash
+      jq
+      coreutils
+      ast-grep
+    ];
     text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 
   # Play a notification sound in the background. The timeout is load-bearing:
   # if the audio stack wedges, aplay blocks forever on the PipeWire socket and
   # every tool call leaks an immortal process.
-  playSound = wav:
-    "${pkgs.coreutils}/bin/timeout 5 ${pkgs.alsa-utils}/bin/aplay ${wav} >/dev/null 2>&1 &";
+  playSound =
+    wav: "${pkgs.coreutils}/bin/timeout 5 ${pkgs.alsa-utils}/bin/aplay ${wav} >/dev/null 2>&1 &";
 
   # Hook definitions for compositional building
   soundNotificationHooks = [
@@ -84,9 +89,8 @@ let
       hooks = [
         {
           type = "command";
-          command = "${pkgs.writers.writePython3Bin "claude-code-notifier"
-            { flakeIgnore = [ "E501" ]; }
-            ''
+          command = "${
+            pkgs.writers.writePython3Bin "claude-code-notifier" { flakeIgnore = [ "E501" ]; } ''
               import json
               import sys
               import subprocess
@@ -96,7 +100,8 @@ let
               message = input.get("message") or "<no-message>"
 
               subprocess.run(["${pkgs.dunst}/bin/dunstify", "Claude-Code", message])
-            ''}/bin/claude-code-notifier";
+            ''
+          }/bin/claude-code-notifier";
         }
         {
           type = "command";
@@ -215,8 +220,8 @@ let
     if enableSoundHooks then
       {
         Notification = soundNotificationHooks;
-        PreToolUse = soundPreToolUseHooks
-          ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
+        PreToolUse =
+          soundPreToolUseHooks ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
         SessionStart = soundSessionStartHooks;
         Stop = soundStopHooks;
         SubagentStop = soundSubagentStopHooks;
@@ -443,7 +448,10 @@ in
             name = "claude-code-statusline";
             script = pkgs.writeShellApplication {
               inherit name;
-              runtimeInputs = with pkgs; [ coreutils jq ];
+              runtimeInputs = with pkgs; [
+                coreutils
+                jq
+              ];
               text = builtins.readFile ../../claude/claude-code-statusline.sh;
             };
           in
@@ -461,20 +469,27 @@ in
           "Bash(git diff:*)"
           "Bash(git log:*)"
           "Bash(git branch:*)"
-        ] ++ additionalAllowedCommands;
-      } // (if enableDenyRules then {
-        deny = [
-          "Bash(rm -rf:*)"
-          "Bash(rm --recursive --force:*)"
-          "Bash(rm -r -f:*)"
-          "Bash(rm -f -r:*)"
-          "Bash(rm --recursive -f:*)"
-          "Bash(rm -r --force:*)"
-          "Bash(rm --force --recursive:*)"
-          "Bash(rm --force -r:*)"
-          "Bash(rm -fr:*)"
-        ];
-      } else {});
+        ]
+        ++ additionalAllowedCommands;
+      }
+      // (
+        if enableDenyRules then
+          {
+            deny = [
+              "Bash(rm -rf:*)"
+              "Bash(rm --recursive --force:*)"
+              "Bash(rm -r -f:*)"
+              "Bash(rm -f -r:*)"
+              "Bash(rm --recursive -f:*)"
+              "Bash(rm -r --force:*)"
+              "Bash(rm --force --recursive:*)"
+              "Bash(rm --force -r:*)"
+              "Bash(rm -fr:*)"
+            ];
+          }
+        else
+          { }
+      );
 
       hooks = hooksConfig;
 

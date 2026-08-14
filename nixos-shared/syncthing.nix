@@ -49,56 +49,123 @@ let
   # 2026-06-04: S26U replaces S24U (new phone) across all folders;
   # added Audiobooks (offered by S26U + nixos-p1, nuc also joins).
   folderMembership = {
-    Audiobooks    = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    remind        = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    ePubs         = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    timejot       = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    Buecher       = [ "nuc" "nixos-p1" "p1g8" ];
-    jrnl          = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    activities    = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    buku          = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    ShareToFolder = [        "nixos-p1" "p1g8" "S26U" ];
-    rides         = [ "nuc" "nixos-p1" "p1g8" ];
-    runs          = [ "nuc" "nixos-p1" "p1g8" ];
-    PhotoLogs     = [        "nixos-p1" "p1g8" "S26U" ];
-    pen_and_paper = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    Inbox         = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
-    finance       = [ "nuc" "nixos-p1" "p1g8" "S26U" ];
+    Audiobooks = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    remind = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    ePubs = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    timejot = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    Buecher = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+    ];
+    jrnl = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    activities = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    buku = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    ShareToFolder = [
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    rides = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+    ];
+    runs = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+    ];
+    PhotoLogs = [
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    pen_and_paper = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    Inbox = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
+    finance = [
+      "nuc"
+      "nixos-p1"
+      "p1g8"
+      "S26U"
+    ];
   };
 
   # Folder ID -> human-readable name. IDs preserve sync continuity
   # with the existing peers; without these, Syncthing would mint
   # new IDs and nixos-p1/nuc/S24U would see them as new folders.
   folderIds = {
-    Audiobooks    = "azmve-vrodw";
-    remind        = "7w3sr-tjmd4";
-    ePubs         = "bldcc-uuzfe";
-    timejot       = "dudaq-5whha";
-    Buecher       = "fkwvi-pjazp";
-    jrnl          = "gvuip-mhtmw";
-    activities    = "hxnix-vtagq";
-    buku          = "phgrh-e7j2r";
+    Audiobooks = "azmve-vrodw";
+    remind = "7w3sr-tjmd4";
+    ePubs = "bldcc-uuzfe";
+    timejot = "dudaq-5whha";
+    Buecher = "fkwvi-pjazp";
+    jrnl = "gvuip-mhtmw";
+    activities = "hxnix-vtagq";
+    buku = "phgrh-e7j2r";
     ShareToFolder = "rh3eg-wjgqe";
-    rides         = "spw9m-bqrpq";
-    runs          = "ssidi-kckkk";
-    PhotoLogs     = "tephm-fyigj";
+    rides = "spw9m-bqrpq";
+    runs = "ssidi-kckkk";
+    PhotoLogs = "tephm-fyigj";
     pen_and_paper = "unmei-apdtd";
-    Inbox         = "x6nxp-oaslb";
-    finance       = "ykdhx-5pemk";
+    Inbox = "x6nxp-oaslb";
+    finance = "ykdhx-5pemk";
   };
 
   # Folders this host participates in.
-  myFolders = lib.filterAttrs
-    (_: members: builtins.elem hostName members)
-    folderMembership;
+  myFolders = lib.filterAttrs (_: members: builtins.elem hostName members) folderMembership;
 
   # Peer device names for a folder (= all members minus self).
   peersOf = name: builtins.filter (d: d != hostName) folderMembership.${name};
 in
 {
   # Declared devices: all known peers except self.
-  services.syncthing.settings.devices =
-    lib.filterAttrs (n: _: n != hostName) devices;
+  services.syncthing.settings.devices = lib.filterAttrs (n: _: n != hostName) devices;
 
   # Folders this host participates in, preserving original IDs.
   # path defaults to ~/Syncthing/<name> (matches existing layout).

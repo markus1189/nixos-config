@@ -1,4 +1,4 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
 {
   age.secrets.resticB2 = {
@@ -7,7 +7,10 @@
   };
 
   environment = {
-    systemPackages = [ pkgs.resticPhotoBackup pkgs.resticPhotoForget ];
+    systemPackages = [
+      pkgs.resticPhotoBackup
+      pkgs.resticPhotoForget
+    ];
   };
 
   nixpkgs = {

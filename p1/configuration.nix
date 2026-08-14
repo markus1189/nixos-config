@@ -11,12 +11,11 @@
   ];
 
   # Custom sudo with insults
-  security.sudo.package = pkgs.callPackage ./sudo-custom.nix {};
+  security.sudo.package = pkgs.callPackage ./sudo-custom.nix { };
 
   hardware.graphics.extraPackages = with pkgs; [
     intel-compute-runtime
   ];
-
 
   # services.udev = {
   #   # for digispark
@@ -25,6 +24,5 @@
   #     KERNEL=="ttyACM*", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0753", MODE:="0666", ENV{ID_MM_DEVICE_IGNORE}="1"
   #   '';
   # };
-
 
 }

@@ -16,17 +16,29 @@
     };
   };
 
-  outputs = { self, nixpkgs, nix-on-droid, home-manager}: {
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nix-on-droid,
+      home-manager,
+    }:
+    {
 
-    nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
-      pkgs = import nixpkgs {
-        system = "aarch64-linux";
-        config = {
-          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) ["claude-code" "unrar"];
+      nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
+        pkgs = import nixpkgs {
+          system = "aarch64-linux";
+          config = {
+            allowUnfreePredicate =
+              pkg:
+              builtins.elem (nixpkgs.lib.getName pkg) [
+                "claude-code"
+                "unrar"
+              ];
+          };
         };
+        modules = [ ./nix-on-droid.nix ];
       };
-      modules = [ ./nix-on-droid.nix ];
-    };
 
-  };
+    };
 }

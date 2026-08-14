@@ -4,13 +4,10 @@ let
   # Shelly gen1 web UI login; the username is not sensitive, the password
   # arrives at runtime via systemd LoadCredential (see below).
   shellyUsername = "admin";
-  shellyPasswordCredential =
-    "/run/credentials/prometheus-json-exporter.service/shelly-password";
+  shellyPasswordCredential = "/run/credentials/prometheus-json-exporter.service/shelly-password";
   shellyPlugModule = "shellyPlug";
   jsonExporterPort = 7979;
-  toYAMLFile = data:
-    (pkgs.writeText "prometheus-rule-file"
-      (pkgs.lib.generators.toYAML { } data));
+  toYAMLFile = data: (pkgs.writeText "prometheus-rule-file" (pkgs.lib.generators.toYAML { } data));
   shellyPlugMetricPrefix = "shelly_plug";
   shellyPlugType = "shelly_plug";
 
@@ -27,7 +24,8 @@ let
     light = "light";
     dishwasher = "spuehlmaschine";
   };
-in {
+in
+{
   age.secrets.shellyWebUIPassword = {
     file = ../secrets/shelly-webui-password.age;
     name = "shelly-webui-password";
@@ -35,8 +33,9 @@ in {
 
   # json exporter runs with DynamicUser and cannot read /run/agenix directly;
   # systemd hands it the password as a credential instead.
-  systemd.services.prometheus-json-exporter.serviceConfig.LoadCredential =
-    [ "shelly-password:${config.age.secrets.shellyWebUIPassword.path}" ];
+  systemd.services.prometheus-json-exporter.serviceConfig.LoadCredential = [
+    "shelly-password:${config.age.secrets.shellyWebUIPassword.path}"
+  ];
 
   services.prometheus = rec {
     enable = true;
@@ -48,13 +47,16 @@ in {
 
     retentionTime = "8d";
 
-    alertmanagers = [{
-      scheme = "http";
-      static_configs = [{
-        targets =
-          [ "${alertmanager.listenAddress}:${toString alertmanager.port}" ];
-      }];
-    }];
+    alertmanagers = [
+      {
+        scheme = "http";
+        static_configs = [
+          {
+            targets = [ "${alertmanager.listenAddress}:${toString alertmanager.port}" ];
+          }
+        ];
+      }
+    ];
 
     ruleFiles = [
       (toYAMLFile {
@@ -78,8 +80,7 @@ in {
               # }
               {
                 alert = "ShellyHasUpdate";
-                expr =
-                  "shelly_plug_has_update > 0 or shelly_uni_has_update > 0";
+                expr = "shelly_plug_has_update > 0 or shelly_uni_has_update > 0";
                 for = "30m";
               }
             ];
@@ -104,7 +105,9 @@ in {
         job_name = "shellyViaJsonExporter";
         scrape_interval = "10s";
         metrics_path = "/probe";
-        params = { module = [ shellyPlugModule ]; };
+        params = {
+          module = [ shellyPlugModule ];
+        };
         static_configs = [
           {
             targets = [ "http://192.168.178.22/status" ];
@@ -150,8 +153,7 @@ in {
           }
           {
             target_label = "__address__";
-            replacement =
-              "${exporters.json.listenAddress}:${toString exporters.json.port}";
+            replacement = "${exporters.json.listenAddress}:${toString exporters.json.port}";
           }
         ];
       }
@@ -159,15 +161,19 @@ in {
         job_name = "shellyUniViaJsonExporter";
         scrape_interval = "10s";
         metrics_path = "/probe";
-        params = { module = [ shellyUniModule ]; };
-        static_configs = [{
-          targets = [ "http://192.168.178.29/status" ];
-          labels = {
-            type = shellyUniType;
-            room = rooms.markus;
-            device = "uni1";
-          };
-        }];
+        params = {
+          module = [ shellyUniModule ];
+        };
+        static_configs = [
+          {
+            targets = [ "http://192.168.178.29/status" ];
+            labels = {
+              type = shellyUniType;
+              room = rooms.markus;
+              device = "uni1";
+            };
+          }
+        ];
         relabel_configs = [
           {
             source_labels = [ "__address__" ];
@@ -179,18 +185,19 @@ in {
           }
           {
             target_label = "__address__";
-            replacement =
-              "${exporters.json.listenAddress}:${toString exporters.json.port}";
+            replacement = "${exporters.json.listenAddress}:${toString exporters.json.port}";
           }
         ];
       }
       {
         job_name = "jsonExporterStatus";
-        static_configs = [{
-          targets = [
-            "${exporters.json.listenAddress}:${toString exporters.json.port}"
-          ];
-        }];
+        static_configs = [
+          {
+            targets = [
+              "${exporters.json.listenAddress}:${toString exporters.json.port}"
+            ];
+          }
+        ];
       }
     ];
 
@@ -209,23 +216,27 @@ in {
           receiver = (builtins.elemAt receivers 0).name;
         };
 
-        receivers = [{
-          name = "smart-home-telegram";
-          telegram_configs = [{
-            bot_token = "$TELEGRAM_BOT_TOKEN";
-            chat_id = -1001896177541;
-            api_url = "https://api.telegram.org";
-            parse_mode = "HTML";
-            message = ''
-              {{ if gt (len .Alerts.Firing) 0 }}🚨 {{if gt (len .Alerts.Firing) 1 }}Aktive Alarme{{else}}Aktiver Alarm{{end}} ({{ len .Alerts.Firing }})
-              {{ range .Alerts.Firing }}- {{ .Labels.alertname }}
-              {{ end }}{{ end }}
-              {{ if gt (len .Alerts.Resolved) 0 }}✅ {{if gt (len .Alerts.Resolved) 1 }}Erledigte Alarme{{else}}Erledigter Alarm{{end}} ({{ len .Alerts.Resolved }})
-              {{ range .Alerts.Resolved }}- {{ .Labels.alertname }}
-              {{ end }}{{ end }}
-            ''; # see https://gotemplate.io/
-          }];
-        }];
+        receivers = [
+          {
+            name = "smart-home-telegram";
+            telegram_configs = [
+              {
+                bot_token = "$TELEGRAM_BOT_TOKEN";
+                chat_id = -1001896177541;
+                api_url = "https://api.telegram.org";
+                parse_mode = "HTML";
+                message = ''
+                  {{ if gt (len .Alerts.Firing) 0 }}🚨 {{if gt (len .Alerts.Firing) 1 }}Aktive Alarme{{else}}Aktiver Alarm{{end}} ({{ len .Alerts.Firing }})
+                  {{ range .Alerts.Firing }}- {{ .Labels.alertname }}
+                  {{ end }}{{ end }}
+                  {{ if gt (len .Alerts.Resolved) 0 }}✅ {{if gt (len .Alerts.Resolved) 1 }}Erledigte Alarme{{else}}Erledigter Alarm{{end}} ({{ len .Alerts.Resolved }})
+                  {{ range .Alerts.Resolved }}- {{ .Labels.alertname }}
+                  {{ end }}{{ end }}
+                ''; # see https://gotemplate.io/
+              }
+            ];
+          }
+        ];
       };
     };
 
@@ -237,20 +248,22 @@ in {
         configFile = toYAMLFile {
           modules = {
             "${shellyPlugModule}" = {
-              metrics = [{
-                name = shellyPlugMetricPrefix;
-                type = "object";
-                path = "{@}";
-                values = {
-                  power = "{.meters[0].power}";
-                  temperature = "{.temperature}";
-                  ram_free = "{.ram_free}";
-                  fs_free = "{.fs_free}";
-                  meter_total = "{.meters[0].total}";
-                  ison = "{.relays[0].ison}";
-                  has_update = "{.has_update}";
-                };
-              }];
+              metrics = [
+                {
+                  name = shellyPlugMetricPrefix;
+                  type = "object";
+                  path = "{@}";
+                  values = {
+                    power = "{.meters[0].power}";
+                    temperature = "{.temperature}";
+                    ram_free = "{.ram_free}";
+                    fs_free = "{.fs_free}";
+                    meter_total = "{.meters[0].total}";
+                    ison = "{.relays[0].ison}";
+                    has_update = "{.has_update}";
+                  };
+                }
+              ];
               http_client_config = {
                 basic_auth = {
                   username = shellyUsername;
@@ -259,22 +272,24 @@ in {
               };
             };
             "${shellyUniModule}" = {
-              metrics = [{
-                name = shellyUniMetricPrefix;
-                type = "object";
-                path = "{@}";
-                values = {
-                  ison1 = "{.relays[0].ison}";
-                  ison2 = "{.relays[1].ison}";
-                  adcs = "{.adcs[0].voltage}";
-                  temperature = "{.ext_temperature.0.tC}";
-                  humidity = "{.ext_humidity.0.hum}";
-                  has_update = "{.has_update}";
-                  ram_free = "{.ram_free}";
-                  fs_free = "{.fs_free}";
-                  uptime = "{.uptime}";
-                };
-              }];
+              metrics = [
+                {
+                  name = shellyUniMetricPrefix;
+                  type = "object";
+                  path = "{@}";
+                  values = {
+                    ison1 = "{.relays[0].ison}";
+                    ison2 = "{.relays[1].ison}";
+                    adcs = "{.adcs[0].voltage}";
+                    temperature = "{.ext_temperature.0.tC}";
+                    humidity = "{.ext_humidity.0.hum}";
+                    has_update = "{.has_update}";
+                    ram_free = "{.ram_free}";
+                    fs_free = "{.fs_free}";
+                    uptime = "{.uptime}";
+                  };
+                }
+              ];
               http_client_config = {
                 basic_auth = {
                   username = shellyUsername;

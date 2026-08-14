@@ -1,8 +1,13 @@
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   hostsFile = "${inputs.stevenblack-hosts}/alternates/fakenews-gambling-porn/hosts";
-  modifiedHosts = pkgs.runCommand "filtered-hosts" {} ''
+  modifiedHosts = pkgs.runCommand "filtered-hosts" { } ''
     # Domain allowlist exceptions
     ${pkgs.gnused}/bin/sed \
       -e '/link.m.convertkit/d' \

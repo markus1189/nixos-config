@@ -1,8 +1,13 @@
 { dataDir }:
-{ pkgs, lib, opentelemetry-collector-contrib, coreutils }:
+{
+  pkgs,
+  lib,
+  opentelemetry-collector-contrib,
+  coreutils,
+}:
 let
-  configFile = pkgs.writeText "otel-collector-config.yaml"
-    (lib.generators.toYAML { } {
+  configFile = pkgs.writeText "otel-collector-config.yaml" (
+    lib.generators.toYAML { } {
       receivers.otlp.protocols = {
         grpc.endpoint = "127.0.0.1:4317";
         http.endpoint = "127.0.0.1:4318";
@@ -28,7 +33,8 @@ let
         };
         telemetry.logs.level = "info";
       };
-    });
+    }
+  );
 in
 {
   service = {

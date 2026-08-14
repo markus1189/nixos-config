@@ -45,10 +45,7 @@ let
     ) skillDirs;
 
   # Auto-configure command files as prompts
-  promptEntries = autoConfigMarkdownFiles
-    ../../claude/commands
-    "prompts"
-    "pi-prompt";
+  promptEntries = autoConfigMarkdownFiles ../../claude/commands "prompts" "pi-prompt";
 
   # Expose the shared claude skills to pi via ~/.agents/skills
   agentsSkillEntries = autoConfigAgentsSkillDirs ../../claude/skills "agents-skills";
@@ -58,7 +55,12 @@ let
   # for the subprocess spawned by the extension.
   dangerousCommandCheckScript = pkgs.writeShellApplication {
     name = "check-dangerous-commands";
-    runtimeInputs = with pkgs; [ bash jq coreutils ast-grep ];
+    runtimeInputs = with pkgs; [
+      bash
+      jq
+      coreutils
+      ast-grep
+    ];
     text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 
@@ -83,17 +85,21 @@ let
 
     "pi-agent-extension-sounds" = {
       target = ".pi/agent/extensions/sounds.ts";
-      text = builtins.readFile (pkgs.mutate ./extensions/sounds.ts {
-        aplay = pkgs.alsa-utils;
-        sounds = ../../claude/sounds;
-      });
+      text = builtins.readFile (
+        pkgs.mutate ./extensions/sounds.ts {
+          aplay = pkgs.alsa-utils;
+          sounds = ../../claude/sounds;
+        }
+      );
     };
 
     "pi-agent-extension-glados" = {
       target = ".pi/agent/extensions/glados.ts";
-      text = builtins.readFile (pkgs.mutate ./extensions/glados.ts {
-        gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
-      });
+      text = builtins.readFile (
+        pkgs.mutate ./extensions/glados.ts {
+          gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
+        }
+      );
     };
 
     "pi-agent-extension-web-tools" = {
@@ -143,9 +149,11 @@ let
 
     "pi-agent-extension-check-dangerous-commands" = {
       target = ".pi/agent/extensions/check-dangerous-commands.ts";
-      text = builtins.readFile (pkgs.mutate ./extensions/check-dangerous-commands.ts {
-        checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
-      });
+      text = builtins.readFile (
+        pkgs.mutate ./extensions/check-dangerous-commands.ts {
+          checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
+        }
+      );
     };
 
     # END EXTENSIONS

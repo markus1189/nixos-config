@@ -1,4 +1,5 @@
-userName: { config, pkgs, ...}:
+userName:
+{ config, pkgs, ... }:
 
 {
   services.syncthing = {

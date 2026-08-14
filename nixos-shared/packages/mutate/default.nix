@@ -1,22 +1,28 @@
 # adapted from https://github.com/grahamc/nixos-config/
 { stdenvNoCC, gnugrep }:
 file: args:
-(stdenvNoCC.mkDerivation (args // rec {
-  name = baseNameOf file;
+(stdenvNoCC.mkDerivation (
+  args
+  // rec {
+    name = baseNameOf file;
 
-  phases = [ "installPhase" "checkPhase" ];
+    phases = [
+      "installPhase"
+      "checkPhase"
+    ];
 
-  installPhase = ''
-    cp ${file} $out
-    substituteAllInPlace $out
-  '';
+    installPhase = ''
+      cp ${file} $out
+      substituteAllInPlace $out
+    '';
 
-  doCheck = true;
+    doCheck = true;
 
-  checkPhase = ''
-    if ${gnugrep}/bin/grep -Hn '@[[:alpha:][:digit:]-]\+@' $out; then
-      echo "[ERROR] Found non interpolated pattern in $out!" >&2
-      exit 1
-    fi
-  '';
-}))
+    checkPhase = ''
+      if ${gnugrep}/bin/grep -Hn '@[[:alpha:][:digit:]-]\+@' $out; then
+        echo "[ERROR] Found non interpolated pattern in $out!" >&2
+        exit 1
+      fi
+    '';
+  }
+))

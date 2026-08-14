@@ -8,7 +8,13 @@ let
     name = "atuin-sync-tunneled";
     # coreutils = sleep, gnugrep = grep; writeShellApplication does not
     # bundle them, and the systemd user unit has a lean PATH.
-    runtimeInputs = with pkgs; [ openssh iproute2 atuin coreutils gnugrep ];
+    runtimeInputs = with pkgs; [
+      openssh
+      iproute2
+      atuin
+      coreutils
+      gnugrep
+    ];
     text = ''
       readonly TUNNEL_PORT=${toString tunnelPort}
       readonly SSH_TARGET=${sshTarget}

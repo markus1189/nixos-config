@@ -2,31 +2,51 @@ let
   mainUser = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOnrif83vV1qiqX6n2hXXIRCkOjFVQJxA7gzD7/IddXW markus+2026@p1g8";
   # Old 8096-bit RSA user key; private half not present in ~/.ssh on p1g8.
   # Kept as recipient in case it still lives elsewhere - drop once confirmed dead.
-  mainUserLegacyRsa =
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAD9QDViXFLri6z5GhruV0wl30vMHPWBKRglolnQZZPNmPQ++MUxyKFPadU/v2XacHzSo2Del0I1Zm0EfY0PJ66jmfuFw26oWRme9qsWP1j5ubBHGVp6lD47LTq2rv2DazlOryjemdZgMbucl6dPIV9SnsQiuzLqb95Zw2+DHpqG6AXzCbCk6vUSegxTDtMn/EgWfsR0eGA6jp8aMAOaQ44aOynQMzDCcyLPaD9/IBSgZQ21cT/T6Zx50JOkSCKbMqONWHNs9ajSKot57PDslAisqzeJstci8Hkvzci8n3uFAVOw+Vqoqqs2CEEAslbFL1gKcNM5TUqZPAVRTGJ4j3F0LwXgEKt7hheSCWCnytYskryz1rBg7FMhblOdmiJ3rRrqfpNYsRRozJqmSiXzw4s9PIITTWNdlimV9oCECrVYOcNwShk2mIu/NO9Q47ipmKdnPt+iByoyJyvJN2U5rMxv/jMwwEQMHsSNq0NXJjsbO1JgiA5iQ64vTiFGTJY2DiYFFsmTJB+GWcNWmw51yXH+/lGZqKOw2LYRDC9k6snP5p7quP4eTBIn2t6yMggGfaEMHiIqwOaYhlNHcgviyYBgAkcFFEFZb834UAnMqtxyyUdT7RrnXd7pwUR7aLEcrrqYKRceyGg73H5THNXNGLhZMt1HP9JaM+EHBgUR684nW3OHOJYMNWEtZxg7ITSK8d11riT5Diy2nywBlOn35HuW3aG359i/auHVG6lLp922PF3NC14JYE615MqbNGnD4acKDpqDQlghjTJBK7SNms7RZt1mffV591kytHXl7gbwZO+P1tmY0XD7pi4dfX8PoGXlJvKaABvgUE5clPYbXeTqlO1LBLV/gvMYiAzj14aj4ratx1F4gn1FjAgcS6zC3F0EsJL5iBitGzVDz7WUl9dls7r4NMO2rKHb+tN795uTLMILlwgJBwiw0NgVyzN8akWIxW8X0hckOERAir3QKJGKGvOK1UDfyAgmbt7l23sAIThub/e9MsZecnFB1JPIlOcT7561Pk823eKefQtqxBslHrSbIxXCglwUh62F4jkuT2Fv1hEtBHMchCNnT4SzQH9bg5m0dF4S5CdH1oAvlpri5aO+kJ3/dSjPA1DwHBnU0jYzLejBtow8Qe6fHkI8joPbIw1BV1ZXXUO80Vcv3r1D7CiTed8ahDL4skm4rN2Ija+pathuGON86GtznVWVG85hxVfZ9OoBoNE77GrZ3rVn9kzKkCX/kNOQdZyYQMIeFfgJp55o1GuGwvAwVEyzX5rjJrkKjBT1bqkqAa66lwc/mE6AnFT1zjLNFx1O2rlujWHuGA2N8rldvABlAN/R9hvrLV9kLPJ";
-  nixosP1 =
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCTzoE1hfQLCOWz8tH7q6xITKsEpoRWlTVFiKFtU+e6DzqbeCskOuR7KAlEnWTFTp15kllTTeww8QTS8xqha2V6wy86gxwFAFQPZziFclqCi2ZLW2UgrxuKSJCe6dfnC8LCGI8JK9yJkDJdCDg7x9PanTVymiR7SrrManDBtw2yI9I+WPnbeGlIUiVpZOxhK/+/kqs90KMDgbChWPd/lvc+QT1lo7uxKBRQaUo9Xu/sUaIQ7ahLldoMtOloV/Meg6VncRim56n99tBScu/cvHNcXUOVNZPumbLLlY4g+pw8qoAYK2vCxoivHbkNj3lLuPAJFuBZiaSAuMcbHDSyfi+XaLeYbtqjVcDzt3dR9Pq8Etpar9faGRLBTmgm6y2DrytKfwLqjjghbnaVvdTDtv29AVmNeX3K+Vpsu184MWPgppfklndwZxtmAAkWqvKmWEUAFdCdR0JaShlgWmr+10MkrHL0zUJTHhVUU9WuW9i70ZaFAyuq0904Bi7vu/Fu470aBnzB2oNv7tFtE3uHIvkhqkv6iFq28S1rsxBGgOpGP+syflUg39Avbzv3XSctBCDmMEtm3di1PLpmhkpg8StXcLF9gcfgvN7/BgM7IgRKcSHmAwVc+Zq4+5Da4LtQ4CAUB0/ynjtSGKbmi20jS+luYiQXLu8DTJ7a5x/j3dPD+w== root@nixos-p1";
-  nuc =
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz6gnYNVn7Pi8p45khrsa1//tfd0bE4fQLM8F66dMjqK8lqnNWOkbuHHxjyDusUkHk5G3Vwxhld9XXtG+MGOF9pogF42HY0Kgk7fpaLiVhMqhMaDNJRTWrHSoIqYxveRjmAAsZ2IRprXD17XOSFhnoWmvinioG7I/C+CkV/4NNYdf0/Eo9QsLdxZNkA7Fo9jz5CC+BbH4CG965Z0drLt7mQb6akWeV74TME9NZ1EnFs6d9dHIccNMbHF8Q0v1hgL/XJtCF2OZ+vzuOeuTr9LFcI464WJzNsXVb1c0DnIA4ArcM+zZpAYmXC0cWgh0knJSe4HaZ6GoK58qOyv1GW9Mux2qiNVLqm0vNWt9i1c59hDDZQjnCMrtm4cppaxHl5ohoK+LKzeb95v6Sk0mlKf48qWaC/ub33GUhRwioP3nUP2s+CkrOQgDdh93TsYGnbB1xqqJd38dvpf0aSUv9rrRgEE7pgRv6WsyOQebFQUT9iVS8br21FnarFuyz8tnyGH69Uzw3g/07bQv971lLF8XHecz18ZNbA/Q/vokvc7GxQLkyM+mIWPXYmJgxhfSn8K42o1mXv0rUCroHCgtXLQErf8DJtZIHRsBkdXy+dRJF3vLi8o5/PA0mxcKpA7N6d12dqRFsn8wK0KH6J5trBh3gylSgJbrBswV0xG6kdF+Pww== root@nuc";
+  mainUserLegacyRsa = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAD9QDViXFLri6z5GhruV0wl30vMHPWBKRglolnQZZPNmPQ++MUxyKFPadU/v2XacHzSo2Del0I1Zm0EfY0PJ66jmfuFw26oWRme9qsWP1j5ubBHGVp6lD47LTq2rv2DazlOryjemdZgMbucl6dPIV9SnsQiuzLqb95Zw2+DHpqG6AXzCbCk6vUSegxTDtMn/EgWfsR0eGA6jp8aMAOaQ44aOynQMzDCcyLPaD9/IBSgZQ21cT/T6Zx50JOkSCKbMqONWHNs9ajSKot57PDslAisqzeJstci8Hkvzci8n3uFAVOw+Vqoqqs2CEEAslbFL1gKcNM5TUqZPAVRTGJ4j3F0LwXgEKt7hheSCWCnytYskryz1rBg7FMhblOdmiJ3rRrqfpNYsRRozJqmSiXzw4s9PIITTWNdlimV9oCECrVYOcNwShk2mIu/NO9Q47ipmKdnPt+iByoyJyvJN2U5rMxv/jMwwEQMHsSNq0NXJjsbO1JgiA5iQ64vTiFGTJY2DiYFFsmTJB+GWcNWmw51yXH+/lGZqKOw2LYRDC9k6snP5p7quP4eTBIn2t6yMggGfaEMHiIqwOaYhlNHcgviyYBgAkcFFEFZb834UAnMqtxyyUdT7RrnXd7pwUR7aLEcrrqYKRceyGg73H5THNXNGLhZMt1HP9JaM+EHBgUR684nW3OHOJYMNWEtZxg7ITSK8d11riT5Diy2nywBlOn35HuW3aG359i/auHVG6lLp922PF3NC14JYE615MqbNGnD4acKDpqDQlghjTJBK7SNms7RZt1mffV591kytHXl7gbwZO+P1tmY0XD7pi4dfX8PoGXlJvKaABvgUE5clPYbXeTqlO1LBLV/gvMYiAzj14aj4ratx1F4gn1FjAgcS6zC3F0EsJL5iBitGzVDz7WUl9dls7r4NMO2rKHb+tN795uTLMILlwgJBwiw0NgVyzN8akWIxW8X0hckOERAir3QKJGKGvOK1UDfyAgmbt7l23sAIThub/e9MsZecnFB1JPIlOcT7561Pk823eKefQtqxBslHrSbIxXCglwUh62F4jkuT2Fv1hEtBHMchCNnT4SzQH9bg5m0dF4S5CdH1oAvlpri5aO+kJ3/dSjPA1DwHBnU0jYzLejBtow8Qe6fHkI8joPbIw1BV1ZXXUO80Vcv3r1D7CiTed8ahDL4skm4rN2Ija+pathuGON86GtznVWVG85hxVfZ9OoBoNE77GrZ3rVn9kzKkCX/kNOQdZyYQMIeFfgJp55o1GuGwvAwVEyzX5rjJrkKjBT1bqkqAa66lwc/mE6AnFT1zjLNFx1O2rlujWHuGA2N8rldvABlAN/R9hvrLV9kLPJ";
+  nixosP1 = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCTzoE1hfQLCOWz8tH7q6xITKsEpoRWlTVFiKFtU+e6DzqbeCskOuR7KAlEnWTFTp15kllTTeww8QTS8xqha2V6wy86gxwFAFQPZziFclqCi2ZLW2UgrxuKSJCe6dfnC8LCGI8JK9yJkDJdCDg7x9PanTVymiR7SrrManDBtw2yI9I+WPnbeGlIUiVpZOxhK/+/kqs90KMDgbChWPd/lvc+QT1lo7uxKBRQaUo9Xu/sUaIQ7ahLldoMtOloV/Meg6VncRim56n99tBScu/cvHNcXUOVNZPumbLLlY4g+pw8qoAYK2vCxoivHbkNj3lLuPAJFuBZiaSAuMcbHDSyfi+XaLeYbtqjVcDzt3dR9Pq8Etpar9faGRLBTmgm6y2DrytKfwLqjjghbnaVvdTDtv29AVmNeX3K+Vpsu184MWPgppfklndwZxtmAAkWqvKmWEUAFdCdR0JaShlgWmr+10MkrHL0zUJTHhVUU9WuW9i70ZaFAyuq0904Bi7vu/Fu470aBnzB2oNv7tFtE3uHIvkhqkv6iFq28S1rsxBGgOpGP+syflUg39Avbzv3XSctBCDmMEtm3di1PLpmhkpg8StXcLF9gcfgvN7/BgM7IgRKcSHmAwVc+Zq4+5Da4LtQ4CAUB0/ynjtSGKbmi20jS+luYiQXLu8DTJ7a5x/j3dPD+w== root@nixos-p1";
+  nuc = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz6gnYNVn7Pi8p45khrsa1//tfd0bE4fQLM8F66dMjqK8lqnNWOkbuHHxjyDusUkHk5G3Vwxhld9XXtG+MGOF9pogF42HY0Kgk7fpaLiVhMqhMaDNJRTWrHSoIqYxveRjmAAsZ2IRprXD17XOSFhnoWmvinioG7I/C+CkV/4NNYdf0/Eo9QsLdxZNkA7Fo9jz5CC+BbH4CG965Z0drLt7mQb6akWeV74TME9NZ1EnFs6d9dHIccNMbHF8Q0v1hgL/XJtCF2OZ+vzuOeuTr9LFcI464WJzNsXVb1c0DnIA4ArcM+zZpAYmXC0cWgh0knJSe4HaZ6GoK58qOyv1GW9Mux2qiNVLqm0vNWt9i1c59hDDZQjnCMrtm4cppaxHl5ohoK+LKzeb95v6Sk0mlKf48qWaC/ub33GUhRwioP3nUP2s+CkrOQgDdh93TsYGnbB1xqqJd38dvpf0aSUv9rrRgEE7pgRv6WsyOQebFQUT9iVS8br21FnarFuyz8tnyGH69Uzw3g/07bQv971lLF8XHecz18ZNbA/Q/vokvc7GxQLkyM+mIWPXYmJgxhfSn8K42o1mXv0rUCroHCgtXLQErf8DJtZIHRsBkdXy+dRJF3vLi8o5/PA0mxcKpA7N6d12dqRFsn8wK0KH6J5trBh3gylSgJbrBswV0xG6kdF+Pww== root@nuc";
   p1g8 = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDa8BUjIfHphJ483TTuWoQSjmhIPf7O4NKj8iLyakgMsdkIv7r+mhC88gzqZFfq2cVMQ25ejl+2Q/P7KkUO24Fh8WgsNNOICPGSxErcbeSMMol6scwFx25zVVpqdfe1/Pvsj6d3MiF1WOL38dINclpLZoKFIRMqHMGBgLle9rTcgBJIPov7sfmhbcy/A+z5fl/BQodRGT7HHhk6oqG01dH06lMwIxYIUoJ3n3U/9XgcIKG7MtB/JiGA89WPhCtJGnG+ny47SJF7CoFjizs5mecBYusDZN6LLsou1bXh2Dx7PFRiwW0u4B/VjSvjVtVLjVFlJr5gHBjxOZ61vD3cPHAIwXUhFwXMfJl3yEvM0HItOTP3gz12D0vkr8HRGmVB1CTc96PsEpvWcCxoiCMtuR4yJjkzgW2r4DVj5zE3AZuEssDSmu/M4Nfnt4SZVKpmF5aZZH0FSnVv/yU+ZTh+qaSCbUn/bsyLnEYaGy47hSGNSOR8sq6CCnhS3iqmYGYg7JNsMs/HlPWMVnMAq4K8r/BlhAr2watgoWYuhAaqyyB3x1CBTNbTOF3XTa0zelS1RmcY+/uHQNsm50Bg5EB91vHpsGnrafg50FdHZNCAdadlEfC/aJ027T/SKyuNqdicx4OcseD1k4eIT6QDLu0nuvb5NYd3AB5gU+XsKDGl1p841Q== root@p1g8";
-  users = [ mainUser mainUserLegacyRsa ];
-  systems = [ nixosP1 nuc p1g8 ];
+  users = [
+    mainUser
+    mainUserLegacyRsa
+  ];
+  systems = [
+    nixosP1
+    nuc
+    p1g8
+  ];
   all = users ++ systems;
-in {
+in
+{
   "rclone-premiumize.age".publicKeys = all;
   "rclone-gdrive.age".publicKeys = all;
   "cc-wlan-certificate.age".publicKeys = all;
   "garmin-connect.age".publicKeys = all;
   "zwift-weight-sync.age".publicKeys = all;
 
-  "wg-nyc-p1.age".publicKeys = [ mainUser nixosP1 ];
-  "wg-nyc-p1g8.age".publicKeys = [ mainUser p1g8 ];
-  "wg-nyc-nuc.age".publicKeys = [ mainUser nuc ];
+  "wg-nyc-p1.age".publicKeys = [
+    mainUser
+    nixosP1
+  ];
+  "wg-nyc-p1g8.age".publicKeys = [
+    mainUser
+    p1g8
+  ];
+  "wg-nyc-nuc.age".publicKeys = [
+    mainUser
+    nuc
+  ];
   "x11vnc.age".publicKeys = all;
   "telegram.env.age".publicKeys = all;
-  "shelly-webui-password.age".publicKeys = [ mainUser nuc ];
+  "shelly-webui-password.age".publicKeys = [
+    mainUser
+    nuc
+  ];
   "reddit-top-rss.env.age".publicKeys = all;
-  "restic-b2.env.age".publicKeys = [ mainUser nuc ];
+  "restic-b2.env.age".publicKeys = [
+    mainUser
+    nuc
+  ];
   "toggl.age".publicKeys = all;
   "pushbullet.age".publicKeys = all;
   "raindrop.age".publicKeys = all;

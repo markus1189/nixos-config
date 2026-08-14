@@ -12,14 +12,19 @@ let
 
     --hidden
   '';
-in {
+in
+{
   environment = {
-    variables = { RIPGREP_CONFIG_PATH = "${ripgreprc}"; };
+    variables = {
+      RIPGREP_CONFIG_PATH = "${ripgreprc}";
+    };
 
-    systemPackages =
-      [ pkgs.ripgrep pkgs.ripgrep-all (pkgs.myScripts.ripgrepFzf) ];
+    systemPackages = [
+      pkgs.ripgrep
+      pkgs.ripgrep-all
+      (pkgs.myScripts.ripgrepFzf)
+    ];
 
-    shellAliases =
-      (with pkgs; { rg = "env RIPGREP_CONFIG_PATH=${ripgreprc} rg"; });
+    shellAliases = (with pkgs; { rg = "env RIPGREP_CONFIG_PATH=${ripgreprc} rg"; });
   };
 }

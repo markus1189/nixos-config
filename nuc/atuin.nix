@@ -1,11 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   services.atuin = {
     enable = true;
     host = "127.0.0.1";
     port = 49888;
-    openRegistration = false;   # p1 + p1g8 enrolled; window closed
+    openRegistration = false; # p1 + p1g8 enrolled; window closed
     openFirewall = false;
     maxHistoryLength = 8192;
 

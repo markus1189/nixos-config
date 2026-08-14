@@ -4,7 +4,6 @@
 # the CLI to the system.
 {
   environment = {
-    systemPackages =
-      [ inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ];
+    systemPackages = [ inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ];
   };
 }

@@ -4,20 +4,25 @@
 #
 # See install-plan §1c for the design rationale, §5 for the NVIDIA /
 # Blackwell choices, and §0 for the locked decision record.
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   lib._custom_ = {
-    wirelessInterface = "wlp0s20f3";   # confirmed via live-ISO recon (decision #10)
+    wirelessInterface = "wlp0s20f3"; # confirmed via live-ISO recon (decision #10)
   };
 
   networking.hostName = "p1g8";
-  system.stateVersion = "25.11";        # decision #11 — overrides p1.nix's "20.09"
+  system.stateVersion = "25.11"; # decision #11 — overrides p1.nix's "20.09"
 
   ## Boot ###################################################################
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 20;   # decision #6: bounded for 1 G ESP
+  boot.loader.systemd-boot.configurationLimit = 20; # decision #6: bounded for 1 G ESP
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;    # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
+  boot.kernelPackages = pkgs.linuxPackages_latest; # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
   # i915 cx0_phy / C10 DPLL state-restore bug on Arrow Lake-P (8086:7d51),
   # kernel 7.0.x — Ubuntu bug #2150605 (same HW: P1 Gen 8). The PHY parks at
   # the 61 MHz idle clock and fails to retrain on power-up: "Failed to bring
@@ -49,18 +54,21 @@
   # Bus IDs confirmed via live-ISO `lspci -D | grep -iE 'vga|3d'`.
   hardware.nvidia = {
     modesetting.enable = true;
-    open = true;                                                 # MANDATORY: Blackwell has no proprietary module
-    package = config.boot.kernelPackages.nvidiaPackages.production;  # beta/latest only as fallback
+    open = true; # MANDATORY: Blackwell has no proprietary module
+    package = config.boot.kernelPackages.nvidiaPackages.production; # beta/latest only as fallback
     prime = {
       offload.enable = true;
-      offload.enableOffloadCmd = true;                           # `nvidia-offload` wrapper
-      intelBusId  = "PCI:0:2:0";
+      offload.enableOffloadCmd = true; # `nvidia-offload` wrapper
+      intelBusId = "PCI:0:2:0";
       nvidiaBusId = "PCI:1:0:0";
     };
-    powerManagement.enable = true;                               # save VRAM to RAM on suspend (Blackwell — §5)
+    powerManagement.enable = true; # save VRAM to RAM on suspend (Blackwell — §5)
   };
   hardware.graphics.enable = true;
-  services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
+  services.xserver.videoDrivers = [
+    "modesetting"
+    "nvidia"
+  ];
 
   # Docker ≥28 discovers GPUs through CDI; with no spec it bails with
   # "failed to discover GPU vendor from CDI: no known GPU vendor found"
@@ -100,7 +108,7 @@
   '';
 
   ## Memory #################################################################
-  zramSwap.enable = true;                # daily working-set; the disko 32 G swapfile is OOM backstop
+  zramSwap.enable = true; # daily working-set; the disko 32 G swapfile is OOM backstop
 
   ## SSD hygiene ############################################################
   # Required for `LUKS allowDiscards = true` (disko.nix) to actually do

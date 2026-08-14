@@ -82,18 +82,23 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
+  outputs =
+    inputs@{ self, nixpkgs, ... }:
     let
-      mkHost = modules: nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          inputs.home-manager.nixosModules.home-manager
-          inputs.agenix.nixosModules.default
-          ./nixos-shared/flake-base.nix
-        ] ++ modules;
-      };
-    in {
+      mkHost =
+        modules:
+        nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            inputs.home-manager.nixosModules.home-manager
+            inputs.agenix.nixosModules.default
+            ./nixos-shared/flake-base.nix
+          ]
+          ++ modules;
+        };
+    in
+    {
       nixosConfigurations = {
         p1 = mkHost [ ./p1/configuration.nix ];
         p1g8 = mkHost [
@@ -113,11 +118,18 @@
       # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
       # replaces the last channel-style shell.nix.
       devShells.x86_64-linux.xmonad =
-        let pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        in pkgs.mkShell {
+        let
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        in
+        pkgs.mkShell {
           packages = [
-            (pkgs.haskellPackages.ghcWithHoogle
-              (ps: with ps; [ xmonad xmonad-contrib haskell-language-server ]))
+            (pkgs.haskellPackages.ghcWithHoogle (
+              ps: with ps; [
+                xmonad
+                xmonad-contrib
+                haskell-language-server
+              ]
+            ))
           ];
         };
     };

@@ -1,4 +1,10 @@
-{ inputs, config, lib, pkgs, ... }:
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 # Flake plumbing shared by all hosts: provides pkgs.masterPkgs, applies the
 # emacs overlay, passes flake inputs to home-manager modules, and pins
@@ -8,8 +14,7 @@
 
   # `nixos-version --configuration-revision` names the commit a generation
   # was built from — invaluable on nuc, where autoUpgrade builds unattended.
-  system.configurationRevision =
-    inputs.self.rev or inputs.self.dirtyRev or "dirty";
+  system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or "dirty";
 
   nixpkgs.overlays = [
     inputs.emacs-overlay.overlays.default
@@ -18,8 +23,7 @@
       masterPkgs = import inputs.nixpkgs-master {
         inherit (final.stdenv.hostPlatform) system;
         config = {
-          allowUnfreePredicate = pkg:
-            builtins.elem (final.lib.getName pkg) [ "claude-code" ];
+          allowUnfreePredicate = pkg: builtins.elem (final.lib.getName pkg) [ "claude-code" ];
           firefox = {
             enableOfficialBranding = true;
           };

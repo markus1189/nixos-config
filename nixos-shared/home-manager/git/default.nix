@@ -9,7 +9,8 @@ let
     runCommandLocal
     stdenv
     gitleaks
-    xxd;
+    xxd
+    ;
 
   gitPackage = gitFull;
 

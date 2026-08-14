@@ -1,5 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  environment = { systemPackages = with pkgs; [ awscli2 ]; };
+  environment = {
+    systemPackages = with pkgs; [ awscli2 ];
+  };
 }

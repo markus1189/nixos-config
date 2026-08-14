@@ -1,12 +1,17 @@
-{ config, pkgs, osConfig, inputs, ... }:
+{
+  config,
+  pkgs,
+  osConfig,
+  inputs,
+  ...
+}:
 
 let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
 
-  otelCollector = pkgs.callPackage
-    (import ../nixos-shared/home-manager/otel-collector {
-      dataDir = "${config.home.homeDirectory}/.local/share/claude-otel";
-    }) { };
+  otelCollector = pkgs.callPackage (import ../nixos-shared/home-manager/otel-collector {
+    dataDir = "${config.home.homeDirectory}/.local/share/claude-otel";
+  }) { };
 
 in
 {
@@ -100,8 +105,11 @@ in
                     # adaptive can't be expressed here for a custom-provider model.
                     # Opus 5 thinks adaptively by default when no thinking is sent.
                     modalities = {
-                      input = ["text" "image"];
-                      output = ["text"];
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
                     };
                   };
 
@@ -114,8 +122,11 @@ in
                     # adaptive can't be expressed here for a custom-provider model.
                     # Run non-thinking until opencode exposes adaptive as a config type.
                     modalities = {
-                      input = ["text" "image"];
-                      output = ["text"];
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
                     };
                   };
 
@@ -126,8 +137,11 @@ in
                       budgetTokens = 16000;
                     };
                     modalities = {
-                      input = ["text" "image"];
-                      output = ["text"];
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
                     };
                   };
 
@@ -616,73 +630,73 @@ in
         {
           enable = true;
           settings = {
-          font.size = 9;
-          window = {
-            opacity = 0.92;
-            blur = false;
-          };
-          selection.save_to_clipboard = true;
-          mouse.hide_when_typing = true;
-          keyboard.bindings = [
-            {
-              key = "v";
-              mods = "Alt";
-              action = "Paste";
-            }
-            {
-              key = "F";
-              mods = "Control|Shift";
-              action = "None";
-            }
-          ];
-          hints = {
-            enabled = [
-              # Default: URL/hyperlink hints (preserving Alacritty default)
+            font.size = 9;
+            window = {
+              opacity = 0.92;
+              blur = false;
+            };
+            selection.save_to_clipboard = true;
+            mouse.hide_when_typing = true;
+            keyboard.bindings = [
               {
-                command = "xdg-open";
-                hyperlinks = true;
-                post_processing = true;
-                persist = false;
-                mouse = {
-                  enabled = false;
-                };
-                binding = {
-                  key = "O";
-                  mods = "Control|Shift";
-                };
-                regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001f\\u007f-\\u009f<>\"\\\\s{-}\\\\^⟨⟩`]+";
+                key = "v";
+                mods = "Alt";
+                action = "Paste";
               }
-              # File path hints - open with emacsclient (FF style, supports :line notation)
               {
-                regex = "(~?/(?:\\\\\\\\.|\\\\S)+)(:[0-9]+)?";
-                command = "${emacsclient-jump}";
-                post_processing = true;
-                mouse = {
-                  enabled = false;
-                  mods = "None";
-                };
-                binding = {
-                  key = "F";
-                  mods = "Control|Shift";
-                };
-              }
-              # Git commit hash hints - copy to clipboard
-              {
-                regex = "[0-9a-f]{7,40}";
-                action = "Select";
-                mouse = {
-                  enabled = false;
-                  mods = "None";
-                };
-                binding = {
-                  key = "C";
-                  mods = "Control|Shift";
-                };
+                key = "F";
+                mods = "Control|Shift";
+                action = "None";
               }
             ];
+            hints = {
+              enabled = [
+                # Default: URL/hyperlink hints (preserving Alacritty default)
+                {
+                  command = "xdg-open";
+                  hyperlinks = true;
+                  post_processing = true;
+                  persist = false;
+                  mouse = {
+                    enabled = false;
+                  };
+                  binding = {
+                    key = "O";
+                    mods = "Control|Shift";
+                  };
+                  regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001f\\u007f-\\u009f<>\"\\\\s{-}\\\\^⟨⟩`]+";
+                }
+                # File path hints - open with emacsclient (FF style, supports :line notation)
+                {
+                  regex = "(~?/(?:\\\\\\\\.|\\\\S)+)(:[0-9]+)?";
+                  command = "${emacsclient-jump}";
+                  post_processing = true;
+                  mouse = {
+                    enabled = false;
+                    mods = "None";
+                  };
+                  binding = {
+                    key = "F";
+                    mods = "Control|Shift";
+                  };
+                }
+                # Git commit hash hints - copy to clipboard
+                {
+                  regex = "[0-9a-f]{7,40}";
+                  action = "Select";
+                  mouse = {
+                    enabled = false;
+                    mods = "None";
+                  };
+                  binding = {
+                    key = "C";
+                    mods = "Control|Shift";
+                  };
+                }
+              ];
+            };
           };
         };
-      };
 
       ghostty = {
         enable = true;
@@ -841,229 +855,232 @@ in
           # so it needs its own profile set. The old nixos-p1 profiles below
           # (DP-1/2/3, BOE panel) would never match here. Gate on hostname so
           # both hosts share this module without clobbering each other.
-          if osConfig.networking.hostName == "p1g8"
-          then {
-            "mobile" = {
-              fingerprint = {
-                "eDP-1" = internalDisplayG8;
+          if osConfig.networking.hostName == "p1g8" then
+            {
+              "mobile" = {
+                fingerprint = {
+                  "eDP-1" = internalDisplayG8;
+                };
+                config = {
+                  "DP-4".enable = false;
+                  "DP-5".enable = false;
+                  "eDP-1" = {
+                    enable = true;
+                    crtc = 0;
+                    primary = true;
+                    position = "0x0";
+                    mode = "1920x1200";
+                    rate = "60.10";
+                  };
+                };
+                hooks.postswitch = ''
+                  ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
+                '';
               };
-              config = {
-                "DP-4".enable = false;
-                "DP-5".enable = false;
-                "eDP-1" = {
-                  enable = true;
-                  crtc = 0;
-                  primary = true;
-                  position = "0x0";
-                  mode = "1920x1200";
-                  rate = "60.10";
+
+              # Single Dell U3818DW ultrawide in MST mode: two 1920x1600 tiles
+              # (DP-4 = left/primary, DP-5 = right) reconstructing 3840x1600.
+              # Same physical monitor as the nixos-p1 homeoffice profile — only
+              # the connector names changed (DP-3/DP-2 -> DP-4/DP-5).
+              "homeoffice" = {
+                fingerprint = {
+                  "DP-4" = secondHalf;
+                  "DP-5" =
+                    "00ffffffffffff0010acefa04c5234300a1e010380582578eeee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197322000a20202020202001fa020322f14d9005040302071601141f12135a230907078301000067030c0010003844023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a134c00a0f040176030203a00706f3100001a000000000000000000000000000000000000000000d8";
+                  "eDP-1" = internalDisplayG8;
+                };
+                config = {
+                  "DP-4" = {
+                    primary = true;
+                    enable = true;
+                    crtc = 0;
+                    position = "0x0";
+                    mode = "1920x1600";
+                    rate = "59.95";
+                  };
+                  "DP-5" = {
+                    enable = true;
+                    crtc = 2;
+                    position = "1920x0";
+                    mode = "1920x1600";
+                    rate = "59.95";
+                  };
+                  "eDP-1".enable = false;
+                };
+                hooks.postswitch = ''
+                  ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
+                '';
+              };
+
+              # Zwift: laptop at the desk driving the living-room TV (Toshiba,
+              # 1080p@50 over DP-4) stacked above the internal panel. Internal
+              # stays primary at the bottom; the TV sits on top for the bike app.
+              "zwift" = {
+                fingerprint = {
+                  "DP-4" =
+                    "00ffffffffffff005262080101010101ff150103805932780a303da1544a9b260f474aadcf0081c08180614c01010101010101010101023a80d072382d40102c458075f23100001e011d80d0721c1620102c258075f23100009e000000fc00544f53484942412d54560a2020000000fd00314c0f510e000a20202020202001a102032871521f2114131216111510050403070206012022230907076c030c001000001ec015151f1f011d00bc52d01e20b828554075f23100001e023a801871382d40582c450075f23100001e011d8018711c1620582c250075f23100009e011d007251d01e206e28550075f23100001e0000000000000000000000000000002c";
+                  "eDP-1" = internalDisplayG8;
+                };
+                config = {
+                  "DP-5".enable = false;
+                  "DP-4" = {
+                    enable = true;
+                    crtc = 1;
+                    position = "0x0";
+                    mode = "1920x1080";
+                    rate = "50.00";
+                  };
+                  "eDP-1" = {
+                    enable = true;
+                    crtc = 0;
+                    primary = true;
+                    position = "0x1080";
+                    mode = "1920x1200";
+                    rate = "60.10";
+                  };
+                };
+                hooks.postswitch = ''
+                  ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
+                '';
+              };
+            }
+          else
+            {
+              "mobile" = {
+                fingerprint = {
+                  "eDP-1" =
+                    "00ffffffffffff0009e5ec0800000000011d0104b523137802df50a35435b5260f50540000000101010101010101010101010101010152d000a0f0703e803020350058c21000001a00000000000000000000000000000000001a000000fe00424f452048460a202020202020000000fe004e4531353651554d2d4e36410a017702030f00e3058000e6060501737321000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008b";
+                };
+                config = {
+                  "DP-1".enable = false;
+                  "DP-2".enable = false;
+                  "DP-3".enable = false;
+                  "eDP-1" = {
+                    enable = true;
+                    crtc = 0;
+                    primary = true;
+                    position = "0x0";
+                    mode = " 1920x1080";
+                    rate = "60.00";
+                  };
+                };
+                hooks.postswitch = ''
+                  ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
+                '';
+              };
+
+              "double" = {
+                fingerprint = {
+                  "DP-1" = firstHalf;
+                  "DP-2" = secondHalf;
+                  "eDP-1" = internalDisplay;
+                };
+
+                config = {
+                  "DP-1" = {
+                    enable = true;
+                    position = "1920x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "DP-2" = {
+                    primary = true;
+                    enable = true;
+                    position = "0x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "DP-3".enable = false;
+                  "eDP-1".enable = false;
                 };
               };
-              hooks.postswitch = ''
-                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
-              '';
+
+              "double2" = {
+                fingerprint = {
+                  "DP-1" = firstHalf;
+                  "DP-3" = secondHalf;
+                  "eDP-1" = internalDisplay;
+                };
+
+                config = {
+                  "DP-1" = {
+                    enable = true;
+                    position = "1920x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "DP-2".enable = false;
+                  "DP-3" = {
+                    primary = true;
+                    enable = true;
+                    position = "0x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "eDP-1".enable = false;
+                };
+              };
+
+              "double3" = {
+                fingerprint = {
+                  "DP-1" = "*";
+                  "DP-2" = firstHalf;
+                  "DP-3" = secondHalf;
+                  "eDP-1" = internalDisplay;
+                };
+
+                config = {
+                  "DP-1".enable = false;
+                  "DP-2" = {
+                    enable = true;
+                    position = "1920x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "DP-3" = {
+                    primary = true;
+                    enable = true;
+                    position = "0x0";
+                    mode = "1920x1600";
+                    rate = "60.00";
+                  };
+                  "eDP-1".enable = false;
+                };
+              };
+
+              "homeoffice" = {
+                fingerprint = {
+                  "DP-2" =
+                    "00ffffffffffff0010acefa04c5234300a1e010380582578eeee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197322000a20202020202001fa020322f14d9005040302071601141f12135a230907078301000067030c0010003844023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a134c00a0f040176030203a00706f3100001a000000000000000000000000000000000000000000d8";
+                  "DP-3" =
+                    "00ffffffffffff0010acf4a04c5234300a1e0104b55825783eee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197328000a202020202020016902031af14d9005040302071601141f12135a2309070783010000023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a4c9a00a0f0402e6030203a00706f3100001a134c00a0f040176030203a00706f3100001a0000000000000000000000000000000000000000ea";
+                  "eDP-1" = internalDisplay;
+                };
+
+                config = {
+                  "DP-1".enable = false;
+                  "DP-2" = {
+                    enable = true;
+                    crtc = 2;
+                    position = "1920x0";
+                    mode = "1920x1600";
+                    rate = "59.95";
+                  };
+                  "DP-3" = {
+                    primary = true;
+                    enable = true;
+                    crtc = 0;
+                    position = "0x0";
+                    mode = "1920x1600";
+                    rate = "59.95";
+                  };
+                  "eDP-1".enable = false;
+                };
+                hooks.postswitch = ''
+                  ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
+                '';
+              };
             };
-
-            # Single Dell U3818DW ultrawide in MST mode: two 1920x1600 tiles
-            # (DP-4 = left/primary, DP-5 = right) reconstructing 3840x1600.
-            # Same physical monitor as the nixos-p1 homeoffice profile — only
-            # the connector names changed (DP-3/DP-2 -> DP-4/DP-5).
-            "homeoffice" = {
-              fingerprint = {
-                "DP-4" = secondHalf;
-                "DP-5" = "00ffffffffffff0010acefa04c5234300a1e010380582578eeee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197322000a20202020202001fa020322f14d9005040302071601141f12135a230907078301000067030c0010003844023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a134c00a0f040176030203a00706f3100001a000000000000000000000000000000000000000000d8";
-                "eDP-1" = internalDisplayG8;
-              };
-              config = {
-                "DP-4" = {
-                  primary = true;
-                  enable = true;
-                  crtc = 0;
-                  position = "0x0";
-                  mode = "1920x1600";
-                  rate = "59.95";
-                };
-                "DP-5" = {
-                  enable = true;
-                  crtc = 2;
-                  position = "1920x0";
-                  mode = "1920x1600";
-                  rate = "59.95";
-                };
-                "eDP-1".enable = false;
-              };
-              hooks.postswitch = ''
-                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
-              '';
-            };
-
-            # Zwift: laptop at the desk driving the living-room TV (Toshiba,
-            # 1080p@50 over DP-4) stacked above the internal panel. Internal
-            # stays primary at the bottom; the TV sits on top for the bike app.
-            "zwift" = {
-              fingerprint = {
-                "DP-4" = "00ffffffffffff005262080101010101ff150103805932780a303da1544a9b260f474aadcf0081c08180614c01010101010101010101023a80d072382d40102c458075f23100001e011d80d0721c1620102c258075f23100009e000000fc00544f53484942412d54560a2020000000fd00314c0f510e000a20202020202001a102032871521f2114131216111510050403070206012022230907076c030c001000001ec015151f1f011d00bc52d01e20b828554075f23100001e023a801871382d40582c450075f23100001e011d8018711c1620582c250075f23100009e011d007251d01e206e28550075f23100001e0000000000000000000000000000002c";
-                "eDP-1" = internalDisplayG8;
-              };
-              config = {
-                "DP-5".enable = false;
-                "DP-4" = {
-                  enable = true;
-                  crtc = 1;
-                  position = "0x0";
-                  mode = "1920x1080";
-                  rate = "50.00";
-                };
-                "eDP-1" = {
-                  enable = true;
-                  crtc = 0;
-                  primary = true;
-                  position = "0x1080";
-                  mode = "1920x1200";
-                  rate = "60.10";
-                };
-              };
-              hooks.postswitch = ''
-                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
-              '';
-            };
-          }
-          else {
-            "mobile" = {
-              fingerprint = {
-                "eDP-1" =
-                  "00ffffffffffff0009e5ec0800000000011d0104b523137802df50a35435b5260f50540000000101010101010101010101010101010152d000a0f0703e803020350058c21000001a00000000000000000000000000000000001a000000fe00424f452048460a202020202020000000fe004e4531353651554d2d4e36410a017702030f00e3058000e6060501737321000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008b";
-              };
-              config = {
-                "DP-1".enable = false;
-                "DP-2".enable = false;
-                "DP-3".enable = false;
-                "eDP-1" = {
-                  enable = true;
-                  crtc = 0;
-                  primary = true;
-                  position = "0x0";
-                  mode = " 1920x1080";
-                  rate = "60.00";
-                };
-              };
-              hooks.postswitch = ''
-                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-internal}
-              '';
-            };
-
-            "double" = {
-              fingerprint = {
-                "DP-1" = firstHalf;
-                "DP-2" = secondHalf;
-                "eDP-1" = internalDisplay;
-              };
-
-              config = {
-                "DP-1" = {
-                  enable = true;
-                  position = "1920x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "DP-2" = {
-                  primary = true;
-                  enable = true;
-                  position = "0x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "DP-3".enable = false;
-                "eDP-1".enable = false;
-              };
-            };
-
-            "double2" = {
-              fingerprint = {
-                "DP-1" = firstHalf;
-                "DP-3" = secondHalf;
-                "eDP-1" = internalDisplay;
-              };
-
-              config = {
-                "DP-1" = {
-                  enable = true;
-                  position = "1920x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "DP-2".enable = false;
-                "DP-3" = {
-                  primary = true;
-                  enable = true;
-                  position = "0x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "eDP-1".enable = false;
-              };
-            };
-
-            "double3" = {
-              fingerprint = {
-                "DP-1" = "*";
-                "DP-2" = firstHalf;
-                "DP-3" = secondHalf;
-                "eDP-1" = internalDisplay;
-              };
-
-              config = {
-                "DP-1".enable = false;
-                "DP-2" = {
-                  enable = true;
-                  position = "1920x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "DP-3" = {
-                  primary = true;
-                  enable = true;
-                  position = "0x0";
-                  mode = "1920x1600";
-                  rate = "60.00";
-                };
-                "eDP-1".enable = false;
-              };
-            };
-
-            "homeoffice" = {
-              fingerprint = {
-                "DP-2" =
-                  "00ffffffffffff0010acefa04c5234300a1e010380582578eeee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197322000a20202020202001fa020322f14d9005040302071601141f12135a230907078301000067030c0010003844023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a134c00a0f040176030203a00706f3100001a000000000000000000000000000000000000000000d8";
-                "DP-3" =
-                  "00ffffffffffff0010acf4a04c5234300a1e0104b55825783eee95a3544c99260f5054a54b00714f81008180a940d1c00101010101012d5080a070402e6030203a00706f3100001a000000ff00354b4330333033353034524c0a000000fc0044454c4c20553338313844570a000000fd001855197328000a202020202020016902031af14d9005040302071601141f12135a2309070783010000023a801871382d40582c4500706f3100001e565e00a0a0a0295030203500706f3100001acd4600a0a0381f4030203a00706f3100001a4c9a00a0f0402e6030203a00706f3100001a134c00a0f040176030203a00706f3100001a0000000000000000000000000000000000000000ea";
-                "eDP-1" = internalDisplay;
-              };
-
-              config = {
-                "DP-1".enable = false;
-                "DP-2" = {
-                  enable = true;
-                  crtc = 2;
-                  position = "1920x0";
-                  mode = "1920x1600";
-                  rate = "59.95";
-                };
-                "DP-3" = {
-                  primary = true;
-                  enable = true;
-                  crtc = 0;
-                  position = "0x0";
-                  mode = "1920x1600";
-                  rate = "59.95";
-                };
-                "eDP-1".enable = false;
-              };
-              hooks.postswitch = ''
-                ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right}
-              '';
-            };
-          };
       };
 
       sioyek = {

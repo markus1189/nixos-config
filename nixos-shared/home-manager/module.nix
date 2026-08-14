@@ -6,6 +6,8 @@
     useUserPackages = true;
     useGlobalPkgs = true;
 
-    users = { ${config.lib._custom_.userName} = import homeNixFile; };
+    users = {
+      ${config.lib._custom_.userName} = import homeNixFile;
+    };
   };
 }

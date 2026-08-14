@@ -1,6 +1,8 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
-let lastpassEmail = "markus1189@gmail.com"; in
+let
+  lastpassEmail = "markus1189@gmail.com";
+in
 {
   environment = {
     systemPackages = [ pkgs.lastpass-cli ];

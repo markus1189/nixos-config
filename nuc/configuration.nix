@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
@@ -75,7 +80,9 @@
 
   nixpkgs = {
     overlays = (import ../nixos-shared/shared-overlays.nix inputs).overlays;
-    config = { allowUnfree = true; };
+    config = {
+      allowUnfree = true;
+    };
   };
 
   nix = {
@@ -93,7 +100,9 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment = {
-    variables = { EDITOR = "${pkgs.vim}/bin/vim"; };
+    variables = {
+      EDITOR = "${pkgs.vim}/bin/vim";
+    };
 
     systemPackages = with pkgs; [
       bashmount
@@ -151,7 +160,9 @@
   };
 
   # Enable the X11 windowing system.
-  services.xserver = { enable = true; };
+  services.xserver = {
+    enable = true;
+  };
 
   # Enable touchpad support.
   # services.xserver.libinput.enable = true;
@@ -165,7 +176,9 @@
 
     sddm = {
       enable = true;
-      autoLogin = { relogin = true; };
+      autoLogin = {
+        relogin = true;
+      };
     };
   };
 
@@ -183,7 +196,12 @@
   users.extraUsers.${config.lib._custom_.userName} = {
     isNormalUser = true;
     group = "users";
-    extraGroups = [ "wheel" "audio" "docker" "lp" ];
+    extraGroups = [
+      "wheel"
+      "audio"
+      "docker"
+      "lp"
+    ];
     shell = "${pkgs.zsh}/bin/zsh";
     home = "/home/${config.lib._custom_.userName}";
     uid = 1000;
@@ -232,8 +250,7 @@
       serviceConfig = {
         User = config.lib._custom_.userName;
         Group = "users";
-        ExecStart =
-          "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %%s' /home/${config.lib._custom_.userName}/Syncthing/remind/reminders";
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.notifySendTelegram}/bin/notifySendTelegram %%s' /home/${config.lib._custom_.userName}/Syncthing/remind/reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
@@ -244,8 +261,7 @@
       serviceConfig = {
         User = config.lib._custom_.userName;
         Group = "users";
-        ExecStart =
-          "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.lib._custom_.userName}/Syncthing/remind/home-notification-reminders";
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.lib._custom_.userName}/Syncthing/remind/home-notification-reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];

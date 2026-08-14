@@ -1,12 +1,12 @@
-{ config, pkgs, ...}:
+{ config, pkgs, ... }:
 
 {
   environment.interactiveShellInit = ''
-      source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
+    source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
   '';
 
   programs = {
-    bcc.enable = true;  # shellsnoop, opensnoop, exitsnoop etc
+    bcc.enable = true; # shellsnoop, opensnoop, exitsnoop etc
 
     command-not-found.enable = false;
 
