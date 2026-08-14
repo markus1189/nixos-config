@@ -31,7 +31,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Non-flake source trees, formerly pinned in ndt/sources.json.
+    # Non-flake source trees.
     # darktable needs its submodules (rawspeed etc.) — a github: tarball
     # input would silently drop them.
     darktable = {
@@ -58,38 +58,13 @@
       url = "github:larkery/zsh-histdb";
       flake = false;
     };
-    ndt = {
-      url = "github:markus1189/ndt";
-      flake = false;
-    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
     let
-      # ndtSources-compatible view: consumers keep using .outPath, .rev and
-      # .date (ISO-8601, synthesized from lastModifiedDate, always UTC).
-      mkSource = input: {
-        inherit (input) outPath;
-        rev = input.rev or null;
-        date =
-          let
-            d = input.lastModifiedDate;
-            s = start: len: builtins.substring start len d;
-          in "${s 0 4}-${s 4 2}-${s 6 2}T${s 8 2}:${s 10 2}:${s 12 2}+00:00";
-      };
-
-      sources = {
-        darktable = mkSource inputs.darktable;
-        visidata = mkSource inputs.visidata;
-        xclip = mkSource inputs.xclip;
-        gptel = mkSource inputs.gptel;
-        hosts = mkSource inputs.stevenblack-hosts;
-        zsh-histdb = mkSource inputs.zsh-histdb;
-      };
-
       mkHost = modules: nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit inputs sources; };
+        specialArgs = { inherit inputs; };
         modules = [
           inputs.home-manager.nixosModules.home-manager
           inputs.agenix.nixosModules.default

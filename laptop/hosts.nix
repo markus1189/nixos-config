@@ -1,7 +1,7 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
-  hostsFile = "${pkgs.ndtSources.hosts}/alternates/fakenews-gambling-porn/hosts";
+  hostsFile = "${inputs.stevenblack-hosts}/alternates/fakenews-gambling-porn/hosts";
   modifiedHosts = pkgs.runCommand "filtered-hosts" {} ''
     # Domain allowlist exceptions
     ${pkgs.gnused}/bin/sed \

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 {
   nixpkgs = {
     config = rec {
@@ -86,7 +86,7 @@
           };
           emacs = callPackageWith pkgs ./emacs {
             inherit mutate;
-            ndtSources = config.lib._custom_.ndtSources;
+            gptelSrc = inputs.gptel;
           };
         };
     };

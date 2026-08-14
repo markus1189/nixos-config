@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
   usrPkgs = pkgs.callPackage ../nixos-shared/packages/scripts { };
@@ -105,15 +105,15 @@ rec {
 
   nixpkgs = {
     overlays = (
-      (import ../nixos-shared/shared-overlays.nix).overlays
+      (import ../nixos-shared/shared-overlays.nix inputs).overlays
       ++ [
         (self: super: {
           darktable =
             builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs
               (old: rec {
-                name = "darktable-${self.ndtSources.darktable.rev}";
-                version = self.ndtSources.darktable.rev;
-                src = self.ndtSources.darktable.outPath;
+                name = "darktable-${inputs.darktable.rev}";
+                version = inputs.darktable.rev;
+                src = inputs.darktable;
                 patches = [ ];
                 dontVersionCheck = true;
                 buildInputs = (old.buildInputs or []) ++ [ super.potrace ];
@@ -347,16 +347,6 @@ rec {
       enable = true;
     };
   };
-
-  # virtualisation.virtualbox.host.enable = true;
-  # virtualisation.virtualbox.host.package = let
-  #   nixpkgs2311 = import ndtSources.nixpkgs-2311 {
-  #     config = {
-  #       allowUnfreePredicate = pkg:
-  #         builtins.elem (pkgs.lib.getName pkg) [ "zoom" ];
-  #     };
-  #   };
-  # in nixpkgs2311.virtualbox;
 
   programs = {
 

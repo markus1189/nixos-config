@@ -1,6 +1,4 @@
-rec {
-  # pkgs.ndt and pkgs.ndtSources come from the flake (nixos-shared/flake-base.nix).
-
+inputs: rec {
   wallpapersOverlay = self: super: {
     markus-wallpapers = {
       orange-cube-left     = ./assets/wallpapers/orange-cube-6x5-left.png;
@@ -25,10 +23,10 @@ rec {
       ];
     in {
       visidata = builtins.trace
-        "INFO: Using visidata overlay for more python packages and develop branch [${self.ndtSources.visidata.date} @ ${self.ndtSources.visidata.rev}]"
+        "INFO: Using visidata overlay for more python packages and develop branch [${inputs.visidata.lastModifiedDate} @ ${inputs.visidata.shortRev}]"
         super.visidata.overridePythonAttrs (old: {
           propagatedBuildInputs = old.propagatedBuildInputs ++ pypkgs;
-          src = self.ndtSources.visidata.outPath;
+          src = inputs.visidata;
           doCheck = false;
           patches = [ ];
         });
@@ -37,8 +35,8 @@ rec {
   xclipOverlay = self: super: {
     xclip = builtins.trace "INFO: Using xclip overlay for newer version"
       super.xclip.overrideAttrs (old: {
-        version = self.ndtSources.xclip.rev;
-        src = self.ndtSources.xclip.outPath;
+        version = inputs.xclip.shortRev;
+        src = inputs.xclip;
       });
   };
 

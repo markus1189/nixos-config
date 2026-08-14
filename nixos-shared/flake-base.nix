@@ -1,22 +1,14 @@
-{ inputs, sources, config, lib, pkgs, ... }:
+{ inputs, config, lib, pkgs, ... }:
 
-# Flake plumbing shared by all hosts: exposes the former ndtSources through
-# the channels consumers already use (pkgs.ndtSources and
-# config.lib._custom_.ndtSources), provides pkgs.masterPkgs and pkgs.ndt,
-# applies the emacs overlay, and pins nixpkgs for legacy tooling.
+# Flake plumbing shared by all hosts: provides pkgs.masterPkgs, applies the
+# emacs overlay, passes flake inputs to home-manager modules, and pins
+# nixpkgs for legacy tooling.
 {
-  lib._custom_ = {
-    ndtSources = sources;
-  };
+  home-manager.extraSpecialArgs = { inherit inputs; };
 
   nixpkgs.overlays = [
     inputs.emacs-overlay.overlays.default
     (final: prev: {
-      ndtSources = sources;
-      ndt = import inputs.ndt {
-        nixpkgs = final;
-        ghc = "ghc912";
-      };
       # Replaces the unpinned `fetchTarball nixpkgs/master` imports.
       masterPkgs = import inputs.nixpkgs-master {
         inherit (final.stdenv.hostPlatform) system;

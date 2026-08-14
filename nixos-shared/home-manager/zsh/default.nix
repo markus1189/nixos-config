@@ -1,4 +1,4 @@
-{ pkgs, passDir, ... }:
+{ pkgs, passDir, zshHistdb, ... }:
 {
   value = {
     enable = true;
@@ -47,7 +47,7 @@
       };
 
     initContent = ''
-      source ${pkgs.ndtSources.zsh-histdb}/sqlite-history.zsh
+      source ${zshHistdb}/sqlite-history.zsh
       autoload -Uz add-zsh-hook
 
       # cdt: Create Date-organized directory and cd into it

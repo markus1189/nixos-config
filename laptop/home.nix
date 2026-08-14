@@ -1,4 +1,4 @@
-{ config, pkgs, osConfig, ... }:
+{ config, pkgs, osConfig, inputs, ... }:
 
 let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
@@ -22,7 +22,6 @@ in
     packages = with pkgs; [
       source-code-pro
       dunst
-      ndt
       # jrnl fails at tests (2022-02-18)
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
@@ -763,7 +762,10 @@ in
       bash.enable = true;
 
       zsh =
-        (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix { inherit pkgs passDir; }).value;
+        (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix {
+          inherit pkgs passDir;
+          zshHistdb = inputs.zsh-histdb;
+        }).value;
 
       direnv = {
         enable = true;

@@ -1,5 +1,5 @@
 { emacs, mutate, runCommandLocal, fetchurl, fetchzip, fasd, plantuml
-, pandoc, git, ndtSources }:
+, pandoc, git, gptelSrc }:
 
 let
   mutatedEmacsConfig = mutate ./emacs-config.el {
@@ -17,8 +17,7 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
   '';
-  # Single-file elisp packages, pinned by commit (previously moving-branch
-  # URLs in ndt/sources.json).
+  # Single-file elisp packages, pinned by commit.
   dired-plus-el = fetchurl {
     url = "https://raw.githubusercontent.com/emacsmirror/dired-plus/56f76725b5f151ed8a4ad17a62edf2fd592edb3a/dired+.el";
     sha256 = "0r5cyrra6q7w0cdv140pkn7y5hivlmj60bv1pniqfl2p40b67a5l";
@@ -78,10 +77,12 @@ in emacsPackages.withPackages (epkgs:
     with epkgs;
     let
       my_gptel = epkgs.gptel.overrideAttrs (old: rec {
+        # MELPA-style date version (YYYYMMDD.HMM) from the flake input's
+        # lastModifiedDate (YYYYMMDDHHMMSS).
         version = builtins.replaceStrings [ ".00" ".0" ] [ "." "." ]
-          (builtins.replaceStrings [ "-" "T" ":" ] [ "" "." "" ]
-            (builtins.substring 0 16 ndtSources.gptel.date));
-        src = ndtSources.gptel.outPath;
+          "${builtins.substring 0 8 gptelSrc.lastModifiedDate}.${
+            builtins.substring 8 4 gptelSrc.lastModifiedDate}";
+        src = gptelSrc;
       });
     in [
       (treesit-grammars.with-all-grammars)

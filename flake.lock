@@ -120,22 +120,6 @@
         "type": "github"
       }
     },
-    "ndt": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784389709,
-        "narHash": "sha256-sS9JEMkEJJKhRywjSYFbCbPt/WEAPlEpcoG9Z4knh7A=",
-        "owner": "markus1189",
-        "repo": "ndt",
-        "rev": "76ec23dc023c3ba3b88d183e2fd91b6254dc1d2b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "markus1189",
-        "repo": "ndt",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1786599213,
@@ -192,7 +176,6 @@
         "emacs-overlay": "emacs-overlay",
         "gptel": "gptel",
         "home-manager": "home-manager",
-        "ndt": "ndt",
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",
         "stevenblack-hosts": "stevenblack-hosts",
