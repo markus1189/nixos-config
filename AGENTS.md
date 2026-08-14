@@ -98,7 +98,8 @@ man home-configuration.nix
 ## Development Workflow
 
 ### Adding Packages
-- **System packages**: `nixos-shared/common-packages.nix`
+- **System packages (all hosts)**: `nixos-shared/common-packages.nix`
+- **System packages (laptop only)**: `laptop/programs.nix`
 - **User packages**: Host-specific `home.nix` files
 - **Custom packages**: Create in `nixos-shared/packages/`
 - **Python packages**: `nixos-shared/python-env.nix` — the global `python3`
