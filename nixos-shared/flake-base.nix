@@ -37,6 +37,11 @@
   ];
 
   nix = {
+    settings.experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+
     # `nix run nixpkgs#...`, `nix-shell -p ...` and stray <nixpkgs> resolve
     # to the locked flake input instead of a mutable channel.
     registry.nixpkgs.flake = inputs.nixpkgs;

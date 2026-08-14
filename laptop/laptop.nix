@@ -62,10 +62,6 @@ rec {
     };
 
     settings.sandbox = true;
-
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
   };
 
   # boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };

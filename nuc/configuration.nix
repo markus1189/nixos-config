@@ -91,10 +91,6 @@
       dates = "03:15";
       options = "--delete-older-than 30d";
     };
-
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
   };
 
   # List packages installed in system profile. To search, run:
