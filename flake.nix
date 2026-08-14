@@ -29,6 +29,9 @@
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
+      # The overlay only uses nixpkgs-stable for its own CI; without the
+      # follows it locks a third full nixpkgs tree that is never evaluated.
+      inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
     # Non-flake source trees.
