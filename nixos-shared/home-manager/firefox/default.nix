@@ -1,5 +1,6 @@
-{ }: {
-  value = {
+{ ... }:
+{
+  programs.firefox = {
     enable = true;
     # Pin the legacy profile path. Home Manager's new default moved this to
     # $XDG_CONFIG_HOME/mozilla/firefox; we keep ~/.mozilla/firefox so the

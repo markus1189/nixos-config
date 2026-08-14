@@ -1,6 +1,6 @@
-{ }:
+{ ... }:
 {
-  value = {
+  programs.starship = {
     enable = true;
     settings = {
       time = {

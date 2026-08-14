@@ -1,18 +1,11 @@
-{
-  bash,
-  mutate,
-  jo,
-  systemd,
-  source-code-pro,
-  rofi,
-  xdg-utils,
-}:
+{ pkgs, ... }:
 
 let
-  dunstLogger = mutate ./dunst-logger.sh { inherit jo systemd bash; };
+  inherit (pkgs) rofi xdg-utils;
+  dunstLogger = pkgs.mutate ./dunst-logger.sh { inherit (pkgs) jo systemd bash; };
 in
 {
-  value = {
+  services.dunst = {
     enable = true;
     settings = {
       global = {

@@ -17,7 +17,10 @@ let
   ) { };
 in
 {
-  imports = [ ../nixos-shared/home-manager/easyeffects-autogain.nix ];
+  imports = [
+    ../nixos-shared/home-manager/easyeffects-autogain.nix
+    ../nixos-shared/home-manager/starship/default.nix
+  ];
 
   home = {
     stateVersion = "18.09";
@@ -44,10 +47,6 @@ in
     html.enable = true;
     json.enable = true;
     manpages.enable = true;
-  };
-
-  programs = {
-    starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
   };
 
   fonts = {

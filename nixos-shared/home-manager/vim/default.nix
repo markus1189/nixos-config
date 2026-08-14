@@ -1,9 +1,6 @@
+{ ... }:
 {
-  vim,
-}:
-
-{
-  value = {
+  programs.vim = {
     enable = true;
     extraConfig = ''
       " https://swordandsignals.com/2020/12/13/5-lines-in-vimrc.html

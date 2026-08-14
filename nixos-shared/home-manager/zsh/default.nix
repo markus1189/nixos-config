@@ -1,11 +1,17 @@
 {
+  config,
+  lib,
   pkgs,
-  passDir,
-  zshHistdb,
+  inputs,
   ...
 }:
+let
+  # Single source of truth is programs.password-store (laptop/home.nix).
+  passDir = config.programs.password-store.settings.PASSWORD_STORE_DIR;
+  zshHistdb = inputs.zsh-histdb;
+in
 {
-  value = {
+  programs.zsh = {
     enable = true;
     history = rec {
       expireDuplicatesFirst = true;
@@ -53,7 +59,11 @@
         pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
       };
 
-    initContent = ''
+    # mkOrder 1050: after the starship/direnv/atuin init lines other modules
+    # contribute at default order 1000 (as an imported module this config
+    # would otherwise sort before them; inline in home.nix it came after),
+    # but before the alias block HM emits at order 1100.
+    initContent = lib.mkOrder 1050 ''
       source ${zshHistdb}/sqlite-history.zsh
       autoload -Uz add-zsh-hook
 

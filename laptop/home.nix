@@ -19,6 +19,11 @@ in
     ./atuin-sync.nix
     # Sets programs.git and installs the global gitleaks config (xdg.configFile).
     ../nixos-shared/home-manager/git/default.nix
+    ../nixos-shared/home-manager/dunst/default.nix
+    ../nixos-shared/home-manager/firefox/default.nix
+    ../nixos-shared/home-manager/starship/default.nix
+    ../nixos-shared/home-manager/vim/default.nix
+    ../nixos-shared/home-manager/zsh/default.nix
   ];
 
   home = {
@@ -601,8 +606,6 @@ in
       passDir = "$HOME/.local/share/password-store";
     in
     {
-      starship = (pkgs.callPackage ../nixos-shared/home-manager/starship/default.nix { }).value;
-
       zathura = {
         enable = true;
         options = {
@@ -750,12 +753,6 @@ in
 
       bash.enable = true;
 
-      zsh =
-        (pkgs.callPackage ../nixos-shared/home-manager/zsh/default.nix {
-          inherit pkgs passDir;
-          zshHistdb = inputs.zsh-histdb;
-        }).value;
-
       direnv = {
         enable = true;
         enableBashIntegration = true;
@@ -765,8 +762,6 @@ in
         };
         enableZshIntegration = true;
       };
-
-      firefox = (pkgs.callPackage ../nixos-shared/home-manager/firefox/default.nix { }).value;
 
       delta = {
         enable = true;
@@ -817,8 +812,6 @@ in
           };
         };
       };
-
-      vim = (pkgs.callPackage ../nixos-shared/home-manager/vim/default.nix { }).value;
 
       mpv = {
         enable = true;
@@ -1153,8 +1146,6 @@ in
         server_endpoint = "http://127.0.0.1:45045";
       };
     };
-
-    dunst = (pkgs.callPackage ../nixos-shared/home-manager/dunst/default.nix { }).value;
 
     gpg-agent = {
       enable = true;
