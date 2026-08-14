@@ -83,5 +83,16 @@
         # resolves without an explicit attr name.
         nixos-p1 = self.nixosConfigurations.p1;
       };
+
+      # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
+      # replaces the last channel-style shell.nix.
+      devShells.x86_64-linux.xmonad =
+        let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        in pkgs.mkShell {
+          packages = [
+            (pkgs.haskellPackages.ghcWithHoogle
+              (ps: with ps; [ xmonad xmonad-contrib haskell-language-server ]))
+          ];
+        };
     };
 }
