@@ -25,6 +25,7 @@
   ],
   "app.model.cycleForward": [],
   "app.model.cycleBackward": [],
+  "app.message.copy": [],
   "app.session.tree": [
     "alt+shift+t"
   ],
