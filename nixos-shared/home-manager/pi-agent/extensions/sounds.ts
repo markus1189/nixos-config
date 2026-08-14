@@ -74,4 +74,10 @@ export default function (pi: ExtensionAPI) {
   pi.on("model_select", async (event, ctx) => {
     playSound("your-turn-491.wav");
   });
+
+  pi.on("tool_result", async (event, _ctx) => {
+    if (event.isError) {
+      playSound("no-way-331.wav");
+    }
+  });
 }
