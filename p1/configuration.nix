@@ -11,6 +11,9 @@
   # so the wgProfile default (hostName) would miss.
   my.wgProfile = "p1";
 
+  # Host-specific home config (autorandr profiles), merged with laptop/home.nix.
+  home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
+
   # services.udev = {
   #   # for digispark
   #   extraRules = ''

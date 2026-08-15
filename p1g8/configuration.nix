@@ -22,4 +22,7 @@
   ];
 
   # sudo-with-insults + graphics extraPackages come from laptop/laptop.nix
+
+  # Host-specific home config (autorandr profiles), merged with laptop/home.nix.
+  home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
 }
