@@ -12,7 +12,7 @@
 {
   imports = [
     ../nixos-shared/common-services.nix
-    (import ../nixos-shared/restic/systemd.nix "/media/backups/Photos/")
+    ../nixos-shared/restic/systemd.nix
     ./cron.nix
     ../nixos-shared/reddit-top-rss.nix
     ../nixos-shared/common-packages.nix
@@ -47,6 +47,7 @@
   my = {
     wirelessInterface = "wlp58s0";
     userName = "mediacenter";
+    resticPhotoBackupDir = "/media/backups/Photos/";
   };
 
   # Use the systemd-boot EFI boot loader.
