@@ -17,7 +17,7 @@
     ../laptop/laptop.nix
     ./p1g8.nix # host-overrides; replaces p1/p1.nix
     ./vagrant.nix # customer project: Vagrant + libvirt/KVM
-    (import ../nixos-shared/wireguard.nix "p1g8") # per-host WG (§1d-1); config in secrets/wg-nyc-p1g8.age
+    # per-host WG (§1d-1) comes via laptop.nix; secret picked by hostname (wg-nyc-p1g8.age)
     ../nixos-shared/syncthing.nix # declarative mesh; nixos-p1/nuc still GUI (see audit 2026-05-20)
   ];
 

@@ -22,6 +22,7 @@
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
     ../nixos-shared/user.nix
+    ../nixos-shared/wireguard.nix
     ../nixos-shared/zsh.nix
     ./k8s.nix
     ./bluetooth.nix

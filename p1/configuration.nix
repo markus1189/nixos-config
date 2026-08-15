@@ -5,8 +5,11 @@
     ./hardware-configuration.nix
     ../laptop/laptop.nix
     ./p1.nix
-    (import ../nixos-shared/wireguard.nix "p1")
   ];
+
+  # Secret is wg-nyc-p1.age, but this host's hostname is nixos-p1 —
+  # so the wgProfile default (hostName) would miss.
+  my.wgProfile = "p1";
 
   # services.udev = {
   #   # for digispark
