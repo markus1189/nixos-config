@@ -77,6 +77,15 @@ nix eval --raw .#nixosConfigurations.p1.config.system.build.toplevel.drvPath
 nixos-rebuild build --flake .#p1
 nix store diff-closures /run/current-system ./result
 
+# Build or run a single custom script (drv-identical to the host-installed set)
+nix build .#myScripts.<scriptName>
+nix run .#myScripts.<scriptName>
+
+# Eval-only sanity across all outputs (fast); full check also runs the
+# bats suites (claude statusline + dangerous-commands hook) as flake checks
+nix flake check --no-build
+nix flake check
+
 # Update flake inputs (all or one)
 nix flake update
 nix flake update emacs-overlay

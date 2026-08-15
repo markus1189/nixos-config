@@ -84,10 +84,14 @@ All `*Bin` variants create scripts in `/bin/` subdirectory.
 
 4. **Run linters/checks** (build the script to run automatic linters):
    ```bash
-   # Build specific script attribute (run from the repo root)
-   nix build --impure --expr 'let pkgs = import (builtins.getFlake "nixpkgs") {}; in (pkgs.callPackage ./nixos-shared/packages/scripts {}).scriptName'
+   # Build a specific script via the flake output (run from the repo root;
+   # git add new files first — untracked files don't exist for flake eval)
+   nix build .#myScripts.scriptName
+
+   # Or run it directly
+   nix run .#myScripts.scriptName
    ```
-   Many script writers include automatic linting that runs at build time (Python uses flake8, Lua uses luacheck, Fish/Babashka have syntax checks, writeShellApplication uses shellcheck). Build failures indicate linting issues that must be fixed.
+   This builds against the repo's pinned nixpkgs with the hosts' overlays — the same derivations the hosts install. Many script writers include automatic linting that runs at build time (Python uses flake8, Lua uses luacheck, Fish/Babashka have syntax checks, writeShellApplication uses shellcheck). Build failures indicate linting issues that must be fixed.
 
 5. **Commit:**
    ```bash
