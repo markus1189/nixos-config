@@ -141,6 +141,50 @@
           pkgs.callPackage ./nixos-shared/packages/scripts { }
         );
 
+      # The two bats suites, gated by `nix flake check` instead of human whim.
+      # They source their script-under-test via $BATS_TEST_DIRNAME, so the
+      # whole claude/ tree is the test fixture.
+      checks.x86_64-linux =
+        let
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          batsWith = pkgs.bats.withLibraries (p: [
+            p.bats-assert
+            p.bats-support
+          ]);
+        in
+        {
+          claude-statusline-bats =
+            pkgs.runCommand "claude-statusline-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.jq
+                  pkgs.bc
+                  pkgs.git
+                ];
+              }
+              ''
+                cd ${./nixos-shared/claude}
+                HOME=$TMPDIR bats claude-code-statusline.bats
+                touch $out
+              '';
+
+          claude-hooks-bats =
+            pkgs.runCommand "claude-hooks-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.jq
+                  pkgs.ast-grep
+                ];
+              }
+              ''
+                cd ${./nixos-shared/claude}
+                HOME=$TMPDIR bats hooks/check-dangerous-commands.bats
+                touch $out
+              '';
+        };
+
       # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
       # replaces the last channel-style shell.nix.
       devShells.x86_64-linux.xmonad =
