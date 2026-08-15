@@ -31,6 +31,7 @@
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
     ../nixos-shared/syncthing-base.nix
+    ../nixos-shared/user.nix
     ../nixos-shared/zsh.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
@@ -159,20 +160,7 @@
 
   services.desktopManager.plasma6.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.extraUsers.${config.my.userName} = {
-    isNormalUser = true;
-    group = "users";
-    extraGroups = [
-      "wheel"
-      "audio"
-      "docker"
-      "lp"
-    ];
-    shell = "${pkgs.zsh}/bin/zsh";
-    home = "/home/${config.my.userName}";
-    uid = 1000;
-  };
+  # User account skeleton comes from ../nixos-shared/user.nix
 
   security = {
     sudo = {

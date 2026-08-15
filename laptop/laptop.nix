@@ -20,6 +20,7 @@
     ../nixos-shared/rclone-mounts.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
+    ../nixos-shared/user.nix
     ../nixos-shared/zsh.nix
     ./k8s.nix
     ./bluetooth.nix
@@ -214,23 +215,15 @@
     # mozillavpn.enable = true;
   };
 
+  # Skeleton (uid, group, shell, home, base groups) in ../nixos-shared/user.nix
   users.extraUsers.${config.my.userName} = {
-    isNormalUser = true;
-    uid = 1000;
-    group = "users";
     extraGroups = [
       "adbusers" # e.g. for scrcpy
-      "wheel"
-      "audio"
-      "docker"
-      "lp"
       "wireshark"
       "video"
       "dialout" # allow access to serial ports
       "wpa_supplicant" # wpa_cli access
     ];
-    shell = "${pkgs.zsh}/bin/zsh";
-    home = "/home/${config.my.userName}";
     initialPassword = "markus"; # for qemu
   };
 
