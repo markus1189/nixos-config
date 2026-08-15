@@ -118,6 +118,29 @@
       # (bare nixfmt reads stdin / chokes on the ./result symlink).
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
 
+      # Scripts as `nix run .#myScripts.<name>` / `nix build .#myScripts.<name>`
+      # without a host eval (legacyPackages: the flat `packages` schema forbids
+      # nesting). Same overlays as the hosts apply, so 54/55 attrs are
+      # drv-identical to the host-installed scripts (verified by diff). Sole
+      # exception: emacsAnywhere resolves plain emacs instead of the
+      # packageOverrides withPackages bundle — harmless (it only runs
+      # emacsclient against the host daemon); exact match lands with #24.
+      # filterAttrs drops the 11 function attrs (writeShellScript & co).
+      legacyPackages.x86_64-linux.myScripts =
+        let
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+            overlays = [
+              inputs.emacs-overlay.overlays.default
+            ]
+            ++ import ./nixos-shared/shared-overlays.nix inputs;
+          };
+        in
+        nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) (
+          pkgs.callPackage ./nixos-shared/packages/scripts { }
+        );
+
       # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
       # replaces the last channel-style shell.nix.
       devShells.x86_64-linux.xmonad =
