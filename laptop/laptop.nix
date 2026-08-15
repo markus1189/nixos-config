@@ -16,6 +16,7 @@
     ../nixos-shared/fasd.nix
     ../nixos-shared/fzf.nix
     ../nixos-shared/packages
+    ../nixos-shared/packages/kanata/service.nix
     ../nixos-shared/packages/services.nix
     ../nixos-shared/rclone-mounts.nix
     ../nixos-shared/ripgrep.nix
@@ -59,6 +60,13 @@
   };
 
   # boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
+
+  # Shared across both ThinkPad P1 hosts (was verbatim in p1.nix and p1g8.nix)
+  boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+    kernelPackages = pkgs.linuxPackages_latest;
+  };
 
   console = {
     font = "latarcyrheb-sun32";
@@ -130,6 +138,8 @@
     avahi.enable = true;
 
     dbus.enable = true;
+
+    fstrim.enable = true;
 
     physlock = {
       enable = true;
@@ -274,6 +284,18 @@
     # };
 
     graphics.enable32Bit = true;
+    graphics.extraPackages = with pkgs; [
+      intel-compute-runtime
+      intel-media-driver # iHD VAAPI driver — hw-decode on the Intel iGPU
+    ];
+
+    trackpoint = {
+      device = "TPPS/2 Elan TrackPoint";
+      emulateWheel = true;
+      enable = true;
+      sensitivity = 112;
+      speed = 97;
+    };
 
     uinput.enable = true; # For Multimedia buttons on QuietComfort
   };
@@ -285,6 +307,8 @@
 
     sudo = {
       enable = true;
+      # Custom sudo with insults
+      package = pkgs.callPackage ./sudo-custom.nix { };
       extraConfig = ''
         Defaults:${config.my.userName} timestamp_timeout=30
         Defaults insults

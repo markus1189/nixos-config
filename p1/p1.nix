@@ -7,10 +7,6 @@
 {
   my.wirelessInterface = "wlp0s20f3";
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
   boot.initrd.luks.devices = {
     "crypted" = {
       device = "/dev/nvme0n1p2";
@@ -18,12 +14,9 @@
     };
   };
 
-  boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
-    kernelParams = [
-      "psmouse.synaptics_intertouch=0" # fix touchpad button not working
-    ];
-  };
+  boot.kernelParams = [
+    "psmouse.synaptics_intertouch=0" # fix touchpad button not working
+  ];
 
   networking = {
     hostName = "nixos-p1";
@@ -38,16 +31,7 @@
   system.stateVersion = "20.09";
 
   hardware = {
-    # 403 on url
-    graphics.extraPackages = with pkgs; [ intel-media-driver ];
     cpu.intel.updateMicrocode = true;
-    trackpoint = {
-      device = "TPPS/2 Elan TrackPoint";
-      emulateWheel = true;
-      enable = true;
-      sensitivity = 112;
-      speed = 97;
-    };
   };
 
   # programs.steam.enable = true;
@@ -56,8 +40,6 @@
     throttled.enable = true;
 
     fprintd.enable = false;
-
-    fstrim.enable = true;
 
     fwupd = {
       enable = true;

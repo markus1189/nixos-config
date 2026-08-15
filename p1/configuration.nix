@@ -2,19 +2,10 @@
 
 {
   imports = [
-    ../nixos-shared/packages/kanata/service.nix
     ./hardware-configuration.nix
     ../laptop/laptop.nix
     ./p1.nix
-    ./globalprotect/default.nix
     (import ../nixos-shared/wireguard.nix "p1")
-  ];
-
-  # Custom sudo with insults
-  security.sudo.package = pkgs.callPackage ./sudo-custom.nix { };
-
-  hardware.graphics.extraPackages = with pkgs; [
-    intel-compute-runtime
   ];
 
   # services.udev = {

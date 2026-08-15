@@ -17,10 +17,9 @@
   system.stateVersion = "25.11"; # decision #11 — overrides p1.nix's "20.09"
 
   ## Boot ###################################################################
-  boot.loader.systemd-boot.enable = true;
+  # loader + kernelPackages (latest; Arrow Lake CPU + BE201 Wi-Fi need
+  # ≥6.13) come from laptop/laptop.nix
   boot.loader.systemd-boot.configurationLimit = 20; # decision #6: bounded for 1 G ESP
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest; # Arrow Lake CPU + BE201 Wi-Fi need ≥6.13
   # i915 cx0_phy / C10 DPLL state-restore bug on Arrow Lake-P (8086:7d51),
   # kernel 7.0.x — Ubuntu bug #2150605 (same HW: P1 Gen 8). The PHY parks at
   # the 61 MHz idle clock and fails to retrain on power-up: "Failed to bring
@@ -108,19 +107,8 @@
   ## Memory #################################################################
   zramSwap.enable = true; # daily working-set; the disko 32 G swapfile is OOM backstop
 
-  ## SSD hygiene ############################################################
-  # Required for `LUKS allowDiscards = true` (disko.nix) to actually do
-  # TRIM — without this, the documented address-pattern leak buys nothing.
-  services.fstrim.enable = true;
-
-  ## TrackPoint (ported from p1.nix; same Elan device on P1 Gen 8) ###########
-  hardware.trackpoint = {
-    device = "TPPS/2 Elan TrackPoint";
-    emulateWheel = true;
-    enable = true;
-    sensitivity = 112;
-    speed = 97;
-  };
+  # fstrim (needed here for LUKS allowDiscards to actually TRIM) and the
+  # TrackPoint block come from laptop/laptop.nix
 
   ## Snapshots — snapper (decision #6) ######################################
   # The NixOS snapper module wires the timeline timer + cleanup +

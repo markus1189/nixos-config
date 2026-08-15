@@ -9,7 +9,6 @@
 
 {
   imports = [
-    ../nixos-shared/packages/kanata/service.nix
     # disko (module via flake.nix) provides the schema for ./disko.nix and
     # synthesises `fileSystems` / `boot.initrd.luks.devices` at switch time.
     # That is what makes `nixos-generate-config --no-filesystems` safe.
@@ -18,17 +17,9 @@
     ../laptop/laptop.nix
     ./p1g8.nix # host-overrides; replaces p1/p1.nix
     ./vagrant.nix # customer project: Vagrant + libvirt/KVM
-    ../p1/globalprotect/default.nix # reuse p1's globalprotect — same VPN config
     (import ../nixos-shared/wireguard.nix "p1g8") # per-host WG (§1d-1); config in secrets/wg-nyc-p1g8.age
     ../nixos-shared/syncthing.nix # declarative mesh; nixos-p1/nuc still GUI (see audit 2026-05-20)
   ];
 
-  # Mirror p1's setup — sudo-with-insults pulled from the p1 dir
-  # (only place it lives in this repo).
-  security.sudo.package = pkgs.callPackage ../p1/sudo-custom.nix { };
-
-  hardware.graphics.extraPackages = with pkgs; [
-    intel-compute-runtime
-    intel-media-driver # iHD VAAPI driver — lets mpv hw-decode on the Arc iGPU instead of waking the NVIDIA dGPU
-  ];
+  # sudo-with-insults + graphics extraPackages come from laptop/laptop.nix
 }
