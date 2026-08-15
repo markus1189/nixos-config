@@ -122,12 +122,15 @@ man home-configuration.nix
 - **Host-specific**: Respective host directory (e.g., `nuc/adguard.nix`)
 
 ### Home Manager Integration
-Home Manager is integrated via `nixos-shared/home-manager/module.nix`. Each host imports its `home.nix`:
+Shared invariants (`useUserPackages`/`useGlobalPkgs`) live in
+`nixos-shared/home-manager/module.nix`, imported once via `flake-base.nix`.
+Each host wires its `home.nix` with the standard idiom:
 ```nix
-(import ../nixos-shared/home-manager/module.nix {
-  homeNixFile = ./home.nix;
-})
+home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
 ```
+The imports-list form merges: several modules can contribute to the same
+user (e.g. `laptop/home.nix` + per-host autorandr profiles in
+`p1/home.nix` / `p1g8/home.nix`).
 
 ## Commit Conventions
 
