@@ -1,6 +1,7 @@
-# Declarative Syncthing mesh, parameterized by the importing host.
+# Declarative Syncthing mesh, keyed on the importing host's
+# `networking.hostName` (device names below match hostnames exactly).
 #
-# Composes with `laptop/syncthing.nix` (which provides `enable`,
+# Composes with `./syncthing-base.nix` (which provides `enable`,
 # `configDir`, `dataDir`, `user`, `systemService`). This file only
 # adds devices, folders, and the override flags.
 #
@@ -15,10 +16,10 @@
 # copied from the existing config.xml on nixos-p1 (audit
 # 2026-05-20) so sync state is preserved.
 
-hostName:
 { config, lib, ... }:
 
 let
+  hostName = config.networking.hostName;
   userHome = "/home/${config.my.userName}";
 
   devices = {

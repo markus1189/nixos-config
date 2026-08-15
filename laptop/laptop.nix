@@ -32,7 +32,7 @@
     (import ../nixos-shared/home-manager/module.nix {
       homeNixFile = ./home.nix;
     })
-    (import ./syncthing.nix config.my.userName)
+    ../nixos-shared/syncthing-base.nix
     ../nixos-shared/my-agenix.nix
     ../nixos-shared/runtime-secrets.nix
     ./codecentric.nix

@@ -30,6 +30,7 @@
     ../nixos-shared/restic/module.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
+    ../nixos-shared/syncthing-base.nix
     ../nixos-shared/zsh.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
@@ -132,16 +133,6 @@
 
   # # Enable sound.
   # hardware.pulseaudio.enable = true;
-
-  services.syncthing = {
-    enable = true;
-    package = pkgs.syncthing;
-    configDir = "/home/${config.my.userName}/.config/syncthing";
-    dataDir = "/home/${config.my.userName}/Sync";
-    openDefaultPorts = true;
-    systemService = true;
-    user = "${config.my.userName}";
-  };
 
   # Enable the X11 windowing system.
   services.xserver = {
