@@ -10,7 +10,10 @@
 # emacs and shared overlays, passes flake inputs to home-manager modules, and
 # pins nixpkgs for legacy tooling.
 {
-  imports = [ ./my-options.nix ];
+  imports = [
+    ./my-options.nix
+    ./home-manager/module.nix
+  ];
 
   home-manager.extraSpecialArgs = { inherit inputs; };
 

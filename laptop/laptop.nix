@@ -8,6 +8,8 @@
 {
   my.userName = "markus";
 
+  home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
+
   imports = [
     ../nixos-shared/common-services.nix
     ../nixos-shared/aws.nix
@@ -32,9 +34,6 @@
     ./lastpass.nix
     ./low-battery.nix
     ./programs.nix
-    (import ../nixos-shared/home-manager/module.nix {
-      homeNixFile = ./home.nix;
-    })
     ../nixos-shared/syncthing-base.nix
     ../nixos-shared/my-agenix.nix
     ../nixos-shared/runtime-secrets.nix

@@ -34,9 +34,6 @@
     ../nixos-shared/zsh.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
-    (import ../nixos-shared/home-manager/module.nix {
-      homeNixFile = ./home.nix;
-    })
     ./kodi.nix
     ./adguard.nix
     ./atuin.nix
@@ -48,6 +45,8 @@
     userName = "mediacenter";
     resticPhotoBackupDir = "/media/backups/Photos/";
   };
+
+  home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
