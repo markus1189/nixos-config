@@ -45,9 +45,5 @@ in
       name = "reddit-visidata";
       owner = user;
     };
-
-    x11vnc = {
-      file = ../secrets/x11vnc.age;
-    };
   };
 }

@@ -168,14 +168,6 @@
 
   services.desktopManager.plasma6.enable = true;
 
-  services.x11vnc = {
-    enable = true;
-    auth = "/home/${config.my.userName}/.Xauthority";
-    passwordFile = config.age.secrets.x11vnc.path;
-    shared = true;
-    autoStart = true;
-  };
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.${config.my.userName} = {
     isNormalUser = true;

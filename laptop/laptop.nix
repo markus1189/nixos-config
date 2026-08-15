@@ -126,15 +126,6 @@
       };
     };
 
-    x11vnc = {
-      enable = true;
-      auth = "/home/${config.my.userName}/.Xauthority";
-      passwordFile = config.age.secrets.x11vnc.path;
-      viewonly = false;
-      shared = true;
-      autoStart = false;
-    };
-
     avahi.enable = true;
 
     dbus.enable = true;

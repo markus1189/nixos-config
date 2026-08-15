@@ -178,7 +178,6 @@
         xdotool
         xev
         xkill
-        x11vnc
         xvfb-run
         yt-dlp
         zathura

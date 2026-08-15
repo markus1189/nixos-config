@@ -36,7 +36,6 @@ in
     mainUser
     nuc
   ];
-  "x11vnc.age".publicKeys = all;
   "telegram.env.age".publicKeys = all;
   "shelly-webui-password.age".publicKeys = [
     mainUser
