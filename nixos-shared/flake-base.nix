@@ -7,8 +7,8 @@
 }:
 
 # Flake plumbing shared by all hosts: provides pkgs.masterPkgs, applies the
-# emacs overlay, passes flake inputs to home-manager modules, and pins
-# nixpkgs for legacy tooling.
+# emacs and shared overlays, passes flake inputs to home-manager modules, and
+# pins nixpkgs for legacy tooling.
 {
   imports = [ ./my-options.nix ];
 
@@ -38,7 +38,8 @@
       # but with our toolchain (see inputs.marginal in flake.nix).
       marginal = inputs.marginal.packages.${final.stdenv.hostPlatform.system}.marginal;
     })
-  ];
+  ]
+  ++ import ./shared-overlays.nix inputs;
 
   nix = {
     settings.experimental-features = [

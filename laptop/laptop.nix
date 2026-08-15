@@ -100,28 +100,23 @@
 
   time.timeZone = "Europe/Berlin";
 
-  nixpkgs = {
-    overlays = (
-      (import ../nixos-shared/shared-overlays.nix inputs).overlays
-      ++ [
-        (self: super: {
-          darktable =
-            builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs
-              (old: rec {
-                name = "darktable-${inputs.darktable.rev}";
-                version = inputs.darktable.rev;
-                src = inputs.darktable;
-                patches = [ ];
-                dontVersionCheck = true;
-                buildInputs = (old.buildInputs or [ ]) ++ [ super.potrace ];
-                postPatch = ''
-                  patchShebangs tools/generate_styles_string.sh
-                '';
-              });
-        })
-      ]
-    );
-  };
+  nixpkgs.overlays = [
+    (self: super: {
+      darktable =
+        builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs
+          (old: rec {
+            name = "darktable-${inputs.darktable.rev}";
+            version = inputs.darktable.rev;
+            src = inputs.darktable;
+            patches = [ ];
+            dontVersionCheck = true;
+            buildInputs = (old.buildInputs or [ ]) ++ [ super.potrace ];
+            postPatch = ''
+              patchShebangs tools/generate_styles_string.sh
+            '';
+          });
+    })
+  ];
 
   services = {
     offlineimap.enable = false;

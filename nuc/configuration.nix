@@ -5,7 +5,6 @@
 {
   config,
   pkgs,
-  inputs,
   ...
 }:
 
@@ -71,10 +70,6 @@
   };
 
   time.timeZone = "Europe/Berlin";
-
-  nixpkgs = {
-    overlays = (import ../nixos-shared/shared-overlays.nix inputs).overlays;
-  };
 
   nix = {
     gc = {

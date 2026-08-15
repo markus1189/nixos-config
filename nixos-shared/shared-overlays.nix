@@ -1,4 +1,5 @@
-inputs: rec {
+inputs:
+let
   wallpapersOverlay = self: super: {
     markus-wallpapers = {
       orange-cube-left = ./assets/wallpapers/orange-cube-6x5-left.png;
@@ -44,10 +45,9 @@ inputs: rec {
           src = inputs.xclip;
         });
   };
-
-  overlays = [
-    wallpapersOverlay
-    visidataOverlay
-    xclipOverlay
-  ];
-}
+in
+[
+  wallpapersOverlay
+  visidataOverlay
+  xclipOverlay
+]
