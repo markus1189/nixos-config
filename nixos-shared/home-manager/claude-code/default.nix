@@ -62,7 +62,7 @@ let
       "claude-output-styles";
 
   # Auto-configure skills directories (symlink entire directories with all contents)
-  skillsEntries = autoConfigSkillDirs ../../claude/skills "skills" "claude-skills";
+  skillsEntries = autoConfigSkillDirs ../../agent-skills "skills" "claude-skills";
 
   # Dangerous command check hook script
   dangerousCommandCheckScript = pkgs.writeShellApplication {

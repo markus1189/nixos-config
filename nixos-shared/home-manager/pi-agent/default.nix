@@ -48,7 +48,7 @@ let
   promptEntries = autoConfigMarkdownFiles ../../claude/commands "prompts" "pi-prompt";
 
   # Expose the shared claude skills to pi via ~/.agents/skills
-  agentsSkillEntries = autoConfigAgentsSkillDirs ../../claude/skills "agents-skills";
+  agentsSkillEntries = autoConfigAgentsSkillDirs ../../agent-skills "agents-skills";
 
   # Reuse the shared Claude Code dangerous-command hook as the pi guard backend.
   # Packaged with writeShellApplication so the store wrapper puts ast-grep on PATH
