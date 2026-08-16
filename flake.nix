@@ -41,6 +41,12 @@
       url = "git+https://github.com/darktable-org/darktable?submodules=1";
       flake = false;
     };
+    # Maintained fork of clvv/fasd; nixpkgs removed the package after the
+    # original repo was archived (built in nixos-shared/packages/fasd).
+    fasd = {
+      url = "github:whjvenyl/fasd";
+      flake = false;
+    };
     visidata = {
       url = "github:saulpw/visidata/develop";
       flake = false;

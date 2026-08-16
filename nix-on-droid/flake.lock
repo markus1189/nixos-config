@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "fasd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1760714751,
+        "narHash": "sha256-fwqyXWKt9yWx71AojJybivL94GLoaHhsYyG/fDk73rI=",
+        "owner": "whjvenyl",
+        "repo": "fasd",
+        "rev": "b56594bb40c47accf34973444a5531a61c13b570",
+        "type": "github"
+      },
+      "original": {
+        "owner": "whjvenyl",
+        "repo": "fasd",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -176,6 +192,7 @@
     },
     "root": {
       "inputs": {
+        "fasd": "fasd",
         "home-manager": "home-manager",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs"

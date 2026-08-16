@@ -118,6 +118,22 @@
         "type": "github"
       }
     },
+    "fasd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1760714751,
+        "narHash": "sha256-fwqyXWKt9yWx71AojJybivL94GLoaHhsYyG/fDk73rI=",
+        "owner": "whjvenyl",
+        "repo": "fasd",
+        "rev": "b56594bb40c47accf34973444a5531a61c13b570",
+        "type": "github"
+      },
+      "original": {
+        "owner": "whjvenyl",
+        "repo": "fasd",
+        "type": "github"
+      }
+    },
     "gptel": {
       "flake": false,
       "locked": {
@@ -246,6 +262,7 @@
         "dired-plus": "dired-plus",
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
+        "fasd": "fasd",
         "gptel": "gptel",
         "home-manager": "home-manager",
         "hurl": "hurl",
