@@ -1,107 +1,79 @@
+# Custom packages as nixpkgs overlays. The pure set (myScripts, mutate, the
+# emacs bundle, telegram helpers) lives in ./overlay.nix — shared with the
+# flake's `.#myScripts` output. Only myConfigFiles stays here, because the
+# xmonad/xmobar configs close over config.my.wirelessInterface and therefore
+# need to be an overlay defined inside a NixOS module.
+{ config, inputs, ... }:
 {
-  config,
-  pkgs,
-  inputs,
-  ...
-}:
-{
-  nixpkgs = {
-    config = rec {
-      packageOverrides =
-        pkgs:
-        let
-          allPkgs =
-            nixpkgs:
-            nixpkgs
-            // myScripts
-            // pkgs.xorg
-            // {
-              xmobarLower = xmobars.lower;
-              xmobarUpper = xmobars.upper;
-              xmobar = pkgs.xmobar;
-              xkill = pkgs.xkill;
-            };
-          callPackageWith = nixpkgs: nixpkgs.lib.callPackageWith (allPkgs nixpkgs);
-          callPackage = callPackageWith pkgs;
+  nixpkgs.overlays = [
+    (import ./overlay.nix inputs)
 
-          myScripts = pkgs.callPackage ./scripts { };
-          xmobars = callPackage ./xmobarrc {
+    (final: prev: {
+      myConfigFiles =
+        let
+          inherit (final) mutate myScripts;
+
+          xmobars = final.callPackage ./xmobarrc {
             inherit mutate;
-            togglTimer = myScripts.togglTimer;
+            inherit (myScripts)
+              btHeadphoneBattery
+              chargeRate
+              currentSpotifySong
+              dunstStatus
+              isVpnActive
+              togglTimer
+              xmobarSharingIndicator
+              ;
             wirelessInterface = config.my.wirelessInterface;
           };
-          mutate = callPackage ./mutate { };
-        in
-        rec {
-          inherit myScripts mutate;
-          inherit (myScripts)
-            notifySendPb
-            notifySendTelegram
-            notifySendTelegramHtml
-            notifySendTelegramMd
-            sendTelegramPoll
-            telegramSendPhoto
-            telegramPhotosLastYear
-            mkRsstailToRaindropUnit
-            ;
-          # Viessmann refresh token expires every 180 days. To renew, run:
-          # , oauth2c https://iam.viessmann-climatesolutions.com/idp/v3 \
-          #   --client-id=45e59eb93fb498140de733c44637d8df \
-          #   --redirect-url=http://localhost:4244/ \
-          #   --scopes=IoT --scopes=User --scopes=offline_access \
-          #   --response-types=code \
-          #   --grant-type=authorization_code \
-          #   --auth-method=none \
-          #   --response-mode=query \
-          #   --pkce
-          # then store it: agenix -e secrets/viessmann-refresh-token.age
-          inherit (myScripts) viessmannOutsideTemperature;
-          myConfigFiles = {
-            xmonad =
-              let
-                audioRecordScript = pkgs.writeShellApplication {
-                  name = "recordScript";
-                  runtimeInputs = with pkgs; [
-                    pulseaudio
-                    ffmpeg
-                    curl
-                    jq
-                    libnotify
-                    coreutils
-                    xdotool
-                    xclip
-                    gawk
-                  ];
-                  text = ''
-                    OPENAI_API_KEY="$(awk '$2 == "api.openai.com" { print $NF }' /run/agenix/authinfo)"
-                    export OPENAI_API_KEY
-                  ''
-                  + builtins.readFile ./xmonad/recordScript.sh;
-                };
 
-              in
-              callPackage ./xmonad {
-                inherit mutate;
-                inherit (myScripts) bukuRun;
-                recordScript = audioRecordScript;
-                autoMonitorConfig = myScripts.autoMonitorConfig config.my.wirelessInterface;
-                chooseNetwork = myScripts.chooseNetwork config.my.wirelessInterface;
-              };
+          audioRecordScript = final.writeShellApplication {
+            name = "recordScript";
+            runtimeInputs = with final; [
+              pulseaudio
+              ffmpeg
+              curl
+              jq
+              libnotify
+              coreutils
+              xdotool
+              xclip
+              gawk
+            ];
+            text = ''
+              OPENAI_API_KEY="$(awk '$2 == "api.openai.com" { print $NF }' /run/agenix/authinfo)"
+              export OPENAI_API_KEY
+            ''
+            + builtins.readFile ./xmonad/recordScript.sh;
+          };
+        in
+        {
+          xmonad = final.callPackage ./xmonad {
+            inherit mutate;
+            inherit (myScripts)
+              bukuRun
+              centerMouse
+              emacsAnywhere
+              flameshotOcr
+              lockScreen
+              multihead4k
+              rofiDefaults
+              rofiDownloadsPicker
+              rofiStuffTodayPicker
+              singlehead
+              takeScreenshot
+              tmx
+              xmonadReset
+              ;
+            autoMonitorConfig = myScripts.autoMonitorConfig config.my.wirelessInterface;
+            chooseNetwork = myScripts.chooseNetwork config.my.wirelessInterface;
+            recordScript = audioRecordScript;
             xmobarLower = xmobars.lower;
             xmobarUpper = xmobars.upper;
           };
-          emacs = callPackageWith pkgs ./emacs {
-            inherit mutate;
-            elispSrcs = {
-              inherit (inputs)
-                gptel
-                dired-plus
-                iy-go-to-char
-                hurl
-                ;
-            };
-          };
+          xmobarLower = xmobars.lower;
+          xmobarUpper = xmobars.upper;
         };
-    };
-  };
+    })
+  ];
 }

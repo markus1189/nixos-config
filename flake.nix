@@ -120,11 +120,9 @@
 
       # Scripts as `nix run .#myScripts.<name>` / `nix build .#myScripts.<name>`
       # without a host eval (legacyPackages: the flat `packages` schema forbids
-      # nesting). Same overlays as the hosts apply, so 54/55 attrs are
-      # drv-identical to the host-installed scripts (verified by diff). Sole
-      # exception: emacsAnywhere resolves plain emacs instead of the
-      # packageOverrides withPackages bundle — harmless (it only runs
-      # emacsclient against the host daemon); exact match lands with #24.
+      # nesting). Same overlays as the hosts apply — including the custom
+      # packages overlay itself — so all 55 attrs are drv-identical to the
+      # host-installed scripts (verified by diff after #24).
       # filterAttrs drops the 11 function attrs (writeShellScript & co).
       legacyPackages.x86_64-linux.myScripts =
         let
@@ -134,12 +132,11 @@
             overlays = [
               inputs.emacs-overlay.overlays.default
             ]
-            ++ import ./nixos-shared/shared-overlays.nix inputs;
+            ++ import ./nixos-shared/shared-overlays.nix inputs
+            ++ [ (import ./nixos-shared/packages/overlay.nix inputs) ];
           };
         in
-        nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) (
-          pkgs.callPackage ./nixos-shared/packages/scripts { }
-        );
+        nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) pkgs.myScripts;
 
       # The two bats suites, gated by `nix flake check` instead of human whim.
       # They source their script-under-test via $BATS_TEST_DIRNAME, so the
