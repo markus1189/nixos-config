@@ -32,7 +32,6 @@ in
     packages = with pkgs; [
       source-code-pro
       dunst
-      # jrnl fails at tests (2022-02-18)
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
       myScripts.addToRaindropScript
@@ -375,30 +374,6 @@ in
               ${projectRepo "tools"}
             '';
           };
-
-        "jrnl_config" = {
-          target = ".config/jrnl/jrnl.yaml";
-          text = ''
-            colors:
-              body: none
-              date: none
-              tags: none
-              title: none
-            default_hour: 9
-            default_minute: 0
-            editor: /nix/store/0dcf13hhk1kl9i0gcq7yjp8p9cp166n4-vim-8.2.2567/bin/vim
-            encrypt: false
-            highlight: true
-            indent_character: '|'
-            journals:
-              default: /home/markus/Syncthing/jrnl/journal.txt
-            linewrap: 79
-            tagsymbols: '@'
-            template: false
-            timeformat: '%Y-%m-%dT%H:%M:%S'
-            version: v2.8
-          '';
-        };
 
         "mpv_config" = {
           target = ".config/mpv/mpv.conf";
