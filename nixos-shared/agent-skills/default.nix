@@ -14,6 +14,7 @@
 {
   pkgs,
   marginalSrc ? null,
+  agentBrowserSrc ? null,
 }:
 
 let
@@ -104,11 +105,22 @@ let
 
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
-  webSkills = lib.optionalAttrs (marginalSrc != null) {
-    marginal-last = mkAgentSkill {
-      name = "marginal-last";
-      src = marginalSrc + "/launchers/claude-code";
+  webSkills =
+    lib.optionalAttrs (marginalSrc != null) {
+      marginal-last = mkAgentSkill {
+        name = "marginal-last";
+        src = marginalSrc + "/launchers/claude-code";
+      };
+    }
+    // lib.optionalAttrs (agentBrowserSrc != null) {
+      # Foreign upstream: local deltas live as a reviewable patch instead
+      # of invisible edits to a vendored copy. If an update breaks the
+      # patch, the build fails and the reconciliation is explicit.
+      agent-browser = mkAgentSkill {
+        name = "agent-browser";
+        src = agentBrowserSrc + "/skills/agent-browser";
+        patches = [ ./patches/agent-browser-nixos-install.patch ];
+      };
     };
-  };
 in
 localSkills // webSkills

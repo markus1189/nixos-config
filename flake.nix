@@ -83,6 +83,13 @@
       url = "github:markus1189/marginal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Upstream source of the agent-browser skill (skills/agent-browser),
+    # patched in nixos-shared/agent-skills with the NixOS install note.
+    agent-browser = {
+      url = "github:vercel-labs/agent-browser";
+      flake = false;
+    };
   };
 
   outputs =
@@ -144,6 +151,7 @@
           agentSkills = import ./nixos-shared/agent-skills {
             inherit pkgs;
             marginalSrc = inputs.marginal;
+            agentBrowserSrc = inputs.agent-browser;
           };
         };
 

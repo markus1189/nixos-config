@@ -25,6 +25,22 @@
         "type": "github"
       }
     },
+    "agent-browser": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786403026,
+        "narHash": "sha256-UdCBSe7w0ZgJimB7ixGcaabJjH3m6O0vB1SV9n9apfE=",
+        "owner": "vercel-labs",
+        "repo": "agent-browser",
+        "rev": "548b159b30eef119ccf6846c8bc807d0eaa3f6f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vercel-labs",
+        "repo": "agent-browser",
+        "type": "github"
+      }
+    },
     "darktable": {
       "flake": false,
       "locked": {
@@ -225,6 +241,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "agent-browser": "agent-browser",
         "darktable": "darktable",
         "dired-plus": "dired-plus",
         "disko": "disko",

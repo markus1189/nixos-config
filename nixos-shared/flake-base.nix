@@ -48,6 +48,7 @@
       agentSkills = import ./agent-skills {
         pkgs = final;
         marginalSrc = inputs.marginal;
+        agentBrowserSrc = inputs.agent-browser;
       };
     })
   ]
