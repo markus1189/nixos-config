@@ -124,7 +124,7 @@
       # packages overlay itself — so all 55 attrs are drv-identical to the
       # host-installed scripts (verified by diff after #24).
       # filterAttrs drops the 11 function attrs (writeShellScript & co).
-      legacyPackages.x86_64-linux.myScripts =
+      legacyPackages.x86_64-linux =
         let
           pkgs = import nixpkgs {
             system = "x86_64-linux";
@@ -136,7 +136,16 @@
             ++ [ (import ./nixos-shared/packages/overlay.nix inputs) ];
           };
         in
-        nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) pkgs.myScripts;
+        {
+          myScripts = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) pkgs.myScripts;
+
+          # Agent skills as `nix build .#agentSkills.<name>` — the fast
+          # no-sudo iteration check; validation runs inside each build.
+          agentSkills = import ./nixos-shared/agent-skills {
+            inherit pkgs;
+            marginalSrc = inputs.marginal;
+          };
+        };
 
       # The two bats suites, gated by `nix flake check` instead of human whim.
       # They source their script-under-test via $BATS_TEST_DIRNAME, so the
@@ -150,6 +159,15 @@
           ]);
         in
         {
+          # Builds (= validates: frontmatter, shellcheck, py_compile) every
+          # agent skill; the farm shape doubles as the future whole-dir target.
+          agent-skills = pkgs.linkFarm "agent-skills" (
+            nixpkgs.lib.mapAttrsToList (name: drv: {
+              inherit name;
+              path = drv;
+            }) self.legacyPackages.x86_64-linux.agentSkills
+          );
+
           claude-statusline-bats =
             pkgs.runCommand "claude-statusline-bats"
               {

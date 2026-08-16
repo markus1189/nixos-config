@@ -40,6 +40,15 @@
       # marginal (rust CLI) as a normal pkgs attr, built from its own flake
       # but with our toolchain (see inputs.marginal in flake.nix).
       marginal = inputs.marginal.packages.${final.stdenv.hostPlatform.system}.marginal;
+
+      # Harness-neutral agent skills as validated per-skill derivations,
+      # consumed by the claude-code and pi home-manager modules. The
+      # marginal input also sources the marginal-last skill, so launcher
+      # and binary are version-locked together.
+      agentSkills = import ./agent-skills {
+        pkgs = final;
+        marginalSrc = inputs.marginal;
+      };
     })
   ]
   ++ import ./shared-overlays.nix inputs;
