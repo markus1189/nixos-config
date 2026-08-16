@@ -95,13 +95,19 @@ let
       passthru = { inherit harnesses; };
     };
 
+  # Only directories with a SKILL.md are skills; siblings like patches/
+  # are support material, not test subjects.
   localSkills = lib.mapAttrs (
     name: _:
     mkAgentSkill {
       inherit name;
       src = ./. + "/${name}";
     }
-  ) (lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./.));
+  ) (
+    lib.filterAttrs (
+      name: type: type == "directory" && builtins.pathExists (./. + "/${name}/SKILL.md")
+    ) (builtins.readDir ./.)
+  );
 
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
