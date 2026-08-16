@@ -77,6 +77,10 @@ nix eval --raw .#nixosConfigurations.p1.config.system.build.toplevel.drvPath
 nixos-rebuild build --flake .#p1
 nix store diff-closures /run/current-system ./result
 
+# Derivation-level delta without building anything
+diff <(nix-store -qR "$(nix-store --query --deriver /run/current-system)" | sort) \
+     <(nix-store -qR "$(nix eval --raw .#nixosConfigurations.p1.config.system.build.toplevel.drvPath)" | sort)
+
 # Build or run a single custom script (drv-identical to the host-installed set)
 nix build .#myScripts.<scriptName>
 nix run .#myScripts.<scriptName>
@@ -93,6 +97,14 @@ nix flake update emacs-overlay
 
 **Flake caveat**: only **git-tracked** files exist for flake evaluation —
 `git add` new files before building, or eval fails with "path does not exist".
+A tree still being edited also re-hashes on every eval — commit or `git add -A`
+before comparing anything.
+
+**Diffing what a change did** — what changed, what shouldn't have, why
+something is in the closure; scoped to one package or host, not all of them.
+`system.configurationRevision` changes every toplevel by design, so the
+invariant is *which* drvs differ, never *that* the drvPath differs. Method,
+scoping, failure modes: [docs/derivation-diffing.md](docs/derivation-diffing.md).
 
 **nuc update model**: `system.autoUpgrade` rebuilds nightly from the
 committed `flake.lock` (no channel, no automatic input updates). Updating
