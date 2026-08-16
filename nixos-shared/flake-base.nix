@@ -53,6 +53,10 @@
     # `nix run nixpkgs#...`, `nix-shell -p ...` and stray <nixpkgs> resolve
     # to the locked flake input instead of a mutable channel.
     registry.nixpkgs.flake = inputs.nixpkgs;
+    # `nix run self#myScripts.<x>` from any directory; `master#<x>` = the
+    # locked nixpkgs-master input (same tree as pkgs.masterPkgs).
+    registry.self.flake = inputs.self;
+    registry.master.flake = inputs.nixpkgs-master;
     nixPath = [ "nixpkgs=flake:nixpkgs" ];
   };
 }
