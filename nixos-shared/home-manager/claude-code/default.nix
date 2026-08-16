@@ -1,5 +1,9 @@
 {
   pkgs,
+  # Injected from the overlay (flake-base.nix) via callPackage on the
+  # hosts; the fallback covers nix-on-droid, whose pkgs has no overlay
+  # and whose flake has no marginal input (=> no marginal-last there).
+  agentSkills ? import ../../agent-skills { inherit pkgs; },
   enableSoundHooks ? false,
   enableDenyRules ? false,
   enableDangerousCommandCheck ? true,
@@ -30,26 +34,6 @@ let
     in
     entries;
 
-  # Helper function to automatically discover and symlink subdirectories (for skills)
-  autoConfigSkillDirs =
-    sourceDir: targetSubdir: namePrefix:
-    let
-      entries = builtins.readDir sourceDir;
-      isDirectory = name: type: type == "directory";
-      skillDirs = pkgs.lib.attrsets.filterAttrs isDirectory entries;
-
-      makeEntry = dirname: {
-        target = ".claude/${targetSubdir}/${dirname}";
-        source = sourceDir + "/${dirname}";
-        recursive = true;
-      };
-
-      dirEntries = pkgs.lib.attrsets.mapAttrs' (
-        dirname: _: pkgs.lib.attrsets.nameValuePair "${namePrefix}-${dirname}" (makeEntry dirname)
-      ) skillDirs;
-    in
-    dirEntries;
-
   # Auto-configure command files
   commandEntries = autoConfigMarkdownFiles ../../claude/commands "commands" "claude";
 
@@ -61,8 +45,15 @@ let
     autoConfigMarkdownFiles ../../claude/output-styles "output-styles"
       "claude-output-styles";
 
-  # Auto-configure skills directories (symlink entire directories with all contents)
-  skillsEntries = autoConfigSkillDirs ../../agent-skills "skills" "claude-skills";
+  # One dir-level symlink per validated skill derivation. Unmanaged skills
+  # in ~/.claude/skills coexist untouched beside these.
+  skillsEntries = pkgs.lib.attrsets.mapAttrs' (
+    name: drv:
+    pkgs.lib.attrsets.nameValuePair "claude-skills-${name}" {
+      target = ".claude/skills/${name}";
+      source = drv;
+    }
+  ) (pkgs.lib.attrsets.filterAttrs (_: drv: builtins.elem "claude" drv.harnesses) agentSkills);
 
   # Dangerous command check hook script
   dangerousCommandCheckScript = pkgs.writeShellApplication {
@@ -507,5 +498,6 @@ in
     text = builtins.readFile ../../claude/CLAUDE-global.md;
   };
 
-  markdownFiles = commandEntries // docsEntries // outputStylesEntries // skillsEntries;
+  # Not only markdown since skills carry scripts/assets; renamed accordingly.
+  agentFiles = commandEntries // docsEntries // outputStylesEntries // skillsEntries;
 }

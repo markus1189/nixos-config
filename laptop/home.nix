@@ -565,7 +565,7 @@ in
         };
 
       }
-      // claudeConfig.markdownFiles
+      // claudeConfig.agentFiles
       // opencodeConfig.markdownFiles
       // piAgentConfig.linkedFiles;
   };

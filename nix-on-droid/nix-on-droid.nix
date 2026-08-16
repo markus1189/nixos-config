@@ -159,7 +159,7 @@
                 '';
               };
             }
-            // claudeConfig.markdownFiles;
+            // claudeConfig.agentFiles;
         };
 
         # Disable home-manager manual generation. The options.json build

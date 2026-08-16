@@ -40,7 +40,7 @@ in
         "claude-code" = claudeConfig.settings;
         "claude-md" = claudeConfig.globalClaudeMd;
       }
-      // claudeConfig.markdownFiles;
+      // claudeConfig.agentFiles;
   };
 
   manual = {
