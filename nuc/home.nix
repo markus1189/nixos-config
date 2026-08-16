@@ -4,8 +4,8 @@ let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
   garmin = (
     pkgs.callPackage (import ../nixos-shared/home-manager/garmin-connect/default.nix {
-      targetDir = "/home/mediacenter/Syncthing/activities";
-      tokenStore = "/home/mediacenter/.garminconnect";
+      targetDir = "${config.home.homeDirectory}/Syncthing/activities";
+      tokenStore = "${config.home.homeDirectory}/.garminconnect";
       environmentFile = "/run/agenix/garminConnect";
     }) { }
   );

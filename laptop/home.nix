@@ -269,7 +269,7 @@ in
             ; flameshot 14 defaults to xdg-desktop-portal capture; xmonad has no portal
             ; useX11LegacyScreenshot=true
             ; Symlink managed by cdt/Emacs to today's Stuff directory
-            savePath=/home/markus/Stuff/Today
+            savePath=${config.home.homeDirectory}/Stuff/Today
             uiColor=#ee8903
 
             [Shortcuts]
@@ -304,12 +304,12 @@ in
         "gtk-bookmarks" = {
           target = ".gtk-bookmarks";
           text = ''
-            file:///home/markus/Downloads
-            file:///home/markus/Dropbox
-            file:///home/markus/repos
-            file:///home/markus/Photos/web
-            file:///home/markus/Photos/developed
-            file:///home/markus/repos/nixos-config
+            file://${config.home.homeDirectory}/Downloads
+            file://${config.home.homeDirectory}/Dropbox
+            file://${config.home.homeDirectory}/repos
+            file://${config.home.homeDirectory}/Photos/web
+            file://${config.home.homeDirectory}/Photos/developed
+            file://${config.home.homeDirectory}/repos/nixos-config
           '';
         };
 
