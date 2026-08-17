@@ -77,7 +77,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_result", async (event, _ctx) => {
     if (event.isError) {
-      playSound("no-way-331.wav");
+      playSound("knob-458.wav");
     }
   });
 }
