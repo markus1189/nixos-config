@@ -11,10 +11,16 @@
 # the pkgs.marginal binary it drives are version-locked by flake.lock.
 # Passing null (nix-on-droid, whose flake has no marginal input) simply
 # omits the skill.
+#
+# `agentBrowser` is the llm-agents.nix package, not a source tree: upstream
+# ships its own SKILL.md inside the binary's $out, so sourcing the skill from
+# the package makes text and binary the same derivation — the skew is gone by
+# construction and there is nothing left to patch. Passing null omits the
+# skill (nuc, which has no chromium and should not pull the closure).
 {
   pkgs,
   marginalSrc ? null,
-  agentBrowserSrc ? null,
+  agentBrowser ? null,
 }:
 
 let
@@ -95,19 +101,22 @@ let
       passthru = { inherit harnesses; };
     };
 
-  # Only directories with a SKILL.md are skills; siblings like patches/
-  # are support material, not test subjects.
-  localSkills = lib.mapAttrs (
-    name: _:
-    mkAgentSkill {
-      inherit name;
-      src = ./. + "/${name}";
-    }
-  ) (
-    lib.filterAttrs (
-      name: type: type == "directory" && builtins.pathExists (./. + "/${name}/SKILL.md")
-    ) (builtins.readDir ./.)
-  );
+  # Only directories with a SKILL.md are skills; any support-material
+  # sibling is skipped rather than built.
+  localSkills =
+    lib.mapAttrs
+      (
+        name: _:
+        mkAgentSkill {
+          inherit name;
+          src = ./. + "/${name}";
+        }
+      )
+      (
+        lib.filterAttrs (
+          name: type: type == "directory" && builtins.pathExists (./. + "/${name}/SKILL.md")
+        ) (builtins.readDir ./.)
+      );
 
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
@@ -118,14 +127,17 @@ let
         src = marginalSrc + "/launchers/claude-code";
       };
     }
-    // lib.optionalAttrs (agentBrowserSrc != null) {
-      # Foreign upstream: local deltas live as a reviewable patch instead
-      # of invisible edits to a vendored copy. If an update breaks the
-      # patch, the build fails and the reconciliation is explicit.
+    // lib.optionalAttrs (agentBrowser != null) {
+      # Taken verbatim from the binary's own $out — no patch. The previous
+      # NixOS install note told the agent to `nix run` an unpinned flake,
+      # which drifted (ten versions in the store), claimed a bundled Chrome
+      # that was really an imperative ~/.agent-browser download, and matched
+      # neither pattern in upstream's `allowed-tools`, so every call
+      # prompted. Installing the package puts `agent-browser` on PATH, which
+      # is what that frontmatter already expects.
       agent-browser = mkAgentSkill {
         name = "agent-browser";
-        src = agentBrowserSrc + "/skills/agent-browser";
-        patches = [ ./patches/agent-browser-nixos-install.patch ];
+        src = agentBrowser + "/share/agent-browser/skills/agent-browser";
       };
     };
 in

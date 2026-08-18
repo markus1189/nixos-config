@@ -93,11 +93,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Upstream source of the agent-browser skill (skills/agent-browser),
-    # patched in nixos-shared/agent-skills with the NixOS install note.
-    agent-browser = {
-      url = "github:vercel-labs/agent-browser";
-      flake = false;
+    # agent-browser as a runnable binary, whose own $out/share/agent-browser
+    # also carries the SKILL.md that nixos-shared/agent-skills ships — so the
+    # skill text and the binary it describes are one derivation, not two
+    # inputs that drift. Overrides pkgs.agent-browser (nixpkgs is stuck on
+    # 0.27.0 from 2026-05; upstream ships every few days and this flake is
+    # bumped daily).
+    # The `follows` is deliberate: it makes our nixpkgs config apply and keeps
+    # one chromium instead of two. It currently costs no cache hits either —
+    # with it, the derivation still resolves to the same store path numtide's
+    # own cache serves, so no numtide substituter/key is needed here.
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -160,7 +168,7 @@
           agentSkills = import ./nixos-shared/agent-skills {
             inherit pkgs;
             marginalSrc = inputs.marginal;
-            agentBrowserSrc = inputs.agent-browser;
+            agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };
         };
 

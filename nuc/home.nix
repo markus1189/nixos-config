@@ -28,6 +28,10 @@ in
     file =
       let
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
+          # Headless: no chromium here, so the browser skill would only drag
+          # agent-browser into the nightly autoUpgrade closure. removeAttrs
+          # is lazy, so the package is never realised on nuc.
+          agentSkills = builtins.removeAttrs pkgs.agentSkills [ "agent-browser" ];
           enableSoundHooks = false;
           enableDenyRules = true;
           additionalAllowedCommands = [

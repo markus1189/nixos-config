@@ -15,6 +15,7 @@
         #
         ack
         actkbd
+        agent-browser
         alsa-oss
         alsa-utils
         ammonite

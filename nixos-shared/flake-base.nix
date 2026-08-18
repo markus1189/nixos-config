@@ -41,6 +41,11 @@
       # but with our toolchain (see inputs.marginal in flake.nix).
       marginal = inputs.marginal.packages.${final.stdenv.hostPlatform.system}.marginal;
 
+      # nixpkgs' agent-browser is 0.27.0 (2026-05); upstream ships every few
+      # days, so take the daily-bumped llm-agents build instead. Built against
+      # our nixpkgs (see the input's `follows`), so it shares one chromium.
+      agent-browser = inputs.llm-agents.packages.${final.stdenv.hostPlatform.system}.agent-browser;
+
       # Harness-neutral agent skills as validated per-skill derivations,
       # consumed by the claude-code and pi home-manager modules. The
       # marginal input also sources the marginal-last skill, so launcher
@@ -48,7 +53,7 @@
       agentSkills = import ./agent-skills {
         pkgs = final;
         marginalSrc = inputs.marginal;
-        agentBrowserSrc = inputs.agent-browser;
+        agentBrowser = final.agent-browser;
       };
     })
   ]
