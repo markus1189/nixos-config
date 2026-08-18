@@ -114,6 +114,27 @@
   # half its RAM through the compressor before anything gives.
   zramSwap.memoryPercent = 25;
 
+  # Reclaim tuning for RAM-backed swap. All three are the kernel defaults
+  # today (60 / 3 / 10), which are tuned for spinning disks.
+  boot.kernel.sysctl = {
+    # Read-ahead of 2^3 = 8 pages per swap-in amortises seek latency. zram has
+    # no seek; that is eight decompressions to use one page. 0 is the
+    # documented setting for RAM-backed swap.
+    "vm.page-cluster" = 0;
+
+    # Prefer swapping anonymous pages over evicting page cache -- correct when
+    # swap *is* RAM. 200 is the cap (MAX_SWAPPINESS, mm/vmscan.c).
+    # Caveat: this host also has the 32 G disk swapfile at priority -1, so
+    # once zram fills, 180 applies to the disk tier too. Acceptable (by then
+    # earlyoom should have fired), but do not copy this block to a host
+    # without checking its swap topology first.
+    "vm.swappiness" = 180;
+
+    # Start reclaim earlier so the kernel is not doing emergency compression
+    # at the exact moment the CPU is needed elsewhere.
+    "vm.watermark_scale_factor" = 200;
+  };
+
   # fstrim (needed here for LUKS allowDiscards to actually TRIM) and the
   # TrackPoint block come from laptop/laptop.nix
 
