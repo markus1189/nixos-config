@@ -9,7 +9,7 @@ args@{
   flameshot,
   lockScreen,
   flameshotOcr,
-  mutate,
+  replaceVars,
   pamixer,
   playerctl,
   rofi,
@@ -27,6 +27,6 @@ args@{
   recordScript,
 }:
 
-mutate ./xmonad.hs (
-  builtins.removeAttrs args [ "mutate" ] // { recordScript = "${recordScript}/bin/recordScript"; }
+replaceVars ./xmonad.hs (
+  builtins.removeAttrs args [ "replaceVars" ] // { recordScript = "${recordScript}/bin/recordScript"; }
 )

@@ -11,10 +11,9 @@
     (final: prev: {
       myConfigFiles =
         let
-          inherit (final) mutate myScripts;
+          inherit (final) myScripts;
 
           xmobars = final.callPackage ./xmobarrc {
-            inherit mutate;
             inherit (myScripts)
               btHeadphoneBattery
               chargeRate
@@ -48,7 +47,6 @@
         in
         {
           xmonad = final.callPackage ./xmonad {
-            inherit mutate;
             inherit (myScripts)
               bukuRun
               centerMouse

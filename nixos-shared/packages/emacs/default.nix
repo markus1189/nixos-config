@@ -1,13 +1,13 @@
 {
   emacs,
-  mutate,
+  replaceVars,
   runCommandLocal,
   plantuml,
   elispSrcs,
 }:
 
 let
-  mutatedEmacsConfig = mutate ./emacs-config.el {
+  mutatedEmacsConfig = replaceVars ./emacs-config.el {
     inherit plantuml;
   };
 

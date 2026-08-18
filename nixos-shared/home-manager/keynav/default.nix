@@ -1,3 +1,3 @@
-{ mutate, xdotool }:
+{ replaceVars, xdotool }:
 
-mutate ./keynavrc { inherit xdotool; }
+replaceVars ./keynavrc { inherit xdotool; }

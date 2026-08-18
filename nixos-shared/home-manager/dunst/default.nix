@@ -2,7 +2,11 @@
 
 let
   inherit (pkgs) rofi xdg-utils;
-  dunstLogger = pkgs.mutate ./dunst-logger.sh { inherit (pkgs) jo systemd bash; };
+  dunstLogger = pkgs.replaceVarsWith {
+    src = ./dunst-logger.sh;
+    replacements = { inherit (pkgs) jo systemd bash; };
+    isExecutable = true;
+  };
 in
 {
   services.dunst = {

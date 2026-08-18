@@ -1,5 +1,5 @@
 {
-  mutate,
+  replaceVars,
   dunst,
   dunstStatus,
   xmobarSharingIndicator,
@@ -42,7 +42,7 @@ let
   };
 in
 {
-  upper = mutate ./xmobarrc_upper {
+  upper = replaceVars ./xmobarrc_upper {
     inherit
       dunst
       isVpnActive
@@ -54,5 +54,5 @@ in
       wirelessSsid
       ;
   };
-  lower = mutate ./xmobarrc_lower { inherit currentSpotifySong; };
+  lower = replaceVars ./xmobarrc_lower { inherit currentSpotifySong; };
 }

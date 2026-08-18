@@ -78,21 +78,17 @@ let
 
     "pi-agent-extension-sounds" = {
       target = ".pi/agent/extensions/sounds.ts";
-      text = builtins.readFile (
-        pkgs.mutate ./extensions/sounds.ts {
-          aplay = pkgs.alsa-utils;
-          sounds = "${../../claude/sounds}";
-        }
-      );
+      source = pkgs.replaceVars ./extensions/sounds.ts {
+        aplay = pkgs.alsa-utils;
+        sounds = "${../../claude/sounds}";
+      };
     };
 
     "pi-agent-extension-glados" = {
       target = ".pi/agent/extensions/glados.ts";
-      text = builtins.readFile (
-        pkgs.mutate ./extensions/glados.ts {
-          gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
-        }
-      );
+      source = pkgs.replaceVars ./extensions/glados.ts {
+        gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
+      };
     };
 
     "pi-agent-extension-web-tools" = {
@@ -142,11 +138,9 @@ let
 
     "pi-agent-extension-check-dangerous-commands" = {
       target = ".pi/agent/extensions/check-dangerous-commands.ts";
-      text = builtins.readFile (
-        pkgs.mutate ./extensions/check-dangerous-commands.ts {
-          checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
-        }
-      );
+      source = pkgs.replaceVars ./extensions/check-dangerous-commands.ts {
+        checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
+      };
     };
 
     # END EXTENSIONS
