@@ -28,5 +28,8 @@ args@{
 }:
 
 replaceVars ./xmonad.hs (
-  builtins.removeAttrs args [ "replaceVars" ] // { recordScript = "${recordScript}/bin/recordScript"; }
+  builtins.removeAttrs args [ "replaceVars" ]
+  // {
+    recordScript = "${recordScript}/bin/recordScript";
+  }
 )

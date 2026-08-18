@@ -20,8 +20,6 @@ in
 
   fasd = final.callPackage ./fasd { src = inputs.fasd; };
 
-  mutate = final.callPackage ./mutate { };
-
   inherit (myScripts)
     notifySendPb
     notifySendTelegram

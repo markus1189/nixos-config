@@ -1,4 +1,4 @@
-# Custom packages as nixpkgs overlays. The pure set (myScripts, mutate, the
+# Custom packages as nixpkgs overlays. The pure set (myScripts, the
 # emacs bundle, telegram helpers) lives in ./overlay.nix — shared with the
 # flake's `.#myScripts` output. Only myConfigFiles stays here, because the
 # xmonad/xmobar configs close over config.my.wirelessInterface and therefore

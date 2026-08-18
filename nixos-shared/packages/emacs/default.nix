@@ -7,14 +7,14 @@
 }:
 
 let
-  mutatedEmacsConfig = replaceVars ./emacs-config.el {
+  emacsConfig = replaceVars ./emacs-config.el {
     inherit plantuml;
   };
 
   myEmacsConfig = (
     runCommandLocal "create-my-emacs-config" { } ''
       mkdir -p $out/share/emacs/site-lisp
-      cp ${mutatedEmacsConfig} $out/share/emacs/site-lisp/default.el
+      cp ${emacsConfig} $out/share/emacs/site-lisp/default.el
     ''
   );
   quick-yes = runCommandLocal "install-quick-yes" { } ''
