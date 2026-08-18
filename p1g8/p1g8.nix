@@ -107,6 +107,13 @@
   ## Memory #################################################################
   zramSwap.enable = true; # daily working-set; the disko 32 G swapfile is OOM backstop
 
+  # nixpkgs defaults memoryPercent to 50 (config/zram.nix:51), which on 62 G
+  # of RAM gave a 31 G compressed-swap sponge -- the single biggest reason the
+  # 2026-08-18 stall lasted rather than resolving. 25 % still covers the daily
+  # working set (zstd measured ~3.5x here) without letting the machine grind
+  # half its RAM through the compressor before anything gives.
+  zramSwap.memoryPercent = 25;
+
   # fstrim (needed here for LUKS allowDiscards to actually TRIM) and the
   # TrackPoint block come from laptop/laptop.nix
 
