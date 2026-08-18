@@ -7,8 +7,9 @@
 # shell script failing `shellcheck --severity=error`, or python that does
 # not compile fails the BUILD — `nix flake check` inherits all of it.
 #
-# `marginalSrc` is the marginal flake input, so the marginal-last skill and
-# the pkgs.marginal binary it drives are version-locked by flake.lock.
+# `marginalSrc` and `hocketSrc` are the marginal and hocket flake inputs, so
+# the marginal-last / hocket-rpc skills and the pkgs.marginal / pkgs.hocket
+# binaries they drive are version-locked by flake.lock.
 #
 # `agentBrowser` is the llm-agents.nix package, not a source tree: upstream
 # ships its own SKILL.md inside the binary's $out, so sourcing the skill from
@@ -18,6 +19,7 @@
 {
   pkgs,
   marginalSrc,
+  hocketSrc,
   agentBrowser ? null,
 }:
 
@@ -123,6 +125,13 @@ let
       marginal-last = mkAgentSkill {
         name = "marginal-last";
         src = marginalSrc + "/launchers/claude-code";
+      };
+
+      # Same shape: our own upstream, so the skill text and the `hocket
+      # agent` client it calls ride one flake input and cannot drift.
+      hocket-rpc = mkAgentSkill {
+        name = "hocket-rpc";
+        src = hocketSrc + "/skills/hocket-rpc";
       };
     }
     // lib.optionalAttrs (agentBrowser != null) {

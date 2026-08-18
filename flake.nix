@@ -93,6 +93,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Haskell TUI for Raindrop bookmarks (own flake, packages.hocket). One
+    # input serves both the binary and the hocket-rpc agent skill, so the
+    # control-socket protocol the skill documents and the `hocket agent`
+    # client that speaks it are the same rev by construction.
+    hocket = {
+      url = "github:markus1189/hocket";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # agent-browser as a runnable binary, whose own $out/share/agent-browser
     # also carries the SKILL.md that nixos-shared/agent-skills ships — so the
     # skill text and the binary it describes are one derivation, not two
@@ -168,6 +177,7 @@
           agentSkills = import ./nixos-shared/agent-skills {
             inherit pkgs;
             marginalSrc = inputs.marginal;
+            hocketSrc = inputs.hocket;
             agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };
         };

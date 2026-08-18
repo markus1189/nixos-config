@@ -41,6 +41,11 @@
       # but with our toolchain (see inputs.marginal in flake.nix).
       marginal = inputs.marginal.packages.${final.stdenv.hostPlatform.system}.marginal;
 
+      # hocket (Haskell Raindrop TUI) as a normal pkgs attr, from its own
+      # flake. The hocket-rpc skill drives `hocket agent`, so both come out
+      # of the same input (see inputs.hocket in flake.nix).
+      hocket = inputs.hocket.packages.${final.stdenv.hostPlatform.system}.hocket;
+
       # nixpkgs' agent-browser is 0.27.0 (2026-05); upstream ships every few
       # days, so take the daily-bumped llm-agents build instead. Built against
       # our nixpkgs (see the input's `follows`), so it shares one chromium.
@@ -48,11 +53,12 @@
 
       # Harness-neutral agent skills as validated per-skill derivations,
       # consumed by the claude-code and pi home-manager modules. The
-      # marginal input also sources the marginal-last skill, so launcher
-      # and binary are version-locked together.
+      # marginal and hocket inputs also source the marginal-last and
+      # hocket-rpc skills, so launcher and binary are version-locked together.
       agentSkills = import ./agent-skills {
         pkgs = final;
         marginalSrc = inputs.marginal;
+        hocketSrc = inputs.hocket;
         agentBrowser = final.agent-browser;
       };
     })

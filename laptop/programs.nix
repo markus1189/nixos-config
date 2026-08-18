@@ -66,6 +66,7 @@
         hicolor-icon-theme
         hledger
         hledger-ui
+        hocket
         html2text
         inotify-tools
         inetutils
