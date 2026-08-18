@@ -41,11 +41,13 @@ Nothing secret is embedded in the nix store at build time.
 ### Package Sources
 All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
 - Modules/flakes: `home-manager` (nix-community), `agenix`, `disko`,
-  `emacs-overlay`, `marginal` (own flake output → `pkgs.marginal`),
-  `nixpkgs-master` (→ `pkgs.masterPkgs`)
+  `emacs-overlay`, `nix-index-database`, `marginal` (own flake output →
+  `pkgs.marginal`), `nixpkgs-master` (→ `pkgs.masterPkgs`),
+  `llm-agents` (numtide; → `pkgs.agent-browser`, overriding nixpkgs' much
+  older one, and the source of the agent-browser skill text)
 - Non-flake source trees (`flake = false`): darktable (with submodules!),
-  visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, dired-plus,
-  iy-go-to-char, hurl (whole CLI repo, used only for contrib/emacs/hurl-mode.el)
+  fasd, visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, dired-plus,
+  iy-go-to-char
 - Consumers take `inputs` in their module arguments (NixOS modules get it
   via `specialArgs`, home-manager modules via `extraSpecialArgs`, both set
   up in `flake.nix` / `nixos-shared/flake-base.nix`) and use `inputs.<name>`
@@ -255,9 +257,12 @@ rg ":id" nixos-shared/packages/emacs/emacs-config.el            # Newsletters
 
 Custom Claude Code setup in `nixos-shared/claude/`:
 - `commands/` - Custom slash commands (mh:agent-race, mh:iterate, mh:fact-check, etc.)
-- `skills/` - Custom skills (each skill is a subdirectory with skill.md)
 - `CLAUDE-global.md` - Global instructions
 
-**Skills location**: `nixos-shared/claude/skills/[skill-name]/skill.md`
+**Skills location**: `nixos-shared/agent-skills/[skill-name]/SKILL.md` —
+harness-neutral, one validated derivation per skill; build a single one with
+`nix build .#agentSkills.<skillName>`. Skills sourced from other repos come
+from a flake input or, like agent-browser, straight out of the package's own
+`$out` so text and binary cannot drift apart.
 
 Home-manager integration in `nixos-shared/home-manager/claude-code/` supports sound hooks, deny rules, and additional allowed commands.
