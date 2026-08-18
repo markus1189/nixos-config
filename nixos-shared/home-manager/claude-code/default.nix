@@ -246,6 +246,10 @@ in
       # Ring the terminal BEL on task-finish / permission prompts. Fires
       # alongside the Notification sound hooks, not instead of them.
       preferredNotifChannel = "terminal_bell";
+      # Mobile push, both off by default upstream. Only fire while Remote
+      # Control is connected; no-ops otherwise.
+      agentPushNotifEnabled = true; # Claude decides (long task finished)
+      inputNeededNotifEnabled = true; # permission prompt / question waiting
       voiceEnabled = true;
       skipDangerousModePermissionPrompt = true;
 
