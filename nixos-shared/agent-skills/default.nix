@@ -120,32 +120,31 @@ let
 
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
-  webSkills =
-    {
-      marginal-last = mkAgentSkill {
-        name = "marginal-last";
-        src = marginalSrc + "/launchers/claude-code";
-      };
-
-      # Same shape: our own upstream, so the skill text and the `hocket
-      # agent` client it calls ride one flake input and cannot drift.
-      hocket-rpc = mkAgentSkill {
-        name = "hocket-rpc";
-        src = hocketSrc + "/skills/hocket-rpc";
-      };
-    }
-    // lib.optionalAttrs (agentBrowser != null) {
-      # Taken verbatim from the binary's own $out — no patch. The previous
-      # NixOS install note told the agent to `nix run` an unpinned flake,
-      # which drifted (ten versions in the store), claimed a bundled Chrome
-      # that was really an imperative ~/.agent-browser download, and matched
-      # neither pattern in upstream's `allowed-tools`, so every call
-      # prompted. Installing the package puts `agent-browser` on PATH, which
-      # is what that frontmatter already expects.
-      agent-browser = mkAgentSkill {
-        name = "agent-browser";
-        src = agentBrowser + "/share/agent-browser/skills/agent-browser";
-      };
+  webSkills = {
+    marginal-last = mkAgentSkill {
+      name = "marginal-last";
+      src = marginalSrc + "/launchers/claude-code";
     };
+
+    # Same shape: our own upstream, so the skill text and the `hocket
+    # agent` client it calls ride one flake input and cannot drift.
+    hocket-rpc = mkAgentSkill {
+      name = "hocket-rpc";
+      src = hocketSrc + "/skills/hocket-rpc";
+    };
+  }
+  // lib.optionalAttrs (agentBrowser != null) {
+    # Taken verbatim from the binary's own $out — no patch. The previous
+    # NixOS install note told the agent to `nix run` an unpinned flake,
+    # which drifted (ten versions in the store), claimed a bundled Chrome
+    # that was really an imperative ~/.agent-browser download, and matched
+    # neither pattern in upstream's `allowed-tools`, so every call
+    # prompted. Installing the package puts `agent-browser` on PATH, which
+    # is what that frontmatter already expects.
+    agent-browser = mkAgentSkill {
+      name = "agent-browser";
+      src = agentBrowser + "/share/agent-browser/skills/agent-browser";
+    };
+  };
 in
 localSkills // webSkills
