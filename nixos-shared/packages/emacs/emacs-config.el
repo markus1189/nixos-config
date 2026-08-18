@@ -292,13 +292,38 @@
   :config
   (global-fasd-mode))
 
-(use-package undo-tree
+(use-package undo-fu
   :ensure t
-  :diminish undo-tree-mode
-  :config (global-undo-tree-mode)
-  :bind (("s-/" . undo-tree-visualize)
-         ("C-/" . undo-tree-undo)
-         ("C-?" . undo-tree-redo)))
+  :demand t
+  :init
+  ;; Without this, C-g mid-sequence breaks the linear redo chain -- the exact
+  ;; behaviour undo-fu exists to prevent.
+  (setq undo-fu-ignore-keyboard-quit t)
+  ;; Native undo enforces its own limits now that undo-tree isn't managing
+  ;; history; the defaults (160k/240k) are stingy for long editing sessions.
+  (setq undo-limit (* 8 1024 1024)          ; 8MB
+        undo-strong-limit (* 16 1024 1024)) ; 16MB
+  :bind (("C-/" . undo-fu-only-undo)
+         ("C-?" . undo-fu-only-redo)))
+
+(use-package undo-fu-session
+  :ensure t
+  :demand t
+  :after undo-fu
+  :init
+  ;; Terminal buffers have no meaningful undo history worth persisting.
+  (setq undo-fu-session-incompatible-major-modes '(term-mode eat-mode))
+  :config
+  (undo-fu-session-global-mode))
+
+(use-package vundo
+  :ensure t
+  :defer t
+  :bind (("s-/" . vundo))
+  :config
+  ;; Must be :config, not :init -- vundo-unicode-symbols is a defconst inside
+  ;; vundo.el, so referencing it before load is void-variable.
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (use-package yasnippet
   :ensure t

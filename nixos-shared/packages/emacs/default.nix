@@ -168,7 +168,9 @@ emacs.pkgs.withPackages (
       with-editor
       yaml-mode
       yasnippet
-      undo-tree
+      undo-fu
+      undo-fu-session
+      vundo
       csv-mode
       rainbow-mode
       myEmacsConfig

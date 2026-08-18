@@ -1,3 +1,5 @@
+# undo-tree was removed 2026-08 (replaced by undo-fu/vundo). Keep until the
+# legacy .~undo-tree~ files are cleaned from every host, then drop this.
 *undo-tree*
 result/
 /nixos-shared/packages/xmonad/.direnv

@@ -18,6 +18,7 @@ let
   # content). Refresh manually by re-downloading the API URL if ever needed.
   gitignoreGlobal = writeText "gitignore-global-file" ''
     ${lib.readFile ./gitignore-global}
+    # undo-tree removed 2026-08; keep until legacy files are cleaned everywhere
     *~undo-tree~
     .direnv
     .metals
