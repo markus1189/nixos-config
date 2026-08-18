@@ -6,7 +6,6 @@
   currentSpotifySong,
   isVpnActive,
   wirelessInterface,
-  togglTimer,
   btHeadphoneBattery,
   chargeRate,
   writeShellApplication,
@@ -48,7 +47,6 @@ in
       dunst
       isVpnActive
       wirelessInterface
-      togglTimer
       dunstStatus
       xmobarSharingIndicator
       btHeadphoneBattery

@@ -21,7 +21,6 @@
               currentSpotifySong
               dunstStatus
               isVpnActive
-              togglTimer
               xmobarSharingIndicator
               ;
             wirelessInterface = config.my.wirelessInterface;
@@ -56,17 +55,11 @@
               emacsAnywhere
               flameshotOcr
               lockScreen
-              multihead4k
-              rofiDefaults
               rofiDownloadsPicker
               rofiStuffTodayPicker
-              singlehead
-              takeScreenshot
               tmx
               xmonadReset
               ;
-            autoMonitorConfig = myScripts.autoMonitorConfig config.my.wirelessInterface;
-            chooseNetwork = myScripts.chooseNetwork config.my.wirelessInterface;
             recordScript = audioRecordScript;
             xmobarLower = xmobars.lower;
             xmobarUpper = xmobars.upper;

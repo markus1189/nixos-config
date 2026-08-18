@@ -178,7 +178,6 @@ in
         "opencode-plugin-sounds" = {
           target = ".config/opencode/plugin/sounds.ts";
           source = pkgs.mutate ../nixos-shared/home-manager/opencode/sounds.ts {
-            inherit (pkgs) alsa-utils;
             aplay = pkgs.alsa-utils;
             involvedNotificationSound = ../nixos-shared/claude/sounds/involved-notification.wav;
             pullOutSound = ../nixos-shared/claude/sounds/pull-out-551.wav;
