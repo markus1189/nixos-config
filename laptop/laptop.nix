@@ -66,6 +66,19 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
     kernelPackages = pkgs.linuxPackages_latest;
+
+    # Manual escape hatch from a memory stall. The default 16 is
+    # SYSRQ_ENABLE_SYNC alone (include/linux/sysrq.h); `f`
+    # (memory-full-oom-kill) sits behind SYSRQ_ENABLE_SIGNAL = 0x40, so
+    # Alt+SysRq+f was answered with "This sysrq operation is disabled".
+    # 1 means "enable all functions" -- sysrq.c:86 short-circuits the mask
+    # on `sysrq_enabled == 1`. It also arms `c` (deliberate panic); use 252
+    # instead if you want everything except that.
+    #
+    # Useful once live: f = OOM-kill the largest consumer, w = dump blocked
+    # tasks, m = dump memory, R-E-I-S-U-B = clean-ish reboot. On a ThinkPad
+    # SysRq is Fn+PrtSc -- check that now, not mid-stall.
+    kernel.sysctl."kernel.sysrq" = 1;
   };
 
   console = {
