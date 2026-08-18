@@ -26,6 +26,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Weekly-rebuilt nix-index database as a store path, so `,` and the
+    # command-not-found handler answer from flake.lock instead of from a
+    # hand-run `nix-index` in each user's ~/.cache.
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";

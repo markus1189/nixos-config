@@ -11,7 +11,6 @@
         bat
         binutils
         cachix
-        comma
         dnsutils
         ed
         ffmpeg-full
@@ -36,7 +35,6 @@
         nix-prefetch-docker
         nix-prefetch-git
         nix-prefetch-github
-        nix-index
         nixfmt
         nixpkgs-lint
         notifySendPb

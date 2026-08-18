@@ -92,7 +92,6 @@
       feh
       jq
       lsof
-      nix-index
       nixVersions.git
       parallel
       pciutils

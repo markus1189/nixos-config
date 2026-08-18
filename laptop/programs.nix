@@ -90,7 +90,6 @@
         libressl.nc
         nethogs
         nixVersions.git
-        nix-index
         nmap
         openssl
         openvpn

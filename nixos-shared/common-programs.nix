@@ -1,14 +1,20 @@
-{ config, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 
 {
-  environment.interactiveShellInit = ''
-    source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
-  '';
+  # Installs nix-index and comma wrapped around the prebuilt database from
+  # flake.lock, wires the command-not-found handler into bash/zsh/fish, and
+  # defaults programs.command-not-found.enable to false.
+  imports = [ inputs.nix-index-database.nixosModules.nix-index ];
 
   programs = {
     bcc.enable = true; # shellsnoop, opensnoop, exitsnoop etc
 
-    command-not-found.enable = false;
+    nix-index-database.comma.enable = true;
 
     firejail.enable = true;
 
