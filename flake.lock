@@ -170,22 +170,6 @@
         "type": "github"
       }
     },
-    "hurl": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786763611,
-        "narHash": "sha256-OVPAN7bwhYQjXzKQxo5xDhWAXJLIOr2q/HMQJLFUdQk=",
-        "owner": "Orange-OpenSource",
-        "repo": "hurl",
-        "rev": "c7188e5682f249f8a138afc027d7825bfaba9aee",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Orange-OpenSource",
-        "repo": "hurl",
-        "type": "github"
-      }
-    },
     "iy-go-to-char": {
       "flake": false,
       "locked": {
@@ -265,7 +249,6 @@
         "fasd": "fasd",
         "gptel": "gptel",
         "home-manager": "home-manager",
-        "hurl": "hurl",
         "iy-go-to-char": "iy-go-to-char",
         "marginal": "marginal",
         "nixpkgs": "nixpkgs",

@@ -53,7 +53,6 @@ in
         gptel
         dired-plus
         iy-go-to-char
-        hurl
         ;
     };
   };

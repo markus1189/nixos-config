@@ -1,8 +1,8 @@
 (require 'package)
-(require 'quick-yes) ;; added via load path...
-(require 'dired+) ;; added via load path...
 (require 'iy-go-to-char)
-(require 'dired-x)
+(with-eval-after-load 'dired
+  (require 'dired+) ;; added via load path...
+  (require 'dired-x))
 
 ;;; Code:
 
@@ -80,9 +80,6 @@
      (writing . "You are a large language model and a writing assistant. Respond concisely.")
      (chat . "You are a large language model and a conversation partner. Respond concisely.")
      (commit . "Based on the code changes, give me a short but well written git commit message describing the change.  Adhere to common commit etiquette and formatting guidelines.  Prefer a bullet list as the body of the message.")))
- '(helm-for-files-preferred-list
-   '(helm-source-buffers-list helm-source-fasd helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-files-in-current-dir))
- '(helm-split-window-default-side 'right)
  '(initial-major-mode 'org-mode)
  '(magit-default-tracking-name-function 'magit-default-tracking-name-branch-only)
  '(magit-diff-options '("--minimal" "--patience"))
@@ -93,18 +90,10 @@
  '(magit-process-log-max 50)
  '(magit-process-popup-time -1)
  '(magit-rebase-arguments '("--autostash"))
- '(magit-remote-ref-format 'remote-slash-branch)
- '(magit-repo-dirs '("~/repos"))
  '(magit-repository-directories '("~/repos"))
  '(magit-restore-window-configuration t)
- '(magit-revert-buffers 'silent t)
- '(magit-server-window-for-rebase 'pop-to-buffer)
- '(magit-set-upstream-on-push t)
  '(magit-tag-arguments '("--annotate"))
- '(magit-use-overlays t)
  '(org-babel-load-languages '((emacs-lisp . t) (python . t)))
- '(package-selected-packages
-   '(iy-go-to-char iy-goto-char visual-regexp vertico-buffer consult-extra-project counsel-jq yaml-mode which-key vertico verb use-package undo-tree typescript-mode treemacs-projectile transpose-frame terraform-mode systemd string-inflection strace-mode solarized-theme smartparens sbt-mode rust-mode rg restclient rainbow-mode protobuf-mode plantuml-mode persistent-scratch pdf-tools ox-jira ormolu org-drill orderless nix-mode mvn move-text markdown-preview-mode marginalia magit lsp-ui lsp-metals lsp-haskell log4j-mode liso-theme just-mode jsonnet-mode json-mode js2-refactor jq-mode itail indent-guide iedit ibuffer-vc ibuffer-projectile hledger-mode hl-anything groovy-mode gptel go-complete go-autocomplete git-link fullframe format-all flycheck-yamllint flycheck-haskell find-temp-file fasd expand-region evil-numbers eros embark-consult editorconfig dyalog-mode dumb-jump doom-themes dogears dockerfile-mode docker direnv dired-filter diff-hl dhall-mode deadgrep csv-mode company beacon annotate))
  '(whitespace-action '(auto-cleanup)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -114,10 +103,6 @@
  '(default ((t (:inherit nil :stipple nil :background "#242424" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "adobe" :family "Sauce Code Pro Nerd Font "))))
  '(Man-overstrike ((t (:inherit bold :foreground "#ddaa6f"))))
  '(Man-underline ((t (:foreground "medium spring green" :underline "medium spring green"))))
- '(ac-selection-face ((t (:background "dark orange" :foreground "gray20"))))
- '(ace-jump-face-foreground ((t (:foreground "dark orange" :underline nil))))
- '(agda2-highlight-datatype-face ((t (:foreground "deep sky blue"))))
- '(agda2-highlight-function-face ((t (:foreground "deep sky blue"))))
  '(annotate-highlight-secondary ((t (:underline "dim gray"))))
  '(avy-lead-face ((t (:background "orange1" :foreground "black"))))
  '(avy-lead-face-0 ((t (:background "pale green" :foreground "black"))))
@@ -256,7 +241,7 @@
          ("k" . magit-process-kill))
   :init
   (setq log-edit-maximum-comment-ring-size 9999)
-  (defun mh/magit-log-edit-mode-hook ()
+  (defun mh/magit-commit-setup-hook ()
     ;; (flyspell-mode)
     (set-fill-column 72))
   (setq magit-display-buffer-function
@@ -264,9 +249,9 @@
   (setq magit-bury-buffer-function
         #'magit-restore-window-configuration)
   :hook
-  ((magit-log-edit-mode . mh/magit-log-edit-mode-hook)
-   (magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
-   (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
+  ((git-commit-setup . mh/magit-commit-setup-hook)
+   (magit-pre-refresh . diff-hl-magit-pre-refresh)
+   (magit-post-refresh . diff-hl-magit-post-refresh)))
 
 (use-package with-editor
   :ensure t
@@ -283,37 +268,11 @@
       (push (cons 'with-editor-mode map) minor-mode-overriding-map-alist)))
   (add-hook 'server-visit-hook #'mh/with-editor-mode-on))
 
-;; (use-package projectile
-;;   :ensure t
-;;   :diminish projectile-mode
-;;   :commands projectile-global-mode
-;;   :defer 5
-;;   :bind (("C-s-p" . projectile-find-file))
-
-;;   :config
-;;   (use-package helm-projectile
-;;     :demand t
-;;     :bind (("C-s-p" . projectile-find-file)
-;;            ("s-h" . helm-projectile-grep))
-;;     :config
-;;     (setq projectile-completion-system 'helm)
-;;     (helm-projectile-on))
-;;   (projectile-global-mode))
-
 (use-package s
   :ensure t)
 
 (use-package f
   :ensure t)
-
-(use-package solarized-theme
-  :ensure t
-  :init
-  (setq solarized-distinct-fringe-background t)
-  (setq solarized-use-variable-pitch nil)
-  (setq solarized-high-contrast-mode-line t)
-  :config
-  )
 
 (use-package avy
   :ensure t
@@ -474,58 +433,6 @@ covers a single line)."
   (global-set-key (kbd "<f9>") 'calc)
   (global-set-key (kbd "M-SPC") 'cycle-spacing)
 
-  (global-set-key (kbd "C-<f5>") 'compile)
-  (global-set-key (kbd "<f5>") 'compile-dwim)
-
-  (defvar get-buffer-compile-command (lambda (file) (cons file 1)))
-  (make-variable-buffer-local 'get-buffer-compile-command)
-
-  (setq-default compile-command "")
-
-  (defun compile-dwim (&optional arg)
-    "Compile Do What I Mean.
-    Compile using `compile-command'.
-    When `compile-command' is empty prompt for its default value.
-    With prefix C-u always prompt for the default value of
-    `compile-command'.
-    With prefix C-u C-u prompt for buffer local compile command with
-    suggestion from `get-buffer-compile-command'.  An empty input removes
-    the local compile command for the current buffer."
-    (interactive "P")
-    (cond
-     ((and arg (> (car arg) 4))
-      (let ((cmd (read-from-minibuffer
-                  "Buffer local compile command: "
-                  (funcall get-buffer-compile-command
-                           (or (file-relative-name (buffer-file-name)) ""))
-                  nil nil 'compile-history)))
-        (cond ((equal cmd "")
-               (kill-local-variable 'compile-command)
-               (kill-local-variable 'compilation-directory))
-              (t
-               (set (make-local-variable 'compile-command) cmd)
-               (set (make-local-variable 'compilation-directory)
-                    default-directory))))
-      (when (not (equal compile-command ""))
-        ;; `compile' changes the default value of
-        ;; compilation-directory but this is a buffer local
-        ;; compilation
-        (let ((dirbak (default-value 'compilation-directory)))
-          (compile compile-command)
-          (setq-default compilation-directory dirbak))))
-     ((or (and arg (<= (car arg) 4))
-          (equal compile-command ""))
-      (setq-default compile-command (read-from-minibuffer
-                                     "Compile command: "
-                                     (if (equal compile-command "")
-                                         "make " compile-command)
-                                     nil nil 'compile-history))
-      (setq-default compilation-directory default-directory)
-      (when (not (equal (default-value 'compile-command) ""))
-        (compile (default-value 'compile-command))))
-     (t
-      (recompile))))
-
   (defun mh/comment-or-uncomment-current-line-or-region (prefix)
     "Comments or uncomments current current line or whole lines in region."
     (interactive "P")
@@ -561,8 +468,6 @@ covers a single line)."
   (global-set-key (kbd "C-M-ï") 'mh/duplicate-current-line-above)
   (global-set-key (kbd "C-M-œ") 'mh/duplicate-current-line-below)
   (global-set-key (kbd "C-z") 'eshell)
-
-  (global-set-key (kbd "C-c j") (Λ (mh/open-in-intellij)))
 
   (defun mh/open-in-intellij ()
     (interactive)
@@ -601,8 +506,6 @@ covers a single line)."
   (global-auto-revert-mode 1)
   (delete-selection-mode)
   (setq-default indent-tabs-mode nil)
-
-  (require 'dired-x)
 
   ;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
   (setq version-control t    ;; Use version numbers for backups.
@@ -665,7 +568,8 @@ covers a single line)."
   (global-set-key (kbd "s-ó") 'mh/move-window-to-other-and-winner-undo)
   (global-set-key (kbd "s-œ") 'mh/cut-window-to-register)
 
-  (setq gc-cons-threshold 100000000)
+  ;; 1MB subprocess reads for LSP throughput
+  (setq read-process-output-max (* 1024 1024))
 
   ;; Use GCMH for smart GC timing instead of high static threshold
   (use-package gcmh
@@ -684,6 +588,9 @@ covers a single line)."
   )
 
 (use-package quick-yes
+  ;; site-lisp file without autoloads; the bound symbols are
+  ;; query-replace-map actions, so only :demand actually loads it
+  :demand t
   :bind (
          :map query-replace-map
          ("M-y" . act)
@@ -771,7 +678,6 @@ covers a single line)."
   (advice-add 'find-temp-file :before #'mh/set-stuff-dir))
 
 (use-package haskell-mode
-  :demand t
   :config
   (defun mh/haskell-mode-organize-imports ()
     (interactive)
@@ -830,12 +736,8 @@ covers a single line)."
 (use-package multiple-cursors
   :ensure t
   :init
-  (defun mh/mc/create-fake-cursor-at-point () (interactive) mc/create-fake-cursor-at-point)
-  (defun mh/multiple-cursors-mode () (interactive) (multiple-cursors-mode 1))
   :bind
-  (("C-M->" . mh/mc/create-fake-cursor-at-point)
-   ("C-M-<" . mh/multiple-cursors-mode)
-   ("C-#" . mc/mark-all-like-this-dwim)
+  (("C-#" . mc/mark-all-like-this-dwim)
    ("C->" . mc/mark-next-like-this)
    ("C-<" . mc/mark-previous-like-this)))
 
@@ -843,17 +745,8 @@ covers a single line)."
   :ensure t
   :demand t
   :bind (("<f5>" . recompile))
-  :config
-
-
-  (require 'ansi-color)
-  (defun colorize-compilation-buffer ()
-    (toggle-read-only)
-    (ansi-color-apply-on-region compilation-filter-start (point))
-    (toggle-read-only))
-
   :hook
-  (compilation-filter . colorize-compilation-buffer))
+  (compilation-filter . ansi-color-compilation-filter))
 
 (use-package whitespace
   :ensure t
@@ -868,7 +761,6 @@ covers a single line)."
 
 (use-package iedit
   :ensure t
-  :demand t
   :bind (("C-s-;" . iedit-mode)
          :map iedit-mode-keymap
          ("M-i" . iedit-restrict-function)))
@@ -881,14 +773,12 @@ covers a single line)."
    ("C-s--" . evil-numbers/dec-at-pt)))
 
 (use-package evil
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package yaml-mode
   :ensure t
-  :demand t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode)))
+  :mode ("\\.yml\\'" "\\.yaml\\'"))
 
 (use-package flycheck-yamllint
   :ensure t)
@@ -923,10 +813,9 @@ covers a single line)."
   (add-to-list 'auto-mode-alist '("\\.restclient\\'" . restclient-mode)))
 
 (use-package pdf-tools
+  :defer t
   :init
-  ;; (setq pdf-info-epdfinfo-program "/tmp/epdfinfo")
-  :config
-  (pdf-tools-install))
+  (pdf-loader-install))
 
 (use-package hippie-exp
   :ensure t
@@ -1089,30 +978,11 @@ string). It returns t if a new completion is found, nil otherwise."
       (end-of-line)
       (hippie-expand nil))))
 
-;; (use-package goto-chg
-;;   :ensure t
-;;   :demand t
-;;   :config
-;;   (defhydra hydra-goto-changes ()
-;;                   "hydra-goto-changes"
-;;                   ("SPC" goto-last-change "goto-last-change")
-;;                   ("C-SPC" goto-last-change "goto-last-change")
-;;                   ("C-x C-SPC" goto-last-change "goto-last-change")
-;;                   ("DEL" goto-last-change-reverse "goto-last-change-reverse")
-;;                   ("q" nil "cancel"))
-;;   :bind (("C-x C-SPC" . hydra-goto-changes/body)))
-
 (use-package beacon
   :demand t
   :ensure t
   :config
   (beacon-mode 1))
-
-;; (use-package pabbrev
-;;   :ensure t
-;;   :config
-;;   (global-pabbrev-mode)
-;;   (setq pabbrev-idle-timer-verbose nil))
 
 (use-package groovy-mode
   :ensure t)
@@ -1122,32 +992,6 @@ string). It returns t if a new completion is found, nil otherwise."
   :config
   (setq plantuml-jar-path "@plantuml@/lib/plantuml.jar"))
 
-;; (use-package mu4e
-;;   :config
-;;   (require 'mu4e-utils)
-;;   (setq
-;;       mu4e-sent-folder "/[Google Mail].All Mail"
-;;       mu4e-drafts-folder "/[Google Mail].Drafts"
-;;       mu4e-trash-folder "/[Google Mail].Trash"
-;;       mu4e-refile-folder "/[Google Mail].All Mail"
-;;      mu4e-maildir "~/mail"
-;;       mu4e-html2text-command "@pandoc@/bin/pandoc -f html -t org"
-;;       mu4e-view-auto-mark-as-read nil
-;;      )
-;;   (add-to-list 'mu4e-bookmarks
-;;        (make-mu4e-bookmark
-;;          :name  "Inbox"
-;;          :query "NOT flag:thrashed AND maildir:/INBOX"
-;;          :key ?b))
-;;   (setq mu4e-bookmarks `(("\\\\Inbox" "Inbox" ?i)
-;;                          ("flag:flagged" "Flagged messages" ?f)
-;;                          (,(concat "flag:unread AND "
-;;                                    "NOT flag:trashed AND "
-;;                                    "NOT maildir:/[Google Mail].Spam AND "
-;;                                    "NOT maildir:/[Google Mail].Bin")
-;;                           "Unread messages" ?u)))
-;;  )
-
 (use-package terraform-mode
   :ensure t)
 
@@ -1156,11 +1000,6 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package dockerfile-mode
   :ensure t)
-
-(use-package string-inflection
-  :ensure t
-  :commands ()
-  :bind (("C-c C-u" . string-inflection-all-cycle)))
 
 (use-package lua-mode
   :ensure t)
@@ -1172,11 +1011,7 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package ibuffer-vc
   :ensure t)
 
-;; (use-package ibuffer-projectile
-;;   :ensure t)
-
 (use-package json-mode
-  :bind (("C-c j" . (lambda () (interactive) (jsons-print-path-jq))))
   :ensure t)
 
 (use-package deadgrep
@@ -1213,9 +1048,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package csv-mode
   :ensure t)
 
-;; (use-package dyalog-mode
-;;   :ensure t)
-
 (use-package direnv
   :ensure t
   :config
@@ -1237,7 +1069,8 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package docker
-  :ensure t)
+  :ensure t
+  :commands docker)
 
 ;; https://writequit.org/articles/working-with-logs-in-emacs.html#dealing-with-large-files
 (use-package hl-anything
@@ -1266,9 +1099,6 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
-
-;; (use-package kubel
-;; :ensure t)
 
 (use-package ormolu
   :ensure t)
@@ -1312,22 +1142,20 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq lsp-prefer-flymake nil))
 
 (use-package lsp-haskell
-  :ensure t)
+  :ensure t
+  :after lsp-mode)
 
 (use-package lsp-metals
   :ensure t
-  :config
+  :after lsp-mode
+  :init
   (setq lsp-metals-treeview-show-when-views-received t))
 
 (use-package lsp-treemacs
-  :ensure t)
+  :ensure t
+  :after lsp-mode)
 
-;; optional if you want which-key integration
-(use-package which-key
-  :config
-  (which-key-mode))
 (use-package lsp-ui :commands lsp-ui-mode)
-;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package dap-mode
   :hook
   (lsp-mode . dap-mode)
@@ -1353,16 +1181,20 @@ string). It returns t if a new completion is found, nil otherwise."
   (annotate-annotation-confirm-deletion t))
 
 (use-package org-drill
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package verb
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package org
   :ensure t
+  :defer t
   :init
   (eval-after-load "org"
     '(require 'ox-md nil t))
+  ;; verb-command-map is autoloaded, so this does not load verb
   :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 
 (use-package transpose-frame
@@ -1375,9 +1207,6 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package systemd
   :ensure t)
-
-;; (use-package helm-rg
-;;   :ensure t)
 
 (use-package hledger-mode
   :ensure t
@@ -1405,21 +1234,12 @@ string). It returns t if a new completion is found, nil otherwise."
     (hledger-backward-entry)
     (hledger-pulse-momentary-current-entry))
 
-  :bind (("C-c j" . hledger-run-command)
-         :map hledger-mode-map
+  :bind (:map hledger-mode-map
          ("C-c e" . hledger-jentry)
          ("M-p" . hledger/prev-entry)
          ("M-n" . hledger/next-entry))
-  :init
-
   :config
-  (add-hook 'hledger-view-mode-hook #'hl-line-mode)
-  (add-hook 'hledger-view-mode-hook #'center-text-for-reading)
-
-  (add-hook 'hledger-mode-hook
-            (lambda ()
-              (make-local-variable 'company-backends)
-              (add-to-list 'company-backends 'hledger-company))))
+  (add-hook 'hledger-view-mode-hook #'hl-line-mode))
 
 (use-package doom-themes
   :ensure t
@@ -1427,7 +1247,6 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-one t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -1435,10 +1254,8 @@ string). It returns t if a new completion is found, nil otherwise."
   (doom-themes-org-config))
 
 (use-package treemacs
-  :ensure t)
-
-;; (use-package treemacs-projectile
-;;   :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package just-mode
   :ensure t)
@@ -1449,9 +1266,8 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package rg
   :ensure t
-  :init
-  (rg-enable-menu)
-  )
+  ;; same prefix rg-enable-menu would set up, without loading rg at startup
+  :bind ("C-c s" . rg-menu))
 
 (use-package rust-mode
   :ensure t)
@@ -1464,11 +1280,9 @@ string). It returns t if a new completion is found, nil otherwise."
   (gptel-post-stream . gptel-auto-scroll)
   :bind (
          ("C-c C-<return>" . gptel-send)
-         ("C-c g g" . gptel)
-         ("C-c g o" . 'mh/gptel-ocr-screenshot))
-  :init
-  (require 'gptel-integrations)
+         ("C-c g g" . gptel))
   :config
+  (require 'gptel-integrations)
 
   (setq gptel-use-tools nil)
 
@@ -1546,227 +1360,6 @@ string). It returns t if a new completion is found, nil otherwise."
   (add-to-list 'gptel-directives '(questions . "To start, ask me up to 5 questions to improve your understanding of what I'm trying to do here"))
   (add-to-list 'gptel-directives '(brainstorm . "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time."))
   (add-to-list 'gptel-directives '(followup . "Finally, provide a numbered list of 3-5 actionable next steps I could take related to this response. These next steps should be diverse and may include, but are not limited to: further research questions, concrete actions, alternative perspectives to consider, potential challenges to anticipate, or resources to consult for further information.  Be specific and concise in each suggestion."))
-  (add-to-list 'gptel-directives '(memory . "Use your memory about me when replying, and update it with my confirmation if I share something important."))
-
-  (defun mh/add-gptel-tool (tool)
-    (add-to-list 'gptel-tools tool t (lambda (tool1 tool2) (string= (aref tool1 2) (aref tool2 2))))
-    gptel-tools)
-
-  (gptel-make-tool
-   :name "read_buffer"
-   :description "Return the contents of an Emacs buffer"
-   :args (list '(:name "buffer"
-                       :type string
-                       :schema
-                       :description "The name of the buffer whose contents are to be retrieved"))
-   :category "emacs"
-   :function (lambda (buffer)
-               (unless (buffer-live-p (get-buffer buffer))
-                 (error "Error: buffer %s is not live" buffer))
-               (with-current-buffer  buffer
-                 (buffer-substring-no-properties (point-min) (point-max)))))
-
-  (gptel-make-tool
-   :name "list_directory_recursively"
-   :description "List the contents of a given directory recursively and return files."
-   :args (list '(:name "directory"
-                       :type string
-                       :description "The path to the directory to list files in (recursively)")
-               '(:name "regexp"
-                       :type string
-                       :description "A valid emacs regular expression to match file names with"))
-   :category "filesystem"
-   :function (lambda (directory regexp)
-               (encode-coding-string (mapconcat #'identity
-                                                (directory-files-recursively directory regexp nil t)
-                                                "\n") 'utf-8)))
-  (gptel-make-tool
-   :name "read_file"
-   :description "Read and display the contents of a file"
-   :args (list '(:name "filepath"
-                       :type string
-                       :description "Path to the file to read.  Supports relative paths and ~."))
-   :category "filesystem"
-   :function (lambda (filepath)
-               (with-temp-buffer
-                 (insert-file-contents (expand-file-name filepath))
-                 (buffer-string))))
-  (gptel-make-tool
-   :name "rename_file"
-   :description "Rename a file from OLD-PATH to NEW-PATH."
-   :args (list '(:name "old-path"
-                       :type string
-                       :description "The current path of the file to rename.")
-               '(:name "new-path"
-                       :type string
-                       :description "The new path of the file after renaming."))
-   :category "filesystem"
-   :confirm t
-   :function (lambda (old-path new-path)
-               (if (file-exists-p old-path)
-                   (progn
-                     (f-move old-path new-path)
-                     (format "Successfully renamed file from %s to %s" old-path new-path))
-                 (format "Error: %s does not exist." old-path))))
-
-  (gptel-make-tool
-   :name "write_file"
-   :description "Write CONTENT to a file at FPATH"
-   :args (list '(:name "fpath"
-                       :type string
-                       :description "The path of the file to write to.")
-               '(:name "content"
-                       :type string
-                       :description "Content of the file."))
-   :category "filesystem"
-   :confirm t
-   :function (lambda (fpath content)
-               (if (file-exists-p fpath)
-                   (progn
-                     (f-write content 'utf-8 fpath)
-                     (format "Successfully wrote to file %s" fpath))
-                 (format "Error: %s does not exist." fpath))))
-
-  (gptel-make-tool
-   :function (lambda (old-path new-path)
-               (if (file-exists-p old-path)
-                   (progn
-                     (f-move old-path new-path)
-                     (format "Renamed file from %s to %s" old-path new-path))
-                 (format "Error: %s does not exist." old-path)))
-   :name "rename_file"
-   :confirm t
-   :description "Rename a file from OLD-PATH to NEW-PATH."
-   :args (list '(:name "old-path"
-                       :type string
-                       :description "The current path of the file to rename.")
-               '(:name "new-path"
-                       :type string
-                       :description "The new path of the file after renaming."))
-   :category "filesystem")
-
-  (defvar mh/llm-memory-file (expand-file-name "~/Syncthing/Inbox/llm-memory.txt")
-    "The file used to store LLM memory.")
-
-  (gptel-make-tool
-   :name "read_memory"
-   :description "Retrieves and returns the entire current content of your persistent memory. Use this to recall information saved previously, especially at the beginning of a conversation or when context from past interactions is needed."
-   :args nil
-   :confirm nil
-   :category "memory"
-   :function (lambda ()
-               (if (file-exists-p mh/llm-memory-file)
-                   (with-temp-buffer
-                     (insert-file-contents mh/llm-memory-file)
-                     (buffer-string))
-                 (error "Memory storage inaccessible.  Cannot read"))))
-
-  (gptel-make-tool
-   :name "write_memory"
-   :description "Appends the provided text as a new entry to your persistent memory. Ensures separation from previous entries. Use this to save specific facts, user preferences, summaries, or instructions for future reference. Consult the user before doing this unless explicitly asked to do it."
-   :args (list '(:name "memory"
-                       :type string
-                         :description "Content to append to memory. Will be added as a distinct entry."
-                       :minLength 1))
-   :confirm t
-   :category "memory"
-   :function (lambda (content)
-               (if content
-                   (if (file-exists-p mh/llm-memory-file)
-                       (progn
-
-                         (with-temp-buffer
-                           (insert-file-contents mh/llm-memory-file)
-                           (unless (or (zerop (point-max))
-                                       (eq (char-before (point-max)) ?\n))
-                             (goto-char (point-max))
-                             (insert "\n")))
-                         (append-to-file content nil mh/llm-memory-file)
-                         "Success: Information appended to memory.")
-                     (error "Memory storage inaccessible.  Cannot write"))
-                 "Content argumentis required")))
-
-  (gptel-make-tool
-   :name "replace_memory"
-     :description "Completely replaces the *entire* content of your persistent memory  with the provided text. WARNING: All previously stored information will be permanentlyerased. Use this to reset memory, load a specific state, or start freshwith a clean slate."
-   :args (list '(:name "memory"
-                       :type string
-                       :description "New content to completely overwrite the memory  with."
-                       :minLength 0)) ; Allow empty memory
-   :confirm t
-   :category "memory"
-   :function (lambda (content)
-               (if content
-                   (progn
-                     (write-region content nil mh/llm-memory-file nil 0) ; Use write-region for overwriting
-                     "Success: Memory replaced.")
-                 "Error:Content argument is required")))
-  (gptel-make-tool
-   :name "get_current_datetime"
-   :description "Returns the current date and time in ISO 8601 format."
-   :args nil
-   :confirm nil
-   :category "utility"
-   :function (lambda ()
-               (format-time-string "%Y-%m-%dT%H:%M:%S%z")))
-
-  (gptel-make-tool
-   :name "move_item"
-   :description "Move a file or directory from OLD-PATH to NEW-PATH."
-   :args (list '(:name "old_path"
-                       :type string
-                       :description "The current path of the file or directory to move.")
-               '(:name "new_path"
-                       :type string
-                       :description "The new path for the file or directory."))
-   :category "filesystem"
-   :confirm t
-   :function (lambda (old_path new_path)
-               (let ((expanded_old_path (expand-file-name old_path))
-                     (expanded_new_path (expand-file-name new_path)))
-                 (if (not (file-exists-p expanded_old_path))
-                     (format "Error: Source path %s does not exist." expanded_old_path)
-                   (if (file-exists-p expanded_new_path)
-                       (format "Error: Target path %s already exists. Please use a different target path or delete it first." expanded_new_path)
-                     (progn
-                       (f-move expanded_old_path expanded_new_path) ; f-move is from f.el
-                       (format "Successfully moved %s to %s" expanded_old_path expanded_new_path)))))))
-
-  (gptel-make-tool
-   :name "execute_bash_command"
-   :description (concat "Executes an arbitrary bash command and returns its exit status, standard output, and standard error. "
-                        "CRITICAL SAFETY PROTOCOL: Before you decide to use this tool, you MUST explicitly ask the user for their permission to execute *any* bash command for the current task, explain why it's necessary, and what kind of command you are considering. "
-                        "Only proceed to formulate and call this tool if they explicitly agree. "
-                        "When calling the tool, state the exact command you intend to run. "
-                        "Use with EXTREME CAUTION as this can modify your system or expose sensitive data."
-                        "When using `rm' or `mv' always add the `-v' flag.")
-   :args (list '(:name "command"
-                       :type string
-                       :description "The bash command to execute. This should only be formulated after user pre-approval."))
-   :category "system"
-   :confirm t
-   :function (lambda (command_string)
-               (let ((output_buffer_name "*gptel-bash-output*")
-                     (output_buffer (get-buffer-create "*gptel-bash-output*"))
-                     (exit-status nil)
-                     result)
-                 (unwind-protect
-                     (progn
-                       (with-current-buffer output_buffer (erase-buffer))
-                       (setq exit-status (call-process-shell-command
-                                          (format "(%s) 2>&1" command_string)
-                                          nil
-                                          output_buffer
-                                          nil))
-                       (with-current-buffer output_buffer
-                         (setq result (format "Exit Status: %s\nOutput (stdout & stderr):\n%s"
-                                              exit-status
-                                              (s-trim (buffer-string))))))
-                   (when (buffer-live-p output_buffer)
-                     (kill-buffer output_buffer)))
-                 result)))
-
-  ;; Tools end
   )
 
 (use-package diff-hl
@@ -2012,9 +1605,11 @@ string). It returns t if a new completion is found, nil otherwise."
   :init (dogears-mode))
 
 (use-package string-inflection
+  :ensure t
   :after embark
-  :bind (:map embark-identifier-map
-              ("-" . #'string-inflection-all-cycle))
+  :bind (("C-c C-u" . string-inflection-all-cycle)
+         :map embark-identifier-map
+         ("-" . #'string-inflection-all-cycle))
   :init
   (add-to-list 'embark-repeat-actions #'string-inflection-all-cycle))
 
@@ -2031,8 +1626,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :bind
   (("C-c r" . vr/replace)
-   ("C-c q" . vr/query-replace)
-   ("C-c m" . vr/mc-mark)))
+   ("C-c q" . vr/query-replace)))
 
 (use-package ediff
   :ensure t
@@ -2078,8 +1672,8 @@ string). It returns t if a new completion is found, nil otherwise."
    ("j" . #'next-line)
    ("k" . #'previous-line))
   :hook
-  (elfeed-new-entry-parse-hook . mh/elfeed-extract-comments-link)
-  (elfeed-new-entry-hook . mh/elfeed-prefix-github-titles)
+  (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
+  (elfeed-new-entry . mh/elfeed-prefix-github-titles)
 
   :init
   (defun mh/elfeed-prefix-github-titles (entry)
@@ -2240,7 +1834,7 @@ Provides more detailed messages on failure."
                when (elfeed-entry-link entry)
                do (let
                       ((tags (delete 'unread (elfeed-entry-tags entry))))
-                    (when (mh/raindrop-add-url-api it tags)
+                    (when (mh/raindrop-add-url-api (elfeed-entry-link entry) tags)
                       (elfeed-untag entry 'unread)
                       (elfeed-tag entry 'mh/pocketed))))
       (with-current-buffer buffer
@@ -2785,6 +2379,7 @@ Provides more detailed messages on failure."
 
 (use-package elfeed-summary
   :ensure t
+  :after elfeed
   :config
   (setq elfeed-summary-settings
         '((group
@@ -2822,6 +2417,7 @@ Provides more detailed messages on failure."
 
 (use-package elfeed-score
   :ensure t
+  :after elfeed
   :config
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map)
