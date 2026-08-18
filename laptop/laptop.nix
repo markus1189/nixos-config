@@ -28,7 +28,7 @@
     ../nixos-shared/zsh.nix
     ./k8s.nix
     ./bluetooth.nix
-    ./earlyoom.nix
+    ./oom.nix
     ./hosts.nix
     ./keybase.nix
     ./lastpass.nix
