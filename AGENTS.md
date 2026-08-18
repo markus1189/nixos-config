@@ -1,7 +1,7 @@
 # Agents documentation for nixos-configuration
 
 This repository is the source of truth for shared and per-machine
-configuration of nixos machines: servers, laptops, mobile phones.
+configuration of nixos machines: servers and laptops.
 
 WARNING: this repo is public
 
@@ -22,7 +22,6 @@ Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
 | `p1/` | `./activate.sh` (flake attr `p1`, hostname `nixos-p1`) | markus | ThinkPad P1 (primary laptop) |
 | `p1g8/` | `./activate.sh p1g8` | markus | ThinkPad P1 Gen 8 |
 | `nuc/` | `./activate.sh` (flake attr `nuc`) | mediacenter | Home server |
-| `nix-on-droid/` | Separate flake | n/a | Android/Termux |
 
 ### Shared Modules (`nixos-shared/`)
 - **Configuration**: `common-packages.nix`, `common-programs.nix`, `common-services.nix`
@@ -62,9 +61,6 @@ All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
 # Any host (defaults to $(hostname); p1's hostname nixos-p1 is aliased)
 ./activate.sh            # sudo nixos-rebuild switch --flake .#<host>
 ./activate.sh p1g8       # explicit host attr
-
-# Nix-on-Droid (from nix-on-droid/ directory; separate flake)
-nix-on-droid switch --flake ./nix-on-droid
 ```
 
 ### Validation and Testing

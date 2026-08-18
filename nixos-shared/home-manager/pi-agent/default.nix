@@ -2,7 +2,7 @@
   pkgs,
   globalMdText,
   # Injected from the overlay (flake-base.nix) via callPackage.
-  agentSkills ? import ../../agent-skills { inherit pkgs; },
+  agentSkills,
   ...
 }:
 

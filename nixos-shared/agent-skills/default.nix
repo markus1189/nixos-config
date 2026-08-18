@@ -9,8 +9,6 @@
 #
 # `marginalSrc` is the marginal flake input, so the marginal-last skill and
 # the pkgs.marginal binary it drives are version-locked by flake.lock.
-# Passing null (nix-on-droid, whose flake has no marginal input) simply
-# omits the skill.
 #
 # `agentBrowser` is the llm-agents.nix package, not a source tree: upstream
 # ships its own SKILL.md inside the binary's $out, so sourcing the skill from
@@ -19,7 +17,7 @@
 # skill (nuc, which has no chromium and should not pull the closure).
 {
   pkgs,
-  marginalSrc ? null,
+  marginalSrc,
   agentBrowser ? null,
 }:
 
@@ -121,7 +119,7 @@ let
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
   webSkills =
-    lib.optionalAttrs (marginalSrc != null) {
+    {
       marginal-last = mkAgentSkill {
         name = "marginal-last";
         src = marginalSrc + "/launchers/claude-code";

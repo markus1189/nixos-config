@@ -1,9 +1,7 @@
 {
   pkgs,
-  # Injected from the overlay (flake-base.nix) via callPackage on the
-  # hosts; the fallback covers nix-on-droid, whose pkgs has no overlay
-  # and whose flake has no marginal input (=> no marginal-last there).
-  agentSkills ? import ../../agent-skills { inherit pkgs; },
+  # Injected from the overlay (flake-base.nix) via callPackage.
+  agentSkills,
   enableSoundHooks ? false,
   enableDenyRules ? false,
   enableDangerousCommandCheck ? true,
