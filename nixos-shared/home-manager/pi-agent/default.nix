@@ -81,7 +81,7 @@ let
       text = builtins.readFile (
         pkgs.mutate ./extensions/sounds.ts {
           aplay = pkgs.alsa-utils;
-          sounds = ../../claude/sounds;
+          sounds = "${../../claude/sounds}";
         }
       );
     };

@@ -179,14 +179,14 @@ in
           target = ".config/opencode/plugin/sounds.ts";
           source = pkgs.mutate ../nixos-shared/home-manager/opencode/sounds.ts {
             aplay = pkgs.alsa-utils;
-            involvedNotificationSound = ../nixos-shared/claude/sounds/involved-notification.wav;
-            pullOutSound = ../nixos-shared/claude/sounds/pull-out-551.wav;
-            forSureSound = ../nixos-shared/claude/sounds/for-sure-576.wav;
-            happyToHelpSound = ../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav;
-            comeHereSound = ../nixos-shared/claude/sounds/come-here-notification.wav;
-            intuitionSound = ../nixos-shared/claude/sounds/intuition-561.wav;
-            timeIsNowSound = ../nixos-shared/claude/sounds/time-is-now-585.wav;
-            justMaybeSound = ../nixos-shared/claude/sounds/just-maybe-577.wav;
+            involvedNotificationSound = "${../nixos-shared/claude/sounds/involved-notification.wav}";
+            pullOutSound = "${../nixos-shared/claude/sounds/pull-out-551.wav}";
+            forSureSound = "${../nixos-shared/claude/sounds/for-sure-576.wav}";
+            happyToHelpSound = "${../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav}";
+            comeHereSound = "${../nixos-shared/claude/sounds/come-here-notification.wav}";
+            intuitionSound = "${../nixos-shared/claude/sounds/intuition-561.wav}";
+            timeIsNowSound = "${../nixos-shared/claude/sounds/time-is-now-585.wav}";
+            justMaybeSound = "${../nixos-shared/claude/sounds/just-maybe-577.wav}";
           };
         };
 
