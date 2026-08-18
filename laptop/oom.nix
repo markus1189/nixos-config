@@ -47,9 +47,18 @@
   # normal (Fedora ships root + user slices; system.slice is deliberately
   # left off so oomd cannot reap inside system services on a laptop).
   #
-  # Caveat: enableUserSlices drops ManagedOOMMemoryPressure into *every*
-  # user-owned slice, session.slice included -- a bad enough memory event can
-  # end the session rather than just the offending app.
+  # enableUserSlices drops ManagedOOMMemoryPressure into *every* user-owned
+  # slice via a slice.d/ type drop-in; session.slice is exempted again below.
+  #
+  # Worth knowing rather than configuring: on this setup the desktop does not
+  # live under user@1000.service at all. X, xmonad, emacs, firefox and spotify
+  # sit in /user.slice/user-1000.slice/session-1.scope -- 16 G, and a *leaf*,
+  # so it is a single eligible candidate under the monitored user.slice. If
+  # oomd ever fires there it takes the whole session. That is the correct
+  # answer to a genuinely wedged machine (steering it away would only make it
+  # chase 2.9 G of terminal windows and free nothing), but it is a logout, not
+  # a polite browser kill. earlyoom should win the race in any normal alloc
+  # storm: it triggers on a single poll, oomd needs 80 % pressure for 30 s.
   #
   # Note this does NOT populate oomctl's "Swap Monitored CGroups": the
   # nixpkgs module only emits ManagedOOMMemoryPressure, never ManagedOOMSwap.
@@ -58,5 +67,24 @@
   systemd.oomd = {
     enableRootSlice = true;
     enableUserSlices = true;
+  };
+
+  # Exempt session.slice from the above. It holds dbus-broker, pipewire,
+  # pipewire-pulse and wireplumber -- 72 M measured. A monitored cgroup is
+  # never its own victim (systemd-oomd(8): "only descendant cgroups are
+  # eligible candidates"), so a trigger here kills dbus-broker or pipewire:
+  # frees 72 M, severs everything in the session that talks to the user bus.
+  # Pure downside.
+  #
+  # Name-specific drop-in directories outrank the type-wide slice.d/ one
+  # (systemd.unit(5), "top-level drop-in"), and NixOS writes both under the
+  # same filename `overrides.conf`, so this replaces rather than merges --
+  # which is why the block must carry the full desired [Slice] config.
+  systemd.user.units."session.slice" = {
+    text = ''
+      [Slice]
+      ManagedOOMMemoryPressure=auto
+    '';
+    overrideStrategy = "asDropin";
   };
 }
