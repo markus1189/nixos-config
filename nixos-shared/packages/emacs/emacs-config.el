@@ -229,7 +229,9 @@ merely disfigured by the global line numbers."
 
 (use-package flymake
   :ensure nil
-  :hook (prog-mode . flymake-mode)
+  ;; markdown-mode does not derive from prog-mode, so it needs its own entry.
+  :hook ((prog-mode . flymake-mode)
+         (markdown-mode . flymake-mode))
   :bind (("C-s-SPC" . flymake-goto-next-error)
          ("C-S-s-SPC" . flymake-goto-prev-error))
   :custom

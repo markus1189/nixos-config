@@ -134,6 +134,7 @@
         scrot
         shellcheck
         yamllint
+        mdl
         ffmpegthumbnailer
         mediainfo
         epub-thumbnailer
