@@ -106,6 +106,15 @@ in
         # Quitting a program is a decision, not a failure. `systemctl --user
         # start <name>` brings it back within the session.
         Restart = "no";
+        # The user manager is started by pam_systemd at login, long before any
+        # shell profile runs, so its environment block never learns about the
+        # agent -- and a unit started from it hands that gap down to every
+        # child. Magit then shells out to git, git to ssh, ssh finds no agent
+        # and falls back to reading ~/.ssh directly, i.e. a passphrase prompt
+        # for an already-unlocked key. `programs.ssh.startAgent = true` puts
+        # the socket at $XDG_RUNTIME_DIR/ssh-agent, which %t resolves to here
+        # (same reasoning as laptop/atuin-sync.nix).
+        Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
       };
     }) cfg;
   };
