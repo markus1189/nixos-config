@@ -77,10 +77,6 @@
     };
     # Single-file elisp packages without a MELPA recipe (consumed in
     # nixos-shared/packages/emacs).
-    dired-plus = {
-      url = "github:emacsmirror/dired-plus";
-      flake = false;
-    };
     iy-go-to-char = {
       url = "github:doitian/iy-go-to-char";
       flake = false;

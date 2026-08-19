@@ -134,6 +134,10 @@
         scrot
         shellcheck
         yamllint
+        ffmpegthumbnailer
+        mediainfo
+        epub-thumbnailer
+        p7zip
         spotify
         src-cli
         sshfs

@@ -1,7 +1,6 @@
 ;;; -*- lexical-binding: t; -*-
 (require 'iy-go-to-char)
 (with-eval-after-load 'dired
-  (require 'dired+) ;; added via load path...
   (require 'dired-x))
 
 ;;; Code:
@@ -57,7 +56,6 @@
  '(custom-enabled-themes '(wombat))
  '(dired-auto-revert-buffer 'dired-directory-changed-p)
  '(dired-dwim-target t)
- '(dired-filter-saved-filters '(("custom-filters" (omit))))
  '(dired-guess-shell-alist-user
    '(("\\.hp\\'" "hp2pretty" "hp2ps")
      ("\\.\\(svg\\)\\|\\(png\\)\\|\\(jpg\\)\\'" "imv")
@@ -69,7 +67,6 @@
      ("\\.jar\\'" "java -jar")))
  '(dired-isearch-filenames 'dwim)
  '(dired-listing-switches "-al --block-size=M --group-directories-first")
- '(diredp-hide-details-initially-flag nil)
  '(ediff-merge-split-window-function 'split-window-horizontally)
  '(ediff-split-window-function 'split-window-horizontally)
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -120,25 +117,6 @@
  '(corfu-current ((t (:background "orange1" :foreground "black"))))
  '(corfu-default ((t (:background "gray17" :foreground "light gray"))))
  '(cursor ((t (:background "white smoke" :inverse-video t))))
- '(diredp-compressed-file-suffix ((t (:foreground "steel blue"))))
- '(diredp-date-time ((t (:foreground "pale goldenrod"))))
- '(diredp-deletion ((t (:foreground "red"))))
- '(diredp-dir-heading ((t (:foreground "pale green" :height 1.15))))
- '(diredp-dir-priv ((t (:foreground "#8ac6f2"))))
- '(diredp-exec-priv ((t (:foreground "yellow"))))
- '(diredp-file-name ((t (:foreground "white"))))
- '(diredp-file-suffix ((t (:foreground "light gray"))))
- '(diredp-flag-mark ((t (:foreground "DarkOrange1"))))
- '(diredp-flag-mark-line ((t (:background "gray20"))))
- '(diredp-ignored-file-name ((t (:foreground "dark gray"))))
- '(diredp-link-priv ((t (:foreground "dodger blue"))))
- '(diredp-mode-line-marked ((t (:foreground "#6B6BFFFF2C2C"))))
- '(diredp-number ((t (:foreground "pale goldenrod"))))
- '(diredp-omit-file-name ((t (:inherit diredp-ignored-file-name))))
- '(diredp-rare-priv ((t (:background "red" :foreground "black"))))
- '(diredp-read-priv ((t (:foreground "tomato"))))
- '(diredp-symlink ((t (:foreground "pale green"))))
- '(diredp-write-priv ((t (:foreground "spring green"))))
  '(ediff-current-diff-C ((t (:background "RoyalBlue4"))))
  '(ediff-fine-diff-A ((t (:background "#aa2222" :foreground "black"))))
  '(ediff-fine-diff-B ((t (:background "#22aa22" :foreground "black"))))
@@ -1050,8 +1028,49 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package terraform-mode
   :ensure t)
 
-(use-package dired-filter
-  :ensure t)
+(use-package dirvish
+  :ensure t
+  :demand t
+  :init
+  ;; Takes over dired, dired-jump and find-file on directories.
+  (dirvish-override-dired-mode)
+  :custom
+  (dirvish-quick-access-entries
+   '(("h" "~/"           "Home")
+     ("r" "~/repos/"     "Repos")
+     ("s" "~/Stuff/"     "Stuff")
+     ("y" "~/Syncthing/" "Syncthing")
+     ("d" "~/Downloads/" "Downloads")
+     ("n" "/nix/store/"  "Nix store")))
+  ;; dirvish--check-dependencies requires the providing extension for each
+  ;; of these on demand, so no explicit (require 'dirvish-vc) etc.
+  (dirvish-attributes '(vc-state subtree-state nerd-icons collapse file-time file-size))
+  (dirvish-side-attributes '(vc-state nerd-icons collapse))
+  (dirvish-subtree-state-style 'nerd)
+  (dirvish-hide-cursor t)
+  (dirvish-use-header-line 'global)
+  (dirvish-mode-line-format '(:left (sort symlink) :right (omit yank index)))
+  :bind
+  (("C-c f" . dirvish-fd)
+   ("C-c F" . dirvish-side)
+   :map dirvish-mode-map
+   ("a"   . dirvish-quick-access)
+   ("f"   . dirvish-file-info-menu)
+   ("y"   . dirvish-yank-menu)
+   ("N"   . dirvish-narrow)          ; replaces dired-filter
+   ("^"   . dirvish-history-last)
+   ("h"   . dirvish-history-jump)
+   ("s"   . dirvish-quicksort)
+   ("v"   . dirvish-vc-menu)
+   ("?"   . dirvish-dispatch)        ; transient cheatsheet
+   ("TAB" . dirvish-subtree-toggle)
+   ("M-f" . dirvish-history-go-forward)
+   ("M-b" . dirvish-history-go-backward)
+   ("M-l" . dirvish-ls-switches-menu)
+   ("M-t" . dirvish-layout-toggle)
+   ("M-e" . dirvish-emerge-menu)     ; replaces dired-filter's filter stacks
+   ("M-s" . dirvish-setup-menu)
+   ("M-j" . dirvish-fd-switches-menu)))
 
 (use-package dockerfile-mode
   :ensure t)

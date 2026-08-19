@@ -49,7 +49,6 @@ in
     elispSrcs = {
       inherit (inputs)
         gptel
-        dired-plus
         iy-go-to-char
         ;
     };

@@ -76,22 +76,6 @@
         "url": "https://github.com/darktable-org/darktable"
       }
     },
-    "dired-plus": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784865760,
-        "narHash": "sha256-3y3aisHglKLIOW/Tz1a8KC9//PfJ18yohRSGQAUQ344=",
-        "owner": "emacsmirror",
-        "repo": "dired-plus",
-        "rev": "56f76725b5f151ed8a4ad17a62edf2fd592edb3a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "emacsmirror",
-        "repo": "dired-plus",
-        "type": "github"
-      }
-    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -363,7 +347,6 @@
       "inputs": {
         "agenix": "agenix",
         "darktable": "darktable",
-        "dired-plus": "dired-plus",
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
         "fasd": "fasd",

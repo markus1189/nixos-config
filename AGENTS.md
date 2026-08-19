@@ -45,7 +45,7 @@ All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
   `llm-agents` (numtide; → `pkgs.agent-browser`, overriding nixpkgs' much
   older one, and the source of the agent-browser skill text)
 - Non-flake source trees (`flake = false`): darktable (with submodules!),
-  fasd, visidata, gptel, xclip, stevenblack-hosts, zsh-histdb, dired-plus,
+  fasd, visidata, gptel, xclip, stevenblack-hosts, zsh-histdb,
   iy-go-to-char
 - Consumers take `inputs` in their module arguments (NixOS modules get it
   via `specialArgs`, home-manager modules via `extraSpecialArgs`, both set

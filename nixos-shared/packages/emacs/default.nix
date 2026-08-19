@@ -23,10 +23,6 @@ let
   '';
   # Single-file elisp packages without a MELPA recipe; sources are flake
   # inputs (see flake.nix), so they move with `nix flake update`.
-  dired-plus = runCommandLocal "install-dired-plus" { } ''
-    mkdir -p $out/share/emacs/site-lisp
-    cp ${elispSrcs.dired-plus}/dired+.el $out/share/emacs/site-lisp/dired+.el
-  '';
   iy-go-to-char = runCommandLocal "install-iy-go-to-char" { } ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${elispSrcs.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
@@ -66,8 +62,7 @@ emacs.pkgs.withPackages (
       deadgrep
       dhall-mode
       diff-hl
-      dired-plus
-      dired-filter
+      dirvish
       envrc
       dogears
       dockerfile-mode
@@ -128,6 +123,7 @@ emacs.pkgs.withPackages (
       magit
       move-text
       multiple-cursors
+      nerd-icons
       nix-mode
       orderless
       org-drill
