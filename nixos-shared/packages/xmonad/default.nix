@@ -15,6 +15,7 @@ args@{
   rofi,
   rofiDownloadsPicker,
   rofiStuffTodayPicker,
+  systemd,
   tmx,
   warpd,
   xdotool,

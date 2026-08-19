@@ -202,7 +202,13 @@ myManageHook =
       [MH.className =? c --> doShift (workSpaceN 7) | c <- ws7],
       [MH.className =? c --> doShift (workSpaceN 8) | c <- ws8],
       [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9],
-      [MH.className =? c --> doShift (workSpaceN 9) | c <- ws9]
+      -- Autostarted windows share their class with windows that must stay
+      -- placeable by hand (every other ghostty, every other emacs frame), so
+      -- they are matched on the WM_CLASS instance name their unit gives them:
+      -- ghostty --x11-instance-name=, emacsclient -F '((name . ...))'.
+      -- See my.xmonadAutostart in laptop/home.nix.
+      [resource =? r --> doShift (workSpaceN 1) | r <- ws1Resources],
+      [resource =? r --> doShift (workSpaceN 4) | r <- ws4Resources]
     ]
   where
     wmName = MH.title
@@ -242,10 +248,15 @@ myManageHook =
     resourceFloats = []
     ignored = ["Unity-2d-panel", "trayer"]
     ws1 = ["X-terminal-emulator"]
-    ws2 = ["Firefox", "Vimperator", "Uzbl-tabbed"]
+    ws1Resources = ["ws1-default"]
+    -- "firefox" is what current Firefox actually sets; "Firefox" is kept for
+    -- older builds and forks.
+    ws2 = ["firefox", "Firefox", "Vimperator", "Uzbl-tabbed"]
     ws3 = ["Zathura", ".zathura-wrapped", "Evince", "Okular", "Apvlv", "Acroread", "sioyek", "com.github.johnfactotum.Foliate", "KOReader"]
     ws4 = []
-    {- emacs, but no rule so frames can be opened everywhere-}
+    {- emacs, but no class rule so frames can be opened everywhere; only the
+       autostarted frame is pinned, via its instance name -}
+    ws4Resources = ["emacs-main"]
     ws5 =
       [ "Gimp-2.6",
         "Vinagre",
@@ -623,7 +634,14 @@ main =
               terminal = myTerminal,
               focusedBorderColor = "orange",
               layoutHook = avoidStruts myLayoutHook,
-              startupHook = setWMName "LG3D",
+              -- graphical-session.target is already active before the session
+              -- wrapper execs xmonad, so autostarted programs hang off
+              -- xmonad-session.target instead and this is what activates it --
+              -- i.e. the WM announces its own readiness. Idempotent: on a mod-q
+              -- restart the target is already active and nothing is relaunched.
+              startupHook =
+                setWMName "LG3D"
+                  <> spawn "@systemd@/bin/systemctl --user start --no-block xmonad-session.target",
               modMask = myModKey,
               mouseBindings = myNewMouseBindings
             }

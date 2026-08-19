@@ -24,6 +24,7 @@ in
     ../nixos-shared/home-manager/starship/default.nix
     ../nixos-shared/home-manager/vim/default.nix
     ../nixos-shared/home-manager/zsh/default.nix
+    ../nixos-shared/home-manager/xmonad-autostart/default.nix
   ];
 
   home = {
@@ -835,6 +836,14 @@ in
 
     flameshot.enable = true;
 
+    # Supervised daemon (Type=notify, so units ordered after it start only
+    # once the server socket is live). The WS4 autostart frame is an
+    # emacsclient against this, instead of a cold start per login.
+    emacs = {
+      enable = true;
+      package = pkgs.emacs;
+    };
+
     clipcat = {
       enable = true;
       # We have our own zsh clipboard widget (nixos-shared/zsh.nix) and the
@@ -904,6 +913,40 @@ in
     fontconfig = {
       enable = true;
     };
+  };
+
+  # The boot-time desktop, one supervised systemd user unit per program; see
+  # ../nixos-shared/home-manager/xmonad-autostart for why they hang off
+  # xmonad-session.target rather than graphical-session.target.
+  #
+  # Which workspace each window lands on is xmonad's business, not systemd's:
+  # myManageHook shifts them by WM_CLASS. The two windows that had no
+  # distinguishing class of their own get an explicit instance-name marker
+  # here, matched by the ws1Resources / ws4Resources rules in xmonad.hs.
+  my.xmonadAutostart = {
+    # WS1: the default tmux session -- tmx attaches to the one the xsession
+    # wrapper pre-creates, or creates it if that failed.
+    term-default.command =
+      "${config.programs.ghostty.package}/bin/ghostty --x11-instance-name=ws1-default"
+      + " -e ${pkgs.myScripts.tmx}/bin/tmx default";
+
+    # WS2
+    firefox.command = "${config.programs.firefox.finalPackage}/bin/firefox";
+
+    # WS4: the explicit frame name sets WM_CLASS (written once, at frame
+    # creation) *and* freezes the title; emacs-config.el clears the name again
+    # right after, which leaves the marker in place and gives the buffer name
+    # back to the title bar.
+    emacs-main = {
+      command = "${pkgs.emacs}/bin/emacsclient -c -F '((name . \"emacs-main\"))'";
+      requires = [ "emacs.service" ];
+    };
+
+    # WS8
+    telegram.command = "${pkgs.telegram-desktop}/bin/Telegram";
+    signal.command = "${pkgs.signal-desktop}/bin/signal-desktop";
+    slack.command = "${pkgs.slack}/bin/slack";
+    spotify.command = "${pkgs.spotify}/bin/spotify";
   };
 
   systemd.user.services = {

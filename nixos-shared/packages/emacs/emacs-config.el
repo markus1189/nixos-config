@@ -553,6 +553,21 @@ covers a single line)."
   (global-set-key (kbd "C-M-\\") 'mh/delete-horizontal-space-forward)
 
   (setq frame-title-format "Nixmacs: %b (%f)")
+
+  ;; The WS4 autostart frame (systemd user unit `emacs-main', see
+  ;; my.xmonadAutostart in laptop/home.nix) is created with an explicit `name'
+  ;; frame parameter, so its WM_CLASS instance becomes "emacs-main" and xmonad's
+  ;; manageHook can shift that one frame -- and only that one -- to workspace 4.
+  ;; WM_CLASS is written once, when the frame is created, so clearing the name
+  ;; afterwards keeps the marker in place while handing the title bar back to
+  ;; `frame-title-format'.
+  (defun mh/release-autostart-frame-name (frame)
+    "Drop the explicit name of the xmonad autostart FRAME."
+    (when (equal (frame-parameter frame 'name) "emacs-main")
+      (set-frame-parameter frame 'name nil)))
+
+  (add-hook 'after-make-frame-functions #'mh/release-autostart-frame-name)
+
   (put 'narrow-to-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
   (put 'set-goal-column 'disabled nil)
