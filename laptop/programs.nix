@@ -135,6 +135,7 @@
         shellcheck
         yamllint
         mdl
+        statix
         ffmpegthumbnailer
         mediainfo
         epub-thumbnailer
