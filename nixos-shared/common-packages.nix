@@ -35,6 +35,14 @@
         nix-prefetch-docker
         nix-prefetch-git
         nix-prefetch-github
+        # Interactive closure browser: per-node NAR/closure/added size, and `w`
+        # for why-depends (which path drags a store path into the system).
+        nix-tree
+        # Standalone closure differ -- reads Nix's SQLite db directly instead of
+        # shelling out, so it is ~16x nvd on this tree and also reports the size
+        # delta per package. nh links the same engine as a crate for rebuilds;
+        # this binary is for comparing two arbitrary paths or generations.
+        dix
         nixfmt
         nixpkgs-lint
         notifySendPb
