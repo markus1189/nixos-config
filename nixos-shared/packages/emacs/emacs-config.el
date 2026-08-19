@@ -185,10 +185,10 @@ merely disfigured by the global line numbers."
   :ensure t
   :demand t
   ;; Same key that used to call `company-complete'.
-  :bind (("<C-tab>" . completion-at-point)
-         :map corfu-map
-         ;; orderless needs a way to type a space without ending completion.
-         ("SPC" . corfu-insert-separator))
+  ;; No SPC -> `corfu-insert-separator' binding: in prose every space then
+  ;; inserts a separator, and `corfu-quit-no-match' below keeps the "No
+  ;; match" popup alive until C-g. corfu-map binds M-SPC for that already.
+  :bind ("<C-tab>" . completion-at-point)
   :custom
   (corfu-cycle t)
   (corfu-auto t)
