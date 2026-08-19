@@ -44,7 +44,9 @@ in
       enable = true;
       enableCompletion = true;
       enableBashCompletion = true;
-      enableGlobalCompInit = false;
+      # true: the module emits compinit (and bashcompinit) *before*
+      # interactiveShellInit, which is exactly where fzf-tab needs them.
+      enableGlobalCompInit = true;
       autosuggestions.enable = true;
 
       syntaxHighlighting = {
@@ -88,12 +90,8 @@ in
         # Customize word erasing
         source ${customEraseWord}
 
-        # Install fzf-tab
+        # fzf-tab: must be sourced after compinit, it wraps completion widgets
         source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
-
-        # enableGlobalCompInit is false
-        autoload -U compinit ; compinit
-        autoload -U bashcompinit ; bashcompinit
       '';
     };
   };

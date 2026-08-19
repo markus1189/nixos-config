@@ -13,6 +13,10 @@ in
 {
   programs.zsh = {
     enable = true;
+
+    # compinit runs once, from /etc/zshrc (nixos-shared/zsh.nix). HM's default
+    # completionInit would run it a second time at mkOrder 570 (~30ms, no gain).
+    enableCompletion = false;
     history = rec {
       expireDuplicatesFirst = true;
       extended = true;
