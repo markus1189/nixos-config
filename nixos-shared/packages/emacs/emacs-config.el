@@ -47,6 +47,12 @@
 
 (global-display-line-numbers-mode t)
 
+(defun mh/display-line-numbers--turn-off ()
+  "Disable `display-line-numbers-mode' in the current buffer.
+For modes that render their own buffer contents and are broken or
+merely disfigured by the global line numbers."
+  (display-line-numbers-mode -1))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -848,7 +854,11 @@ covers a single line)."
 (use-package pdf-tools
   :defer t
   :init
-  (pdf-loader-install))
+  (pdf-loader-install)
+  :hook
+  ;; display-line-numbers-mode is in `pdf-view-incompatible-modes', so the
+  ;; global mode makes pdf-view warn on every document it opens.
+  (pdf-view-mode . mh/display-line-numbers--turn-off))
 
 (use-package hippie-exp
   :ensure nil
@@ -1697,9 +1707,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package eat
   :ensure t
   :bind (("C-c e" . eat))
-  :init
-  (defun mh/display-line-numbers--turn-off ()
-    (display-line-numbers-mode -1))
   :hook
   (eat-mode . mh/display-line-numbers--turn-off))
 
