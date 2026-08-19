@@ -170,7 +170,7 @@ in
 
   # Folders this host participates in, preserving original IDs.
   # path defaults to ~/Syncthing/<name> (matches existing layout).
-  services.syncthing.settings.folders = builtins.mapAttrs (name: members: {
+  services.syncthing.settings.folders = builtins.mapAttrs (name: _: {
     id = folderIds.${name};
     path = "${userHome}/Syncthing/${name}";
     devices = peersOf name;

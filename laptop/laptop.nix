@@ -113,7 +113,7 @@
   time.timeZone = "Europe/Berlin";
 
   nixpkgs.overlays = [
-    (self: super: {
+    (_: super: {
       darktable =
         builtins.trace "INFO: Using latest darktable via overlay" super.darktable.overrideAttrs
           (old: rec {

@@ -4,7 +4,6 @@ let
   downloadDir = "$HOME/Downloads";
   find = "${pkgs.findutils}/bin/find";
   xargs = "${pkgs.findutils}/bin/xargs";
-  rm = "${pkgs.coreutils}/bin/rm";
   telegramSendPhoto = "${pkgs.telegramSendPhoto}/bin/telegramSendPhoto";
   userName = config.my.userName;
   curl = "${pkgs.curl}/bin/curl";

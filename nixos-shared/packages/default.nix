@@ -8,7 +8,7 @@
   nixpkgs.overlays = [
     (import ./overlay.nix inputs)
 
-    (final: prev: {
+    (final: _: {
       myConfigFiles =
         let
           inherit (final) myScripts;

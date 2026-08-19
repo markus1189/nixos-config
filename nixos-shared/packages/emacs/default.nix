@@ -33,7 +33,7 @@ emacs.pkgs.withPackages (
     with epkgs.elpaPackages;
     with epkgs;
     let
-      my_gptel = epkgs.gptel.overrideAttrs (old: rec {
+      my_gptel = epkgs.gptel.overrideAttrs (_: rec {
         # MELPA-style date version (YYYYMMDD.HMM) from the flake input's
         # lastModifiedDate (YYYYMMDDHHMMSS).
         version =

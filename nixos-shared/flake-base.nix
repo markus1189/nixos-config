@@ -25,7 +25,7 @@
 
   nixpkgs.overlays = [
     inputs.emacs-overlay.overlays.default
-    (final: prev: {
+    (final: _: {
       # Replaces the unpinned `fetchTarball nixpkgs/master` imports.
       masterPkgs = import inputs.nixpkgs-master {
         inherit (final.stdenv.hostPlatform) system;

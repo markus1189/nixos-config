@@ -1,6 +1,6 @@
 inputs:
 let
-  wallpapersOverlay = self: super: {
+  wallpapersOverlay = _: _: {
     markus-wallpapers = {
       orange-cube-left = ./assets/wallpapers/orange-cube-6x5-left.png;
       orange-cube-right = ./assets/wallpapers/orange-cube-6x5-right.png;
@@ -37,13 +37,11 @@ let
           });
     };
 
-  xclipOverlay = self: super: {
-    xclip =
-      builtins.trace "INFO: Using xclip overlay for newer version" super.xclip.overrideAttrs
-        (old: {
-          version = inputs.xclip.shortRev;
-          src = inputs.xclip;
-        });
+  xclipOverlay = _: super: {
+    xclip = builtins.trace "INFO: Using xclip overlay for newer version" super.xclip.overrideAttrs (_: {
+      version = inputs.xclip.shortRev;
+      src = inputs.xclip;
+    });
   };
 in
 [
