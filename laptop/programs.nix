@@ -140,6 +140,7 @@
         mediainfo
         epub-thumbnailer
         p7zip
+        signal-desktop
         spotify
         src-cli
         sshfs
