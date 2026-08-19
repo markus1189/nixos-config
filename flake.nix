@@ -192,27 +192,43 @@
             p.bats-assert
             p.bats-support
           ]);
+
+          # Sources for both linters, narrowed to *.nix + statix.toml with
+          # lib.fileset, so editing emacs-config.el does not re-run either.
+          lintTree = nixpkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = nixpkgs.lib.fileset.unions [
+              (nixpkgs.lib.fileset.fileFilter (f: f.hasExt "nix") ./.)
+              ./statix.toml
+            ];
+          };
         in
         {
           # statix lints every .nix file in the tree; which lints and which
           # files are exempt lives in statix.toml at the repo root (shared
           # with the editor's flymake backend, so both judge the same way).
-          # Sources are narrowed to *.nix + statix.toml with lib.fileset, so
-          # editing emacs-config.el does not re-run the linter.
-          statix =
-            let
-              lintTree = nixpkgs.lib.fileset.toSource {
-                root = ./.;
-                fileset = nixpkgs.lib.fileset.unions [
-                  (nixpkgs.lib.fileset.fileFilter (f: f.hasExt "nix") ./.)
-                  ./statix.toml
-                ];
-              };
-            in
-            pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
-              statix check --config ${lintTree} --unrestricted ${lintTree}
-              touch $out
-            '';
+          statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
+            statix check --config ${lintTree} --unrestricted ${lintTree}
+            touch $out
+          '';
+
+          # deadnix is the complement to statix: statix finds antipatterns,
+          # deadnix finds bindings nothing references.
+          #
+          # --no-lambda-pattern-names is mandatory here, not a preference.
+          # Every NixOS and home-manager module declares `{ config, pkgs, ... }`
+          # whether or not it uses each arg; without the flag this tree reports
+          # 100 findings, 87 of them that convention. Upstream's own wording for
+          # the flag is "don't break nixpkgs `callPackage`". With it: 13, all
+          # real, all now fixed.
+          #
+          # Hidden directories are skipped by default (deadnix needs --hidden to
+          # descend), so .direnv/flake-inputs -> nixpkgs is not walked. That is
+          # the same trap statix.toml's `ignore` exists to close.
+          deadnix = pkgs.runCommand "deadnix-check" { nativeBuildInputs = [ pkgs.deadnix ]; } ''
+            deadnix --no-lambda-pattern-names --fail ${lintTree}
+            touch $out
+          '';
 
           # Builds (= validates: frontmatter, shellcheck, py_compile) every
           # agent skill; the farm shape doubles as the future whole-dir target.
@@ -260,8 +276,8 @@
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
           # The repo's pre-commit hook, generated rather than checked in: the
-          # statix that gates a commit is then the one from this flake's
-          # nixpkgs -- the same derivation `nix flake check` runs -- instead of
+          # linters that gate a commit are then the ones from this flake's
+          # nixpkgs -- the same derivations `nix flake check` runs -- instead of
           # whatever the ambient PATH happens to offer.
           #
           # `.git/hooks` is not tracked and cannot be, so the install has to
@@ -273,9 +289,9 @@
             set -euo pipefail
             root="$(git rev-parse --show-toplevel)"
 
-            # statix, only when the commit touches .nix files. It parses rather
-            # than evaluates, so linting the whole tree costs ~10ms; there is no
-            # point being clever about which files to hand it.
+            # statix and deadnix, only when the commit touches .nix files. Both
+            # parse rather than evaluate, so linting the whole tree costs ~10ms;
+            # there is no point being clever about which files to hand them.
             #
             # The whole-repo walk is deliberate: `ignore` globs in statix.toml
             # are honoured for a directory walk but NOT for an explicit file
@@ -285,6 +301,14 @@
             if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.nix')" ]; then
               if ! ${pkgs.statix}/bin/statix check --config "$root" "$root"; then
                 echo "pre-commit: statix found lints -- fix with 'statix fix', or commit with --no-verify" >&2
+                exit 1
+              fi
+
+              # --no-lambda-pattern-names: see checks.deadnix for why this is
+              # mandatory rather than taste. Hidden dirs are skipped by default,
+              # so .direnv needs no exclusion here the way it does for statix.
+              if ! ${pkgs.deadnix}/bin/deadnix --no-lambda-pattern-names --fail "$root"; then
+                echo "pre-commit: deadnix found dead code -- fix with 'deadnix --no-lambda-pattern-names --edit', or commit with --no-verify" >&2
                 exit 1
               fi
             fi
@@ -305,7 +329,10 @@
           # `nix develop` / direnv in the repo root. Carries the linter and
           # installs the pre-commit hook that runs it.
           default = pkgs.mkShell {
-            packages = [ pkgs.statix ];
+            packages = [
+              pkgs.statix
+              pkgs.deadnix
+            ];
 
             # git resolves hooks under $GIT_COMMON_DIR, so --git-path gets this
             # right inside a linked worktree too, where .git is a file.
