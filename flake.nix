@@ -194,6 +194,26 @@
           ]);
         in
         {
+          # statix lints every .nix file in the tree; which lints and which
+          # files are exempt lives in statix.toml at the repo root (shared
+          # with the editor's flymake backend, so both judge the same way).
+          # Sources are narrowed to *.nix + statix.toml with lib.fileset, so
+          # editing emacs-config.el does not re-run the linter.
+          statix =
+            let
+              lintTree = nixpkgs.lib.fileset.toSource {
+                root = ./.;
+                fileset = nixpkgs.lib.fileset.unions [
+                  (nixpkgs.lib.fileset.fileFilter (f: f.hasExt "nix") ./.)
+                  ./statix.toml
+                ];
+              };
+            in
+            pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
+              statix check --config ${lintTree} --unrestricted ${lintTree}
+              touch $out
+            '';
+
           # Builds (= validates: frontmatter, shellcheck, py_compile) every
           # agent skill; the farm shape doubles as the future whole-dir target.
           agent-skills = pkgs.linkFarm "agent-skills" (
