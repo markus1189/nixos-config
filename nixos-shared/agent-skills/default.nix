@@ -7,18 +7,19 @@
 # shell script failing `shellcheck --severity=error`, or python that does
 # not compile fails the BUILD — `nix flake check` inherits all of it.
 #
-# `marginalSrc` and `hocketSrc` are the marginal and hocket flake inputs, so
-# the marginal-last / hocket-rpc skills and the pkgs.marginal / pkgs.hocket
-# binaries they drive are version-locked by flake.lock.
+# `hocketSrc` is the hocket flake input, so the hocket-rpc skill and the
+# pkgs.hocket binary it drives are version-locked by flake.lock.
 #
-# `agentBrowser` is the llm-agents.nix package, not a source tree: upstream
-# ships its own SKILL.md inside the binary's $out, so sourcing the skill from
-# the package makes text and binary the same derivation — the skew is gone by
-# construction and there is nothing left to patch. Passing null omits the
-# skill (nuc, which has no chromium and should not pull the closure).
+# `marginal` and `agentBrowser` are packages rather than source trees: both
+# ship their SKILL.md inside their own $out, so sourcing the skill from the
+# package makes text and binary the same derivation — the skew is gone by
+# construction and there is nothing left to patch. marginal goes one further
+# and bakes $out/bin/marginal into its launchers at install time, which a copy
+# of the source tree does not carry. Passing agentBrowser null omits that skill
+# (nuc, which has no chromium and should not pull the closure).
 {
   pkgs,
-  marginalSrc,
+  marginal,
   hocketSrc,
   agentBrowser ? null,
 }:
@@ -120,10 +121,23 @@ let
 
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-last is our own upstream: "patching" it means committing there.
+  #
+  # Both marginal skills are claude-only: pi gets `/marginal` from the
+  # extension the pi-agent module links out of this same package, so a copy in
+  # ~/.agents/skills would be a second and worse route to the same command.
+  # marginal-diff has no pi counterpart at all — a diff extension is the fix
+  # there, not a skill.
   webSkills = {
     marginal-last = mkAgentSkill {
       name = "marginal-last";
-      src = marginalSrc + "/launchers/claude-code";
+      src = marginal + "/share/claude-code/skills/marginal-last";
+      harnesses = [ "claude" ];
+    };
+
+    marginal-diff = mkAgentSkill {
+      name = "marginal-diff";
+      src = marginal + "/share/claude-code/skills/marginal-diff";
+      harnesses = [ "claude" ];
     };
 
     # Same shape: our own upstream, so the skill text and the `hocket

@@ -28,10 +28,17 @@ in
     file =
       let
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
-          # Headless: no chromium here, so the browser skill would only drag
-          # agent-browser into the nightly autoUpgrade closure. removeAttrs
-          # is lazy, so the package is never realised on nuc.
-          agentSkills = builtins.removeAttrs pkgs.agentSkills [ "agent-browser" ];
+          # Headless: no chromium here, and the two marginal skills launch a
+          # TUI into a borrowed tty that does not exist on this box. All three
+          # would only drag their packages into the nightly autoUpgrade
+          # closure — marginal newly so, since the skills now come out of the
+          # package's $out rather than its source tree. removeAttrs is lazy,
+          # so none of them is ever realised on nuc.
+          agentSkills = builtins.removeAttrs pkgs.agentSkills [
+            "agent-browser"
+            "marginal-last"
+            "marginal-diff"
+          ];
           enableSoundHooks = false;
           enableDenyRules = true;
           additionalAllowedCommands = [

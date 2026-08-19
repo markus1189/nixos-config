@@ -176,7 +176,11 @@
           # no-sudo iteration check; validation runs inside each build.
           agentSkills = import ./nixos-shared/agent-skills {
             inherit pkgs;
-            marginalSrc = inputs.marginal;
+            # This pkgs carries the scripts overlay, not flake-base's, so
+            # there is no pkgs.marginal here — same reason agent-browser is
+            # reached through its input below. `inputs.nixpkgs.follows` makes
+            # it the derivation the hosts install regardless.
+            marginal = inputs.marginal.packages.x86_64-linux.marginal;
             hocketSrc = inputs.hocket;
             agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };

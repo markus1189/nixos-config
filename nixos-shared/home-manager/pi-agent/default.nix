@@ -143,6 +143,17 @@ let
       };
     };
 
+    # marginal's /marginal command: annotate the agent's last message(s) in
+    # the terminal pi already owns. The only extension here sourced from a
+    # package instead of ./extensions — postInstall rewrites its @marginalBin@
+    # sentinel to $out/bin/marginal, so it spawns the binary it was built with
+    # rather than whatever PATH happens to hold. This is also why the
+    # marginal-last skill is claude-only: pi is served here.
+    "pi-agent-extension-marginal-annotate" = {
+      target = ".pi/agent/extensions/marginal-annotate.ts";
+      source = "${pkgs.marginal}/share/pi/extensions/marginal-annotate.ts";
+    };
+
     # END EXTENSIONS
 
     "pi-agent-models" = {
