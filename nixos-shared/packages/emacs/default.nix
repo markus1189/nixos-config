@@ -68,7 +68,7 @@ emacs.pkgs.withPackages (
       diff-hl
       dired-plus
       dired-filter
-      direnv
+      envrc
       dogears
       dockerfile-mode
       docker

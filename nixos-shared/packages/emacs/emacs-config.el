@@ -1103,10 +1103,17 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package csv-mode
   :ensure t)
 
-(use-package direnv
+(use-package envrc
   :ensure t
+  ;; Buffer-local direnv, rather than direnv.el mutating the global env.
+  ;; `use flake' and everything else in .envrc still runs in the direnv
+  ;; binary -- envrc only shells out to `direnv export json'.
+  ;; Must be enabled LATE: envrc-mode has to initialise in each buffer
+  ;; before minor modes that snapshot exec-path/process-environment.
+  :hook (after-init . envrc-global-mode)
   :config
-  (direnv-mode))
+  ;; C-c e is already `eat' globally; envrc-mode-map would shadow it.
+  (define-key envrc-mode-map (kbd "C-c v") 'envrc-command-map))
 
 (use-package protobuf-mode
   :ensure t)
@@ -1184,11 +1191,12 @@ string). It returns t if a new completion is found, nil otherwise."
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          ;; (XXX-mode . lsp)
          ;; if you want which-key integration
-         (scala-mode . lsp)
+         ;; lsp-deferred, not lsp: envrc needs the buffer's environment in
+         ;; place before the server subprocess is launched.
+         (scala-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-lens-mode))
-  :commands
-  lsp
+  :commands (lsp lsp-deferred)
   :init
   ;; Both must be set *before* lsp-mode loads: lsp-completion sets up its
   ;; frontend at load time, and :none is what keeps it off company.
