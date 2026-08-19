@@ -259,6 +259,9 @@ in
           target = ".config/flameshot/flameshot.ini";
           text = ''
             [General]
+            ; flameshot 14 asks which monitor to capture; take the one the
+            ; cursor is on instead. X11 only -- ignored on Wayland.
+            captureActiveMonitor=true
             copyPathAfterSave=true
             disabledTrayIcon=false
             drawColor=#ff0000
