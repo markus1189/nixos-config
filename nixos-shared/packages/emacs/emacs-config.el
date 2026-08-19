@@ -243,7 +243,21 @@ merely disfigured by the global line numbers."
   :ensure t
   ;; Registers per-mode backends (hlint, shellcheck, yamllint, ...) that
   ;; `global-flycheck-mode' used to auto-detect.
-  :hook (after-init . flymake-collection-hook-setup))
+  :hook (after-init . flymake-collection-hook-setup)
+  ;; :init, not :config -- flymake-collection-hook.el does not require
+  ;; `flymake-collection', so the feature this block is named after never
+  ;; actually loads and a :config body would be dead code.
+  :init
+  ;; proselint is English-only prose linting and is not installed; its
+  ;; :pre-check signals an error, which flymake surfaces as a panicking
+  ;; backend in every markdown-mode and org-mode buffer.
+  (with-eval-after-load 'flymake-collection-hook
+    (setq flymake-collection-hook-config
+          (mapcar (lambda (entry)
+                    (cons (car entry)
+                          (delq 'flymake-collection-proselint
+                                (copy-sequence (cdr entry)))))
+                  flymake-collection-hook-config))))
 
 (use-package flyspell
   :ensure nil
