@@ -133,6 +133,7 @@
         scalafmt
         scrot
         shellcheck
+        yamllint
         spotify
         src-cli
         sshfs

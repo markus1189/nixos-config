@@ -243,12 +243,23 @@
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-(use-package flycheck
+(use-package flymake
+  :ensure nil
+  :hook (prog-mode . flymake-mode)
+  :bind (("C-s-SPC" . flymake-goto-next-error)
+         ("C-S-s-SPC" . flymake-goto-prev-error))
+  :custom
+  (flymake-no-changes-timeout 0.5)
+  (flymake-fringe-indicator-position 'right-fringe)
+  ;; Diagnostics live in the fringe + echo area; end-of-line overlays fight
+  ;; with `display-line-numbers' and lsp lenses.
+  (flymake-show-diagnostics-at-end-of-line nil))
+
+(use-package flymake-collection
   :ensure t
-  :defer 2
-  :config (global-flycheck-mode)
-  :bind (("C-s-SPC" . flycheck-next-error)
-         ("C-S-s-SPC" . flycheck-previous-error)))
+  ;; Registers per-mode backends (hlint, shellcheck, yamllint, ...) that
+  ;; `global-flycheck-mode' used to auto-detect.
+  :hook (after-init . flymake-collection-hook-setup))
 
 (use-package flyspell
   :ensure nil
@@ -826,9 +837,6 @@ covers a single line)."
   :ensure t
   :mode ("\\.yml\\'" "\\.yaml\\'"))
 
-(use-package flycheck-yamllint
-  :ensure t)
-
 (use-package hydra
   :ensure t
   :config
@@ -1150,10 +1158,6 @@ string). It returns t if a new completion is found, nil otherwise."
 (use-package ormolu
   :ensure t)
 
-(use-package flycheck-haskell
-  :ensure t
-  :hook (haskell-mode . flycheck-haskell-setup))
-
 (use-package strace-mode
   :ensure t)
 
@@ -1186,12 +1190,10 @@ string). It returns t if a new completion is found, nil otherwise."
   :commands
   lsp
   :init
-  ;; Completion is corfu-over-capf; :none stops lsp-mode setting up company.
-  ;; Must be set before lsp-mode loads, which is when lsp-completion sets
-  ;; up its frontend.
-  (setq lsp-completion-provider :none)
-  :config
-  (setq lsp-prefer-flymake nil))
+  ;; Both must be set *before* lsp-mode loads: lsp-completion sets up its
+  ;; frontend at load time, and :none is what keeps it off company.
+  (setq lsp-diagnostics-provider :flymake)
+  (setq lsp-completion-provider :none))
 
 (use-package lsp-haskell
   :ensure t
