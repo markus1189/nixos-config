@@ -610,6 +610,28 @@ myLowerPP =
       ppLayout = xmobarColor "gray" "black" . workspaceRenamer
     }
 
+-- graphical-session.target is already active before the session wrapper execs
+-- xmonad, so the autostarted programs hang off xmonad-session.target instead
+-- and this is what activates it: the WM announcing its own readiness.
+--
+-- Guarded, because `systemctl start` on a target starts every *inactive* unit
+-- it wants, every time. A program that hands off to an already running
+-- instance (spotify, slack, a second ghostty) exits immediately and leaves its
+-- unit inactive, so an unguarded start would spawn it afresh on every mod-q
+-- restart. The target has no processes of its own and so stays active for the
+-- whole session, which makes it the latch: autostart runs once per login, not
+-- once per xmonad start.
+startAutostart :: X ()
+startAutostart =
+  spawn . unwords $
+    [ systemctl, "is-active", "--quiet", target,
+      "||",
+      systemctl, "start", "--no-block", target
+    ]
+  where
+    systemctl = "@systemd@/bin/systemctl --user"
+    target = "xmonad-session.target"
+
 -- withSB tracks bar PIDs in persistent state and its startup hook kills
 -- stale instances before respawning, so bars survive mod-q restarts without
 -- the old spawnPipe/StdinReader EOF trick. The lower bar reads the workspace
@@ -634,14 +656,7 @@ main =
               terminal = myTerminal,
               focusedBorderColor = "orange",
               layoutHook = avoidStruts myLayoutHook,
-              -- graphical-session.target is already active before the session
-              -- wrapper execs xmonad, so autostarted programs hang off
-              -- xmonad-session.target instead and this is what activates it --
-              -- i.e. the WM announces its own readiness. Idempotent: on a mod-q
-              -- restart the target is already active and nothing is relaunched.
-              startupHook =
-                setWMName "LG3D"
-                  <> spawn "@systemd@/bin/systemctl --user start --no-block xmonad-session.target",
+              startupHook = setWMName "LG3D" <> startAutostart,
               modMask = myModKey,
               mouseBindings = myNewMouseBindings
             }

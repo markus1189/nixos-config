@@ -561,11 +561,17 @@ covers a single line)."
   ;; WM_CLASS is written once, when the frame is created, so clearing the name
   ;; afterwards keeps the marker in place while handing the title bar back to
   ;; `frame-title-format'.
-  (defun mh/release-autostart-frame-name (frame)
-    "Drop the explicit name of the xmonad autostart FRAME."
-    (when (equal (frame-parameter frame 'name) "emacs-main")
-      (set-frame-parameter frame 'name nil)))
+  (defun mh/release-autostart-frame-name (&optional frame)
+    "Drop the explicit name of the xmonad autostart FRAME.
+Called for the startup frame via `window-setup-hook', which passes no
+argument, and for client frames via `after-make-frame-functions'."
+    (let ((frame (or frame (selected-frame))))
+      (when (equal (frame-parameter frame 'name) "emacs-main")
+        (set-frame-parameter frame 'name nil))))
 
+  ;; `after-make-frame-functions' is not run for the frame emacs starts with,
+  ;; so the autostarted one needs `window-setup-hook'.
+  (add-hook 'window-setup-hook #'mh/release-autostart-frame-name)
   (add-hook 'after-make-frame-functions #'mh/release-autostart-frame-name)
 
   (put 'narrow-to-region 'disabled nil)

@@ -836,14 +836,6 @@ in
 
     flameshot.enable = true;
 
-    # Supervised daemon (Type=notify, so units ordered after it start only
-    # once the server socket is live). The WS4 autostart frame is an
-    # emacsclient against this, instead of a cold start per login.
-    emacs = {
-      enable = true;
-      package = pkgs.emacs;
-    };
-
     clipcat = {
       enable = true;
       # We have our own zsh clipboard widget (nixos-shared/zsh.nix) and the
@@ -933,14 +925,15 @@ in
     # WS2
     firefox.command = "${config.programs.firefox.finalPackage}/bin/firefox";
 
-    # WS4: the explicit frame name sets WM_CLASS (written once, at frame
-    # creation) *and* freezes the title; emacs-config.el clears the name again
-    # right after, which leaves the marker in place and gives the buffer name
-    # back to the title bar.
-    emacs-main = {
-      command = "${pkgs.emacs}/bin/emacsclient -c -F '((name . \"emacs-main\"))'";
-      requires = [ "emacs.service" ];
-    };
+    # WS4. Deliberately a plain GUI emacs rather than an emacsclient against a
+    # services.emacs daemon: emacs-config.el applies a good deal of its
+    # appearance to the frame that exists at load time, of which a daemon has
+    # none, so daemon-created frames come up looking nothing like this one.
+    #
+    # -name sets the WM_CLASS instance *and* freezes the title;
+    # emacs-config.el clears the name again once the frame is up, which leaves
+    # the marker in place and gives the buffer name back to the title bar.
+    emacs-main.command = "${pkgs.emacs}/bin/emacs --name emacs-main";
 
     # WS8
     telegram.command = "${pkgs.telegram-desktop}/bin/Telegram";
