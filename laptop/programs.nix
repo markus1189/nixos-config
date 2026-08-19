@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   nixpkgs = { };
@@ -6,6 +6,31 @@
   programs.i3lock = {
     enable = true;
     package = pkgs.i3lock-color;
+  };
+
+  # nh reimplements nixos-rebuild in Rust: a nix-output-monitor build tree, a
+  # closure diff, then a confirmation prompt before activation -- the
+  # `nixos-rebuild build` / `nix store diff-closures` / `switch` sequence that
+  # docs/derivation-diffing.md spells out by hand, as one command.
+  #
+  # The diff comes from dix linked as a *library crate* (crates/nh-diff), not
+  # from the `dix` binary, so the standalone CLI in common-packages.nix is a
+  # separate tool for ad-hoc `dix <genA> <genB>` -- not a dependency of this.
+  #
+  # Laptop-only on purpose: `flake` is a local path, and nuc rebuilds from
+  # github: via system.autoUpgrade instead.
+  programs.nh = {
+    enable = true;
+    # Default target for a bare `nh os switch`, so it resolves from any
+    # directory. The host attr still comes from the hostname, as with
+    # activate.sh -- p1's nixos-p1 alias in flake.nix keeps working.
+    flake = "/home/${config.my.userName}/repos/nixos-config";
+
+    # Deliberately off, matching `nix.gc.automatic = false` in laptop.nix:
+    # collection here stays a manual decision. Run it by hand when wanted:
+    #   nh clean all --keep-since 5d --keep 3
+    # It is gcroot- and direnv-aware, which plain nix-collect-garbage is not.
+    clean.enable = false;
   };
 
   environment = {
