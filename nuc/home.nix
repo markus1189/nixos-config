@@ -2,13 +2,11 @@
 
 let
   mergeAttrList = pkgs.lib.foldl' pkgs.lib.mergeAttrs { };
-  garmin = (
-    pkgs.callPackage (import ../nixos-shared/home-manager/garmin-connect/default.nix {
-      targetDir = "${config.home.homeDirectory}/Syncthing/activities";
-      tokenStore = "${config.home.homeDirectory}/.garminconnect";
-      environmentFile = "/run/agenix/garminConnect";
-    }) { }
-  );
+  garmin = pkgs.callPackage (import ../nixos-shared/home-manager/garmin-connect/default.nix {
+    targetDir = "${config.home.homeDirectory}/Syncthing/activities";
+    tokenStore = "${config.home.homeDirectory}/.garminconnect";
+    environmentFile = "/run/agenix/garminConnect";
+  }) { };
   zwiftWeightSync = pkgs.callPackage (import
     ../nixos-shared/home-manager/zwift-weight-sync/default.nix
     {

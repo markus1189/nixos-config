@@ -11,12 +11,10 @@ let
     inherit plantuml;
   };
 
-  myEmacsConfig = (
-    runCommandLocal "create-my-emacs-config" { } ''
-      mkdir -p $out/share/emacs/site-lisp
-      cp ${emacsConfig} $out/share/emacs/site-lisp/default.el
-    ''
-  );
+  myEmacsConfig = runCommandLocal "create-my-emacs-config" { } ''
+    mkdir -p $out/share/emacs/site-lisp
+    cp ${emacsConfig} $out/share/emacs/site-lisp/default.el
+  '';
   quick-yes = runCommandLocal "install-quick-yes" { } ''
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
@@ -47,7 +45,7 @@ emacs.pkgs.withPackages (
       });
     in
     [
-      (treesit-grammars.with-all-grammars)
+      treesit-grammars.with-all-grammars
 
       annotate
       auctex

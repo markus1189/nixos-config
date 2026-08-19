@@ -53,11 +53,11 @@
         wormhole-william
       ])
       ++ (with pkgs; [
-        (myScripts.logArgs)
-        (myScripts.recordMeeting)
-        (myScripts.tmuxPollPane)
-        (myScripts.chronic-file)
-        (myScripts.gemini-vision)
+        myScripts.logArgs
+        myScripts.recordMeeting
+        myScripts.tmuxPollPane
+        myScripts.chronic-file
+        myScripts.gemini-vision
       ]);
   };
 }

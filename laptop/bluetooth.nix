@@ -1,7 +1,5 @@
 { config, pkgs, ... }:
 
-let
-in
 {
   hardware = {
     bluetooth = {

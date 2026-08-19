@@ -22,9 +22,11 @@ in
     systemPackages = [
       pkgs.ripgrep
       pkgs.ripgrep-all
-      (pkgs.myScripts.ripgrepFzf)
+      pkgs.myScripts.ripgrepFzf
     ];
 
-    shellAliases = (with pkgs; { rg = "env RIPGREP_CONFIG_PATH=${ripgreprc} rg"; });
+    shellAliases = with pkgs; {
+      rg = "env RIPGREP_CONFIG_PATH=${ripgreprc} rg";
+    };
   };
 }

@@ -83,7 +83,7 @@ rec {
     writeScriptBin name ''
       #!${stdenv.shell}
 
-      ${lib.optionalString (failFast) ''
+      ${lib.optionalString failFast ''
         set -e
 
       ''}

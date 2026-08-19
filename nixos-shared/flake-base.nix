@@ -58,7 +58,7 @@
       # binary it drives are version-locked together either way.
       agentSkills = import ./agent-skills {
         pkgs = final;
-        marginal = final.marginal;
+        inherit (final) marginal;
         hocketSrc = inputs.hocket;
         agentBrowser = final.agent-browser;
       };

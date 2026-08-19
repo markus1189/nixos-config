@@ -219,7 +219,7 @@ let
       let
         preToolUseHooks = pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook;
       in
-      (if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { });
+      if preToolUseHooks != [ ] then { PreToolUse = preToolUseHooks; } else { };
 
 in
 {

@@ -45,7 +45,7 @@ in
   inherit (myScripts) viessmannOutsideTemperature;
 
   emacs = final.callPackage ./emacs {
-    emacs = prev.emacs;
+    inherit (prev) emacs;
     elispSrcs = {
       inherit (inputs)
         gptel

@@ -9,7 +9,7 @@
   };
 
   environment = {
-    systemPackages = (
+    systemPackages =
       with pkgs;
       [
         #
@@ -204,7 +204,7 @@
         hlint
         # idris
         # pkgs.stack
-        (pkgs.ormolu)
+        pkgs.ormolu
         xmobar
       ])
       ++ [ pkgs.brightnessctl ]
@@ -232,7 +232,6 @@
       ++ [
         # Go related stuff
         go
-      ]
-    );
+      ];
   };
 }
