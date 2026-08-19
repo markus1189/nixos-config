@@ -250,15 +250,45 @@ merely disfigured by the global line numbers."
   ;; `flymake-collection', so the feature this block is named after never
   ;; actually loads and a :config body would be dead code.
   :init
+  ;; rumdl instead of mdl for markdown.  mdl (ruby markdownlint) is alive but
+  ;; its defaults are the outlier: MD029 rejects 1./2. ordered lists, and it
+  ;; misses rules the reference implementation has (MD040, fenced code without
+  ;; a language).  rumdl follows DavidAnson's rule semantics, is a single
+  ;; static binary and reads ~/.config/rumdl/rumdl.toml -- which matters for
+  ;; ~/Stuff, a note tree without per-project config files.
+  ;;
+  ;; The binary is substituted from the same closure (see default.nix) rather
+  ;; than looked up in PATH, so the editor and `rumdl' on the shell can never
+  ;; drift apart.
+  (with-eval-after-load 'flymake-collection
+    ;; flymake-collection only pulls the macro in at compile time.
+    (require 'flymake-collection-define)
+    (flymake-collection-define-rx flymake-collection-rumdl
+      "Markdown checker using rumdl.
+
+See URL `https://github.com/rvben/rumdl'."
+      :title "rumdl"
+      :pre-let ((rumdl-exec "@rumdl@/bin/rumdl"))
+      :write-type 'pipe
+      :command `(,rumdl-exec "check" "--color" "never" "-")
+      :regexps
+      ((error bol "<stdin>:" line ":" column ": [" (id "MD" (+ digit)) "] "
+              (message) eol))))
   ;; proselint is English-only prose linting and is not installed; its
   ;; :pre-check signals an error, which flymake surfaces as a panicking
-  ;; backend in every markdown-mode and org-mode buffer.
+  ;; backend in every markdown-mode and org-mode buffer.  markdownlint is
+  ;; swapped for the rumdl checker defined above; it appears as a bare symbol
+  ;; in `flymake-collection-hook-config', :disabled entries stay lists.
   (with-eval-after-load 'flymake-collection-hook
     (setq flymake-collection-hook-config
           (mapcar (lambda (entry)
                     (cons (car entry)
-                          (delq 'flymake-collection-proselint
-                                (copy-sequence (cdr entry)))))
+                          (mapcar (lambda (checker)
+                                    (if (eq checker 'flymake-collection-markdownlint)
+                                        'flymake-collection-rumdl
+                                      checker))
+                                  (delq 'flymake-collection-proselint
+                                        (copy-sequence (cdr entry))))))
                   flymake-collection-hook-config))))
 
 (use-package flyspell

@@ -19,6 +19,7 @@ in
     ../nixos-shared/home-manager/git/default.nix
     ../nixos-shared/home-manager/dunst/default.nix
     ../nixos-shared/home-manager/firefox/default.nix
+    ../nixos-shared/home-manager/rumdl/default.nix
     ../nixos-shared/home-manager/starship/default.nix
     ../nixos-shared/home-manager/vim/default.nix
     ../nixos-shared/home-manager/zsh/default.nix
@@ -264,7 +265,7 @@ in
             drawThickness=3
             saveAfterCopy=true
             ; flameshot 14 defaults to xdg-desktop-portal capture; xmonad has no portal
-            ; useX11LegacyScreenshot=true
+            useX11LegacyScreenshot=true
             ; Symlink managed by cdt/Emacs to today's Stuff directory
             savePath=${config.home.homeDirectory}/Stuff/Today
             uiColor=#ee8903

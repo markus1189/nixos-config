@@ -159,7 +159,6 @@
         scrot
         shellcheck
         yamllint
-        mdl
         statix
         ffmpegthumbnailer
         mediainfo

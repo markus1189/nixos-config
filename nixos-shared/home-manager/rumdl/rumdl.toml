@@ -1,0 +1,7 @@
+# Global rumdl configuration -- installed to ~/.config/rumdl/rumdl.toml.
+# Project-local .rumdl.toml files take precedence over this one.
+
+[global]
+# MD013 (line length, default 80) cannot be satisfied by markdown tables or
+# long reference links without destroying them.
+disable = ["MD013"]
