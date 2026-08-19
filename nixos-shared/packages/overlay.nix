@@ -20,10 +20,6 @@ in
 
   fasd = final.callPackage ./fasd { src = inputs.fasd; };
 
-  # Standby for the day flameshot drops its legacy X11 capture path; see the
-  # package comment and nixos-shared/xdg-portal-x11.nix.
-  xdgDesktopPortalX11Shim = final.callPackage ./portal-x11-shim { };
-
   inherit (myScripts)
     notifySendPb
     notifySendTelegram
