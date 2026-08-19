@@ -255,22 +255,81 @@
               '';
         };
 
-      # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
-      # replaces the last channel-style shell.nix.
-      devShells.x86_64-linux.xmonad =
+      devShells.x86_64-linux =
         let
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
+          # The repo's pre-commit hook, generated rather than checked in: the
+          # statix that gates a commit is then the one from this flake's
+          # nixpkgs -- the same derivation `nix flake check` runs -- instead of
+          # whatever the ambient PATH happens to offer.
+          #
+          # `.git/hooks` is not tracked and cannot be, so the install has to
+          # happen somewhere. The devShell's shellHook is that somewhere: enter
+          # the directory with direnv (.envrc: use_flake) and the symlink is
+          # made, re-made after a GC, and corrected if it points at an older
+          # revision of this hook.
+          preCommitHook = pkgs.writeShellScript "nixos-config-pre-commit" ''
+            set -euo pipefail
+            root="$(git rev-parse --show-toplevel)"
+
+            # statix, only when the commit touches .nix files. It parses rather
+            # than evaluates, so linting the whole tree costs ~10ms; there is no
+            # point being clever about which files to hand it.
+            #
+            # The whole-repo walk is deliberate: `ignore` globs in statix.toml
+            # are honoured for a directory walk but NOT for an explicit file
+            # target (statix 0.5.8), so a per-file loop would lint the generated
+            # hardware-configuration.nix that statix.toml exempts. The price is
+            # that a lint in an unstaged file blocks the commit too.
+            if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.nix')" ]; then
+              if ! ${pkgs.statix}/bin/statix check --config "$root" "$root"; then
+                echo "pre-commit: statix found lints -- fix with 'statix fix', or commit with --no-verify" >&2
+                exit 1
+              fi
+            fi
+
+            # Hand over to the machine-wide hook (gitleaks), which this one
+            # displaces. Resolved at runtime so it always chains to the current
+            # one. Fail closed: a missing secret scanner on a public repo is a
+            # reason not to commit, not a reason to shrug.
+            template="$(git config --get init.templatedir || true)"
+            if [ -z "$template" ] || [ ! -x "$template/hooks/pre-commit" ]; then
+              echo "pre-commit: no template pre-commit hook via init.templatedir -- refusing to commit without the gitleaks scan (run ./activate.sh)" >&2
+              exit 1
+            fi
+            exec "$template/hooks/pre-commit"
+          '';
         in
-        pkgs.mkShell {
-          packages = [
-            (pkgs.haskellPackages.ghcWithHoogle (
-              ps: with ps; [
-                xmonad
-                xmonad-contrib
-                haskell-language-server
-              ]
-            ))
-          ];
+        {
+          # `nix develop` / direnv in the repo root. Carries the linter and
+          # installs the pre-commit hook that runs it.
+          default = pkgs.mkShell {
+            packages = [ pkgs.statix ];
+
+            # git resolves hooks under $GIT_COMMON_DIR, so --git-path gets this
+            # right inside a linked worktree too, where .git is a file.
+            shellHook = ''
+              hooksDir="$(git rev-parse --git-path hooks 2>/dev/null || true)"
+              if [ -d "$hooksDir" ]; then
+                ln -sfn ${preCommitHook} "$hooksDir/pre-commit"
+              fi
+            '';
+          };
+
+          # `nix develop .#xmonad` / `use flake` in nixos-shared/packages/xmonad;
+          # replaces the last channel-style shell.nix.
+          xmonad = pkgs.mkShell {
+            packages = [
+              (pkgs.haskellPackages.ghcWithHoogle (
+                ps: with ps; [
+                  xmonad
+                  xmonad-contrib
+                  haskell-language-server
+                ]
+              ))
+            ];
+          };
         };
     };
 }
