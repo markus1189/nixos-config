@@ -270,8 +270,18 @@
     fontconfig = {
       antialias = true;
       defaultFonts = {
-        monospace = [ "Source Code Pro" ];
-        serif = [ "Source Serif Pro" ];
+        monospace = [
+          "Source Code Pro"
+          "Symbols Nerd Font Mono"
+        ];
+        sansSerif = [
+          "Source Sans 3"
+          "Symbols Nerd Font"
+        ];
+        serif = [
+          "Source Serif 4"
+          "Symbols Nerd Font"
+        ];
       };
     };
   };
