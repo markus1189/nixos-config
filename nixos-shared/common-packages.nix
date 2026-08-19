@@ -42,6 +42,9 @@
         # shelling out, so it is ~16x nvd on this tree and also reports the size
         # delta per package. nh links the same engine as a crate for rebuilds;
         # this binary is for comparing two arbitrary paths or generations.
+        # Reading the db directly races a concurrent writer (a build or GC);
+        # `--force-correctness` trades the speed for a full re-check, e.g. mid-
+        # autoUpgrade on nuc.
         dix
         nixfmt
         nixpkgs-lint

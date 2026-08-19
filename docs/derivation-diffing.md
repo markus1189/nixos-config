@@ -21,7 +21,9 @@ old=$(nix-store --query --deriver /run/current-system)   # still on disk for the
 new=$(nix eval --raw .#nixosConfigurations.p1g8.config.system.build.toplevel.drvPath)
 diff <(nix-store -qR "$old" | sort) <(nix-store -qR "$new" | sort)
 
-# Built delta
+# Built delta -- on a laptop `nh os switch` (programs.nh) does this as one
+# command: build, diff against the running system, then prompt before activating.
+# `dix <genA> <genB>` diffs any two generations/paths and reports size per package.
 nixos-rebuild build --flake .#p1g8 && nix store diff-closures /run/current-system ./result
 nix build .#nixosConfigurations.p1g8.config.system.build.toplevel -o result-after  # second tree, keeps ./result
 ```
@@ -61,7 +63,8 @@ build all hosts. Most questions die at step two.
   have is a privately rebuilt cone, nearly always an accident —
   `nix path-info --store https://cache.nixos.org PATH` reports `is not valid`.
 - **Why is this here / what costs space**: `nix why-depends A B` (`--derivation`
-  for build-time), `nix path-info -rSh ./result | sort -k2 -h | tail`.
+  for build-time), `nix path-info -rSh ./result | sort -k2 -h | tail`. Same
+  question, interactively: `nix-tree` drills a closure with `w` (why-depends).
 
 ## Same diff, different expectation
 
