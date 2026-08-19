@@ -103,7 +103,6 @@ emacs.pkgs.withPackages (
       ialign
       ibuffer-vc
       iedit
-      indent-guide
       itail
       iy-go-to-char
       js2-refactor
@@ -126,7 +125,6 @@ emacs.pkgs.withPackages (
       markdown-mode
       markdown-preview-mode
       marginalia
-      mvn
       magit
       move-text
       multiple-cursors
@@ -159,11 +157,9 @@ emacs.pkgs.withPackages (
       transpose-frame
       treemacs
       typescript-mode
-      use-package
       verb
       vertico
       visual-regexp
-      which-key
       web-mode
       with-editor
       yaml-mode

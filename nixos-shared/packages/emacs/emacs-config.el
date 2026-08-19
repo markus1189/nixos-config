@@ -1,4 +1,4 @@
-(require 'package)
+;;; -*- lexical-binding: t; -*-
 (require 'iy-go-to-char)
 (with-eval-after-load 'dired
   (require 'dired+) ;; added via load path...
@@ -198,11 +198,6 @@
  '(writegood-weasels-face ((t (:inherit font-lock-warning-face :background "DarkOrange" :foreground "black")))))
 
 
-;; make unpure packages archives unavailable
-(setq package-archives nil)
-
-(package-initialize)
-
 (eval-when-compile
   (require 'use-package))
 
@@ -223,7 +218,7 @@
          ("C-S-s-SPC" . flycheck-previous-error)))
 
 (use-package flyspell
-  :ensure t
+  :ensure nil
   ;; :hook
   ;; (text-mode . flyspell-mode)
   ;; (prog-mode . flyspell-prog-mode)
@@ -334,13 +329,6 @@
   (text-mode . yas-minor-mode)
   :config
   (yas-reload-all))
-
-(use-package indent-guide
-  :ensure t
-  :init
-  (setq indent-guide-char "┋")
-  :config
-  (indent-guide-global-mode 0))
 
 (use-package git-link
   :ensure t
@@ -767,14 +755,14 @@ covers a single line)."
    ("C-<" . mc/mark-previous-like-this)))
 
 (use-package compile
-  :ensure t
+  :ensure nil
   :demand t
   :bind (("<f5>" . recompile))
   :hook
   (compilation-filter . ansi-color-compilation-filter))
 
 (use-package whitespace
-  :ensure t
+  :ensure nil
   :hook
   ((before-save . whitespace-cleanup)))
 
@@ -827,7 +815,8 @@ covers a single line)."
   :ensure t)
 
 (use-package which-key
-  :ensure t
+  ;; built into Emacs 30; :ensure nil keeps the ELPA copy from shadowing it
+  :ensure nil
   :demand t
   :config
   (which-key-mode))
@@ -843,7 +832,7 @@ covers a single line)."
   (pdf-loader-install))
 
 (use-package hippie-exp
-  :ensure t
+  :ensure nil
   :demand t
   :bind (("M-/" . hippie-expand)
          ("C-M-/" . hippie-expand-lines))
@@ -1030,7 +1019,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t)
 
 (use-package ibuffer
-  :ensure t
+  :ensure nil
   :bind (("C-x C-b" . ibuffer)))
 
 (use-package ibuffer-vc
@@ -1214,7 +1203,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :defer t)
 
 (use-package org
-  :ensure t
+  :ensure nil
   :defer t
   :init
   (eval-after-load "org"
@@ -1410,7 +1399,7 @@ string). It returns t if a new completion is found, nil otherwise."
   (vertico-mode))
 
 (use-package savehist
-  :ensure t
+  :ensure nil
   :init
   (savehist-mode)
   :config
@@ -1422,7 +1411,7 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq savehist-autosave-interval 60)) ; Save every minute
 
 (use-package project
-  :ensure t)
+  :ensure nil)
 
 (use-package marginalia
   :ensure t
@@ -1610,7 +1599,7 @@ string). It returns t if a new completion is found, nil otherwise."
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package recentf
-  :ensure t
+  :ensure nil
   :init
   (recentf-mode 1)
   (setq recentf-max-menu-items 20)
@@ -1654,7 +1643,7 @@ string). It returns t if a new completion is found, nil otherwise."
    ("C-c q" . vr/query-replace)))
 
 (use-package ediff
-  :ensure t
+  :ensure nil
   :bind
   (("M-s =" . mh/ediff-compare-with-kill))
   :config
