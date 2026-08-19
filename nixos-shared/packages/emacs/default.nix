@@ -58,9 +58,10 @@ emacs.pkgs.withPackages (
       avy
       bats-mode
       beacon
+      cape
       consult
       consult-project-extra
-      company
+      corfu
       dash
       deadgrep
       dhall-mode
@@ -111,6 +112,7 @@ emacs.pkgs.withPackages (
       jsonnet-mode
       just-mode
       jq-mode
+      kind-icon
       lua-mode
       log4j-mode
       ##########

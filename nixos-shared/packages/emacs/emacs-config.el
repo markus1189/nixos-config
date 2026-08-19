@@ -114,15 +114,11 @@
  '(bmkp-bad-bookmark ((t (:foreground "Red" :underline t :slant italic))))
  '(bmkp-local-directory ((t (:foreground "Pink"))))
  '(col-highlight ((t (:inherit hl-line))))
- '(company-preview ((t (:foreground "dim gray"))))
- '(company-preview-common ((t (:inherit company-preview :foreground "dark orange"))))
- '(company-scrollbar-bg ((t (:inherit company-tooltip :background "dark gray"))) t)
- '(company-scrollbar-fg ((t (:background "dark orange"))) t)
- '(company-tooltip ((t (:background "gray17" :foreground "light gray"))))
- '(company-tooltip-annotation ((t (:inherit company-tooltip :foreground "dark orange"))))
- '(company-tooltip-common ((t (:inherit company-tooltip :foreground "dark orange"))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :foreground "black"))))
- '(company-tooltip-selection ((t (:inherit company-tooltip :background "orange1" :foreground "black"))))
+ '(corfu-annotations ((t (:inherit corfu-default :foreground "dark orange"))))
+ '(corfu-bar ((t (:background "dark orange"))))
+ '(corfu-border ((t (:background "dark gray"))))
+ '(corfu-current ((t (:background "orange1" :foreground "black"))))
+ '(corfu-default ((t (:background "gray17" :foreground "light gray"))))
  '(cursor ((t (:background "white smoke" :inverse-video t))))
  '(diredp-compressed-file-suffix ((t (:foreground "steel blue"))))
  '(diredp-date-time ((t (:foreground "pale goldenrod"))))
@@ -201,14 +197,51 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package company
+(use-package corfu
   :ensure t
-  :bind ("<C-tab>" . company-complete)
-  :diminish company-mode
-  :commands (company-mode global-company-mode)
-  :defer 1
+  :demand t
+  ;; Same key that used to call `company-complete'.
+  :bind (("<C-tab>" . completion-at-point)
+         :map corfu-map
+         ;; orderless needs a way to type a space without ending completion.
+         ("SPC" . corfu-insert-separator))
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.15)
+  ;; With `corfu-auto' on, quitting only at the separator keeps orderless
+  ;; multi-word input alive while still dismissing on genuine no-match.
+  (corfu-quit-no-match 'separator)
+  ;; Leave the typed input selected so RET never inserts a surprise candidate.
+  (corfu-preselect 'prompt)
   :config
-  (global-company-mode))
+  (global-corfu-mode)
+  ;; Extensions ship inside the corfu package, but are not autoloaded.
+  (require 'corfu-popupinfo)
+  (corfu-popupinfo-mode 1)
+  (require 'corfu-history)
+  (corfu-history-mode 1)
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+(use-package cape
+  :ensure t
+  :demand t
+  :bind-keymap ("C-c p" . cape-prefix-map)
+  :init
+  ;; capf order matters: the buffer-local ones (lsp, elisp) are pushed in
+  ;; front of these by their own modes.
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev))
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default)
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package flycheck
   :ensure t
@@ -1152,6 +1185,11 @@ string). It returns t if a new completion is found, nil otherwise."
          (lsp-mode . lsp-lens-mode))
   :commands
   lsp
+  :init
+  ;; Completion is corfu-over-capf; :none stops lsp-mode setting up company.
+  ;; Must be set before lsp-mode loads, which is when lsp-completion sets
+  ;; up its frontend.
+  (setq lsp-completion-provider :none)
   :config
   (setq lsp-prefer-flymake nil))
 
