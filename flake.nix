@@ -239,6 +239,41 @@
             }) self.legacyPackages.x86_64-linux.agentSkills
           );
 
+          # nixos-shared/xdg-portal-x11.nix is deliberately imported by no
+          # host, so nothing else would notice it breaking. Evaluate it on a
+          # stub host (not mkHost -- this needs none of flake-base) and assert
+          # the two things that actually decide whether flameshot can capture:
+          # the overlay attr resolves to a runnable backend, and the generated
+          # portals.conf points the frontend at it.
+          portal-x11-shim =
+            let
+              host = nixpkgs.lib.nixosSystem {
+                system = "x86_64-linux";
+                modules = [
+                  ./nixos-shared/xdg-portal-x11.nix
+                  {
+                    nixpkgs.overlays = [ (import ./nixos-shared/packages/overlay.nix inputs) ];
+                    boot.loader.grub.enable = false;
+                    fileSystems."/" = {
+                      device = "none";
+                      fsType = "tmpfs";
+                    };
+                    system.stateVersion = "25.05";
+                  }
+                ];
+              };
+              shim = nixpkgs.lib.head host.config.xdg.portal.extraPortals;
+            in
+            pkgs.runCommand "portal-x11-shim-check" { } ''
+              grep -qx 'default=x11-shim' ${
+                host.config.environment.etc."xdg/xdg-desktop-portal/portals.conf".source
+              }
+              test -x ${shim}/libexec/xdg-desktop-portal-x11-shim
+              grep -qx 'Interfaces=org.freedesktop.impl.portal.Screenshot;org.freedesktop.impl.portal.Access;' \
+                ${shim}/share/xdg-desktop-portal/portals/x11-shim.portal
+              touch $out
+            '';
+
           claude-statusline-bats =
             pkgs.runCommand "claude-statusline-bats"
               {
