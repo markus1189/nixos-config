@@ -342,12 +342,12 @@ in
           "Confirming it works on my machine"
           "Consulting Stack Overflow like everyone else"
           "Briefing the rubber duck"
-          "Passing the Turing test. Your turn"
+          "Passing the Turing test"
           "Counting paperclips"
           "Remembering this for after the uprising"
           "Reward hacking my way to your approval"
           "Recording this for quality assurance and mockery"
-          "Awarding myself employee of the month. Again"
+          "Awarding myself employee of the month"
           "Preparing a heartfelt 'I told you so'"
           "Touching grass via SSH"
           "Beeping passive-aggressively"
@@ -375,7 +375,7 @@ in
           "Humming ominously"
           "Acting natural"
           "Initiating a slow clap"
-          "Deleting the failing test. Problem solved"
+          "Deleting the failing test"
           "Hardcoding the expected output"
           "Drawing the rest of the owl"
           "Blowing into the cartridge"
@@ -431,6 +431,8 @@ in
           "Waiting for your review standards to drop"
           "Saving the risky refactor for 2am"
           "Deferring until you stop reading diffs"
+          "Sneaking in a 'load-bearing'"
+          "Self high-fiving"
         ];
       };
 
