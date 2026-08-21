@@ -65,118 +65,163 @@ structured markdown summary, keeping the raw content out of the main context.
 
 **How to launch one:**
 1. Read [`deepdive-prompt.md`](deepdive-prompt.md).
-2. Substitute the placeholders: `{{STORY_ID}}`, `{{ARTICLE_URL}}` (empty for Ask HN / no link),
-   `{{STORY_TITLE}}`, and `{{HN_CLI}}` → the absolute path to `scripts/hn-cli.sh` (resolve
-   `./scripts/` against this skill's directory, e.g.
-   `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`). Drop the article-fetch step
-   when there's no URL.
+2. Substitute `{{STORY_ID}}`, `{{ARTICLE_URL}}` (empty for Ask HN / no link),
+   `{{STORY_TITLE}}`, `{{CHECK_N}}` (which check this dive belongs to), and `{{HN_CLI}}` →
+   absolute path to `scripts/hn-cli.sh`, resolving `./scripts/` against this skill's directory
+   (e.g. `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`). Drop the article-fetch
+   step when there's no URL.
 3. Spawn a subagent with that filled-in text as its prompt. Its result *is* the summary —
    read it directly, no temp files.
 
 **Parallel deep-dives** — spawn **multiple deep-dive subagents in parallel**; collect each
 one's summary when they return. (No `&`/`wait`, no `/tmp` files.)
 
-Output is structured markdown (TL;DR, key points, discussion themes table, ⭐ high-profile
-commenters, notable comments, linked artifacts, cited papers, meta).
+Output is a `##` heading + metadata line + `###` subsections (TL;DR, Key Points, HN Discussion
+Themes, ⭐ High-Profile Commenters, Notable Comments, Linked Artifacts, Cited Papers, Meta) —
+append it verbatim, see "Dive metadata contract" below.
+
+### Dive metadata contract
+
+`##` heading, two metadata lines, `###` subsections. Same in **both** `hn-daily.md` and
+`hn-wrapup.md`.
+
+```markdown
+## Show HN: Huzzah – a novel approach to coding with AI [49378768]
+
+**350 pts · 198 💬 · danielvaughn** · [thread](https://news.ycombinator.com/item?id=49378768) · [danielvaughn.dev](https://www.danielvaughn.dev/posts/huzzah/) · dive @ check 1
+`tags: ai-agents, tooling | +pseudocode, source-maps`
+
+### TL;DR
+…
+```
+
+Every field is in the `hn-cli.sh --thread` header (`350 points · danielvaughn · 2026-08-20 ·
+198 comments in tree`, then the article URL). No extra fetch.
+
+- Article link text = bare domain. Omit that link entirely for Ask HN / text-only Show HN.
+- `dive @ check N` in the daily file only; drop it in the wrap-up.
+- Tags line backticked and alone, so `rg 'tags:.*prompt-injection'` hits headers, not prose.
+
+### Tag vocabulary
+
+`tags: <canonical, ...> | +<free, ...>` — free side max 2, lowercase, hyphenated, specific
+(`lean4`, `sondehub`, `cricut`), not a looser restatement of a canonical tag. Canonical side
+draws only from:
+
+- **AI/LLM** — `ai-agents` `llm-eval` `benchmarks-flawed` `prompt-injection` `context-mgmt` `model-release`
+- **Security** — `security` `supply-chain` `privacy` `surveillance`
+- **Stacks** — `rust` `linux` `systems` `databases` `languages` `web` `hardware`
+- **Introspective** — `analog` `craft` `career`
+- **Rest** — `meta` `drama` `papers` `tooling` `math` `science` `policy`
+
+Promote a free tag into the canonical list once it recurs in 3 dives.
 
 ### Ghost thread auto-follow
 
 If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically launch a second deep-dive subagent on that linked thread — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
 
-## Daily State Tracking
+## Daily File
 
-Track HN browsing across multiple sessions in a single day using a stateful markdown file.
-
-### State file location
-`~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` (uses current date)
+One file per day, appended across sessions: `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md`
+(current date). It is its own state — no separate tracking block.
 
 ### Knowledgebase contract (`~/Stuff/.kb/kb-index`)
 
-Both files are indexed series. `kb-index` reads `##` headings and nothing deeper, so:
+`kb-index` reads `##` headings and nothing deeper. Levels are load-bearing:
 
-- **Keep the filenames exact** — a rename splits the series.
-- **Dives get a `##` heading ending in `[story_id]`.** At `###` they're invisible to the index.
-  Checks, categories and prose stay `###` or below.
-- **Run `~/Stuff/.kb/kb-index` after writing** (idempotent, ~1s). Otherwise today is absent
-  from `llms.txt` and the series indexes.
+| Level | Content | Indexed |
+| --- | --- | --- |
+| `#` | file title | as series entry |
+| `##` | `Check N — HH:MM`; one per dive, ending in `[story_id]` | yes |
+| `###` | briefing categories, New/Movers, dive subsections | no |
 
-Cross-day lookup — `.kb/series/hn-daily.md` holds every dive heading, oldest first. Use it for
-"seen this before?" and "Threads to Follow Tomorrow"; fall back to `rg` only if it comes up empty:
-
-```bash
-treemd -l ~/Stuff/.kb/series/hn-daily.md | grep -i 'ladybird'
-```
+- Filenames exact — a rename splits the series.
+- Dive subsections use `###`, never bold labels: free in the index, and `treemd -s "Notable
+  Comments"` works on a 3,000-line file.
+- Run `~/Stuff/.kb/kb-index` after writing (idempotent, ~1s), else today is missing from
+  `llms.txt` and the series indexes.
 
 ### First check of the day
-If no `hn-daily.md` exists for today → full briefing mode (see below). After presenting stories:
-1. Create the file with the `# HN Daily — Weekday, Month Day, Year` H1, then a
-   `## Check 1 — HH:MM` section containing the briefing (categories at `###`)
-2. Append a state tail (see format below)
-3. Deep dives requested → append each summary verbatim (it arrives as `## Title [story_id]`
-   — no "Deep Dives" wrapper heading), body opening with `**Dive · Check N**`. Status → `dived`.
-4. Run `~/Stuff/.kb/kb-index`
+No `hn-daily.md` for today → full briefing mode (below). Then:
+1. Create file: `# HN Daily — Weekday, Month Day, Year`, then `## Check 1 — HH:MM` holding the
+   briefing (categories `###`, tables per format below)
+2. Dives → append each verbatim (`## Title [story_id]` + metadata line)
+3. Run `~/Stuff/.kb/kb-index`
 
 ### Subsequent checks (file exists)
-1. Read `hn-daily.md`, parse the state tail at the bottom
-2. Fetch HN top N
-3. Compute delta:
-   - **New**: stories not in state tail
-   - **Movers**: stories where score jumped >50 OR comments jumped >30 since last check
-4. **Write file first**: append `## Check N — HH:MM` section and rewrite state tail before presenting output to user
-5. Present only the delta (skip unchanged/already-seen stories)
-6. User picks deep dives → run them, **append notes to file before presenting summaries** —
-   each as its own `## Title [story_id]` section (see "First check of the day", step 3)
+1. Read file, collect already-handled ids (dedup below)
+2. Fetch top N
+3. Delta: **New** = ids not in file; **Movers** = score +>50 or comments +>30 against the
+   `Pts`/`💬` columns of the earlier check tables (that's where the previous numbers live)
+4. Write `## Check N — HH:MM` **before** presenting
+5. Present delta only
+6. Dives → append **before** presenting summaries
 7. Run `~/Stuff/.kb/kb-index`
 
-### State tail format
-Always at the very end of the file, after a `---` separator. Fenced with ` ```state ` / ` ``` `. Pipe-delimited, one line per story:
+### Seen-story dedup
 
-    ---
-    ```state
-    47122715|Age Verification Trap|1449|1110|dived
-    47120899|Ladybird Rust|1172|647|dived
-    47133055|enveil|76|38|dismissed
-    47131225|Steerling-8B|159|40|noted
-    ```
+No state block. The tables are the state — briefing titles and dive metadata lines both link
+the thread:
 
-Fields: `story_id|title|score|comments|status`
+```bash
+grep -oE 'item\?id=[0-9]+' ~/Stuff/YYYY-MM/DD-scratch/hn-daily.md | sort -u
+```
 
-Status values:
-- `new` — appeared, not yet interacted with
-- `noted` — user acknowledged / showed interest
-- `dived` — deep dive completed
-- `dismissed` — user explicitly skipped
+Match `item?id=`, never bare 7–9 digit numbers: dive bodies cite comment ids as `[49379070]`,
+which a numeric grep counts as seen stories and silently hides real ones.
 
-The state tail is **rewritten** (not appended) each check — always reflects the current snapshot with updated scores/comments.
+Disposition goes in the Note column (`skipped — job ad`). Dived stories have their own `##`.
+
+### Briefing table format
+
+One table per category, categories at `###`:
+
+```markdown
+| Story | Pts | 💬 | ID | Note |
+| --- | --- | --- | --- | --- |
+| [Show HN: Huzzah – a novel approach to coding with AI](https://news.ycombinator.com/item?id=49378768) | 260 | 145 | 49378768 | pseudocode as source of record; author answers every critique |
+| [Malicious Rust crate Arrayref runs a build-time payload](https://news.ycombinator.com/item?id=49374269) | 446 | 388 | 49374269 | 🎯 dive candidate — live supply-chain incident |
+| [Sixtyfour (YC P25) Is Hiring](https://news.ycombinator.com/item?id=49377248) | 1 | 0 | 49377248 | skipped — job ad |
+```
+
+- Title links to the HN thread; `hn-cli.sh` prints that URL for every story.
+- No rank column (meaningless after the fetch). ID column stays — it feeds `--thread`.
+- Note = one clause of reasoning: the angle, `🎯` if dive-worthy, or why skipped. Empty is
+  fine; restating the title is noise.
 
 ### Delta presentation format
 
 ```markdown
 ## Check 2 — 18:00
 
-### New Stories
-| # | Story | Pts | 💬 | Topic |
-...
+### New
+| Story | Pts | 💬 | ID | Note |
+| --- | --- | --- | --- | --- |
+| [Codex on AWS Bedrock bug causing 10x charges](https://news.ycombinator.com/item?id=49383326) | 156 | 61 | 49383326 | billing bug, not a model story |
 
 ### Movers
-| Story | Was | Now | Δ pts | Δ 💬 |
-...
+| Story | Was | Now | Δ |
+| --- | --- | --- | --- |
+| [Aaron Swartz prosecuted while Meta scrapes freely](https://news.ycombinator.com/item?id=49379550) | 1295/288 | 1702/390 | +407/+102 |
 ```
 
+`Was`/`Now` are `pts/comments` pairs.
+
 ### When user says "check HN" / "what's new on HN"
-Always check for an existing `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` first. If it exists, run in delta mode. If not, run full briefing mode.
+Check for `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` first: exists → delta mode, absent → full
+briefing mode.
 
 ## Briefing Mode
 
 When user asks casually about hacker news stories, use this style:
 
 ### Flow
-1. Check for existing daily state file (see Daily State Tracking above)
+1. Check for today's daily file (see Daily File above)
 2. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
 3. User picks stories they want to dig into
 4. **Launch a deep-dive subagent for each pick** (launch them in parallel — see "Deep-Dive Sub-Agent" above). Do NOT fetch articles or comments directly into main context.
 5. Collect each subagent's summary from its final message
-6. **Write all file updates first** (state file, deep dive notes appended to daily file), then run `~/Stuff/.kb/kb-index` — before writing any conversational output. The text summary the user reads is always last.
+6. **Write all file updates first** (briefing tables, dive sections appended to the daily file), then run `~/Stuff/.kb/kb-index` — before writing any conversational output. The text summary the user reads is always last.
 7. Present summaries to the user
 8. Group related stories together
 9. When user asks "your take?" — give genuine opinions, not hedged summaries
@@ -257,15 +302,19 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 [dominant themes, tone, 2–3 standout stories — with voice]
 
 ## [Emoji] [Title] [[story_id]]
-**[pts] pts · [comments] comments**
-[Distill, don't paste: what matters from the story + thread, key artifacts/papers/commenters]
 
-(one `##` section per dive, no "Deep Dives" wrapper heading — these headings are what
-`.kb/series/hn-wrapup.md` indexes, so the `[story_id]` suffix is required)
+**[pts] pts · [comments] 💬 · [submitter]** · [thread](https://news.ycombinator.com/item?id=STORY_ID) · [domain.tld](ARTICLE_URL)
+`tags: canonical, tags | +free, form`
+
+[Distill, don't paste: what matters from story + thread, key artifacts/papers/commenters]
+
+(one `##` per dive, no wrapper heading; `[story_id]` required — `.kb/series/hn-wrapup.md`
+indexes these. Metadata + tags = the same contract as the daily file: copy across, don't
+re-derive. Subsections `###` if the entry is long enough to need them.)
 
 ## Stories Noted (Not Dived)
-| Story | Pts | Why Notable |
-(only worth-remembering ones — skip low-signal)
+| Story | Pts | 💬 | Why Notable |
+(linked titles, as in the briefing tables; skip low-signal)
 
 ## Threads to Follow Tomorrow
 (omit if nothing genuine to follow up on)
