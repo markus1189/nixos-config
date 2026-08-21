@@ -1113,12 +1113,14 @@ string). It returns t if a new completion is found, nil otherwise."
   (dirvish-override-dired-mode)
   :custom
   (dirvish-quick-access-entries
-   '(("h" "~/"           "Home")
-     ("r" "~/repos/"     "Repos")
-     ("s" "~/Stuff/"     "Stuff")
-     ("y" "~/Syncthing/" "Syncthing")
-     ("d" "~/Downloads/" "Downloads")
-     ("n" "/nix/store/"  "Nix store")))
+   '(("h" "~/"                             "Home")
+     ("r" "~/repos/"                       "Repos")
+     ("s" "~/Stuff/"                       "Stuff")
+     ("t" "~/Stuff/Today/"                 "Today")
+     ("y" "~/Syncthing/"                   "Syncthing")
+     ("d" "~/Downloads/"                   "Downloads")
+     ("a" "~/mounts/rclone/gdrive/Ablage/" "Ablage")
+     ("n" "/nix/store/"                    "Nix store")))
   ;; dirvish--check-dependencies requires the providing extension for each
   ;; of these on demand, so no explicit (require 'dirvish-vc) etc.
   (dirvish-attributes '(vc-state subtree-state nerd-icons collapse file-time file-size))
@@ -1130,6 +1132,7 @@ string). It returns t if a new completion is found, nil otherwise."
   :bind
   (("C-c f" . dirvish-fd)
    ("C-c F" . dirvish-side)
+   ("C-c d" . dirvish-quick-access)
    :map dirvish-mode-map
    ("a"   . dirvish-quick-access)
    ("f"   . dirvish-file-info-menu)
