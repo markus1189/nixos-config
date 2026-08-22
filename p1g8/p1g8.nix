@@ -20,22 +20,21 @@
   # loader + kernelPackages (latest; Arrow Lake CPU + BE201 Wi-Fi need
   # ≥6.13) come from laptop/laptop.nix
   boot.loader.systemd-boot.configurationLimit = 20; # decision #6: bounded for 1 G ESP
-  # i915 cx0_phy / C10 DPLL state-restore bug on Arrow Lake-P (8086:7d51),
-  # kernel 7.0.x — Ubuntu bug #2150605 (same HW: P1 Gen 8). The PHY parks at
-  # the 61 MHz idle clock and fails to retrain on power-up: "Failed to bring
-  # PHY A to idle" + flip_done timeouts + pixel_rate/port_clock mismatch, a
-  # ~40–50 s retry storm. Fires on BOTH s2idle-resume AND DPMS off→on.
-  # Per the bug, enable_dc/fbc=0 are INEFFECTIVE (tested) and dc=0 wastes
-  # idle power, so they're dropped. psr=0 is kept only as cheap insurance
-  # against a hard hang. The actual mitigation is disabling DPMS so the
-  # broken power-down path is never entered (serverFlagsSection below).
-  # No upstream fix as of 2026-05-28; xe driver makes it worse (engine
-  # resets). Revisit when the cx0_phy fix lands.  (2026-05-20..28)
-  boot.kernelParams = [ "i915.enable_psr=0" ];
+  # The i915 cx0_phy / C10 DPLL workarounds (i915.enable_psr=0 + DPMS
+  # disabled, Ubuntu bug #2150605) were dropped after the fix landed:
+  # 062499cc4813 "drm/i915/mtl+: Enable PPS before PLL", mainline v7.2-rc1,
+  # stable 7.1.6 — covers the eDP/PHY-A case seen here. If similar symptoms
+  # appear on an *external* DP later, that's the still-open PHY-B sibling
+  # issue, not a regression.  (2026-08-22)
   # DDR5 SPD sensor: under Intel SPD-Write-Disable the driver fails to
   # resume (`returns -6`, ENXIO). Canonical's i801 "don't instantiate
-  # spd5118" patch isn't in mainline 7.0.8 yet; blacklisting is safe — the
-  # module only exposes memory-stick SPD metadata.  (2026-05-27)
+  # spd5118 under SPD Write Disable" patch is STILL unmerged as of 2026-08
+  # (i2c-i801 master instantiates unconditionally; last list activity a
+  # 2026-01 status ping). Ubuntu carries it as a SAUCE patch (LP#2114963).
+  # Blacklisting is safe — the module only exposes memory-stick SPD
+  # metadata. Re-check: https://patchew.org/linux/20250528-for-upstream-not-instantiate-spd5118-v1-1-8216e2d38918@canonical.com/
+  # or un-blacklist and grep journal for `spd5118.*-6` after a resume
+  # (failure mode is benign log noise).  (2026-05-27, re-checked 2026-08-22)
   boot.blacklistedKernelModules = [ "spd5118" ];
   hardware.enableRedistributableFirmware = true;
 
@@ -89,20 +88,6 @@
   # MANGOHUD=1 in the same launch options. OpenGL + Vulkan offload both
   # confirmed working at the driver level (2026-06-03).
   programs.steam.enable = true;
-
-  # Disable X11 DPMS + screen blanking. The i915 cx0_phy bug (see boot
-  # section) is triggered by the eDP-1 PHY power-down→power-up transition;
-  # X's default 10-min DPMS-off was firing it on every idle return (~40–50 s
-  # hang). Panel is 1920x1200 IPS w/ intel_backlight PWM — no OLED burn-in
-  # risk from leaving it lit. Screen now stays on until manual i3lock
-  # (mod+ctrl+l). Drop this once the kernel bug is fixed.  (2026-05-28)
-  services.xserver.serverFlagsSection = ''
-    Option "BlankTime"   "0"
-    Option "StandbyTime" "0"
-    Option "SuspendTime" "0"
-    Option "OffTime"     "0"
-    Option "DPMS"        "false"
-  '';
 
   ## Memory #################################################################
   zramSwap.enable = true; # daily working-set; the disko 32 G swapfile is OOM backstop
