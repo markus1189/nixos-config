@@ -145,7 +145,7 @@ man home-configuration.nix
 
 ### Adding Services
 - **Shared services**: `nixos-shared/common-services.nix`
-- **Host-specific**: Respective host directory (e.g., `nuc/adguard.nix`)
+- **Host-specific**: Respective host directory (e.g., `nuc/kodi.nix`)
 
 ### Home Manager Integration
 Shared invariants (`useUserPackages`/`useGlobalPkgs`) live in

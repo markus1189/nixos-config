@@ -35,7 +35,6 @@
     ./fileSystems.nix
     ./hardware-configuration.nix
     ./kodi.nix
-    ./adguard.nix
     ./atuin.nix
     ../nixos-shared/wireguard.nix
   ];
