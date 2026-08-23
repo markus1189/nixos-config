@@ -566,6 +566,30 @@ covers a single line)."
                                                    buffer-file-name)))
     (message "Opened in IntelliJ IDEA."))
 
+  (defvar mh/tmux-session "default"
+    "tmux session that `mh/tmux-window-here' opens windows in.
+Pre-created by the xsession wrapper, see nixos-shared/packages/tmux/service.nix.")
+
+  (defun mh/tmux-window-here (&optional arg)
+    "Open a new tmux window in the current buffer's directory.
+The window is created in `mh/tmux-session' and selected there, so an
+attached client is already looking at it.  With prefix ARG, use the VC
+root instead of `default-directory'."
+    (interactive "P")
+    (let* ((dir (expand-file-name (or (and arg (vc-root-dir)) default-directory)))
+           (name (file-name-nondirectory (directory-file-name dir))))
+      (when (file-remote-p dir)
+        (user-error "Refusing to tmux into a remote directory: %s" dir))
+      (unless (zerop (call-process "tmux" nil nil nil
+                                   "new-window" "-t" (concat mh/tmux-session ":")
+                                   "-c" dir "-n" name))
+        ;; Session gone -- the wrapper's pre-create must have failed.
+        (call-process "tmux" nil nil nil
+                      "new-session" "-d" "-s" mh/tmux-session "-c" dir "-n" name))
+      (message "tmux %s: %s" mh/tmux-session (abbreviate-file-name dir))))
+
+  (global-set-key (kbd "s-t") 'mh/tmux-window-here)
+
   (defun mh/delete-or-kill-window (prefix)
     "Without prefix, delete-window, with prefix, kill the buffer."
     (interactive "P")
