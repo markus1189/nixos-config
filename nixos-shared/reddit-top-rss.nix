@@ -10,7 +10,7 @@
     redditTopRss = {
       autoStart = true;
       image = "johnny5w/reddit-top-rss:1.2";
-      ports = [ "9999:8080" ];
+      ports = [ "127.0.0.1:9999:8080" ];
       extraOptions = [ "--health-start-period=30s" ];
       environmentFiles = [ config.age.secrets.redditTopRss.path ];
     };

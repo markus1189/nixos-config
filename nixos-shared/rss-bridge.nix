@@ -5,7 +5,7 @@
     rssBridge = {
       autoStart = true;
       image = "rssbridge/rss-bridge";
-      ports = [ "9998:80" ];
+      ports = [ "127.0.0.1:9998:80" ];
     };
   };
 }
