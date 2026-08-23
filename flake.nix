@@ -75,6 +75,15 @@
       url = "github:larkery/zsh-histdb";
       flake = false;
     };
+    # rss-bridge upstream, tracked for its revision alone: the registry
+    # publishes one image tag per commit, named sha-<shortRev>, so
+    # `nix flake update rss-bridge-src` is what bumps the container. See
+    # nixos-shared/rss-bridge.nix for the mapping and its one failure mode.
+    rss-bridge-src = {
+      url = "github:RSS-Bridge/rss-bridge";
+      flake = false;
+    };
+
     # Single-file elisp packages without a MELPA recipe (consumed in
     # nixos-shared/packages/emacs).
     iy-go-to-char = {

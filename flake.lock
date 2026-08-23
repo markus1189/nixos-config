@@ -359,10 +359,27 @@
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",
+        "rss-bridge-src": "rss-bridge-src",
         "stevenblack-hosts": "stevenblack-hosts",
         "visidata": "visidata",
         "xclip": "xclip",
         "zsh-histdb": "zsh-histdb"
+      }
+    },
+    "rss-bridge-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787037482,
+        "narHash": "sha256-h9pI6WgMCaf90Nd8Lp+7hgu6k+tURSDwB5WMVYXdR/w=",
+        "owner": "RSS-Bridge",
+        "repo": "rss-bridge",
+        "rev": "309af5b06106cd2b19f1b0c1deee26bd3df64dd1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "RSS-Bridge",
+        "repo": "rss-bridge",
+        "type": "github"
       }
     },
     "stevenblack-hosts": {
