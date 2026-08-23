@@ -31,6 +31,12 @@
       # Measured: cold feed build 17-34s, warm 3ms. The generated unit runs with
       # --rm, so without this the cache is destroyed on every rebuild.
       volumes = [ "upvote-rss-cache:/app/cache" ];
+      # Upstream ships display_errors=1 and only disables it when DEBUG is set
+      # (config.php: `if ($debug) ini_set('display_errors','0')` - inverted).
+      # Without this, PHP warnings from reddit gallery posts are printed before
+      # the <?xml declaration; elfeed then parses the feed as type=nil and drops
+      # every entry. DEBUG has no other effect anywhere in the codebase.
+      environment.DEBUG = "true";
       environmentFiles = [ config.age.secrets.upvoteRss.path ];
     };
   };
