@@ -13,7 +13,6 @@
     ../nixos-shared/common-services.nix
     ../nixos-shared/restic/systemd.nix
     ./cron.nix
-    ../nixos-shared/reddit-top-rss.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix

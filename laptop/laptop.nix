@@ -40,7 +40,7 @@
     ./codecentric.nix
     ../nixos-shared/nix-ld.nix
     ../nixos-shared/rss-bridge.nix
-    ../nixos-shared/reddit-top-rss.nix
+    ../nixos-shared/upvote-rss.nix
     ../nixos-shared/cachix.nix
   ];
 

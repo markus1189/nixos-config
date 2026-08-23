@@ -41,7 +41,7 @@ in
     mainUser
     nuc
   ];
-  "reddit-top-rss.env.age".publicKeys = all;
+  "upvote-rss.env.age".publicKeys = all;
   "restic-b2.env.age".publicKeys = [
     mainUser
     nuc
