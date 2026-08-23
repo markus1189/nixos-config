@@ -15,6 +15,15 @@
     upvoteRss = {
       autoStart = true;
       # v1.8.1 (2026-03-13), digest-pinned: tags are mutable, digests are not.
+      #
+      # Bumped by hand, unlike rss-bridge, which rides a flake input. Upstream
+      # publishes only :latest and semver tags -- no per-commit tag -- so a
+      # revision from a flake input maps to no image, and there is nothing for
+      # `nix flake update` to move. Bump by checking for a newer release:
+      #   gh release view -R johnwarne/upvote-rss --json tagName
+      # then resolve the tag once and record the digest it names:
+      #   skopeo inspect --format '{{.Digest}}' \
+      #     docker://ghcr.io/johnwarne/upvote-rss:<tag>
       image = "ghcr.io/johnwarne/upvote-rss@sha256:607853aabe62f1d84a9c8e86e7da1632c756229d84510f45fc4d2adf623d4ade";
       # Loopback only: unauthenticated, and it fetches arbitrary URLs on request.
       # Host port stays 9999 so elfeed is unaffected; container port is 80 (was 8080).
