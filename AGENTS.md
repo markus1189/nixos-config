@@ -83,6 +83,9 @@ diff <(nix-store -qR "$(nix-store --query --deriver /run/current-system)" | sort
 nix build .#myScripts.<scriptName>
 nix run .#myScripts.<scriptName>
 
+# Typecheck xmonad.hs
+nix build --no-link .#checks.x86_64-linux.xmonad-config
+
 # Eval-only sanity across all outputs (fast); full check also runs the
 # bats suites (claude statusline + dangerous-commands hook) and statix as
 # flake checks. Most of `nix flake check`'s ~24s is evaluating the three

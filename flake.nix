@@ -239,6 +239,20 @@
             touch $out
           '';
 
+          xmonad-config =
+            let
+              ghc = pkgs.haskellPackages.ghcWithPackages (ps: [
+                ps.xmonad
+                ps.xmonad-contrib
+                ps.xmonad-extras
+              ]);
+            in
+            pkgs.runCommand "xmonad-config-check" { nativeBuildInputs = [ ghc ]; } ''
+              cp ${./nixos-shared/packages/xmonad/xmonad.hs} xmonad.hs
+              HOME=$TMPDIR ghc -fno-code -outputdir "$TMPDIR/tc" xmonad.hs
+              touch $out
+            '';
+
           # Builds (= validates: frontmatter, shellcheck, py_compile) every
           # agent skill; the farm shape doubles as the future whole-dir target.
           agent-skills = pkgs.linkFarm "agent-skills" (
