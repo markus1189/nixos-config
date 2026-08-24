@@ -4,12 +4,16 @@ Never judge what you have not read this session. Same bar for consequences
 ("this breaks X"): trace it or call it a guess. Can't check? Say "unchecked"
 in that sentence.
 
+Empty output is not evidence: check the command ran (`command -v`, exit status)
+before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
+
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - **Scripts**: Use Nix shebangs (see templates below)
 - **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
 - **Editable System Config Location** in ~/repos/nixos-config
+- **Read upstream source** (`find /nix/store` is hook-blocked): `nix build --no-link --print-out-paths nixpkgs#$pkg.src`
 
 ## Script Templates
 **Nix shebang (simple packages)**:
@@ -57,6 +61,8 @@ Only for packages outside that list:
 
 ## Terminal Environment
 - Extensive tmux use, access pane content: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
+- The Bash tool runs **zsh**: quote glob-bearing args or zsh expands them against the cwd first: `grep -rn --include='*.nix'`; unquoted gives "no matches found"
+- `rm -rf` is blocked via hook: use `rm -r`
 
 ## Clipboard (xclip)
 Direct piping into xclip hangs. Always use the `nohup` + `DISPLAY=:0` pattern:
