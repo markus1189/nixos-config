@@ -570,22 +570,52 @@ covers a single line)."
     "tmux session that `mh/tmux-window-here' opens windows in.
 Pre-created by the xsession wrapper, see nixos-shared/packages/tmux/service.nix.")
 
+  (defvar mh/tmux-window-here-bell t
+    "When non-nil, `mh/tmux-window-here' rings the bell in the new window.
+tmux forwards the bell to every client attached to `mh/tmux-session'
+(tmux.conf sets bell-action any), ghostty turns it into the X11 urgency
+hint (bell-features attention), and xmonad marks the window urgent: the
+workspace goes orange in xmobar and mod+BackSpace jumps there.  Ghostty
+skips the hint while its window is focused, so this stays silent when you
+are already looking at the terminal.")
+
+  (defun mh/tmux--output (&rest args)
+    "Run tmux with ARGS, returning its trimmed output, or nil if it failed.
+Also nil when tmux succeeded but printed nothing."
+    (with-temp-buffer
+      (when (zerop (apply #'call-process "tmux" nil t nil args))
+        (let ((out (string-trim (buffer-string))))
+          (unless (string-empty-p out) out)))))
+
+  (defun mh/tmux--bell (target)
+    "Write BEL into the active pane of tmux window TARGET.
+tmux sees it as a bell in that window and flags it or forwards it to the
+attached clients, per bell-action."
+    (let ((tty (mh/tmux--output "display-message" "-p" "-t" target "#{pane_tty}")))
+      (when tty
+        (write-region "\a" nil tty t 'silent))))
+
   (defun mh/tmux-window-here (&optional arg)
     "Open a new tmux window in the current buffer's directory.
 The window is created in `mh/tmux-session' and selected there, so an
 attached client is already looking at it.  With prefix ARG, use the VC
-root instead of `default-directory'."
+root instead of `default-directory'.  See `mh/tmux-window-here-bell' for
+how the terminal announces itself."
     (interactive "P")
     (let* ((dir (expand-file-name (or (and arg (vc-root-dir)) default-directory)))
            (name (file-name-nondirectory (directory-file-name dir))))
       (when (file-remote-p dir)
         (user-error "Refusing to tmux into a remote directory: %s" dir))
-      (unless (zerop (call-process "tmux" nil nil nil
-                                   "new-window" "-t" (concat mh/tmux-session ":")
-                                   "-c" dir "-n" name))
-        ;; Session gone -- the wrapper's pre-create must have failed.
-        (call-process "tmux" nil nil nil
-                      "new-session" "-d" "-s" mh/tmux-session "-c" dir "-n" name))
+      (let ((win (or (mh/tmux--output "new-window" "-P" "-F" "#{window_id}"
+                                      "-t" (concat mh/tmux-session ":")
+                                      "-c" dir "-n" name)
+                     ;; Session gone -- the wrapper's pre-create must have
+                     ;; failed.  A fresh detached session has no client, so the
+                     ;; bell has nobody to reach.
+                     (mh/tmux--output "new-session" "-d" "-P" "-F" "#{window_id}"
+                                      "-s" mh/tmux-session "-c" dir "-n" name))))
+        (when (and win mh/tmux-window-here-bell)
+          (mh/tmux--bell win)))
       (message "tmux %s: %s" mh/tmux-session (abbreviate-file-name dir))))
 
   (global-set-key (kbd "s-t") 'mh/tmux-window-here)
