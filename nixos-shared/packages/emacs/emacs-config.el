@@ -2345,7 +2345,8 @@ Provides more detailed messages on failure."
              (:channelId "UC5Y03h8JAslS5HEuvQNdVWw" :title "VoteSport" :tags (sport sport-general))
              (:channelId "UCHnyfMqiRRG1u-2MsSQLbXA" :title "Veritasium" :tags (science engineering))
              (:channelId "UClsFdM0HzTdF1JYoraQ0aUw" :title "Brick Experiment Channel")
-             (:channelId "UCYO_jab_esuFRV4b17AJtAw" :title "3blue1brown" :tags (science math)))))
+             (:channelId "UCYO_jab_esuFRV4b17AJtAw" :title "3blue1brown" :tags (science math))
+             (:channelId "UC_CzsS7UTjcxJ-xXp1ftxtA" :title "Sebastian Raschka" :tags (llm)))))
 
          (mapcar
           (lambda (feed-spec)
