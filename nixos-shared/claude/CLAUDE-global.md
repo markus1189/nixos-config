@@ -1,8 +1,9 @@
 # Global Coding Agent Instructions
 ## Verify Before Asserting
-Never judge what you have not read this session. Same bar for consequences
-("this breaks X"): trace it or call it a guess. Can't check? Say "unchecked"
-in that sentence.
+
+Never judge what you have not read this session. Same bar for
+consequences ("this breaks X"): trace it or call it a guess. Can't
+check? Say "unchecked" in that sentence.
 
 Empty output is not evidence: check the command ran (`command -v`, exit status)
 before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
@@ -11,7 +12,7 @@ before concluding "none". Read git branch/HEAD in the call that acts, never reca
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - **Scripts**: Use Nix shebangs (see templates below)
-- **Flakes**: Modern projects use `nix develop` or `nix run` - adapt as needed
+- **Flakes**: use `nix develop` or `nix run` etc
 - **Editable System Config Location** in ~/repos/nixos-config
 - **Read upstream source** (`find /nix/store` is hook-blocked): `nix build --no-link --print-out-paths nixpkgs#$pkg.src`
 
@@ -29,7 +30,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 **Python**: global `python3` (`nixos-shared/python-env.nix`) ships requests,
 httpx, pyyaml, rich, beautifulsoup4, lxml, python-dateutil, numpy, pandas,
 matplotlib, pillow, psutil. No pip. Use `#!/usr/bin/env python3` directly.
-Only for packages outside that list:
+
+Only for packages OUTSIDE that list:
 ```bash
 #! /usr/bin/env nix
 #! nix shell --impure --expr ``
@@ -48,16 +50,15 @@ Only for packages outside that list:
 **Syntax notes**:
 - `--expr` requires double backticks: `--expr ``code`` --command`
 - Simple packages: `nixpkgs#package --command`
-- Never use `--impure` unless accessing system state (rare)
 
 ## Web Search and Fetching
 - DuckDuckGo search: `ddgr --unsafe --json --noua --noprompt $SEARCH_TERM`, prioritize credible websites as sources
 - Extract readable content from URLs: `curl -sL "$URL" | pandoc -f html -t gfm-raw_html`
 
 ## PDFs
-- Extracted text ≠ the document. Ticks/X marks, form-field state, colour coding, stamps, signatures, strikethrough and markers in diagrams extract to nothing or to identical text — silently, no warning
+- Extracted text ≠ the document. Ticks/X marks, form-field state, colour coding, stamps, signatures, strikethrough and markers in diagrams extract to nothing or to identical text
 - Any claim about a visual state needs a render first: `nix shell nixpkgs#poppler-utils --command pdftoppm -png -r 400 -f 1 -l 1 $FILE out`
-- Symbol legends usually sit on the last page; crop dense tables with `magick` (not `convert`)
+- crop dense tables/images/graphs with `magick` (not `convert`)
 
 ## Terminal Environment
 - Extensive tmux use, access pane content: `tmux capture-pane -p -t '%123'` (replace 123 with global pane id)
