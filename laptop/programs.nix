@@ -163,6 +163,7 @@
         ffmpegthumbnailer
         mediainfo
         epub-thumbnailer
+        vips # vipsthumbnail, for dirvish image previews
         p7zip
         signal-desktop
         spotify
