@@ -362,11 +362,26 @@
           # and we dont have an ignored command in the line, then print a bell.
           zbell_end() {
                   LAST_EC=$?
+
+            # precmd fires on a bare Enter but preexec does not, so without this
+            # guard zbell_lastcmd survives and every empty Enter after an idle
+            # stretch re-notifies the last command (critical, if it failed).
+            [[ -n $zbell_lastcmd ]] || return
+            local ran=$zbell_lastcmd
+            unset zbell_lastcmd
+
             ran_long=$(( $EPOCHSECONDS - $zbell_timestamp >= $zbell_duration ))
 
+            # 130 = SIGINT (Ctrl-C), 148 = SIGTSTP (Ctrl-Z). Both mean you were
+            # at the keyboard when it ended, so you already know. Codes verified
+            # live against zsh on Linux, 2026-08-24.
+            case $LAST_EC in
+              130|148) return ;;
+            esac
+
             has_ignored_cmd=0
-            for cmd in ''${(s:;:)zbell_lastcmd//|/;}; do
-              words=(''${(z)cmd})
+            for seg in ''${(s:;:)ran//|/;}; do
+              words=(''${(z)seg})
               util=''${words[1]}
               if (( ''${zbell_ignore[(i)$util]} <= ''${#zbell_ignore} )); then
                 has_ignored_cmd=1
@@ -376,9 +391,9 @@
 
             if (( ! $has_ignored_cmd )) && (( ran_long )); then
                           if [[ "$LAST_EC" == 0 ]]; then
-                            ${pkgs.libnotify}/bin/notify-send -u low "Command finished [$LAST_EC]" "$zbell_lastcmd"
+                            ${pkgs.libnotify}/bin/notify-send -u low "Command finished [$LAST_EC]" "$ran"
                           else
-                            ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$zbell_lastcmd"
+                            ${pkgs.libnotify}/bin/notify-send -u critical "Command failed [$LAST_EC]" "$ran"
                           fi
               print -n "\a"
             fi
