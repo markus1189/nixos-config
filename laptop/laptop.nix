@@ -496,68 +496,6 @@
 
         "X11/Xresources".text = ''
           Xcursor.theme: Adwaita
-
-          URxvt*font: xft:Source Code Pro:size=11:antialias=true:hintingt=true,xft:Inconsolata-g for Powerline:size=11,xft:Code2000:antialias=false
-          URxvt*cursorColor: #Ffe7ba
-          URxvt*background:  #000000
-          URxvt*foreground:  #f1f1f1
-          URxvt*color0:      #363636
-          URxvt*color1:      #Ee4000
-          URxvt*color2:      #aece92
-          URxvt*color3:      #Ffd700
-          URxvt*color4:      #4f94cd
-          URxvt*color5:      #963c59
-          URxvt*color6:      #7ccd7c
-          URxvt*color7:      #bebebe
-          URxvt*color8:      #666666
-          URxvt*color9:      #cf6171
-          URxvt*color10:     #00fa9a
-          URxvt*color11:     #Eec900
-          URxvt*color12:     #E9967a
-          URxvt*color13:     #Ffa500
-          URxvt*color14:     #00ffff
-          URxvt*color15:     #ffffff
-          URxvt*underlineColor: #bebebe
-
-          URxvt.urgentOnBell: true
-          URxvt*transparent: true
-          URxvt*saveLines: 3141592
-          URxvt*shading: 15
-
-          URxvt*termName: rxvt
-          URxvt*scrollBar_right: false
-          URxvt*scrollBar: false
-
-          URxvt*iso14755: False
-
-          URxvt.perl-ext-common: default,url-select,font-size,clipboard,color-themes
-
-          URxvt.keysym.M-u: perl:url-select:select_next
-          URxvt.url-select.launcher: firefox
-          URxvt.url-select.underline: false
-
-          URxvt.resize-font.smaller: C-Down
-          URxvt.resize-font.bigger: C-Up
-
-          URxvt.keysym.C-plus: font-size:increase
-          URxvt.keysym.C-equal: font-size:reset
-          URxvt.keysym.C-minus: font-size:decrease
-
-          URxvt.clipboard.autocopy: true
-          URxvt.keysym.M-c: perl:clipboard:copy
-          URxvt.keysym.M-v: perl:clipboard:paste
-          URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
-          URxvt.clipboard.copycmd:  xclip -i -selection clipboard
-          URxvt.clipboard.pastecmd: xclip -o -selection clipboard
-
-          ! ------------------------------------------------------------------------------
-          ! ROFI Color theme
-          ! ------------------------------------------------------------------------------
-          rofi.color-enabled: true
-          rofi.color-window: #393939, #393939, #f3843d
-          rofi.color-normal: #393939, #ffffff, #393939, #f3843d, #000000
-          rofi.color-active: #393939, #f3843d, #393939, #f3843d, #000000
-          rofi.color-urgent: #393939, #f3843d, #393939, #f3843d, #ffc39c
         '';
       };
   };

@@ -234,7 +234,6 @@ in
             current window $program == ["zoom"] ==> tag act:conference,
             current window $title =~ /.*Microsoft Teams.*/ ==> tag act:conference,
             current window $program == "emacs" ==> tag act:coding,
-            current window $program == "urxvt" ==> tag act:shell,
 
             -- Could be useful to see whom I chat with most
             -- current window ($program == "slack" && $title =~ /Slack \|[[:space:]]*([^|]*) \|/) ==> tag slack:$1,

@@ -141,7 +141,6 @@
         rlwrap
         rofi
         rsync
-        rxvt-unicode
         sbt
         scala
         scalafmt
