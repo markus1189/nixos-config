@@ -14,21 +14,27 @@ set -euo pipefail
 #   - dangerous-rm:        plain rm with r+f and no i
 #   - dangerous-xargs-rm:  xargs ... rm ... with r+f and no i (tree-sitter-bash
 #                          parses `xargs rm -rf` as one command)
-#   - dangerous-find-root: find traversing the whole home dir, root filesystem,
-#                          or the nix store. The first `find` argument is the path
-#                          to walk; a path that is /, ~, /home/markus, or /nix/store
-#                          (optionally with a trailing slash) means the agent would
-#                          index the entire filesystem, home dir, or store, which
-#                          is broadly forbidden. Subpaths (e.g. find
-#                          /home/markus/foo, find /nix/store/<hash>) remain allowed.
-#   - dangerous-fd-root:   same forbidden roots for `fd`, which the find message
-#                          recommends. fd takes the path as a *trailing* argument
-#                          (`fd PATTERN PATH`) rather than a leading one, and also
-#                          accepts --search-path/--base-directory, so the rule
-#                          matches the root as a bare word anywhere in the fd
-#                          command instead of pinning it to a position. Without
-#                          this, recommending fd would just reopen the hole
-#                          dangerous-find-root closes.
+#   - dangerous-walk-root: find/fd traversing the whole home dir, root
+#                          filesystem, or the nix store. A command that names
+#                          find or fd — bare, or as the tail of a flake ref or
+#                          store path (nixpkgs#fd, .../bin/find) — and also
+#                          carries /, ~, /home/markus, or
+#                          /nix/store (optionally with a trailing slash) as a
+#                          bare word would index the entire filesystem, home
+#                          dir, or store, which is broadly forbidden. Subpaths
+#                          (find /home/markus/foo, fd PATTERN /nix/store/<hash>)
+#                          remain allowed.
+#
+#                          The rule anchors on the *command* node rather than on
+#                          the command name, because the name is not where the
+#                          walker hides: `nix run nixpkgs#fd -- PATTERN /` and
+#                          `, fd PATTERN /` parse as commands named `nix` and
+#                          `,`. Matching by name let both through. Anchoring on
+#                          `kind: command` still keeps the two halves in the
+#                          same command, so `find /home/markus/foo && ls /`
+#                          does not match. The cost is positional precision:
+#                          `find . -newer /` now matches too. A false positive
+#                          costs one retry; a false negative costs a full walk.
 # ============================================================================
 
 DANGEROUS_RULES=$(cat <<'YAML'
@@ -78,25 +84,17 @@ rule:
           kind: word
           regex: '^(--interactive|-[A-Za-z]*[iI][A-Za-z]*)$'
 ---
-id: dangerous-find-root
+id: dangerous-walk-root
 language: bash
 severity: error
 message: dangerous
 rule:
   all:
-    - pattern: 'find $PATH'
+    - kind: command
     - has:
         stopBy: end
         kind: word
-        regex: '^(/?|/home/markus/?|~/?|/nix/store/?)$'
----
-id: dangerous-fd-root
-language: bash
-severity: error
-message: dangerous
-rule:
-  all:
-    - pattern: 'fd $$$ARGS'
+        regex: '^(.*[#/])?(find|fd)$'
     - has:
         stopBy: end
         kind: word
@@ -125,9 +123,9 @@ EOF
 block_dangerous_command() {
     local rule_id="$1"
     case "$rule_id" in
-      dangerous-find-root)
+      dangerous-walk-root)
         cat >&2 << 'EOF'
-ERROR: Dangerous command blocked: find rooted at /, ~, /home/markus, or /nix/store
+ERROR: Dangerous command blocked: find/fd rooted at /, ~, /home/markus, or /nix/store
 
 The command walks the entire filesystem, home directory, or nix store, which is forbidden.
 
@@ -135,23 +133,11 @@ If you need to search:
   - Restrict to a concrete subpath, e.g. 'find /home/markus/foo ...'
   - Prefer 'fd' over 'find' on a subpath: 'fd PATTERN /home/markus/foo'
     (faster, respects .gitignore, skips hidden files by default)
+    Same applies to fd's --search-path and --base-directory
   - Use rg or grep on the relevant tree instead
 
-Note: 'fd' is subject to the same root restriction. Scope it to a subpath.
-EOF
-        ;;
-      dangerous-fd-root)
-        cat >&2 << 'EOF'
-ERROR: Dangerous command blocked: fd rooted at /, ~, /home/markus, or /nix/store
-
-fd is the preferred replacement for find, but not as a way around the root
-restriction: walking the entire filesystem, home directory, or nix store is
-forbidden regardless of which tool does the walking.
-
-If you need to search:
-  - Restrict to a concrete subpath, e.g. 'fd PATTERN /home/markus/foo'
-  - Same applies to --search-path and --base-directory
-  - Use rg or grep on the relevant tree instead
+The restriction is on the walk, not on the tool: wrapping it in 'nix run',
+'nix shell' or ',' does not lift it, and neither does using fd instead of find.
 EOF
         ;;
       *)
@@ -236,13 +222,14 @@ main() {
         return 0
     fi
 
-    if is_nix_sandboxed "$command"; then
-        output_allow "Nix-sandboxed invocation"
-        return 0
-    fi
-
     local rule_id
     if rule_id=$(is_dangerous_command "$command"); then
+        # The nix escape hatch covers the rm rules only: a sandboxed shell
+        # still walks the same filesystem, so dangerous-walk-root ignores it.
+        if [[ "$rule_id" == dangerous-*rm ]] && is_nix_sandboxed "$command"; then
+            output_allow "Nix-sandboxed rm"
+            return 0
+        fi
         block_dangerous_command "$rule_id"
     fi
 

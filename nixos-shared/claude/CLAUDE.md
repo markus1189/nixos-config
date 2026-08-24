@@ -449,21 +449,31 @@ enableDangerousCommandCheck = true;  # in default.nix (default)
 - Long flags: `rm --recursive --force`, `rm -r --force`, `rm --recursive -f`
 - In pipelines: `find | xargs rm -rf`
 - In subshells: `(cd /tmp && rm -rf test)`
-- Root traversal with `find`: `find /`, `find ~`, `find /home/markus`, `find /nix/store`
-- Root traversal with `fd`: `fd PATTERN /`, `fd PATTERN ~`, also via `--search-path` / `--base-directory`
+- Root traversal with `find` or `fd`: `find /`, `find ~`, `find /home/markus`,
+  `fd PATTERN /nix/store`, also via `--search-path` / `--base-directory`
+- Root traversal wrapped in nix: `nix run nixpkgs#fd -- PATTERN /`, `, find ~`
 
 **What It Allows**:
 - Safe recursive: `rm -r /tmp` (without force)
 - Single files: `rm file.txt`
 - Interactive: `rm -i -rf /tmp` (confirmation enabled)
-- Nix-sandboxed: `nix-shell -p coreutils --run "rm -rf /tmp"`
+- Nix-sandboxed `rm` only: `nix-shell -p coreutils --run "rm -rf /tmp"`
 - Scoped traversal: `find /home/markus/foo`, `fd PATTERN /home/markus/foo`, `fd PATTERN` (cwd)
 
-**Note on `fd`**: the `find` block message recommends `fd` as the faster
-replacement, so `fd` carries the *same* root restriction — otherwise the
-recommendation would hand out a bypass. `fd` takes its path as a trailing
-argument rather than a leading one, so the rule matches the forbidden root as a
-bare word anywhere in the `fd` command.
+**Note on the root restriction**: it is on the *walk*, not on the tool or its
+wrapper. The `find` block message recommends `fd`, so `fd` carries the same
+restriction — otherwise the recommendation would hand out a bypass. For the same
+reason `dangerous-walk-root` anchors on the tree-sitter **command node** rather
+than on the command name: `nix run nixpkgs#fd -- PATTERN /` and `, fd PATTERN /`
+parse as commands named `nix` and `,`, so a name-keyed rule never sees the
+walker. Anchoring on the command node keeps both halves in one command, so
+`find /home/markus/foo && ls /` still passes; the cost is positional precision
+(`find . -newer /` now matches too).
+
+The nix escape hatch in `is_nix_sandboxed` therefore exempts the `rm` rules
+only. Residual hole, unfixed: the hatch is a *prefix* test, so a nix-prefixed
+compound like `nix run nixpkgs#hello && rm -rf /tmp/x` still gets the `rm`
+exemption.
 
 **Alternatives Suggested**:
 ```bash
@@ -473,8 +483,7 @@ rm -r /tmp/directory
 # Verify before deletion
 ls -la /tmp/directory && rm -r /tmp/directory
 
-# Use trash-cli for safety
-trash-put /tmp/directory
+# Or ask the user to run the forced deletion
 ```
 
 **Testing**: Run the bats test suite:

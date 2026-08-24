@@ -470,3 +470,73 @@ setup() {
     run is_dangerous_command '# fd foo / should not match'
     assert_failure
 }
+
+# ============================================================================
+# Nix-wrapped walks — `nix run nixpkgs#fd -- PATTERN /` and `, fd PATTERN /`
+# parse as commands named `nix` and `,`, so a rule keyed on the command name
+# never sees the walker. dangerous-walk-root anchors on the command node.
+# ============================================================================
+
+@test "is_dangerous_command: fd rooted at / under nix run blocked" {
+    run is_dangerous_command 'nix run nixpkgs#fd -- foo /'
+    assert_success
+}
+
+@test "is_dangerous_command: find rooted at / under nix run blocked" {
+    run is_dangerous_command 'nix run nixpkgs#findutils -- find /'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at ~ under comma blocked" {
+    run is_dangerous_command ', fd foo ~'
+    assert_success
+}
+
+@test "is_dangerous_command: fd rooted at /nix/store under nix shell blocked" {
+    run is_dangerous_command 'nix shell nixpkgs#fd --command fd foo /nix/store'
+    assert_success
+}
+
+@test "is_dangerous_command: fd on a subpath under nix run allowed" {
+    run is_dangerous_command 'nix run nixpkgs#fd -- foo /home/markus/repos'
+    assert_failure
+}
+
+# ============================================================================
+# main() — the nix escape hatch exempts the rm rules only.
+# ============================================================================
+
+# Feed a command through main() the way the hook is invoked, as JSON on stdin.
+run_hook() {
+    jq -nc --arg c "$1" '{tool_name:"Bash",tool_input:{command:$c}}' | main
+}
+
+@test "main: nix-sandboxed rm -rf still allowed" {
+    run run_hook 'nix-shell -p coreutils --run "rm -rf /tmp/x"'
+    assert_success
+    assert_output --partial '"permissionDecision": "allow"'
+}
+
+@test "main: plain rm -rf still blocked" {
+    run run_hook 'rm -rf /tmp/x'
+    assert_failure 2
+    assert_output --partial 'rm with recursive + force flags'
+}
+
+@test "main: fd rooted at / blocked despite nix prefix" {
+    run run_hook 'nix run nixpkgs#fd -- foo /'
+    assert_failure 2
+    assert_output --partial 'find/fd rooted at'
+}
+
+@test "main: find rooted at ~ blocked under comma" {
+    run run_hook ', find ~'
+    assert_failure 2
+    assert_output --partial 'find/fd rooted at'
+}
+
+@test "main: scoped fd under nix run allowed" {
+    run run_hook 'nix run nixpkgs#fd -- foo /home/markus/repos'
+    assert_success
+    assert_output --partial '"permissionDecision": "allow"'
+}
