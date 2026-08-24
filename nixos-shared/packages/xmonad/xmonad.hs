@@ -96,7 +96,7 @@ import XMonad.Actions.DynamicWorkspaces (addHiddenWorkspace, removeEmptyWorkspac
 import XMonad.Actions.FlexibleManipulate qualified as Flex
 import XMonad.Actions.GroupNavigation (Direction (Backward, Forward), nextMatchWithThis)
 import XMonad.Actions.Submap (submap)
-import XMonad.Actions.WindowBringer (bringWindow)
+import XMonad.Actions.WindowBringer (bringWindow, gotoMenuArgs')
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
 import XMonad.Core (WindowSet, WindowSpace, WorkspaceId, withWindowSet)
@@ -114,12 +114,20 @@ import XMonad.Hooks.DynamicLog
     xmobarPP,
     xmobarStrip,
   )
-import XMonad.Hooks.EwmhDesktops (ewmh)
+import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen, setEwmhActivateHook)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.StatusBar (StatusBarConfig, statusBarGeneric, statusBarProp, withSB)
-import XMonad.Hooks.UrgencyHook (NoUrgencyHook (..), clearUrgents, focusUrgent, withUrgencyHook)
+import XMonad.Hooks.UrgencyHook
+  ( NoUrgencyHook (..),
+    SuppressWhen (Focused),
+    UrgencyConfig (suppressWhen),
+    clearUrgents,
+    doAskUrgent,
+    focusUrgent,
+    withUrgencyHookC,
+  )
 import XMonad.Layout.AutoMaster (autoMaster)
 import XMonad.Layout.BinarySpacePartition (emptyBSP)
 import XMonad.Layout.FocusTracking (focusTracking)
@@ -390,7 +398,7 @@ myKeys =
     ( (myModKey, xK_d),
       submap . M.fromList $
         [ ((0, xK_r), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
-          ((0, xK_s), spawn "@rofi@/bin/rofi -i -monitor -4 -matching fuzzy -sort -show window"),
+          ((0, xK_s), gotoMenuArgs' "@rofi@/bin/rofi" rofiWindowArgs),
           ((0, xK_c), spawn "@clipcat@/bin/clipcat-menu insert"),
           ((0, xK_t), spawn "@rofiStuffTodayPicker@/bin/rofiStuffTodayPicker"),
           ((0, xK_d), spawn "@rofiDownloadsPicker@/bin/rofiDownloadsPicker"),
@@ -454,6 +462,13 @@ myKeys =
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
     xF86Search = 0x1008ff1b
+
+-- Window switcher via rofi. -dmenu, not rofi's own -show window: that mode
+-- focuses its pick by sending _NET_ACTIVE_WINDOW, which setEwmhActivateHook
+-- turns into an urgency flag rather than focus. WindowBringer feeds the
+-- window list in on stdin and focuses with W.focusWindow instead.
+rofiWindowArgs :: [String]
+rofiWindowArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-p", "window"]
 
 -- Dynamic workspaces via rofi
 rofiArgs :: [String]
@@ -644,9 +659,9 @@ myStatusBars =
 main :: IO ()
 main =
   xmonad . withSB myStatusBars $
-    ewmh $
+    setEwmhActivateHook doAskUrgent . ewmhFullscreen . ewmh $
       docks $
-        withUrgencyHook NoUrgencyHook $
+        withUrgencyHookC NoUrgencyHook (def {suppressWhen = Focused}) $
           def
             { workspaces = myWorkspaces,
               manageHook =
