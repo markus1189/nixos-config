@@ -19,7 +19,6 @@
     ../nixos-shared/fzf.nix
     ../nixos-shared/packages
     ../nixos-shared/packages/services.nix
-    ../nixos-shared/prometheus.nix
     ../nixos-shared/my-agenix.nix
     ../nixos-shared/runtime-secrets.nix
     ../nixos-shared/garmin-connect.nix

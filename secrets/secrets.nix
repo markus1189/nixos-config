@@ -37,10 +37,6 @@ in
     nuc
   ];
   "telegram.env.age".publicKeys = all;
-  "shelly-webui-password.age".publicKeys = [
-    mainUser
-    nuc
-  ];
   "upvote-rss.env.age".publicKeys = all;
   "restic-b2.env.age".publicKeys = [
     mainUser
