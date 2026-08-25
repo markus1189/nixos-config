@@ -302,35 +302,6 @@ in
           '';
         };
 
-        "gtk-bookmarks" = {
-          target = ".gtk-bookmarks";
-          text = ''
-            file://${config.home.homeDirectory}/Downloads
-            file://${config.home.homeDirectory}/Dropbox
-            file://${config.home.homeDirectory}/repos
-            file://${config.home.homeDirectory}/Photos/web
-            file://${config.home.homeDirectory}/Photos/developed
-            file://${config.home.homeDirectory}/repos/nixos-config
-          '';
-        };
-
-        "gtkrc2" = {
-          target = ".gtkrc-2.0";
-          text = ''
-            gtk-key-theme-name = "Emacs"
-            gtk-cursor-theme-name = "Adwaita"
-          '';
-        };
-
-        "gtk3" = {
-          target = ".config/gtk-3.0/settings.ini";
-          text = ''
-            [Settings]
-            gtk-key-theme-name = Emacs
-            gtk-cursor-theme-name = Adwaita
-          '';
-        };
-
         "keynavrc" = {
           source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
           target = ".keynavrc";
@@ -376,49 +347,6 @@ in
               ${projectRepo "tools"}
             '';
           };
-
-        "mpv_config" = {
-          target = ".config/mpv/mpv.conf";
-          text = ''
-            write-filename-in-watch-later-config=yes
-            save-position-on-quit=yes
-            osd-msg3="''${time-pos} / ''${duration} [''${playtime-remaining} @ ''${speed}]"
-            osd-duration=5000
-            osd-font-size=40
-
-            # Video output
-            vo=gpu-next
-            gpu-api=vulkan
-            # Pin render to the Intel iGPU — libplacebo otherwise defaults to the
-            # discrete NVIDIA dGPU, which wakes it and forces an Intel->NVIDIA copy.
-            # (p1 is Intel-only, so this name simply won't match there and is ignored.)
-            vulkan-device="Intel(R) Graphics (ARL)"
-            hwdec=vaapi,nvdec-copy
-
-            # Debanding
-            deband=yes
-            deband-iterations=2
-            deband-threshold=35
-            deband-range=16
-            deband-grain=5
-
-            volume-max=300
-
-            [stream]
-            cache=yes
-            demuxer-max-bytes=1000MiB
-            demuxer-readahead-secs=60
-            cache-secs=600
-            prefetch-playlist=yes
-          '';
-        };
-
-        "mpv_input_conf" = {
-          target = ".config/mpv/input.conf";
-          text = ''
-            ! run sh -c "echo ''${path} >> list.txt && notify-send mpv \"Saved ''${path} to ''${working-directory}/list.txt\""
-          '';
-        };
 
         "global-sbt-aliases" = {
           target = ".sbt/1.0/global-aliases.sbt";
@@ -491,32 +419,6 @@ in
             [s-quote]
             regex: ('[^'\n\r]+')
             alt2: '([^'\n\r]+)'
-          '';
-        };
-
-        "rofi-config" = {
-          target = ".config/rofi/config.rasi";
-          text = ''
-            @theme "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi"
-
-            * {
-              accent:                       #f3843d;
-              accent-text:                  #000000;
-              selected-normal-background:   @accent;
-              selected-normal-foreground:   @accent-text;
-              selected-active-background:   @accent;
-              selected-active-foreground:   @accent-text;
-              selected-urgent-background:   #cc4444;
-              selected-urgent-foreground:   #ffffff;
-            }
-
-            element selected,
-            element selected.active,
-            element-text selected,
-            element-text selected.active {
-              background-color: @accent;
-              text-color:       @accent-text;
-            }
           '';
         };
 
@@ -793,6 +695,47 @@ in
             smartskip
           ];
         };
+
+        # Values are emitted in mpv's %<len>%<value> form, so spaces, quotes
+        # and '#' need no quoting of their own here.
+        config = {
+          write-filename-in-watch-later-config = true;
+          save-position-on-quit = true;
+          osd-msg3 = "\${time-pos} / \${duration} [\${playtime-remaining} @ \${speed}]";
+          osd-duration = 5000;
+          osd-font-size = 40;
+
+          # Video output
+          vo = "gpu-next";
+          gpu-api = "vulkan";
+          # Pin render to the Intel iGPU -- libplacebo otherwise defaults to the
+          # discrete NVIDIA dGPU, which wakes it and forces an Intel->NVIDIA copy.
+          # (p1 is Intel-only, so this name simply won't match there and is ignored.)
+          vulkan-device = "Intel(R) Graphics (ARL)";
+          hwdec = "vaapi,nvdec-copy";
+
+          # Debanding
+          deband = true;
+          deband-iterations = 2;
+          deband-threshold = 35;
+          deband-range = 16;
+          deband-grain = 5;
+
+          volume-max = 300;
+        };
+
+        profiles.stream = {
+          cache = true;
+          demuxer-max-bytes = "1000MiB";
+          demuxer-readahead-secs = 60;
+          cache-secs = 600;
+          prefetch-playlist = true;
+        };
+
+        bindings = {
+          "!" =
+            ''run sh -c "echo ''${path} >> list.txt && notify-send mpv \"Saved ''${path} to ''${working-directory}/list.txt\""'';
+        };
       };
 
       password-store = {
@@ -808,6 +751,37 @@ in
         # Profiles are per-host (different panels + connector enumeration):
         # p1/home.nix and p1g8/home.nix, merged in via
         # home-manager.users.*.imports in each configuration.nix.
+      };
+
+      rofi = {
+        enable = true;
+
+        # Was a hand-written ~/.config/rofi/config.rasi: the packaged Arc-Dark
+        # theme plus our accent overrides. mkLiteral keeps colour and variable
+        # references unquoted, which rasi requires.
+        theme =
+          let
+            inherit (config.lib.formats.rasi) mkLiteral;
+          in
+          {
+            "@import" = "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi";
+
+            "*" = {
+              accent = mkLiteral "#f3843d";
+              accent-text = mkLiteral "#000000";
+              selected-normal-background = mkLiteral "@accent";
+              selected-normal-foreground = mkLiteral "@accent-text";
+              selected-active-background = mkLiteral "@accent";
+              selected-active-foreground = mkLiteral "@accent-text";
+              selected-urgent-background = mkLiteral "#cc4444";
+              selected-urgent-foreground = mkLiteral "#ffffff";
+            };
+
+            "element selected, element selected.active, element-text selected, element-text selected.active" = {
+              background-color = mkLiteral "@accent";
+              text-color = mkLiteral "@accent-text";
+            };
+          };
       };
 
       sioyek = {
@@ -954,6 +928,34 @@ in
       };
 
     otel-collector = otelCollector.service;
+  };
+
+  # Replaces the three hand-written files (.gtk-bookmarks, .gtkrc-2.0,
+  # gtk-3.0/settings.ini). Note the bookmarks now land in the GTK3 path
+  # $XDG_CONFIG_HOME/gtk-3.0/bookmarks rather than the GTK2-era ~/.gtk-bookmarks.
+  gtk = {
+    enable = true;
+
+    gtk2.extraConfig = ''
+      gtk-key-theme-name = "Emacs"
+      gtk-cursor-theme-name = "Adwaita"
+    '';
+
+    gtk3 = {
+      extraConfig = {
+        gtk-key-theme-name = "Emacs";
+        gtk-cursor-theme-name = "Adwaita";
+      };
+
+      bookmarks = [
+        "file://${config.home.homeDirectory}/Downloads"
+        "file://${config.home.homeDirectory}/Dropbox"
+        "file://${config.home.homeDirectory}/repos"
+        "file://${config.home.homeDirectory}/Photos/web"
+        "file://${config.home.homeDirectory}/Photos/developed"
+        "file://${config.home.homeDirectory}/repos/nixos-config"
+      ];
+    };
   };
 
   xdg = {
