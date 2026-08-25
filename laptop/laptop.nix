@@ -30,7 +30,6 @@
     ./bluetooth.nix
     ./oom.nix
     ./hosts.nix
-    ./keybase.nix
     ./lastpass.nix
     ./low-battery.nix
     ./programs.nix
