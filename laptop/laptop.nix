@@ -55,8 +55,6 @@
     settings.sandbox = true;
   };
 
-  # boot = { extraModulePackages = with config.boot.kernelPackages; [ sysdig ]; };
-
   # Shared across both ThinkPad P1 hosts (was verbatim in p1.nix and p1g8.nix)
   boot = {
     loader.systemd-boot.enable = true;
@@ -213,8 +211,6 @@
         };
       };
     };
-
-    # mozillavpn.enable = true;
   };
 
   # Skeleton (uid, group, shell, home, base groups) in ../nixos-shared/user.nix
@@ -276,15 +272,6 @@
   };
 
   hardware = {
-    # pulseaudio = {
-    #   enable = true;
-    #   package = pkgs.pulseaudioFull;
-    #   support32Bit = true;
-    #   extraConfig = ''
-    #     load-module module-switch-on-connect
-    #   '';
-    # };
-
     graphics.enable32Bit = true;
     graphics.extraPackages = with pkgs; [
       intel-compute-runtime
@@ -411,12 +398,6 @@
       enable = true;
       package = pkgs.wireshark;
     };
-
-    # obs-studio = {
-    #   enable = true;
-    #   enableVirtualCamera = true;
-    #   plugins = [ pkgs.obs-studio-plugins.obs-backgroundremoval ];
-    # };
 
     sysdig = {
       enable = true;

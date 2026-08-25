@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 {
   config,
   pkgs,
@@ -74,8 +70,6 @@
     };
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment = {
     variables = {
       EDITOR = "${pkgs.vim}/bin/vim";
@@ -113,27 +107,13 @@
     ];
   };
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 4225 ];
 
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # # Enable sound.
-  # hardware.pulseaudio.enable = true;
-
-  # Enable the X11 windowing system.
   services.xserver = {
     enable = true;
   };
 
-  # Enable touchpad support.
-  # services.xserver.libinput.enable = true;
-
-  # Enable the KDE Desktop Environment.
   services.displayManager = {
     autoLogin = {
       enable = true;

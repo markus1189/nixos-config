@@ -37,7 +37,6 @@
     systemPackages =
       with pkgs;
       [
-        #
         ack
         actkbd
         agent-browser
@@ -105,7 +104,6 @@
         keynav
         koreader
         libnotify
-        # libreoffice
         llm
         libxml2
         lsb-release
@@ -142,16 +140,6 @@
         wyrd
         rlwrap
         rofi
-        # (rWrapper.override {
-        #   packages = with rPackages; [
-        #     RColorBrewer
-        #     ggplot2
-        #     plyr
-        #     sqldf
-        #     xtable
-        #     extrafont
-        #   ];
-        # })
         rsync
         rxvt-unicode
         sbt
@@ -172,29 +160,11 @@
         sshfs
         sqlite
         slack
-        # sysdig
         system-config-printer
         tcpdump
         telegram-desktop
         terminator
         testdisk
-        # (texlive.combine {
-        #   inherit (texlive)
-        #   scheme-medium
-        #   beamer
-        #   listings
-        #   minted
-        #   cleveref
-        #   microtype
-        #   babel
-        #   todonotes
-        #   chngcntr
-        #   excludeonly
-        #   upquote
-        #   ifplatform
-        #   xstring
-        #   enumitem;
-        # })
         html-tidy
         trayer
         tree
@@ -208,7 +178,6 @@
         warpd
         w3m
         wget
-        # wine
         which
         xclip
         xdotool
@@ -222,15 +191,9 @@
         zoom-us
         zsh
       ]
-      ++ (with pkgs.pythonPackages; [
-        # pygments
-      ])
       ++ (with pkgs.haskellPackages; [
         cabal2nix
-        # hasktags
         hlint
-        # idris
-        # pkgs.stack
         pkgs.ormolu
         xmobar
       ])
@@ -239,7 +202,6 @@
         # photography related stuff
         darktable
         hugin
-        # geeqie # libsoup, but pr open
       ]
       ++ [
         # evaluation phase
@@ -247,7 +209,6 @@
         pdd
         dateutils
         bind
-        # wxhexeditor  # commented out due to build failure with mhash dependency
       ]
       ++ (with pkgs.myScripts; [
         gnuplot-quick

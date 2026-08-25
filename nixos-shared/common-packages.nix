@@ -21,7 +21,6 @@
         dnsutils
         ed
         ffmpeg-full
-        # edbrowse
         gnupg
         gnupg1
         gitFull
