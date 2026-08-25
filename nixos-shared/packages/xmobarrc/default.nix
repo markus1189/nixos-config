@@ -1,5 +1,6 @@
 {
   replaceVars,
+  alsa-utils,
   dunst,
   dunstStatus,
   currentSpotifySong,
@@ -42,6 +43,9 @@ let
 in
 {
   upper = replaceVars ./xmobarrc_upper {
+    # Run Alsa resolves alsactl through `which` and then /usr/sbin/alsactl,
+    # a Debian path that will never exist here, so pin it.
+    alsaUtils = alsa-utils;
     inherit
       dunst
       isVpnActive
