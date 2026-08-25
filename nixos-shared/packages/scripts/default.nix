@@ -594,6 +594,15 @@ rec {
       ARTIST="$(getTag artist)"
       ALBUM="$(getTag album)"
 
+      # xmobar parses plugin output for markup (X11/Loop.hs feeds the
+      # substituted template through parseString, and actionParser is in the
+      # parser list). Track metadata is attacker-controlled, so a title
+      # containing <action=`cmd`> would become a live click handler in the bar.
+      # Every xmobar tag starts with '<', so dropping angle brackets suffices.
+      TITLE="''${TITLE//[<>]/}"
+      ARTIST="''${ARTIST//[<>]/}"
+      ALBUM="''${ALBUM//[<>]/}"
+
       if [[ "''${STATUS}" == "Playing" ]]; then
         ALBUM2="$(if [[ "$TITLE" == "$ALBUM" ]]; then echo ; else echo "($ALBUM)"; fi)"
         echo -n " <fc=orange>''${TITLE}</fc> by <fc=orange>''${ARTIST}</fc> ''${ALBUM2}"

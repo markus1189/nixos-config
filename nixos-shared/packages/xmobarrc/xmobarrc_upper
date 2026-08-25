@@ -14,7 +14,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "--high", "red"
                         ] 10
 
-                    , Run Com "@wirelessSsid@/bin/wirelessSsid" [] "wifi" 50
+                    , Run ComX "@wirelessSsid@/bin/wirelessSsid" [] "" "wifi" 50
                     , Run MultiCpu
                         [ "-t", "(<total>)"
                         , "-L","10"
@@ -23,9 +23,11 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "--high","red"
                         , "-p", "3"
                         , "-S", "True"
-                        ] 10
+                        ] 20
                     , Run Memory
                         [ "-t", "<usedratio>%"
+                        -- fixed 3-digit percentage: 8/45/100 must not resize
+                        , "-p", "3"
                         ] 300
                     , Run MultiCoreTemp
                         [ "-t", "<max>°C"
@@ -33,6 +35,8 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "-H", "85"
                         , "--normal", "#42d3a5"
                         , "--high", "red"
+                        -- fixed width: keeps 99C -> 100C from shifting the bar
+                        , "-w", "3"
                         ] 50
                     , Run TopProc
                         [ "-t", "<both1>  <both2>  <mboth1>  <mboth2>"
@@ -41,7 +45,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                         , "--normal","#42d3a5"
                         , "--high","red"
                         , "--minwidth", "8"
-                        ] 10
+                        ] 30
                     , Run BatteryP ["BAT0"]
                         [ "-t","<left> <timeleft> <acstatus>"
                         , "-L","20"
@@ -62,18 +66,18 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run DiskU
                         [("/","<usedp>% <used>/<size>")]
                         ["-L", "80", "-H", "90", "-m", "1", "-p", "2"]
-                        100
+                        600
                     , Run DiskIO
                         [("/", "<read> <write>")]
                         []
-                        10
+                        20
                     , Run Date "%F %T" "date" 10
-                    , Run Com "@isVpnActive@/bin/isVpnActive" [] "vpn" 100
-                    , Run Com "@dunstStatus@/bin/dunstStatus" [] "dunst" 20
-                    , Run Com "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "sharing" 20
-                    , Run Com "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "btheadphones" 60
+                    , Run ComX "@isVpnActive@/bin/isVpnActive" [] "" "vpn" 100
+                    , Run ComX "@dunstStatus@/bin/dunstStatus" [] "" "dunst" 100
+                    , Run ComX "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "" "sharing" 50
+                    , Run ComX "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "" "btheadphones" 300
                     -- 15s: this is the energy_now delta sampling window, not just a refresh
-                    , Run Com "@chargeRate@/bin/chargeRate" [] "charge" 150
+                    , Run ComX "@chargeRate@/bin/chargeRate" [] "" "charge" 150
                     ]
        , sepChar = "%"
        , alignSep = "}{"

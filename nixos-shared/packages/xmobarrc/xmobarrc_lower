@@ -5,7 +5,7 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
        , pickBroadest = False
        , lowerOnStart = True
        , commands = [ Run XMonadLog
-                    , Run Com "@currentSpotifySong@/bin/currentSpotifySong" [] "spotify" 30
+                    , Run ComX "@currentSpotifySong@/bin/currentSpotifySong" [] "" "spotify" 30
                     ]
        , sepChar = "%"
        , alignSep = "}{"
