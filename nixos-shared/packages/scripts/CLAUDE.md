@@ -4,33 +4,34 @@ Guide for adding new scripts to this NixOS package collection.
 
 ## Script Types
 
-### Shell Scripts (writeShellScript - Custom)
-Local helper function defined in this `default.nix`:
-```nix
-scriptName =
-  writeShellScript
-    {
-      name = "scriptName";
-      pure ? true;           # true = only deps in PATH, false = includes system PATH
-      deps ? [ ];            # List of nixpkgs dependencies
-      failFast ? true;       # Adds 'set -e' to fail on first error
-    }
-    ''
-      # Bash script here
-      echo "Hello"
-    '';
-```
-
-### Shell Applications (writeShellApplication - from nixpkgs)
-Includes automatic shellcheck validation:
+### Shell Scripts (writeShellApplication - from nixpkgs)
+The only shell writer used here. shellcheck runs at build time, so a lint is a
+build failure:
 ```nix
 scriptName = writeShellApplication {
   name = "scriptName";
-  runtimeInputs = [ pkg1 pkg2 ];
+  runtimeInputs = [ pkg1 pkg2 ];   # prepended to PATH
+  inheritPath = false;             # false = only runtimeInputs on PATH
+  bashOptions = [ "errexit" ];     # default is errexit+nounset+pipefail
   text = ''
     # Bash script here
   '';
 };
+```
+`bashOptions` is spelled out on the scripts converted from the old local
+`writeShellScript` helper, which only ever set `set -e`; new scripts are better
+off with the default (`nounset` and `pipefail` included) unless they genuinely
+need to read unset variables.
+
+Where a lint is deliberate — word splitting that is the point, or sourcing a
+runtime file such as `/run/agenix/telegram.env` that does not exist at build
+time — annotate the line rather than loosening the whole build:
+```bash
+# shellcheck source=/dev/null
+. /run/agenix/telegram.env
+
+# shellcheck disable=SC2046
+jo -a $(...)
 ```
 
 ### Python Scripts (writers.writePython3Bin)
@@ -143,6 +144,6 @@ echo "<fc=$COLOR>''${TEXT}</fc>"
 ## Troubleshooting
 
 - **Script not found**: Add to `home.packages` in host's `home.nix` or `common-packages.nix`
-- **Command not found**: Add package to `deps` list and function parameters
-- **pure = true vs false**: Use `true` for reproducibility, `false` if script needs system PATH
+- **Command not found**: Add package to `runtimeInputs` and to the function parameters
+- **inheritPath**: `false` for reproducibility, `true` if the script needs the caller's PATH
 - **Missing cacert**: Required for HTTPS curl requests
