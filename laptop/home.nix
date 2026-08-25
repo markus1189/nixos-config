@@ -949,11 +949,16 @@ in
 
       bookmarks = [
         "file://${config.home.homeDirectory}/Downloads"
-        "file://${config.home.homeDirectory}/Dropbox"
-        "file://${config.home.homeDirectory}/repos"
-        "file://${config.home.homeDirectory}/Photos/web"
-        "file://${config.home.homeDirectory}/Photos/developed"
+        "file://${config.home.homeDirectory}/Photos"
+        "file://${config.home.homeDirectory}/Stuff/Today"
+        "file://${config.home.homeDirectory}/Syncthing"
+        # repos
+        "file://${config.home.homeDirectory}/repos/clones"
         "file://${config.home.homeDirectory}/repos/nixos-config"
+        # rclone FUSE
+        "file://${config.home.homeDirectory}/mounts/rclone/premiumize"
+        "file://${config.home.homeDirectory}/mounts/rclone/gdrive"
+        "file://${config.home.homeDirectory}/mounts/rclone/gdrive/Ablage"
       ];
     };
   };
