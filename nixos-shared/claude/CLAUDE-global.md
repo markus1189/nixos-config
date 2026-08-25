@@ -67,11 +67,11 @@ Only for packages OUTSIDE that list:
   `/home/markus`, `/nix/store` — scope to a subpath, or use `rg`
 
 ## Clipboard (xclip)
-Direct piping into xclip hangs. Always use the `nohup` + `DISPLAY=:0` pattern:
+`xclip -i` forks a daemon that outlives the shell to own the selection, and it
+inherits stdout/stderr — so any caller reading those to EOF (command
+substitution, a captured pipe) blocks forever. Redirect them:
 ```bash
-clip=$(mktemp -t claude-code.XXXXXX.txt)
-echo "text" > "$clip"
-nohup bash -c "DISPLAY=:0 xclip -selection clipboard -i '$clip'" >/dev/null 2>&1 &
+echo "text" | xclip -selection clipboard -i >/dev/null 2>&1
 ```
 For HTML clipboard content, add `-t text/html`.
 
