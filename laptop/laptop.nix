@@ -12,7 +12,6 @@
 
   imports = [
     ../nixos-shared/common-services.nix
-    ../nixos-shared/aws.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix
@@ -26,7 +25,6 @@
     ../nixos-shared/user.nix
     ../nixos-shared/wireguard.nix
     ../nixos-shared/zsh.nix
-    ./k8s.nix
     ./bluetooth.nix
     ./oom.nix
     ./hosts.nix
@@ -34,7 +32,6 @@
     ./low-battery.nix
     ./programs.nix
     ../nixos-shared/syncthing-base.nix
-    ../nixos-shared/my-agenix.nix
     ../nixos-shared/runtime-secrets.nix
     ./codecentric.nix
     ../nixos-shared/nix-ld.nix

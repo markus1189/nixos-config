@@ -49,6 +49,7 @@
         aspellDicts.de
         aspellDicts.en
         ast-grep
+        awscli2
         at
         bc
         bashmount

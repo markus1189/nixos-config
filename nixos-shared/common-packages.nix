@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 
 {
   imports = [ ./python-env.nix ];
@@ -6,6 +11,8 @@
   environment = {
     systemPackages =
       (with pkgs.masterPkgs; [ claude-code ])
+      # The agenix NixOS module comes from flake.nix; this is just the CLI.
+      ++ [ inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ]
       ++ (with pkgs; [
         aws-vault
         bat
