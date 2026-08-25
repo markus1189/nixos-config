@@ -63,15 +63,6 @@
 }:
 
 rec {
-  writeXrandrScript =
-    args: text:
-    writeShellScript args ''
-      ${text}
-
-      notify-send xrandr "${args.name}"
-    '';
-
-  # Create a shell script from the given text.
   writeShellScript =
     {
       name, # the filename
@@ -529,35 +520,6 @@ rec {
         fi
       '';
 
-  togglTimer =
-    writeShellScript
-      {
-        name = "togglTimer";
-        deps = [
-          jq
-          cacert
-          curl
-          coreutils
-        ];
-        failFast = false;
-      }
-      ''
-        TOGGL_AUTH="$(< /run/agenix/toggl):api_token"
-
-        if curl -s -u "''${TOGGL_AUTH}" -X GET https://api.track.toggl.com/api/v9/me/time_entries/current | jq -e '.' > /dev/null; then
-          OUTPUT_SUM=$(curl -s -u "''${TOGGL_AUTH}" -G --data-urlencode "start_date=$(date -d '12 hours ago' --iso-8601=s)" --data-urlencode "end_date=$(date --iso-8601=s)" 'https://api.track.toggl.com/api/v9/me/time_entries' |
-              jq -e -r 'map(if .duration < 0 then now + .duration else .duration end) | add')
-
-          if [[ "$?" == 0 ]]; then
-              echo "''${OUTPUT_SUM}" | jq -r '{hours: (. / 3600 | floor), minutes: (. % 3600 / 60 | round)} | "󱑍 \(.hours)h \(.minutes)m "'
-          else
-              echo " 0h 0m "
-          fi
-        else
-          echo ""
-        fi
-      '';
-
   ts =
     writeShellScript
       {
@@ -569,273 +531,6 @@ rec {
         while IFS= read -r line; do
           printf '%s: %s\n' "$(date "+$FORMAT")" "$line"
         done
-      '';
-
-  multiheadLeft =
-    writeXrandrScript
-      {
-        name = "multiheadLeft";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --mode 1920x1080 --pos 1920x0 --rotate normal \
-               --output DP1 --off \
-               --output HDMI3 --off \
-               --output HDMI2 --off \
-               --output HDMI1 --mode 1920x1080 --pos 0x0 --rotate normal \
-               --output VGA2 --off \
-               --output DP2 --off
-      '';
-
-  multiheadRight =
-    writeXrandrScript
-      {
-        name = "multiheadRight";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --mode 1920x1080 --pos 0x0 --rotate normal \
-               --output DP1 --off \
-               --output HDMI3 --off \
-               --output HDMI2 --off \
-               --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal \
-               --output VGA2 --off \
-               --output DP2 --off
-      '';
-
-  singlehead =
-    writeXrandrScript
-      {
-        name = "singlehead";
-        deps = [
-          xrandr
-          libnotify
-          feh
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --mode 1920x1080 --pos 0x0 --rotate normal \
-               --output DP1 --off \
-               --output HDMI3 --off \
-               --output HDMI2 --off \
-               --output HDMI1 --off \
-               --output VGA2 --off \
-               --output DP2 --off
-      '';
-
-  asusRight =
-    writeXrandrScript
-      {
-        name = "asusRight";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal \
-               --output DP1 --mode 1920x1080 --pos 1920x0 --rotate normal \
-               --output HDMI2 --off \
-               --output HDMI1 --off \
-               --output DP2 --off
-      '';
-
-  multihead4k =
-    writeXrandrScript
-      {
-        name = "multihead4k";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --scale 1x1 --rotate normal \
-               --output DP1 --mode 3840x2160 --scale 0.5x0.5 --pos 0x0 --rotate normal \
-               --output HDMI2 --off \
-               --output HDMI1 --off \
-               --output DP2 --off
-      '';
-
-  multihead4khdmi =
-    writeXrandrScript
-      {
-        name = "multihead4khdmi";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output VIRTUAL1 --off \
-               --output eDP1 --primary --mode 1920x1080 --pos 0x0 --scale 1x1 --rotate normal \
-               --output HDMI1 --mode 3840x2160 --scale 0.5x0.5 --pos 1920x0 --rotate normal \
-               --output HDMI2 --off \
-               --output DP1 --off \
-               --output DP2 --off
-      '';
-
-  widePbpRight =
-    writeXrandrScript
-      {
-        name = "widePbpRight";
-        deps = [
-          xrandr
-          libnotify
-        ];
-      }
-      ''
-        xrandr --output eDP1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal \
-               --output DP1 --off \
-               --output DP2 --off \
-               --output HDMI1 --mode 1920x1600 --pos 0x0 --rotate normal \
-               --output HDMI2 --off \
-               --output VIRTUAL1 --off
-      '';
-
-  widePbpBoth =
-    writeXrandrScript
-      {
-        name = "widePbpBoth";
-        deps = [
-          xrandr
-          libnotify
-          feh
-        ];
-      }
-      ''
-        xrandr --output eDP1 --off \
-               --output DP1 --off \
-               --output DP2 --primary --mode 1920x1600 --pos 0x0 --rotate normal \
-               --output HDMI1 --mode 1920x1600 --pos 1920x0 --rotate normal \
-               --output HDMI2 --off \
-               --output VIRTUAL1 --off
-      '';
-
-  wideUltra =
-    writeXrandrScript
-      {
-        name = "wideUltra";
-        deps = [
-          xrandr
-          libnotify
-          feh
-        ];
-      }
-      ''
-        xrandr --output eDP1 --mode 1920x1080 --pos 3840x0 --rotate normal \
-               --output DP1 --primary --mode 3840x1600 --pos 0x0 --rotate normal \
-               --output DP2 --off \
-               --output HDMI1 --off \
-               --output HDMI2 --off \
-               --output VIRTUAL1 --off
-      '';
-
-  autoMonitorConfig =
-    wirelessInterface:
-    writeShellScript
-      {
-        name = "autoMonitorConfig";
-        pure = true;
-        deps = [
-          wpa_supplicant
-          gnugrep
-          libnotify
-          coreutils
-          multihead4k
-          multihead4khdmi
-        ];
-      }
-      ''
-        CURRENT="$(wpa_cli -i ${wirelessInterface} -p /run/wpa_supplicant/control status | grep '^ssid' | cut -d'=' -f 2)"
-
-        if [[ -z "''${CURRENT}" ]]; then
-            notify-send wpa_cli "Could not find current SSID!"
-            exit 1
-        fi
-
-        case "''${CURRENT}" in
-            "cc-wlan")
-                multihead4k
-                ;;
-            "Our FRITZ Box")
-                ${widePbpBoth}/bin/widePbpBoth || ${widePbpRight}/bin/widePbpRight || ${wideUltra}/bin/wideUltra
-                ;;
-            *)
-                echo "Unknown network: ''${CURRENT}" > /dev/stderr
-        esac
-      '';
-
-  wpaSelectNetwork =
-    {
-      id,
-      network ? id,
-    }:
-    device:
-    writeShellScript
-      {
-        name = "wpaCliSelectNetwork${network}";
-        deps = [
-          wpa_supplicant
-          gnugrep
-          libnotify
-        ];
-      }
-      ''
-        set -e
-
-        wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network ${id}
-
-        notify-send wpa_cli "Switched network: ${network}"
-      '';
-
-  wpaOurFritzBox = wpaSelectNetwork {
-    id = "4";
-    network = "our-fritzbox";
-  };
-
-  wpaWannaCry = wpaSelectNetwork {
-    id = "43";
-    network = "wanna-cry";
-  };
-
-  sysdig-trace-in = writeShellScript { name = "sysdig-trace-in"; } ''
-    echo ">:''${2:-pp}:''${1:-$0}::" > /dev/null
-  '';
-
-  sysdig-trace-out = writeShellScript { name = "sysdig-trace-out"; } ''
-    echo "<:''${2:-pp}:''${1:-$0}::" > /dev/null
-  '';
-
-  takeScreenshot =
-    writeShellScript
-      {
-        name = "takeScreenshot";
-        deps = [
-          coreutils
-          scrot
-          libnotify
-          xclip
-          dragon-drop
-        ];
-      }
-      ''
-        sleep 0.5
-        notify-send -t 1000 'Screenshot' 'Select area to capture'
-        FILEPATH="$(scrot -q 100 -s -c -e 'mv $f /tmp/ && echo -n /tmp/$f')"
-        echo "''${FILEPATH}" | xclip -sel clipboard -i
-        dragon -x "''${FILEPATH}"
       '';
 
   gnuplot-quick =
@@ -853,27 +548,6 @@ rec {
 
         gnuplot -persist -e "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5; set autoscale; set grid; plot '$FILE' with linespoints ls 1"
       '';
-
-  acConnected =
-    writeShellScript
-      {
-        name = "acConnected";
-        deps = [
-          coreutils
-          findutils
-        ];
-      }
-      ''
-        cat /sys/class/backlight/intel_backlight/max_brightness > \
-          /sys/class/backlight/intel_backlight/brightness
-
-        echo -n 2 > $(find /sys/class/leds -name '*::kbd_backlight')/brightness
-      '';
-
-  acDisconnected = writeShellScript { name = "acDisconnected"; } ''
-    echo -n 700 > /sys/class/backlight/intel_backlight/brightness
-    echo -n 0 > $(find /sys/class/leds -name '*::kbd_backlight')/brightness
-  '';
 
   xmonadReset =
     writeShellScript
@@ -901,51 +575,6 @@ rec {
       }
       ''
         xdotool mousemove --window $(xdotool getwindowfocus) --polar 0 0
-      '';
-
-  toggleSoundMute =
-    writeShellScript
-      {
-        name = "toggleSoundMute";
-        deps = [ pulseaudioFull ];
-      }
-      ''
-        pactl set-sink-mute '@DEFAULT_SINK@' toggle
-      '';
-
-  chooseNetwork =
-    device:
-    writeShellScript
-      {
-        name = "chooseNetwork";
-        deps = [
-          libnotify
-          gnugrep
-          coreutils
-          wpa_supplicant
-          gnused
-          rofi
-        ];
-        pure = true;
-      }
-      ''
-        NETWORK_NAME="$(wpa_cli -p /run/wpa_supplicant/control list_networks |
-          sed -e  's/^[[:digit:]]\+[[:space:]]*\(.*\)any.*/\1/' |
-            sed -e 's/[[:space:]]*$//' |
-              grep -v 'network id' |
-                tail -n +2 |
-                  rofi -matching fuzzy -monitor -4 -sort -dmenu -i -p ssid:)"
-
-        NETWORK_ID=$(wpa_cli -i ${device} -p /run/wpa_supplicant/control list_networks | grep -wF "''${NETWORK_NAME}" | grep -o '^[[:digit:]]\+')
-
-        echo "Selecting network $NETWORK_NAME with id $NETWORK_ID"
-        echo "Using command: wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network $NETWORK_ID"
-
-        if wpa_cli -i ${device} -p /run/wpa_supplicant/control select_network $NETWORK_ID ; then
-          notify-send wpa_cli "Switched network: ''${NETWORK_NAME}"
-        else
-          notify-send -u critical select_network "Failed with code $?"
-        fi
       '';
 
   lockScreen =
@@ -1136,6 +765,7 @@ rec {
 
   notifySendTelegramMd = sendTelegram "299952716" "notifySendTelegramMd" "MarkdownV2";
 
+  # Internal: the "home" telegram group, used by viessmannOutsideTemperature.
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome" null;
 
   telegramSendPhoto =
@@ -1364,20 +994,6 @@ rec {
         };
       };
     };
-  captureTOTP =
-    writeShellScript
-      {
-        name = "captureTOTP";
-        deps = [
-          imagemagick
-          zbar
-        ];
-        pure = true;
-      }
-      ''
-        import -window root -quality 90 - | zbarimg -q --raw /dev/stdin 2>/dev/null
-      '';
-
   viessmannOutsideTemperature =
     writeShellScript
       {

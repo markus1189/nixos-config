@@ -251,7 +251,6 @@
       ++ (with pkgs.myScripts; [
         gnuplot-quick
         isVpnActive
-        multihead4k
         tmx
         ts
       ])

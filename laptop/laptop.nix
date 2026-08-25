@@ -175,7 +175,6 @@
         };
 
         sessionCommands = ''
-          ${pkgs.myScripts.singlehead}/bin/singlehead
           ${pkgs.xrdb}/bin/xrdb /etc/X11/Xresources
           ${pkgs.xsetroot}/bin/xsetroot -cursor_name left_ptr
           ${pkgs.xset}/bin/xset r rate 250 30
