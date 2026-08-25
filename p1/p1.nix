@@ -45,33 +45,6 @@
       enable = true;
     };
 
-    dnsmasq = {
-      enable = true;
-      resolveLocalQueries = false;
-      settings = {
-        listen-address = "127.0.0.1";
-        log-queries = true;
-        cache-size = 1000; # default = 150
-        domain-needed = true;
-        clear-on-reload = true;
-        no-resolv = true;
-        no-poll = true;
-        interface = "lo";
-        no-dhcp-interface = "lo";
-        bind-interfaces = true;
-        server = [
-          "1.1.1.1"
-          "/byod.gp.ottogroup.com/1.1.1.1"
-          "/otto.de/10.79.255.100"
-          "/otto.de/10.79.255.200"
-          "/ottogroup.com/10.79.255.100"
-          "/ottogroup.com/10.79.255.200"
-          "/otto.de/#"
-        ];
-      };
-
-    };
-
     acpid = {
       enable = true;
       handlers = {
