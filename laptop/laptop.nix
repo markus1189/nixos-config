@@ -132,13 +132,6 @@
     # required for suspend on low battery
     upower.enable = true;
 
-    tlp = {
-      enable = false;
-      settings = {
-        USB_BLACKLIST = "046d:c52b";
-      };
-    };
-
     avahi.enable = true;
 
     dbus.enable = true;
@@ -184,10 +177,6 @@
           enable = true;
           enableContribAndExtras = true;
         };
-      };
-
-      synaptics = {
-        enable = false;
       };
 
       # libinput configuration moved to services.libinput
