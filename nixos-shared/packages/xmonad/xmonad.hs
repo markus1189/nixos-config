@@ -18,6 +18,7 @@ import XMonad
     ManageHook,
     MonadIO (liftIO),
     Query,
+    Rectangle (..),
     Resize (Expand, Shrink),
     Tall (Tall),
     Window,
@@ -47,7 +48,6 @@ import XMonad
     focus,
     mod1Mask,
     mod4Mask,
-    moveResizeWindow,
     queryTree,
     resource,
     runQuery,
@@ -112,7 +112,7 @@ import XMonad.Actions.Submap (submap)
 import XMonad.Actions.WindowBringer (bringWindow, gotoMenuArgs')
 import XMonad.Actions.WindowGo (raise)
 import XMonad.Config.Gnome (gnomeConfig)
-import XMonad.Core (WindowSet, WindowSpace, WorkspaceId, withWindowSet)
+import XMonad.Core (ScreenDetail (screenRect), WindowSet, WindowSpace, WorkspaceId, withWindowSet)
 import XMonad.Hooks.DynamicLog
   ( PP
       ( ppCurrent,
@@ -129,7 +129,7 @@ import XMonad.Hooks.DynamicLog
     xmonadPropLog',
   )
 import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen, setEwmhActivateHook)
-import XMonad.Hooks.ManageDocks (avoidStruts, docks)
+import XMonad.Hooks.ManageDocks (avoidStruts, calcGap, docks)
 import XMonad.Hooks.ManageHelpers (isDialog)
 import XMonad.Hooks.SetWMName (setWMName)
 import XMonad.Hooks.StatusBar (StatusBarConfig, statusBarGeneric, statusBarProp, withSB)
@@ -421,7 +421,7 @@ myKeys =
         ]
     ),
     ((myModKey, xK_e), swapNextScreen),
-    ((myModKey, xK_grave), withDisplay $ withFocused . maximizeFloatWindow),
+    ((myModKey, xK_grave), maximizeAcrossScreens),
     ((myModKey, xK_minus), sendMessage Shrink),
     ((myModShift, xK_minus), sendMessage Expand),
     ( (myModKey, xK_p),
@@ -462,7 +462,6 @@ myKeys =
          (f, m) <- [(W.view, 0), (W.shift, shiftMask), (W.greedyView, controlMask)]
        ]
   where
-    maximizeFloatWindow d w = liftIO $ moveResizeWindow d w 0 22 3834 1560
     scratchTermUpper = namedScratchpadAction myScratchPads "upper"
     scratchTermLower = namedScratchpadAction myScratchPads "lower"
     scratchTermRight = namedScratchpadAction myScratchPads "right"
@@ -477,6 +476,49 @@ myKeys =
     xF86AudioForward = 0x1008ff97
     xF86AudioRewind = 0x1008ff3e
     xF86Search = 0x1008ff1b
+
+-- Span the focused window across every screen -- on the docked ultrawide
+-- that is both MST tiles of the single physical panel -- minus whatever the
+-- docks reserve. Two things it deliberately does not do by hand:
+--
+--   * the bar heights come from calcGap, i.e. from the struts the bars
+--     actually set. Hardcoding them drifts silently: neither xmobarrc
+--     declares a height, so it follows the font, and the last font change
+--     left the old constant five pixels off for years.
+--   * the geometry goes into the StackSet via W.float. A raw
+--     moveResizeWindow is undone by the next refresh, which re-derives
+--     every float from its stored RationalRect -- and re-tiles anything
+--     that was never floated to begin with.
+--
+-- The rect is stored relative to the *current* screen, so its width is >1
+-- whenever the desktop spans several. scaleRationalRect does not clamp,
+-- which is what makes that legal.
+maximizeAcrossScreens :: X ()
+maximizeAcrossScreens = withFocused $ \w -> do
+  gap <- calcGap (S.fromList [minBound .. maxBound])
+  desktop <- withWindowSet (return . boundingBox . map (screenRect . W.screenDetail) . W.screens)
+  here <- withWindowSet (return . screenRect . W.screenDetail . W.current)
+  windows $ W.float w (relativeTo here (gap desktop))
+
+-- | Smallest rectangle containing all of the given ones. Total in practice:
+-- W.screens is current:visible and so never empty.
+boundingBox :: [Rectangle] -> Rectangle
+boundingBox rs = Rectangle x0 y0 (fromIntegral (x1 - x0)) (fromIntegral (y1 - y0))
+  where
+    x0 = minimum [rect_x r | r <- rs]
+    y0 = minimum [rect_y r | r <- rs]
+    x1 = maximum [rect_x r + fromIntegral (rect_width r) | r <- rs]
+    y1 = maximum [rect_y r + fromIntegral (rect_height r) | r <- rs]
+
+-- | Express an absolute rectangle in the fractional coordinates W.float
+-- wants, relative to the screen the window is on.
+relativeTo :: Rectangle -> Rectangle -> W.RationalRect
+relativeTo (Rectangle sx sy sw sh) (Rectangle x y w h) =
+  W.RationalRect
+    (toInteger (x - sx) % toInteger sw)
+    (toInteger (y - sy) % toInteger sh)
+    (toInteger w % toInteger sw)
+    (toInteger h % toInteger sh)
 
 -- Window switcher via rofi. -dmenu, not rofi's own -show window: that mode
 -- focuses its pick by sending _NET_ACTIVE_WINDOW, which setEwmhActivateHook
