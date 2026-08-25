@@ -19,6 +19,7 @@ in
     ../nixos-shared/home-manager/git/default.nix
     ../nixos-shared/home-manager/dunst/default.nix
     ../nixos-shared/home-manager/firefox/default.nix
+    ../nixos-shared/home-manager/imv/default.nix
     ../nixos-shared/home-manager/rumdl/default.nix
     ../nixos-shared/home-manager/starship/default.nix
     ../nixos-shared/home-manager/vim/default.nix

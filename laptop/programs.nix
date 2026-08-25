@@ -96,7 +96,6 @@
         inotify-tools
         inetutils
         imagemagick
-        imv
         inkscape
         insomnia
         jqp # interactive jq queries
