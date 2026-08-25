@@ -20,7 +20,6 @@
               currentSpotifySong
               dunstStatus
               isVpnActive
-              xmobarSharingIndicator
               ;
             wirelessInterface = config.my.wirelessInterface;
           };

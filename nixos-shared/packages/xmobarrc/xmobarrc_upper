@@ -74,7 +74,8 @@ Config { font = "xft:SauceCodePro Nerd Font Bold 10"
                     , Run Date "%F %T" "date" 10
                     , Run ComX "@isVpnActive@/bin/isVpnActive" [] "" "vpn" 100
                     , Run ComX "@dunstStatus@/bin/dunstStatus" [] "" "dunst" 100
-                    , Run ComX "@xmobarSharingIndicator@/bin/xmobarSharingIndicator" [] "" "sharing" 50
+                    -- fed by xmonad's handleEventHook on map/unmap; no polling
+                    , Run NamedXPropertyLog "_XMONAD_SHARING" "sharing"
                     , Run ComX "@btHeadphoneBattery@/bin/btHeadphoneBattery" [] "" "btheadphones" 300
                     -- 15s: this is the energy_now delta sampling window, not just a refresh
                     , Run ComX "@chargeRate@/bin/chargeRate" [] "" "charge" 150

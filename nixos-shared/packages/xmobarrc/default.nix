@@ -2,7 +2,6 @@
   replaceVars,
   dunst,
   dunstStatus,
-  xmobarSharingIndicator,
   currentSpotifySong,
   isVpnActive,
   wirelessInterface,
@@ -48,7 +47,6 @@ in
       isVpnActive
       wirelessInterface
       dunstStatus
-      xmobarSharingIndicator
       btHeadphoneBattery
       chargeRate
       wirelessSsid

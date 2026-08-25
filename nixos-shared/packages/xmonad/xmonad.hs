@@ -1,18 +1,23 @@
-import Control.Monad (filterM)
+import Control.Monad (filterM, when)
 import Data.Char (toLower)
 import Data.Functor ((<&>))
 import Data.List (isInfixOf, isPrefixOf)
 import Data.Map qualified as M
+import Data.Monoid (All (..))
 import Data.Ratio ((%))
+import Data.Set qualified as S
 import XMonad
   ( Button,
     ButtonMask,
     Default (def),
+    Event (DestroyWindowEvent, MapNotifyEvent, UnmapEvent, ev_window),
+    ExtensionClass (..),
     Full (Full),
     KeySym,
     Layout,
     ManageHook,
     MonadIO (liftIO),
+    Query,
     Resize (Expand, Shrink),
     Tall (Tall),
     Window,
@@ -21,6 +26,7 @@ import XMonad
       ( borderWidth,
         focusFollowsMouse,
         focusedBorderColor,
+        handleEventHook,
         layoutHook,
         manageHook,
         modMask,
@@ -29,7 +35,10 @@ import XMonad
         terminal,
         workspaces
       ),
+    appName,
+    asks,
     button3,
+    className,
     composeAll,
     controlMask,
     doFloat,
@@ -39,12 +48,16 @@ import XMonad
     mod1Mask,
     mod4Mask,
     moveResizeWindow,
+    queryTree,
     resource,
     runQuery,
     sendMessage,
     shiftMask,
     spawn,
     stringProperty,
+    theRoot,
+    title,
+    whenX,
     windows,
     withDisplay,
     withFocused,
@@ -113,6 +126,7 @@ import XMonad.Hooks.DynamicLog
     xmobarColor,
     xmobarPP,
     xmobarStrip,
+    xmonadPropLog',
   )
 import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen, setEwmhActivateHook)
 import XMonad.Hooks.ManageDocks (avoidStruts, docks)
@@ -164,6 +178,7 @@ import XMonad.Prompt.Window (allWindows)
 import XMonad.StackSet qualified as W
 import XMonad.Util.Dmenu (menuArgs)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP, removeKeys)
+import XMonad.Util.ExtensibleState qualified as XS
 import XMonad.Util.NamedScratchpad
   ( NamedScratchpad (NS),
     customFloating,
@@ -647,6 +662,77 @@ startAutostart =
     systemctl = "@systemd@/bin/systemctl --user"
     target = "xmonad-session.target"
 
+-- Screen sharing indicator, read by xmobar's NamedXPropertyLog.
+--
+-- Replaces a Com plugin that shelled out to xdotool twice every two seconds
+-- (~15.6ms a poll) to ask a question xmonad is already told the answer to.
+sharingProp :: String
+sharingProp = "_XMONAD_SHARING"
+
+-- The value goes verbatim into xmobar's template, so it carries its own
+-- markup. NamedXPropertyLog is the action-stripping reader: <fc> survives,
+-- and an <action> smuggled in through a window title would not.
+renderSharing :: S.Set Window -> String
+renderSharing s
+  | S.null s = ""
+  | otherwise = "<fc=red>\9210SHARING\9210</fc> "
+
+-- A set rather than a Bool: a call maps several matching windows at once
+-- (the notification and the toolbar) and tears them down independently.
+newtype SharingWindows = SharingWindows (S.Set Window)
+
+instance ExtensionClass SharingWindows where
+  initialValue = SharingWindows S.empty
+
+-- The four fields a bare `xdotool search` matches against: --name
+-- --classname --class --role. Keeping the set identical means this decides
+-- exactly what the shell script it replaces decided.
+isSharingWindow :: Query Bool
+isSharingWindow =
+  any (\field -> any (`isInfixOf` field) needles)
+    <$> sequence [title, appName, className, stringProperty "WM_WINDOW_ROLE"]
+  where
+    needles = ["is sharing", "as_toolbar"]
+
+modifySharing :: (S.Set Window -> S.Set Window) -> X ()
+modifySharing f = do
+  SharingWindows before <- XS.get
+  let after = f before
+  XS.put (SharingWindows after)
+  -- Only write when the rendered value actually changes. Every write is a
+  -- PropertyNotify and therefore an xmobar redraw, and MapNotify fires far
+  -- more often than a screen share starts.
+  when (renderSharing before /= renderSharing after) $
+    xmonadPropLog' sharingProp (renderSharing after)
+
+-- Driven by map/unmap/destroy rather than by walking the window set. xmonad
+-- selects substructureNotifyMask on the root (XMonad.Config.rootMask) and
+-- handleWithHook runs handleEventHook ahead of core's own handler, so these
+-- events arrive for override-redirect windows too -- which is the whole
+-- point. On this display xdotool sees 88 windows where _NET_CLIENT_LIST has
+-- 8, and an always-on-top sharing toolbar is exactly the sort of window that
+-- lives in the other 80 and never enters the StackSet.
+sharingEventHook :: Event -> X All
+sharingEventHook ev = do
+  case ev of
+    MapNotifyEvent {ev_window = w} ->
+      whenX (runQuery isSharingWindow w) $ modifySharing (S.insert w)
+    UnmapEvent {ev_window = w} -> modifySharing (S.delete w)
+    DestroyWindowEvent {ev_window = w} -> modifySharing (S.delete w)
+    _ -> pure ()
+  pure (All True)
+
+-- ExtensibleState does not survive mod-q but the X property does, so without
+-- this a restart mid-call would leave the indicator stuck on (or, worse,
+-- stuck off). One tree walk per xmonad start; it is the only walk left.
+rescanSharing :: X ()
+rescanSharing = do
+  root <- asks theRoot
+  wins <- withDisplay $ \d -> liftIO (queryTree d root) <&> \(_, _, cs) -> cs
+  matches <- S.fromList <$> filterM (runQuery isSharingWindow) wins
+  XS.put (SharingWindows matches)
+  xmonadPropLog' sharingProp (renderSharing matches)
+
 -- withSB tracks bar PIDs in persistent state and its startup hook kills
 -- stale instances before respawning, so bars survive mod-q restarts without
 -- the old spawnPipe/StdinReader EOF trick. The lower bar reads the workspace
@@ -671,7 +757,8 @@ main =
               terminal = myTerminal,
               focusedBorderColor = "orange",
               layoutHook = avoidStruts myLayoutHook,
-              startupHook = setWMName "LG3D" <> startAutostart,
+              startupHook = setWMName "LG3D" <> startAutostart <> rescanSharing,
+              handleEventHook = sharingEventHook,
               modMask = myModKey,
               mouseBindings = myNewMouseBindings
             }

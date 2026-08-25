@@ -405,18 +405,6 @@ rec {
     '';
   };
 
-  xmobarSharingIndicator = writeShellApplication {
-    name = "xmobarSharingIndicator";
-    runtimeInputs = [ xdotool ];
-    inheritPath = false;
-    bashOptions = [ "errexit" ];
-    text = ''
-      if xdotool search 'is sharing' &> /dev/null || xdotool search 'as_toolbar' &> /dev/null; then
-        echo "<fc=red>⏺SHARING⏺</fc> "
-      fi
-    '';
-  };
-
   btHeadphoneBattery = writeShellApplication {
     name = "btHeadphoneBattery";
     runtimeInputs = [
