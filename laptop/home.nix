@@ -572,12 +572,6 @@ in
       // piAgentConfig.linkedFiles;
   };
 
-  manual = {
-    html.enable = true;
-    json.enable = true;
-    manpages.enable = true;
-  };
-
   programs =
     let
       passDir = "$HOME/.local/share/password-store";
@@ -901,12 +895,6 @@ in
       storePath = pkgs.lib.mkForce "${config.home.homeDirectory}/.local/share/password-store";
     };
 
-  };
-
-  fonts = {
-    fontconfig = {
-      enable = true;
-    };
   };
 
   # The boot-time desktop, one supervised systemd user unit per program; see

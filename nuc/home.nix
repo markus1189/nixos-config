@@ -52,18 +52,6 @@ in
       // claudeConfig.agentFiles;
   };
 
-  manual = {
-    html.enable = true;
-    json.enable = true;
-    manpages.enable = true;
-  };
-
-  fonts = {
-    fontconfig = {
-      enable = true;
-    };
-  };
-
   systemd.user = {
     startServices = true;
     services =

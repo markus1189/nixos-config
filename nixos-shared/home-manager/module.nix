@@ -7,5 +7,20 @@
   home-manager = {
     useUserPackages = true;
     useGlobalPkgs = true;
+
+    # Settings every user config had declared for itself. sharedModules
+    # applies them to every home-manager user on every host, so a new host's
+    # home.nix starts with them rather than re-stating them.
+    sharedModules = [
+      {
+        manual = {
+          html.enable = true;
+          json.enable = true;
+          manpages.enable = true;
+        };
+
+        fonts.fontconfig.enable = true;
+      }
+    ];
   };
 }
