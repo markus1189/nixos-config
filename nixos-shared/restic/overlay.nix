@@ -1,4 +1,9 @@
-_: super: {
-  inherit ((super.callPackage ./default.nix { })) resticPhotoBackup;
-  inherit ((super.callPackage ./default.nix { })) resticPhotoForget;
+_: super:
+let
+  # One instantiation, two attributes -- callPackage was previously run once
+  # per attribute for the same package set.
+  resticScripts = super.callPackage ./default.nix { };
+in
+{
+  inherit (resticScripts) resticPhotoBackup resticPhotoForget;
 }

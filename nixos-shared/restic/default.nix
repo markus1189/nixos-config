@@ -4,8 +4,6 @@
   writeScriptBin,
   stdenv,
   restic,
-  coreutils,
-  myScripts,
   curl,
   cacert,
 }:
