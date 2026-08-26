@@ -22,12 +22,10 @@
         ed
         ffmpeg-full
         gnupg
-        gnupg1
         gitFull
         gh
         git-extras
         git-open
-        hub
         adwaita-icon-theme
         gron
         htop
