@@ -302,16 +302,19 @@ in
           '';
         };
 
-        "keynavrc" = {
-          source = pkgs.callPackage ../nixos-shared/home-manager/keynav { };
-          target = ".keynavrc";
-        };
-
         "warpd-config" = {
           text = ''
             hint_activation_key: C-;
-            cursor_color: #Ff8c00
+            cursor_color: #f3843d
+            hint_bgcolor: #1e1e1e
+            hint_fgcolor: #f3843d
+            hint_border_radius: 4
+            hint_font: Source Code Pro
             hint_size: 17
+            hint2_size: 14
+            hint2_gap_size: 2
+            hint2_grid_size: 3
+            hint2_chars: hjklasdfyuionm
             indicator: topright
             indicator_size: 20
             hint_chars: qwertz12345xcvbasdfhjklyuiop67890n/

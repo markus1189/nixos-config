@@ -100,7 +100,6 @@
         insomnia
         jqp # interactive jq queries
         k9s
-        keynav
         koreader
         libnotify
         llm
