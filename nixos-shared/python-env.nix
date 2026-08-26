@@ -17,6 +17,7 @@
         beautifulsoup4
         httpx
         lxml
+        lz4
         matplotlib
         numpy
         pandas
