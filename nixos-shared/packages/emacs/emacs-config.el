@@ -1696,12 +1696,26 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; The :init configuration is always executed (Not lazy)
   :init
 
+  (defun mh/fasd-paths ()
+    "Paths from the fasd frecency database, most frecent first."
+    (mapcar #'abbreviate-file-name
+            (seq-remove #'string-blank-p
+                        (ignore-errors (process-lines "fasd" "-Rl")))))
+
   (defun mh/consult-fasd ()
+    "Open a file or directory from the fasd frecency database."
     (interactive)
-    (find-file (consult--read
-                (consult--async-command (lambda (input) (list "fasd" "-Rl" (string-trim input))))
-                :prompt "fasd: "
-                :category 'file)))
+    ;; The database is small enough (hundreds of entries) to read in one go,
+    ;; which leaves the filtering to orderless instead of to fasd's matcher.
+    (let ((paths (mh/fasd-paths)))
+      (unless paths (user-error "No fasd entries -- is fasd on PATH?"))
+      (find-file (consult--read paths
+                                :prompt "fasd: "
+                                :category 'file
+                                :require-match t
+                                :sort nil ; keep fasd's frecency order
+                                :history 'file-name-history
+                                :state (consult--file-preview)))))
 
   ;; Tweak the register preview for `consult-register-load',
   ;; `consult-register-store' and the built-in commands.  This improves the
@@ -1717,6 +1731,33 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
   :config
+
+  ;; fasd's frecency database as a `consult-buffer' source, narrowed with `d'.
+  ;; recentf only ever sees files opened from inside Emacs and never records
+  ;; directories, so this is what puts shell-visited paths back under `s-;'.
+  ;; Entries already covered by the buffer and File sources are filtered out.
+  (defvar mh/consult-source-fasd
+    `( :name     "Frecent"
+       :narrow   ?d
+       :category file
+       :face     consult-file
+       :history  file-name-history
+       :state    ,#'consult--file-state
+       :new      ,#'consult--file-action
+       :enabled  ,(lambda () (and (executable-find "fasd") t))
+       :items
+       ,(lambda ()
+          (let ((buffers (consult--buffer-file-hash))
+                (recent (make-hash-table :test #'equal)))
+            (dolist (file (bound-and-true-p recentf-list))
+              (puthash (expand-file-name file) t recent))
+            (seq-remove (lambda (path)
+                          (let ((abs (expand-file-name path)))
+                            (or (gethash abs buffers) (gethash abs recent))))
+                        (mh/fasd-paths)))))
+    "Fasd frecency source for `consult-buffer'.")
+
+  (add-to-list 'consult-buffer-sources 'mh/consult-source-fasd 'append)
 
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
