@@ -348,7 +348,7 @@
 
           (( ''${+zbell_duration} )) || zbell_duration=15
 
-          (( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim vi emacs less)
+          (( ''${+zbell_ignore} )) || zbell_ignore=($EDITOR $PAGER vim vi emacs less zathura sioyek evince koreader okular foliate imv mpv)
 
           zbell_timestamp=$EPOCHSECONDS
 
@@ -380,13 +380,17 @@
             esac
 
             has_ignored_cmd=0
+            # Match any word of each segment, not just the first: `sudo
+            # zathura`, `env X=1 sioyek` and wrappers all suppress the bell
+            # without the wrapper itself being in the list.
             for seg in ''${(s:;:)ran//|/;}; do
               words=(''${(z)seg})
-              util=''${words[1]}
-              if (( ''${zbell_ignore[(i)$util]} <= ''${#zbell_ignore} )); then
-                has_ignored_cmd=1
-                break
-              fi
+              for util in ''${words[@]}; do
+                if (( ''${zbell_ignore[(i)$util]} <= ''${#zbell_ignore} )); then
+                  has_ignored_cmd=1
+                  break 2
+                fi
+              done
             done
 
             if (( ! $has_ignored_cmd )) && (( ran_long )); then
