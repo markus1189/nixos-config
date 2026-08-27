@@ -186,7 +186,8 @@
       serviceConfig = {
         User = config.my.userName;
         Group = "users";
-        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.viessmannOutsideTemperature}/bin/viessmannOutsideTemperature' /home/${config.my.userName}/Syncthing/remind/home-notification-reminders";
+        # homeWeatherReport = outside temperature (as before) plus the rain-radar loop.
+        ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.homeWeatherReport}/bin/homeWeatherReport' /home/${config.my.userName}/Syncthing/remind/home-notification-reminders";
         Restart = "always";
       };
       wantedBy = [ "multi-user.target" ];
