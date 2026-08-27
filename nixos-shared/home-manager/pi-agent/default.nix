@@ -84,13 +84,6 @@ let
       };
     };
 
-    "pi-agent-extension-glados" = {
-      target = ".pi/agent/extensions/glados.ts";
-      source = pkgs.replaceVars ./extensions/glados.ts {
-        gladosPrompt = builtins.readFile ../../claude/glados-prompt.txt;
-      };
-    };
-
     "pi-agent-extension-web-tools" = {
       target = ".pi/agent/extensions/web-tools.ts";
       source = ./extensions/web-tools.ts;

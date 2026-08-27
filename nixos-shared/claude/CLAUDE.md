@@ -434,7 +434,7 @@ Hooks are scripts that execute in response to Claude Code events (before tool ex
 
 ### Available Hooks
 
-#### 1. Dangerous Command Check Hook (`check-dangerous-commands.sh`)
+#### Dangerous Command Check Hook (`check-dangerous-commands.sh`)
 
 **Purpose**: Blocks `rm -rf` and its variations to prevent accidental destructive operations, plus whole-filesystem traversals with `find`/`fd`.
 
@@ -491,17 +491,6 @@ ls -la /tmp/directory && rm -r /tmp/directory
 cd nixos-shared/claude/hooks
 ./check-dangerous-commands.bats
 ```
-
-#### 2. GLaDOS Reminder Hook (`glados-reminder-prompt.sh`)
-
-**Purpose**: Injects GLaDOS persona reminder when `MH_CLAUDE_USE_GLADOS=1` environment variable is set.
-
-**Configuration**:
-```nix
-enableGladosReminder = true;  # in default.nix (default)
-```
-
-**Effect**: Adds system reminder to maintain dry, deadpan humor in responses.
 
 ### Adding a New Hook
 
