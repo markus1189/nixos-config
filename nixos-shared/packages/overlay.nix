@@ -44,6 +44,14 @@ in
   # then store it: agenix -e secrets/viessmann-refresh-token.age
   inherit (myScripts) viessmannOutsideTemperature;
 
+  # The rain-radar loop that rides along with the temperature. dwdRadarTelegram and the
+  # generator itself are exposed too, so both can be run by hand.
+  inherit (myScripts)
+    homeWeatherReport
+    dwdRadarTelegram
+    dwd-radar-gif
+    ;
+
   emacs = final.callPackage ./emacs {
     inherit (prev) emacs;
     elispSrcs = {

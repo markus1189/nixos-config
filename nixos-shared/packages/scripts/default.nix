@@ -53,6 +53,7 @@
   zsh,
   writeShellApplication,
   writers,
+  dejavu_fonts,
   flameshot,
   tesseract,
   gxmessage,
@@ -735,6 +736,39 @@ rec {
   # Internal: the "home" telegram group, used by viessmannOutsideTemperature.
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome" null;
 
+  sendTelegramAnimation =
+    chatid: name:
+    writeShellApplication {
+      inherit name;
+      runtimeInputs = [
+        curl
+        cacert
+      ];
+      inheritPath = false;
+      bashOptions = [ "errexit" ];
+      text = ''
+        set -a
+        # shellcheck source=/dev/null
+        . /run/agenix/telegram.env
+        set +a
+
+        FILE=''${1:?"Error: no file given!"}
+        CAPTION=''${2:-}
+        # sendAnimation, not sendPhoto: Telegram transcodes the GIF to MP4 and plays it
+        # inline, whereas a photo upload would flatten it to a single still frame.
+        curl --silent --fail -XPOST \
+          --retry-all-errors --retry 3 \
+          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
+          --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendAnimation" \
+          -F chat_id=${chatid} \
+          -F animation="@''${FILE}" \
+          -F caption="''${CAPTION}" > /dev/null
+      '';
+    };
+
+  # The "home" telegram group, same destination as viessmannOutsideTemperature.
+  notifySendHomeAnimation = sendTelegramAnimation "-1001328938887" "notifySendHomeAnimation";
+
   telegramSendPhoto = writeShellApplication {
     name = "telegramSendPhoto";
     runtimeInputs = [
@@ -961,6 +995,72 @@ rec {
         };
       };
     };
+  # The radar loop itself. Vendored from ~/Stuff/2026-08/27-scratch/dwd-radar-gif; it needs no
+  # assets (the 17-colour legend LUT and the Germany bbox are inlined) and no fontconfig — the
+  # wrapper below hands it a font from the store.
+  dwd-radar-gif = writers.writePython3Bin "dwd-radar-gif" {
+    libraries = [
+      python3Packages.numpy
+      python3Packages.pillow
+    ];
+    # flakeIgnore REPLACES flake8's default ignore list, so the defaults that matter have to
+    # be restated: W503/W504 contradict each other and cannot both be satisfied.
+    flakeIgnore = [
+      "E501" # long lines: the calibration tables and encoding notes read better unwrapped
+      "W503"
+      "W504"
+    ];
+    # The vendored file is byte-identical to the original so it can simply be re-copied; the
+    # writer supplies its own shebang, so the script's own has to go or flake8 sees a comment.
+  } (builtins.replaceStrings [ "#!/usr/bin/env python3\n" ] [ "" ] (builtins.readFile ./dwd-radar-gif.py));
+
+  # One rendered loop, sent to the home group. Kept separate from the reminder wiring so it can
+  # be run by hand: `dwdRadarTelegram` needs no arguments.
+  dwdRadarTelegram = writeShellApplication {
+    name = "dwdRadarTelegram";
+    runtimeInputs = [
+      coreutils
+      dwd-radar-gif
+      notifySendHomeAnimation
+    ];
+    inheritPath = false;
+    bashOptions = [ "errexit" ];
+    text = ''
+      OUT="$(mktemp -d -t dwd-radar.XXXXXX)"
+      trap 'rm -rf "''${OUT}"' EXIT
+
+      dwd-radar-gif \
+        --past 60 \
+        --gif-only \
+        --size 700 \
+        --mark 'Lorsbach;Hasselbach;Frankfurt am Main;Hegewiese' \
+        --crop marks \
+        --margin-km 100 \
+        --font ${dejavu_fonts}/share/fonts/truetype/DejaVuSans.ttf \
+        --font-bold ${dejavu_fonts}/share/fonts/truetype/DejaVuSans-Bold.ttf \
+        --out "''${OUT}/radar" > /dev/null
+
+      notifySendHomeAnimation "''${OUT}/radar.gif" "Regenradar, letzte Stunde"
+    '';
+  };
+
+  # What the remind daemon calls: temperature first (it is the quick, reliable one), then the
+  # radar. The radar must not be able to swallow the temperature, hence the `|| true`.
+  homeWeatherReport = writeShellApplication {
+    name = "homeWeatherReport";
+    runtimeInputs = [
+      viessmannOutsideTemperature
+      dwdRadarTelegram
+      notifySendHome
+    ];
+    inheritPath = false;
+    bashOptions = [ "errexit" ];
+    text = ''
+      viessmannOutsideTemperature || true
+      dwdRadarTelegram || notifySendHome "Regenradar konnte nicht erzeugt werden"
+    '';
+  };
+
   viessmannOutsideTemperature = writeShellApplication {
     name = "viessmannOutsideTemperature";
     runtimeInputs = [
