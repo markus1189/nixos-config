@@ -51,6 +51,11 @@ in
         # -plain keeps the same environment and drops only the persona.
         c = "${claudeEnv} claude ${gladosFlag}";
         cy = "${claudeEnv} claude ${yolo} ${gladosFlag}";
+        # Continue / resume, the two ways a session usually starts. -r takes an
+        # optional session id, so bare `cyr` opens the picker and `cyr <id>`
+        # goes straight there.
+        cyc = "${claudeEnv} claude ${yolo} ${gladosFlag} --continue";
+        cyr = "${claudeEnv} claude ${yolo} ${gladosFlag} --resume";
         c-plain = "${claudeEnv} claude";
         cy-plain = "${claudeEnv} claude ${yolo}";
 
