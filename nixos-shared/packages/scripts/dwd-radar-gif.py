@@ -468,10 +468,21 @@ def load_outline():
 
 
 # ── colourisation (the app's exact legend) ───────────────────────────────────
-NCLASS = 17
+# Intensity: G = 4 + 8k for k = 0..31 (32 levels, G up to 252 — measured over 17 windows /
+# 200+ frames). The legend precip_scale_17.png is a 128-row texture of which only rows 0..84
+# are opaque: 17 colours at 5 rows each, padded to a power of two. The 32 data levels are
+# spread linearly over those 85 opaque rows, so consecutive levels sometimes share a colour.
+#
+# NOT fully settled: the map layer's own shader lives in the Ubique map library, not in the
+# APK's res/raw (which only holds the icon/UVI/TBI shaders), so this mapping is inferred. The
+# alternative reading — sampling the texture directly at v = G/255 — would push every level
+# above G≈167 into the transparent tail, i.e. hide the heaviest cells, and would make the
+# padding actively harmful; power-of-two padding is the more likely explanation. An earlier
+# guess here normalised by 188, and a later one assumed 17 levels and clipped everything
+# above G=132 to the top colour; both were wrong.
+NLEVEL = 32
+LUT_ROWS = 85
 
-# The 17 opaque bands of the app's precip_scale_17.png, sampled at the middle of each 5-row
-# band. Inlined so the script needs no asset from the APK; --scale re-reads the PNG instead.
 PRECIP_LUT = [
     (255, 255, 255), (51, 255, 255), (26, 204, 154), (1, 153, 52), (77, 179, 27),
     (153, 204, 1), (204, 230, 1), (255, 255, 1), (255, 196, 1), (255, 137, 1),
@@ -481,25 +492,32 @@ PRECIP_LUT = [
 
 
 def load_lut(path=None):
+    """-> 32 RGB triples, one per intensity level."""
+    bands = PRECIP_LUT
     if path is None:
         here = os.path.dirname(os.path.abspath(__file__))
         cand = os.path.join(here, "shader_scales", "precip_scale_17.png")
-        if not os.path.exists(cand):
-            return PRECIP_LUT
-        path = cand
-    arr = Image.open(path).convert("RGBA")
-    col = [arr.getpixel((0, y)) for y in range(arr.size[1])]
-    # 128 RGBA rows; rows 0..84 are the 17 opaque classes at 5 rows each, rest transparent.
-    return [col[min(k * 5 + 2, 84)][:3] for k in range(NCLASS)]
+        path = cand if os.path.exists(cand) else None
+    if path is not None:
+        arr = Image.open(path).convert("RGBA")
+        col = [arr.getpixel((0, y)) for y in range(arr.size[1])]
+        opaque = [c for c in col if c[3] > 0]
+        bands = [opaque[min(i * 5 + 2, len(opaque) - 1)][:3] for i in range(len(opaque) // 5)]
+    out = []
+    for k in range(NLEVEL):
+        row = round(k * (LUT_ROWS - 1) / (NLEVEL - 1))
+        out.append(bands[min(row // 5, len(bands) - 1)])
+    return out
 
 
 def colourise(arr, lut_rgb):
     """HxWx4 uint8 radar frame -> HxWx4 RGBA overlay (transparent where dry / no data)."""
     r, g = arr[:, :, 0], arr[:, :, 1]
     rain = (g > 0) & (r < 255)
-    k = np.clip((g.astype(np.int16) - 4) // 8, 0, NCLASS - 1)   # G = 4 + 8*k, 17 classes
+    k = np.clip((g.astype(np.int16) - 4) // 8, 0, NLEVEL - 1)   # G = 4 + 8k
     rgb = np.asarray(lut_rgb, dtype=np.uint8)[k]
     return np.dstack([rgb, np.where(rain, 255, 0).astype(np.uint8)])
+
 
 # ── output geometry ──────────────────────────────────────────────────────────
 # The source pixels are NOT square: one column step is math.radians(dlon) in Mercator units,
