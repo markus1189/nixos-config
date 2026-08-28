@@ -158,8 +158,13 @@
   };
 
   systemd.services = {
-    # A failed nightly upgrade is otherwise silent.
-    nixos-upgrade.onFailure = [ "notify-upgrade-failure.service" ];
+    # A failed nightly upgrade is otherwise silent, a hung one doubly so:
+    # oneshot defaults to no timeout, so it blocks the timer without ever
+    # failing. TimeoutStartSec, not RuntimeMaxSec (no effect on oneshot).
+    nixos-upgrade = {
+      onFailure = [ "notify-upgrade-failure.service" ];
+      serviceConfig.TimeoutStartSec = "4h";
+    };
     notify-upgrade-failure = {
       description = "telegram notification about failed nixos-upgrade";
       serviceConfig = {
