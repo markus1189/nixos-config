@@ -34,7 +34,11 @@ Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
 All secrets are **agenix** runtime secrets, decrypted to `/run/agenix/*` at
 boot: files in `secrets/*.age`, recipient rules in `secrets/secrets.nix`,
 shared declarations in `nixos-shared/runtime-secrets.nix` (user-owned tokens)
-plus per-module `age.secrets` declarations. Edit with `agenix -e secrets/<f>.age`.
+plus per-module `age.secrets` declarations. Edit **from inside `secrets/`**:
+`cd secrets && agenix -e <f>.age`. The path-prefixed form fails twice over —
+agenix resolves `RULES` relative to the cwd (so it looks for `./secrets.nix`),
+and it uses the filename you pass as the attribute key, but the rules are keyed
+by bare basename.
 Nothing secret is embedded in the nix store at build time.
 
 ### Package Sources
