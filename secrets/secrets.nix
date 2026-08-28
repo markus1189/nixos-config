@@ -37,6 +37,9 @@ in
     nuc
   ];
   "telegram.env.age".publicKeys = all;
+  # botler runs with a bot of its own: getUpdates is exclusive per token, and the
+  # telegram.env bot is already read by the `telegram` agent skill.
+  "botler.env.age".publicKeys = all;
   "upvote-rss.env.age".publicKeys = all;
   "restic-b2.env.age".publicKeys = [
     mainUser

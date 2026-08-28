@@ -158,4 +158,21 @@
     "d /.snapshots 0750 root root -"
     "d /home/.snapshots 0750 root root -"
   ];
+
+  ## Telegram command bot #################################################
+  # NOTE: exactly ONE host may enable this at a time -- getUpdates is exclusive
+  # per bot token, and two pollers just deadlock each other on HTTP 409. p1g8 is
+  # the test host; the intended end state is nuc (always-on), which means moving
+  # this block plus the ../nixos-shared/botler.nix import over there and
+  # deleting it here. The token lives in secrets/botler.env.age and belongs to a
+  # bot of its own, separate from the one telegram.env drives.
+  my.botler = {
+    enable = true;
+    commands.radar = {
+      help = "Regenradar der letzten Stunde";
+      kind = "animation";
+      exec = "${pkgs.dwdRadarRender}/bin/dwdRadarRender";
+      caption = "Regenradar, letzte Stunde";
+    };
+  };
 }

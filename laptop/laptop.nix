@@ -38,6 +38,7 @@
     ../nixos-shared/rss-bridge.nix
     ../nixos-shared/upvote-rss.nix
     ../nixos-shared/cachix.nix
+    ../nixos-shared/botler.nix
   ];
 
   documentation = {
