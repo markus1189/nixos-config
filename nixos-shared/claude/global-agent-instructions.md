@@ -35,7 +35,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 Python: global `python3` (`nixos-shared/python-env.nix`) ships requests,
 httpx, pyyaml, rich, beautifulsoup4, lxml, lz4, python-dateutil, numpy, pandas,
-matplotlib, pillow, psutil, pytest. No pip. Use `#!/usr/bin/env python3` directly.
+matplotlib, pillow, psutil, pytest, tiktoken. No pip. Use `#!/usr/bin/env python3` directly.
 
 Only for packages OUTSIDE that list:
 ```bash
