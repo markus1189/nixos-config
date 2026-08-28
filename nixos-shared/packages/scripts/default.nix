@@ -769,6 +769,20 @@ rec {
   # The "home" telegram group, same destination as viessmannOutsideTemperature.
   notifySendHomeAnimation = sendTelegramAnimation "-1001328938887" "notifySendHomeAnimation";
 
+  # The other direction: a long-poll daemon that runs a whitelisted command table on request.
+  # It deliberately does NOT reuse the senders above -- those source /run/agenix/telegram.env,
+  # whose TELEGRAM_BOT_TOKEN would override botler's own and make replies come from the wrong
+  # bot. See nixos-shared/botler.nix for the unit and the command table.
+  botler = writers.writePython3Bin "botler" {
+    # flakeIgnore REPLACES flake8's default ignore list, so the defaults that matter have to be
+    # restated: W503/W504 contradict each other and cannot both be satisfied.
+    flakeIgnore = [
+      "E501" # long lines: the API-shape comments read better unwrapped
+      "W503"
+      "W504"
+    ];
+  } (builtins.readFile ./botler.py);
+
   telegramSendPhoto = writeShellApplication {
     name = "telegramSendPhoto";
     runtimeInputs = [
@@ -1014,20 +1028,17 @@ rec {
     # writer supplies its own shebang, so the script's own has to go or flake8 sees a comment.
   } (builtins.replaceStrings [ "#!/usr/bin/env python3\n" ] [ "" ] (builtins.readFile ./dwd-radar-gif.py));
 
-  # One rendered loop, sent to the home group. Kept separate from the reminder wiring so it can
-  # be run by hand: `dwdRadarTelegram` needs no arguments.
-  dwdRadarTelegram = writeShellApplication {
-    name = "dwdRadarTelegram";
-    runtimeInputs = [
-      coreutils
-      dwd-radar-gif
-      notifySendHomeAnimation
-    ];
+  # The rendering half on its own, so the framing (marks, crop, size) lives in one place and
+  # botler can ask for exactly the picture the nightly reminder sends. Takes the destination
+  # .gif path as $1; dwd-radar-gif's --out is a *base* name it appends the extension to,
+  # hence the ${OUT%.gif}.
+  dwdRadarRender = writeShellApplication {
+    name = "dwdRadarRender";
+    runtimeInputs = [ dwd-radar-gif ];
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
-      OUT="$(mktemp -d -t dwd-radar.XXXXXX)"
-      trap 'rm -rf "''${OUT}"' EXIT
+      OUT=''${1:?"Error: no output path given!"}
 
       dwd-radar-gif \
         --past 60 \
@@ -1038,7 +1049,26 @@ rec {
         --margin-km 100 \
         --font ${dejavu_fonts}/share/fonts/truetype/DejaVuSans.ttf \
         --font-bold ${dejavu_fonts}/share/fonts/truetype/DejaVuSans-Bold.ttf \
-        --out "''${OUT}/radar" > /dev/null
+        --out "''${OUT%.gif}" > /dev/null
+    '';
+  };
+
+  # One rendered loop, sent to the home group. Kept separate from the reminder wiring so it can
+  # be run by hand: `dwdRadarTelegram` needs no arguments.
+  dwdRadarTelegram = writeShellApplication {
+    name = "dwdRadarTelegram";
+    runtimeInputs = [
+      coreutils
+      dwdRadarRender
+      notifySendHomeAnimation
+    ];
+    inheritPath = false;
+    bashOptions = [ "errexit" ];
+    text = ''
+      OUT="$(mktemp -d -t dwd-radar.XXXXXX)"
+      trap 'rm -rf "''${OUT}"' EXIT
+
+      dwdRadarRender "''${OUT}/radar.gif"
 
       notifySendHomeAnimation "''${OUT}/radar.gif" "Regenradar, letzte Stunde"
     '';
