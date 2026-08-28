@@ -7,23 +7,23 @@
 
 ## Verify Before Asserting
 
-Never judge what you have not read this session. Same bar for
-consequences ("this breaks X"): trace it or call it a guess. Can't
-check? Say "unchecked" in that sentence.
+1. Never judge what you have not read this session. Same bar for
+   consequences ("this breaks X"): trace it or call it a guess. Can't
+   check? Say "unchecked" in that sentence.
 
-Empty output is not evidence: check the command ran (`command -v`, exit status)
-before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
+2. Empty output is not evidence: check the command ran (`command -v`, exit status)
+   before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
 
 ## Environment (NixOS)
 - Search packages: `nix search nixpkgs $NAME`
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
-- **Scripts**: Use Nix shebangs (see templates below)
-- **Flakes**: use `nix develop` or `nix run` etc
-- **Editable System Config Location** in ~/repos/nixos-config
-- **Read upstream source**: `nix build --no-link --print-out-paths nixpkgs#$pkg.src`
+- Scripts: Use Nix shebangs (see templates below)
+- Flakes: use `nix develop` or `nix run` etc
+- Editable System Config Location in ~/repos/nixos-config
+- Read upstream source: `nix build --no-link --print-out-paths nixpkgs#$pkg.src`
 
 ## Script Templates
-**Nix shebang (simple packages)**:
+Nix shebang (simple packages):
 ```bash
 #!/usr/bin/env nix
 #! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
@@ -33,7 +33,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Temp files: mktemp -t claude-code.XXXXXX.$EXT
 ```
 
-**Python**: global `python3` (`nixos-shared/python-env.nix`) ships requests,
+Python: global `python3` (`nixos-shared/python-env.nix`) ships requests,
 httpx, pyyaml, rich, beautifulsoup4, lxml, lz4, python-dateutil, numpy, pandas,
 matplotlib, pillow, psutil, pytest. No pip. Use `#!/usr/bin/env python3` directly.
 
@@ -47,13 +47,13 @@ Only for packages OUTSIDE that list:
 #! nix --command python3
 ```
 
-**Haskell**:
+Haskell:
 ```bash
 #!/usr/bin/env nix
 #! nix shell --impure --expr ``with import (builtins.getFlake ''nixpkgs'') {}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
 
-**Syntax notes**:
+Syntax notes:
 - `--expr` requires double backticks: `--expr ``code`` --command`
 - Simple packages: `nixpkgs#package --command`
 
