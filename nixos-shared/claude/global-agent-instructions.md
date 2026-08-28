@@ -19,6 +19,7 @@
 - One-time commands: `nix run nixpkgs#$program` or comma via `, command`
 - Scripts: Use Nix shebangs (see templates below)
 - Flakes: use `nix develop` or `nix run` etc
+- Flake `src` = the git index: new files are invisible to `nix build`
 - Editable System Config Location in ~/repos/nixos-config
 - Read upstream source: `nix build --no-link --print-out-paths nixpkgs#$pkg.src`
 
