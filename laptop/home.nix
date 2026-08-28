@@ -50,21 +50,21 @@ in
         };
         opencodeConfig = pkgs.callPackage ../nixos-shared/home-manager/opencode { };
         piAgentConfig = pkgs.callPackage ../nixos-shared/home-manager/pi-agent {
-          globalMdText = claudeConfig.globalClaudeMd.text;
+          globalAgentMdText = claudeConfig.globalAgentMd.text;
         };
       in
       {
         "claude-code" = claudeConfig.settings;
-        "claude-md" = claudeConfig.globalClaudeMd;
+        "claude-md" = claudeConfig.globalAgentMd;
 
         "gemini-global" = {
           target = ".gemini/GEMINI.md";
-          inherit (claudeConfig.globalClaudeMd) text;
+          inherit (claudeConfig.globalAgentMd) text;
         };
 
         "copilot-instructions-global" = {
           target = ".copilot/copilot-instructions.md";
-          inherit (claudeConfig.globalClaudeMd) text;
+          inherit (claudeConfig.globalAgentMd) text;
         };
 
         "opencode-config" = {
@@ -193,7 +193,7 @@ in
 
         "opencode-global-rules" = {
           target = ".config/opencode/AGENTS.md";
-          inherit (claudeConfig.globalClaudeMd) text;
+          inherit (claudeConfig.globalAgentMd) text;
         };
 
         "visidatarc" = {

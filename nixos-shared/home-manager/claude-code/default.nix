@@ -497,9 +497,9 @@ in
     };
   };
 
-  globalClaudeMd = {
+  globalAgentMd = {
     target = ".claude/CLAUDE.md";
-    text = builtins.readFile ../../claude/CLAUDE-global.md;
+    text = builtins.readFile ../../claude/global-agent-instructions.md;
   };
 
   # Not only markdown since skills carry scripts/assets; renamed accordingly.

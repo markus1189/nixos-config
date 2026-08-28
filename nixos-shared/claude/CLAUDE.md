@@ -13,7 +13,7 @@ nixos-shared/claude/
 ├── skills/              # Custom skills (auto-invoked capabilities)
 ├── sounds/              # Notification sounds for hooks
 ├── claude-code-statusline.sh  # Statusline script
-├── CLAUDE-global.md     # Global instructions (symlinked to ~/.claude/CLAUDE.md)
+├── global-agent-instructions.md  # Global instructions shared across agents (→ ~/.claude/CLAUDE.md, ~/.gemini/GEMINI.md, ~/.copilot/copilot-instructions.md, ~/.config/opencode/AGENTS.md, ~/.pi/agent/AGENTS.md)
 └── CLAUDE.md           # This file (project-specific docs)
 ```
 
@@ -26,7 +26,7 @@ The home-manager configuration in `nixos-shared/home-manager/claude-code/default
 - `docs/*.md` → `~/.claude/user-docs/`
 - `output-styles/*.md` → `~/.claude/output-styles/`
 - `skills/*.md` → `~/.claude/skills/`
-- `CLAUDE-global.md` → `~/.claude/CLAUDE.md`
+- `global-agent-instructions.md` → `~/.claude/CLAUDE.md`
 
 **No manual symlinking needed** - just add markdown files to the appropriate directory and rebuild (from the repo root; home-manager is a NixOS module here, there is no standalone `home-manager` CLI):
 

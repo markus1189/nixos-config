@@ -1,6 +1,6 @@
 {
   pkgs,
-  globalMdText,
+  globalAgentMdText,
   # Injected from the overlay (flake-base.nix) via callPackage.
   agentSkills,
   ...
@@ -61,7 +61,7 @@ let
   staticEntries = {
     "pi-agent-global" = {
       target = ".pi/agent/AGENTS.md";
-      text = globalMdText;
+      text = globalAgentMdText;
     };
 
     # START EXTENSIONS

@@ -7,7 +7,7 @@
 # No pip: it cannot write to the store, and `pip install --user` would shadow
 # store packages out of ~/.local.
 #
-# Keep the copy of this list in claude/CLAUDE-global.md in sync.
+# Keep the copy of this list in claude/global-agent-instructions.md in sync.
 { pkgs, ... }:
 
 {

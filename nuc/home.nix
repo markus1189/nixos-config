@@ -47,7 +47,7 @@ in
       in
       {
         "claude-code" = claudeConfig.settings;
-        "claude-md" = claudeConfig.globalClaudeMd;
+        "claude-md" = claudeConfig.globalAgentMd;
       }
       // claudeConfig.agentFiles;
   };
