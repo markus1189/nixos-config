@@ -23,6 +23,7 @@
         pandas
         pillow
         psutil
+        pytest
         python-dateutil
         pyyaml
         requests
