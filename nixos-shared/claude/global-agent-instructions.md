@@ -1,4 +1,10 @@
 # Global Coding Agent Instructions
+
+## Output Guides
+
+1. Use these to mark severities/priorities/etc: 🔴🟠🟡🟢🔵
+2. close longer answers with a TL;DR
+
 ## Verify Before Asserting
 
 Never judge what you have not read this session. Same bar for
