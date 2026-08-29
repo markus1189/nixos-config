@@ -1458,7 +1458,7 @@ rec {
 
       case "$ret" in
         10)
-          xdragon -x "''${full[@]}"
+          xdragon --all --and-exit "''${full[@]}"
           ;;
         11)
           for f in "''${full[@]}"; do xdg-open "$f"; done
@@ -1520,7 +1520,7 @@ rec {
 
       case "$ret" in
         10)
-          xdragon -x "''${full[@]}"
+          xdragon --all --and-exit "''${full[@]}"
           ;;
         11)
           for f in "''${full[@]}"; do xdg-open "$f"; done
