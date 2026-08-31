@@ -9,10 +9,35 @@ let
     }:
     {
       description = "Rclone mount for ${remote}";
+
+      # wantedBy alone is an Install relation and carries no ordering, so the
+      # mount could otherwise be started before the network was up.
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
+
+      # Supplies the fusermount setuid wrappers. Replaces a hand-written
+      # Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]: systemd performs no
+      # variable expansion, so that added a literal "$PATH" directory and
+      # clobbered the generated PATH.
+      path = [ "/run/wrappers" ];
+
       serviceConfig = {
+        # rclone signals readiness once the mountpoint is up; under Type=simple
+        # systemd considers the unit started before the mount exists.
+        Type = "notify";
         User = config.my.userName;
-        ExecStop = "/run/wrappers/bin/fusermount -u ${mountPoint}";
-        ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
+
+        ExecStartPre = [
+          # Defence in depth for a crash that skips ExecStopPost. test -d is
+          # false for a stale (ENOTCONN) mountpoint as well as an absent one;
+          # unmounting an absent path is harmless.
+          "-${pkgs.writeShellScript "rclone-clear-stale-${remote}" ''
+            test -d ${mountPoint} || /run/wrappers/bin/fusermount3 -uz ${mountPoint} || true
+          ''}"
+          "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
+        ];
+
         ExecStart = ''
           ${pkgs.rclone}/bin/rclone mount \
             -v \
@@ -25,13 +50,24 @@ let
             ${remote}: \
             ${mountPoint}
         '';
+
+        # Non-lazy first, so a process still holding the mount shows up in the
+        # journal as EBUSY; the "-" keeps that from failing the unit. rclone
+        # also unmounts on SIGTERM, so this is mainly diagnostic.
+        ExecStop = "-/run/wrappers/bin/fusermount3 -u ${mountPoint}";
+
+        # The guaranteed sweep: runs even when ExecStop or ExecStartPre failed.
+        # Safe to be lazy here because the daemon has already exited, and this
+        # is what stops a stale mount from looping the unit forever.
+        ExecStopPost = "-/run/wrappers/bin/fusermount3 -uz ${mountPoint}";
+
+        # The 90s default can be too short to flush a large vfs writeback
+        # cache; a SIGKILL there recreates exactly the stale-mount state.
+        TimeoutStopSec = "5min";
+
         Restart = "on-failure";
         RestartSec = "10s";
-        Environment = [
-          "PATH=/run/wrappers/bin/:$PATH" # required for fusermount setuid wrapper ...
-        ];
       };
-      wantedBy = [ "network-online.target" ];
     };
 
 in
