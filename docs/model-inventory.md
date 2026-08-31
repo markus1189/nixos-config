@@ -70,7 +70,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
-| `tensorx/glm-5.2`, `inceptron/glm-5.2`, `sference/glm-5.2` | `pi-agent/models.json` (requesty-completions); F4 key → `sference/glm-5.2` in `model-shortcuts.ts` |
+| `tensorx/glm-5.2`, `inceptron/glm-5.2`, `sference/glm-5.2` | `pi-agent/models.json` (requesty-completions) |
+| `tensorx/glm-5.3`, `sference/glm-5.3` | `pi-agent/models.json` (requesty-completions); F4 key → `sference/glm-5.3` in `model-shortcuts.ts` |
 | `sference/kimi-k3`, `tensorx/kimi-k3` (vision) | `pi-agent/models.json` |
 | `tensorx/kimi-k2.7-code`, `inceptron/kimi-k2.7-Code` | `pi-agent/models.json` |
 | `nebius/moonshotai/kimi-k2.5` | `laptop/home.nix` (opencode) |
@@ -114,5 +115,5 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | F1 | `sference/deepseek-v4-flash-0731` | `deepseek/deepseek-v4-flash-0731` |
 | F2 | `vertex/claude-opus-5@eu` | `anthropic/claude-opus-5` |
 | F3 | `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5` |
-| F4 | `sference/glm-5.2` | — |
+| F4 | `sference/glm-5.3` | — |
 | F5–F9 | (empty) | (empty) |
