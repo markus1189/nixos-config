@@ -12,6 +12,7 @@ import { Text } from "@earendil-works/pi-tui";
  *   Then:   y   copy last assistant message to clipboard
  *           u   undo            (chains the /undo extension command)
  *           r   reload          (chains /chained-reload -> ctx.reload())
+ *           p   popout          (chains the /popout extension command)
  *           ?   reshow hints  (re-renders; stays open)
  *           esc cancel        (return to editor)
  *
@@ -35,7 +36,7 @@ import { Text } from "@earendil-works/pi-tui";
  *   Then /reload.
  */
 
-const HINTS = "y copy  ·  u undo  ·  r reload  ·  esc cancel";
+const HINTS = "y copy  ·  u undo  ·  r reload  ·  p popout  ·  esc cancel";
 const ESC = "\x1b";
 
 /** Text of the newest assistant message that has text, or undefined if none. */
@@ -95,6 +96,10 @@ class ChainedMenu {
       this.callbacks.onReload();
       return;
     }
+    if (k === "p") {
+      this.callbacks.onPopout();
+      return;
+    }
     if (k === "?") {
       // Re-render / refresh hints (already visible; just ensure a fresh render).
       this.text.invalidate();
@@ -116,6 +121,7 @@ type Callbacks = {
   onCopy: () => void;
   onUndo: () => void;
   onReload: () => void;
+  onPopout: () => void;
   onCancel: () => void;
   onHelp: () => void;
 };
@@ -154,6 +160,12 @@ async function openCommandMenu(
         // input path). /chained-reload just calls ctx.reload().
         done(); // close hint bar first
         pi.sendUserMessage("/chained-reload", { expandPromptTemplates: true });
+      },
+      onPopout: () => {
+        // Chain the EXISTING /popout extension command — same dispatch rules as
+        // /undo: expandPromptTemplates must be true or the slash text goes to the LLM.
+        done(); // close hint bar first
+        pi.sendUserMessage("/popout", { expandPromptTemplates: true });
       },
       onUndo: () => {
         // Chain the EXISTING /undo extension command — no reimplementation.
