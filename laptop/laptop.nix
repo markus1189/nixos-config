@@ -22,6 +22,7 @@
     ../nixos-shared/rclone-mounts.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
+    ../nixos-shared/sudo.nix
     ../nixos-shared/user.nix
     ../nixos-shared/wireguard.nix
     ../nixos-shared/zsh.nix
@@ -295,14 +296,12 @@
       enable = true;
     };
 
+    # Policy (execWheelOnly, timeout, lecture) is shared, see
+    # ../nixos-shared/sudo.nix. Only the insults are laptop-local: they need
+    # the custom build, and `Defaults insults` is inert without it.
     sudo = {
-      enable = true;
-      # Custom sudo with insults
       package = pkgs.callPackage ./sudo-custom.nix { };
-      extraConfig = ''
-        Defaults:${config.my.userName} timestamp_timeout=30
-        Defaults insults
-      '';
+      extraConfig = "Defaults insults";
     };
   };
 

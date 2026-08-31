@@ -22,6 +22,7 @@
     ../nixos-shared/restic/module.nix
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
+    ../nixos-shared/sudo.nix
     ../nixos-shared/syncthing-base.nix
     ../nixos-shared/user.nix
     ../nixos-shared/zsh.nix
@@ -36,6 +37,10 @@
     wirelessInterface = "wlp58s0";
     userName = "mediacenter";
     resticPhotoBackupDir = "/media/backups/Photos/";
+    # Explicit, and not to be raised: SDDM autologins this (wheel) user into
+    # Plasma, so a live sudo timestamp is all that physical access still has
+    # to get past. Nightly upgrades run as root under systemd and never sudo.
+    sudoTimeout = 5;
   };
 
   home-manager.users.${config.my.userName}.imports = [ ./home.nix ];
@@ -131,15 +136,6 @@
   services.desktopManager.plasma6.enable = true;
 
   # User account skeleton comes from ../nixos-shared/user.nix
-
-  security = {
-    sudo = {
-      enable = true;
-      extraConfig = ''
-        Defaults: ${config.my.userName} timestamp_timeout=30
-      '';
-    };
-  };
 
   system = {
     stateVersion = "19.03";

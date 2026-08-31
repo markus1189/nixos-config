@@ -68,7 +68,7 @@ pkgs.sudo.overrideAttrs (oldAttrs: {
   '';
 
   prePatch = ''
-        ${oldAttrs.prePatch}
+        ${oldAttrs.prePatch or ""}
 
         # Completely replace insults.h to only include our custom insults
         cat > plugins/sudoers/insults.h <<'EOF'
