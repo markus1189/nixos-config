@@ -65,7 +65,7 @@ as a batch (`apply green`). 🟡 findings need a real decision each.
 
 ## Step 3 — Recurrence and escalation
 
-A slug at **>=3 hits is a rule change, not a note.** The per-session `/mh:wrap-up` structurally
+A slug at **>=3 hits is a rule change, not a note.** The per-session `/mh:retro` structurally
 cannot see this — it has no memory across sessions. Catching it is the main reason this retro exists.
 
 Escalation means: the fix is not another log line, it is a delta to `~/.claude/CLAUDE.md`, an
@@ -133,7 +133,7 @@ Then run `~/Stuff/.kb/kb-index` so the new file lands in the month index and the
 ## Applying Fixes
 
 Default is **suggest-only**. Apply only what the user explicitly names, by slug, exactly as
-`/mh:wrap-up` does — slugs are the selection handle (`apply green`, `apply gap-foo auto-bar`,
+`/mh:retro` does — slugs are the selection handle (`apply green`, `apply gap-foo auto-bar`,
 `apply green except friction-baz`).
 
 **Delta discipline**: express every change as a small additive delta to a specific section. Never
