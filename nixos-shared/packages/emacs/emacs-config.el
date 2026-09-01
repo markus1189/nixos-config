@@ -1929,6 +1929,14 @@ string). It returns t if a new completion is found, nil otherwise."
   (elfeed-new-entry . mh/elfeed-prefix-github-titles)
 
   :init
+  ;; elfeed-entry slots are written with `cl-struct-slot-offset' + `aset',
+  ;; never `setf'. This file is loaded, not byte-compiled, and Emacs eagerly
+  ;; macroexpands every top-level form at load time -- recursing into lambda
+  ;; bodies, so the `with-eval-after-load' that use-package's :config becomes
+  ;; is expanded then too. elfeed-db is not loaded at that point, so `setf'
+  ;; finds no gv-expander for the accessor and bakes in a call to the
+  ;; nonexistent function `(setf elfeed-entry-title)', which dies at runtime
+  ;; on every entry the hook touches. :init vs :config makes no difference.
   (defun mh/elfeed-prefix-github-titles (entry)
     "Prefix GitHub release titles with repo name extracted from feed URL."
     (let* ((feed (elfeed-entry-feed entry))
@@ -1937,7 +1945,7 @@ string). It returns t if a new completion is found, nil otherwise."
       (when (and (member 'github (elfeed-entry-tags entry))
                  (string-match "github\\.com/\\([^/]+\\)/\\([^/]+\\)/" feed-url))
         (let ((repo (match-string 2 feed-url)))
-          (setf (elfeed-entry-title entry)
+          (aset entry (cl-struct-slot-offset 'elfeed-entry 'title)
                 (format "[%s] %s" repo entry-title))))))
   ;; (add-hook 'elfeed-new-entry-hook
   ;;           (elfeed-make-tagger :entry-title "llm|LLM|gemini|Gemini|claude|Claude|Anthropic|anthropic|OpenAI|openai"))
@@ -2087,17 +2095,17 @@ Provides more detailed messages on failure."
         (unless (or elfeed-search-remain-on-entry (use-region-p))
           (forward-line)))))
   :config
-  ;; Must stay in :config, not :init. Defined before elfeed-db loads, this
-  ;; function's interpreted closure caches a `setf' expansion made without
-  ;; the elfeed-entry gv setter, and every pref-comment entry (i.e. every
-  ;; reddit feed) then dies on a void (setf elfeed-entry-link).
+  ;; `aset' + `cl-struct-slot-offset' instead of `setf' -- see the comment on
+  ;; `mh/elfeed-prefix-github-titles' above. Every pref-comment entry (i.e.
+  ;; every reddit feed) died on a void (setf elfeed-entry-link) otherwise.
   (defun mh/elfeed-extract-comments-link (_type xml entry)
     "If ENTRY is tagged with special tag, prefer comments link from XML and store it as link."
     (when (elfeed-tagged-p 'pref-comment entry)
       (when-let ((comments-link (xml-query '(comments *) xml)))
         (when (and comments-link (not (string-empty-p comments-link)))
           (elfeed-meta--put entry :original-link (elfeed-entry-link entry))
-          (setf (elfeed-entry-link entry) comments-link)))))
+          (aset entry (cl-struct-slot-offset 'elfeed-entry 'link)
+                comments-link)))))
 
   (defun mh/elfeed-search-stack-next ()
     (interactive)
