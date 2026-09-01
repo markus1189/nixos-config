@@ -1,10 +1,12 @@
 Update claude-code in nixpkgs. Arguments: $ARGUMENTS
 
 ## Files
-- `pkgs/by-name/cl/claude-code/manifest.json` — version source of
-  truth; `package.nix` fetches a prebuilt binary from it and is never
-  touched by the updater. No npm build (`claude-code-bin` folded in,
-  #511120).
+- `pkgs/by-name/cl/claude-code/manifest.zst.json` — version source of
+  truth; `package.nix` fetches the zstd-compressed binary it lists and
+  `unzstd`s it at install time, and is never touched by the updater. No
+  npm build (`claude-code-bin` folded in, #511120). The plain
+  `manifest.json` was **removed** in #556673 (merged 2026-09-01); any
+  reference to it is stale.
 - `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix`
   — one vsix hash per arch; the only `.nix` file the update changes.
 - Upstream: `curl -s
@@ -46,13 +48,21 @@ them are not.
    — `upstream/master` is only as fresh as the last one, and a stale
    reset puts a false OLD in the PR title and both commit
    subjects. **`upstream`, not `origin`** — the fork's master is ~230k
-   commits stale. Read OLD here from `manifest.json`; a feature
+   commits stale. Read OLD here from `manifest.zst.json`; a feature
    branch's manifest is ahead of master and is not OLD. Stop and
    report if OLD == NEW.
 2. Branch `claude-code-OLD-to-NEW`. If your own earlier update PR is
    still open and npm has moved past it, branch fresh from `master` to
    the newest version rather than extending it — identical net diff,
-   no force-push, supersedes the old PR.
+   no force-push, supersedes the old PR. **Different case:** if
+   `master` restructured the packaging under an open draft of yours
+   (#556673 deleted `manifest.json` mid-flight), rebase instead of
+   opening a second PR — reset to fresh `master`, re-run the updater,
+   then force-push onto the *existing* PR branch with
+   `--force-with-lease=<branch>:<remote sha>` and fix the title and
+   body with `gh pr edit`. Re-derive OLD from the newly merged
+   `master`: the OLD the PR was opened against is dead, and the branch
+   name keeping the old span is cosmetic.
 3. Run the updater from the checkout root:
    ```bash
    echo "" | NIX_PATH=nixpkgs=$PWD nix-shell maintainers/scripts/update.nix --arg predicate \
@@ -65,7 +75,7 @@ them are not.
    different bug; recover with `git checkout -- pkgs/`, never by
    hand-editing. The updater owns every version and hash — **never
    hand-edit them** (one exception: the vsix-hash gotcha).
-4. Re-read NEW from `manifest.json` — npm, `downloads.claude.ai` and
+4. Re-read NEW from `manifest.zst.json` — npm, `downloads.claude.ai` and
    the VS Marketplace publish on independent timelines, so trust the
    file over the npm check for titles and commit subjects. If the
    extension still shows OLD the marketplace hasn't published yet:
@@ -106,7 +116,11 @@ them are not.
    review, untick the platform boxes and `Ran nixpkgs-review` first.
 7. `gh pr list --repo NixOS/nixpkgs --search "claude-code in:title"
    --state open`. Others': report only. Your own superseded one: close
-   only with user approval *and* a green review here.
+   only with user approval *and* a green review here. A competing PR
+   can restructure the packaging and not just the version, so check
+   *what* landed: `gh pr view N --json state,mergedAt,mergeCommit`
+   (there is no `merged` field). If one merged under you, go back to
+   step 1.
 8. Report the changelog from
    `raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md`,
    never from memory. Extract the NEW section specifically; it lags
