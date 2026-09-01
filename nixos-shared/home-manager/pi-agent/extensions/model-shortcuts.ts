@@ -37,7 +37,10 @@ const SLOTS: Record<(typeof SHORTCUT_KEYS)[number], ModelRef[]> = {
     { provider: "requesty-anthropic", modelId: "vertex/claude-sonnet-5@eu" },
     { provider: "openrouter", modelId: "anthropic/claude-sonnet-5" },
   ],
-  f4: [{ provider: "requesty-completions", modelId: "sference/glm-5.3" }],
+  f4: [
+    { provider: "requesty-completions", modelId: "sference/glm-5.3" },
+    { provider: "requesty-completions", modelId: "sference/glm-5.3-flash" },
+  ],
   f5: [],
   f6: [],
   f7: [],
