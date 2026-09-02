@@ -164,6 +164,7 @@ merely disfigured by the global line numbers."
  '(term-color-red ((t (:background "firebrick1" :foreground "firebrick1"))))
  '(term-color-yellow ((t (:background "yellow" :foreground "yellow"))))
  '(trailing-whitespace ((t (:underline "dark red"))))
+ '(variable-pitch ((t (:family "Atkinson Hyperlegible Next" :height 110))))
  '(visible-mark-face ((t (:background "dim gray"))))
  '(vr/group-0 ((t (:background "RoyalBlue4"))))
  '(vr/group-1 ((t (:background "#335533"))))
