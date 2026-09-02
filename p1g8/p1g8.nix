@@ -123,6 +123,20 @@
   # fstrim (needed here for LUKS allowDiscards to actually TRIM) and the
   # TrackPoint block come from laptop/laptop.nix
 
+  ## Touchpad — SNSL002D:00 2C2F:002D, 132x80 mm clickpad ##################
+  # Shared libinput settings (DWT, scrolling) live in laptop/laptop.nix;
+  # tapping is deliberately NOT set there because the old P1's pad fires
+  # phantom taps. This pad exposes no MT pressure/size axes, so palm
+  # rejection is edge zones + firmware MT_TOOL_PALM + disable-while-typing
+  # only — if tapping starts misfiring while typing, DWT is the first
+  # suspect (it is paired to kanata's uinput keyboard via the ps2 bus-id
+  # quirk; see ~/Stuff/2026-08/21-scratch/p1g8-touchpad-libinput.md).
+  services.libinput.touchpad = {
+    tapping = true; # 1/2/3 fingers = left/right/middle
+    tappingDragLock = true; # lift and reposition mid-drag; tap again to release
+    clickMethod = "clickfinger"; # finger count, not position, picks the button; TrackPoint keys stay physical
+  };
+
   ## Snapshots — snapper (decision #6) ######################################
   # The NixOS snapper module wires the timeline timer + cleanup +
   # `snapshotRootOnBoot`. There is no built-in pre/post `nixos-rebuild`

@@ -184,10 +184,12 @@
 
     # clipmenu replaced by home-manager services.clipcat (laptop/home.nix)
 
+    # Tapping / click method are per-host: the old P1's pad misbehaved with
+    # tapping (p1/p1.nix keeps it off), the P1 Gen 8 runs tapping +
+    # clickfinger (p1g8/p1g8.nix).
     libinput = {
       enable = true;
       touchpad = {
-        tapping = false;
         disableWhileTyping = true;
         naturalScrolling = false;
       };
@@ -282,7 +284,6 @@
 
     trackpoint = {
       device = "TPPS/2 Elan TrackPoint";
-      emulateWheel = true;
       enable = true;
       sensitivity = 112;
       speed = 97;

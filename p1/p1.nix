@@ -33,6 +33,9 @@
   services = {
     throttled.enable = true;
 
+    # This pad fires phantom taps; the P1 Gen 8 has tapping on (p1g8/p1g8.nix).
+    libinput.touchpad.tapping = false;
+
     fprintd.enable = false;
 
     fwupd = {
