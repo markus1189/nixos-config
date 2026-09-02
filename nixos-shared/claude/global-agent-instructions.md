@@ -14,6 +14,15 @@
 2. Empty output is not evidence: check the command ran (`command -v`, exit status)
    before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
 
+## Taste Decisions
+
+1. When the answer is settled by using it, not by being right (UI/UX,
+   visual design, layout, wording) SHOW DONT TELL
+   (switchable/side by side/different files/...)
+2. costly to build? Sketch them first, user picks which get built
+3. Keep ease of cleanup in mind while building and do it after a
+   decision was made
+
 ## Environment (NixOS)
 1. Search packages: `nix search nixpkgs $NAME`
 2. One-time commands: `nix run nixpkgs#$program` or comma via `, command`
