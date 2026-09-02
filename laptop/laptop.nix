@@ -469,31 +469,46 @@
       let
         youtube-downloader-config-shared = ''
           # ---- Filenames / output ----
-          -o %(upload_date)s_%(uploader)s_%(title)s_%(id)s.%(ext)s
+          #  title/uploader truncated by BYTES: no auto-clamping exists, and a long
+          #  title would blow ext4's 255-byte limit. Trimming the fields (not
+          #  --trim-filenames) keeps the trailing _%(id)s, the only stable key.
+          -o %(upload_date)s_%(uploader).40B_%(title).120B_%(id)s.%(ext)s
           --restrict-filenames
           --output-na-placeholder ""            # empty, not literal "NA", for missing fields
 
           # ---- Container / quality ----
-          -S res:1080,fps,vcodec,acodec         # best quality capped at 1080p
-          --merge-output-format mkv             # lossless: holds VP9/AV1/Opus + subs + thumb + infojson
+          -S lang,res:1080,fps,vcodec,acodec    # lang first: original audio over YT auto-dubs
+          --merge-output-format mkv             # chosen when a merge happens...
+          --remux-video mkv                     # ...and when it doesn't; mkv either way
           #  (leave -f at its default bv*+ba/b; -S above shapes quality)
 
           # ---- Embed everything into the one file (ffmpeg is bundled) ----
           --embed-metadata                      # title/uploader/description into tags
-          --embed-chapters                      # YouTube chapter markers
+          --embed-chapters                      # redundant with --embed-metadata; kept as intent
           --embed-thumbnail                     # cover art (mkv = clean; mp4 would need AtomicParsley)
+          --convert-thumbnails jpg              # mkv attaches as-is, and YT serves webp, which ~nothing renders
+          --embed-info-json                     # writes a temp, attaches it, deletes it: no stray file
           --embed-subs
+          --write-auto-subs                     # ASR captions; most videos have no manual subs at all
           --sub-langs en.*,de.*                 # makes --embed-subs actually do something
           --convert-subs srt                    # normalize so embedding always succeeds
 
           # ---- Robustness / speed ----
-          --concurrent-fragments 4              # parallel DASH/HLS fragments = big real speedup
+          --concurrent-fragments 8              # parallel DASH/HLS fragments = big real speedup
           --retries infinite
           --fragment-retries infinite
+          --retry-sleep exp=1:120               # without these, "infinite" is a zero-delay hot loop
+          --retry-sleep fragment:exp=1:60
           --throttled-rate 100K                 # re-extract & retry if a stream drops below 100 KiB/s
 
           # ---- SponsorBlock (non-destructive) ----
-          --sponsorblock-mark all               # chapter markers for sponsor/intro/etc; cuts nothing
+          #  Marks are merged INTO the chapter list and win every overlap, so keep
+          #  the set narrow. Measured on one 64-min talk with 11 real chapters:
+          #  "all" produced 67 chapters, 28 of the 32 marks being filler. Dropping
+          #  filler is what saves the table; "chapter" is SponsorBlock's own
+          #  crowd-sourced chapters (competing with YouTube's real ones) and
+          #  poi_highlight is a zero-length marker.
+          --sponsorblock-mark all,-filler,-chapter,-poi_highlight
         '';
       in
       {
