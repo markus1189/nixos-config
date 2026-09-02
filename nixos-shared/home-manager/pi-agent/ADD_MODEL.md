@@ -213,6 +213,8 @@ word "CAKE":
 | `sference/kimi-k3` | false | HTTP 400 — honest rejection |
 | `tensorx/deepseek-v4-pro` | false | HTTP 200, answered "Elephant" — **silently blind** |
 | `tensorx/deepseek-v4-flash` | false | HTTP 200, answered "horizon" — **silently blind** |
+| `tensorx/qwen3.8` | true | HTTP 400 — honest rejection (checked 2026-09) |
+| `tensorx/qwen3.8-flash-next` | true | read "CAKE" — real vision (checked 2026-09) |
 
 Only put `"image"` in `input` after a model has read known text out of a test image. Generate one
 with `magick -size 200x100 xc:white -pointsize 48 -fill black -annotate +20+65 "CAKE" test.png` and

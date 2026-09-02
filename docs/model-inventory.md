@@ -66,7 +66,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 **gptel/Emacs (OpenRouter):** `openai/gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-4o`, `gpt-4o-mini` — `emacs-config.el:1530-1533`.
 
-### Chinese open-weight (GLM / Kimi / DeepSeek / MiniMax) via Requesty EU
+### Chinese open-weight (GLM / Kimi / DeepSeek / MiniMax / Qwen) via Requesty EU
 
 | Model | Consumers |
 |-------|-----------|
@@ -78,6 +78,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `nebius/moonshotai/kimi-k2.5` | `laptop/home.nix` (opencode) |
 | `tensorx/deepseek-v4-pro`, `deepseek-v4-flash`, `sference/deepseek-v4-flash-0731` | `pi-agent/models.json`; F1 → `sference/deepseek-v4-flash-0731` in `model-shortcuts.ts` |
 | `tensorx/minimax-m3` | `pi-agent/models.json` |
+| `tensorx/qwen3.8`, `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json` |
 
 **gptel/Emacs (OpenRouter):** `deepseek/deepseek-r1:free`, `deepseek/deepseek-chat-v3-0324`, `mistralai/codestral-2501`, `meta-llama/llama-3.3-70b-instruct` — `emacs-config.el:1538-1546`.
 
