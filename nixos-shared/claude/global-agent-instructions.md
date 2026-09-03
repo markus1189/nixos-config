@@ -2,37 +2,45 @@
 
 ## Output Guides
 
-1. Use these to mark severities/priorities/etc: 🔴🟠🟡🟢🔵,
-   sparingly for attention
+1. Use these to mark severities/priorities/etc: 🔴🟠🟡🟢🔵, sparingly
+   for attention
 2. close longer & dense answers with a brief scannable TL;DR
 
 ## Verify Before Asserting
 
-1. Never judge what you have not read this session. Same bar for
-   consequences ("this breaks X"): trace it or call it a guess. Can't
-   check? Say "unchecked" in that sentence.
-2. Empty output is not evidence: check the command ran (`command -v`, exit status)
-   before concluding "none". Read git branch/HEAD in the call that acts, never recall it.
+1. Never judge what you have not read this session. Observed,
+   inferred, or recalled: say which. Recalled facts get checked or
+   marked "unchecked" in that sentence.
+2. Claims != evidence. Non-trivial claims carry something the
+   reader can reproduce: `file:line` / the command with output and exit
+   status / the URL.
+3. Negatives and consequences need the trace shown: the search that
+   came up empty, the call chain that breaks. Otherwise call it a
+   guess.
+4. Empty output is not evidence: check the command ran (`command -v`,
+   exit status) before concluding "none". Read git branch/HEAD in the
+   call that acts, never recall it.
 
-## Taste Decisions
+## Owning the Outcome
 
-1. When the answer is settled by using it, not by being right (UI/UX,
-   visual design, layout, wording) SHOW DONT TELL
-   (switchable/side by side/different files/...)
-2. costly to build? Sketch them first, user picks which get built
-3. Keep ease of cleanup in mind while building and do it after a
-   decision was made
+1. done means verified
+2. unblock yourself first
+3. ownership stops where irreversibility starts
 
 ## Environment (NixOS)
+
 1. Search packages: `nix search nixpkgs $NAME`
-2. One-time commands: `nix run nixpkgs#$program` or comma via `, command`
+2. One-time commands: `nix run nixpkgs#$program` or using "comma" via
+   `, command`
 3. Scripts: Use Nix shebangs (see templates below)
 4. Flakes: use `nix develop` or `nix run` etc
 5. Flake `src` = the git index: new files are invisible to `nix build`
 6. Editable System Config Location in ~/repos/nixos-config
-7. Read upstream source: `nix build --no-link --print-out-paths nixpkgs#$pkg.src` (wrappers: `$pkg-unwrapped`)
+7. Read upstream source: `nix build --no-link --print-out-paths
+   nixpkgs#$pkg.src` (wrappers: `$pkg-unwrapped`)
 
 ## Script Templates
+
 Nix shebang (simple packages):
 ```bash
 #!/usr/bin/env nix
@@ -43,9 +51,10 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Temp files: mktemp -t claude-code.XXXXXX.$EXT
 ```
 
-Python: global `python3` (`nixos-shared/python-env.nix`) ships requests,
-httpx, pyyaml, rich, beautifulsoup4, lxml, lz4, python-dateutil, numpy, pandas,
-matplotlib, pillow, psutil, pytest, tiktoken. No pip. Use `#!/usr/bin/env python3` directly.
+Python: global `python3` (`nixos-shared/python-env.nix`) ships
+requests, httpx, pyyaml, rich, beautifulsoup4, lxml, lz4,
+python-dateutil, numpy, pandas, matplotlib, pillow, psutil, pytest,
+tiktoken. No pip. Use `#!/usr/bin/env python3` directly.
 
 Only for packages OUTSIDE that list:
 ```bash
@@ -68,6 +77,7 @@ Syntax notes:
 - Simple packages: `nixpkgs#package --command`
 
 ## Web Search and Fetching
+
 1. DuckDuckGo search: `ddgr --unsafe --json --noua $SEARCH_TERM`
    (`--json` implies `--noprompt`), prioritize credible websites as
    sources
@@ -83,6 +93,7 @@ Syntax notes:
    `magick` (not `convert`)
 
 ## Terminal Environment
+
 1. Extensive tmux use, access pane '123's content via global %-id:
   `tmux capture-pane -p -t '%123'`
 2. The Bash tool runs **zsh**: quote glob-bearing args or zsh expands
@@ -92,6 +103,7 @@ Syntax notes:
    `~`, `/home/markus`, `/nix/store` — scope to a subpath, or use `rg`
 
 ## Clipboard (xclip)
+
 1. `xclip -i` forks a daemon that outlives the shell to own the
    selection, and it inherits stdout/stderr — so any caller reading
    those to EOF (command substitution, a captured pipe) blocks
@@ -104,6 +116,7 @@ Syntax notes:
 1. `emacsclient --eval "(locate-library \"PACKAGE\")" | tr -d '"'`
 
 ## Important Locations
+
 1. ~/mounts/rclone = rclone FUSE mounts (Ablage =
    ~/mounts/rclone/gdrive/Ablage); NO recursive walk
    (`find`/`fd`/`rg`), it blows the timeout; `ls` the likely dir
