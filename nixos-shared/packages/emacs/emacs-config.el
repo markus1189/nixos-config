@@ -2379,7 +2379,6 @@ Provides more detailed messages on failure."
              (:channelId "UCWMsoao_uuuVkzuXDDMjFdg" :title "Adidas Terrex")
              (:channelId "UCD-gasIQYzXqQ4dr7mGPRfw" :title "AgenticLab" :tags (llm))
              (:channelId "UCNJ1Ymd5yFuUPtn21xtRbbw" :title "AI Explained")
-             (:channelId "UCLKPca3kwwd-B59HNr-_lvA" :title "aiDotEngineer" :tags (llm))
              (:channelId "UCXUPKJO5MZQN11PqgIvyuvQ" :title "Andrej Karpathy")
              (:channelId "UC-mexo-76-J1MlQM8NkWCYw" :title "Armin Ronacher")
              (:channelId "UC366OuoFJHwmVN0HkfPjVmg" :title "AreimaYT")
