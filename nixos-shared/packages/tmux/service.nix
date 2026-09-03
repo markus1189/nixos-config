@@ -29,11 +29,18 @@
         let
           popupScratch = pkgs.writeShellScript "popup-scratch" (pkgs.lib.readFile ./popup-scratch.sh);
           nextBell = pkgs.writeShellScript "tmux-next-bell" (pkgs.lib.readFile ./next-bell.sh);
+          silenceNotify = pkgs.writeShellScript "tmux-silence-notify" (
+            builtins.replaceStrings [ "@dunstify@" ] [ "${pkgs.dunst}/bin/dunstify" ] (
+              pkgs.lib.readFile ./silence-notify.sh
+            )
+          );
         in
         ''
-          ${builtins.replaceStrings [ "@popup-scratch@" "@next-bell@" ] [ "${popupScratch}" "${nextBell}" ] (
-            builtins.readFile ./tmux.conf
-          )}
+          ${builtins.replaceStrings
+            [ "@popup-scratch@" "@next-bell@" "@silence-notify@" ]
+            [ "${popupScratch}" "${nextBell}" "${silenceNotify}" ]
+            (builtins.readFile ./tmux.conf)
+          }
           run-shell ${tmuxPlugins.yank}/share/tmux-plugins/yank/yank.tmux
 
           set -g @extrakto_copy_key "enter"
