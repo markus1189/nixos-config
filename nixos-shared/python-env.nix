@@ -28,6 +28,7 @@
         pyyaml
         requests
         rich
+        scipy
         tiktoken
       ]
     ))
