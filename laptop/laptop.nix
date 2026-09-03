@@ -168,7 +168,12 @@
           ${pkgs.xsetroot}/bin/xsetroot -cursor_name left_ptr
           ${pkgs.xset}/bin/xset r rate 250 30
           ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right} &
-          ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --width 20 --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
+          # widthtype request: the tray is exactly as wide as its icons.
+          # A percentage width would reserve the full slice and, being
+          # pseudo-transparent (it paints the root pixmap, it does not
+          # composite), hide whatever the lower xmobar draws underneath it.
+          # That bar is BottomW L 91, so anything over 9% overlaps it.
+          ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
         '';
       };
 
