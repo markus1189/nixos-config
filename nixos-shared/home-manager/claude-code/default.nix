@@ -84,11 +84,31 @@ let
               import sys
               import subprocess
 
-              input = json.load(sys.stdin)
+              data = json.load(sys.stdin)
 
-              message = input.get("message") or "<no-message>"
+              message = data.get("message") or "<no-message>"
+              ntype = data.get("notification_type") or ""
+              cwd = data.get("cwd") or ""
+              session = data.get("session_id") or "unknown"
 
-              subprocess.run(["${pkgs.dunst}/bin/dunstify", "Claude-Code", message])
+              tag = f"claude-{ntype or 'generic'}-{session}"
+              title = "Claude-Code"
+              urgency = "normal"
+
+              if ntype == "idle_prompt" and message == "Claude is waiting for your input":
+                  parts = [p for p in cwd.rstrip("/").split("/") if p]
+                  label = "/".join(parts[-2:]) or "?"
+                  title = f"Claude · {label}"
+                  message = "idle"
+                  urgency = "low"
+
+              subprocess.run([
+                  "${pkgs.dunst}/bin/dunstify",
+                  "-u", urgency,
+                  "--stack-tag", tag,
+                  title,
+                  message,
+              ])
             ''
           }/bin/claude-code-notifier";
         }
