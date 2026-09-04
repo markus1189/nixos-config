@@ -1925,6 +1925,10 @@ string). It returns t if a new completion is found, nil otherwise."
    :map elfeed-search-mode-map
    ("j" . #'next-line)
    ("k" . #'previous-line))
+  :custom
+  ;; Defaults to 2: every tag command touching >=2 entries pops a `y-or-n-p'.
+  ;; `, ,' below marks the whole buffer, so it would confirm unconditionally.
+  (elfeed-search-confirm-tag nil)
   :hook
   (elfeed-new-entry-parse . mh/elfeed-extract-comments-link)
   (elfeed-new-entry . mh/elfeed-prefix-github-titles)
@@ -2127,8 +2131,8 @@ Provides more detailed messages on failure."
     (define-key elfeed-search-mode-map (kbd ", ,") (lambda ()
                                                      (interactive)
                                                      (mark-whole-buffer)
-                                                     (elfeed-search-untag-all-unread)
-                                                     (elfeed-search-update--force)
+                                                     (elfeed-search-untag-unread)
+                                                     (revert-buffer)
                                                      (mh/elfeed-search-stack-next)))
     (define-key elfeed-search-mode-map (kbd ", .") 'mh/elfeed-raindrop-add-url)
     (define-key elfeed-search-mode-map (kbd "SPC") (lambda()
