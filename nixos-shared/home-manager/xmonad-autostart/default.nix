@@ -114,7 +114,18 @@ in
         # for an already-unlocked key. `programs.ssh.startAgent = true` puts
         # the socket at $XDG_RUNTIME_DIR/ssh-agent, which %t resolves to here
         # (same reasoning as laptop/atuin-sync.nix).
-        Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
+        #
+        # TMUX_TMPDIR is the same gap, one variable over: nixpkgs' programs.tmux
+        # exports it from /etc/set-environment, which only login shells source,
+        # so a unit gets tmux's compiled-in /tmp default while the xsession --
+        # and every terminal xmonad spawns -- gets /run/user/$UID. `tmx`'s
+        # has-session probe then misses the session sessionCommands pre-created
+        # and starts a *second* server on the other socket. %t is exactly what
+        # /etc/set-environment computes, so both paths agree again.
+        Environment = [
+          "SSH_AUTH_SOCK=%t/ssh-agent"
+          "TMUX_TMPDIR=%t"
+        ];
       };
     }) cfg;
   };
