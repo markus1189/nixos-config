@@ -1,4 +1,4 @@
-;;; quick-yes.el --- M-y to answer "yes" to `yes-or-no-p'.
+;;; quick-yes.el --- M-y to answer "yes" to `yes-or-no-p'.  -*- lexical-binding: t -*-
 
 ;; Copyright 2004, 2005, 2007, 2009, 2010, 2015, 2017 Kevin Ryde
 

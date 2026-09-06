@@ -22,9 +22,14 @@ let
   '';
   # Single-file elisp packages without a MELPA recipe; sources are flake
   # inputs (see flake.nix), so they move with `nix flake update`.
+  # Upstream has been dormant since 2015 and predates the `lexical-binding'
+  # cookie Emacs 31 warns about at load time; the file byte-compiles clean
+  # under lexical binding, so add the cookie to the first line on the way in.
   iy-go-to-char = runCommandLocal "install-iy-go-to-char" { } ''
     mkdir -p $out/share/emacs/site-lisp
-    cp ${elispSrcs.iy-go-to-char}/iy-go-to-char.el $out/share/emacs/site-lisp/iy-go-to-char.el
+    sed '1s/$/ -*- lexical-binding: t -*-/' \
+      ${elispSrcs.iy-go-to-char}/iy-go-to-char.el \
+      > $out/share/emacs/site-lisp/iy-go-to-char.el
   '';
 in
 emacs.pkgs.withPackages (
