@@ -26,6 +26,10 @@
     ../nixos-shared/syncthing-base.nix
     ../nixos-shared/user.nix
     ../nixos-shared/zsh.nix
+    # disko (module wired in flake.nix) provides the schema for ./disko.nix
+    # and synthesises `fileSystems` / `swapDevices` at switch time. That is
+    # what makes `nixos-generate-config --no-filesystems` safe here.
+    ./disko.nix
     ./fileSystems.nix
     ./hardware-configuration.nix
     ./kodi.nix
@@ -49,6 +53,20 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernel.sysctl."kernel.sysrq" = 1;
+
+  ## Memory #################################################################
+  # 4 GB installed, 3.72 GiB usable (MemTotal 3901052 kB), no ECC. zram
+  # carries the daily working set; the 8 GiB swapfile from ./disko.nix is an
+  # OOM backstop only (hibernation is off, so it never needs to fit RAM).
+  zramSwap.enable = true;
+  # memoryPercent is left at the nixpkgs default of 50. p1g8.nix lowers it to
+  # 25, but that exists because 50 % of 62 G was a 31 G sponge; 50 % of 3.7 G
+  # is ~1.9 G, which is the entire point of zram on a machine this small.
+
+  # Read-ahead of 2^3 = 8 pages per swap-in amortises seek latency. zram has
+  # no seek, so that is eight decompressions to use one page; 0 is the
+  # documented setting for RAM-backed swap.
+  boot.kernel.sysctl."vm.page-cluster" = 0;
 
   networking = {
     hostName = "nuc";

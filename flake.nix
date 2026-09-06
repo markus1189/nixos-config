@@ -146,7 +146,10 @@
           ./p1g8/configuration.nix
           inputs.disko.nixosModules.disko
         ];
-        nuc = mkHost [ ./nuc/configuration.nix ];
+        nuc = mkHost [
+          ./nuc/configuration.nix
+          inputs.disko.nixosModules.disko
+        ];
         # p1's hostname is nixos-p1; alias so `nixos-rebuild --flake .`
         # resolves without an explicit attr name.
         nixos-p1 = self.nixosConfigurations.p1;
