@@ -291,7 +291,8 @@ myManageHook =
       ]
     ws6 = []
     ws7 = ["MPlayer", "mplayer2", "mpv"]
-    ws8 = ["TelegramDesktop", "Spotify", "spotify", "Slack", "signal", "Signal"]
+    -- "slack" is what current Slack sets; "Slack" is kept for older builds.
+    ws8 = ["TelegramDesktop", "Spotify", "spotify", "slack", "Slack", "signal", "Signal"]
     ws9 = ["teams-for-linux"]
 
 myScratchPads :: [NamedScratchpad]
