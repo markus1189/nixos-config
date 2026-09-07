@@ -236,4 +236,10 @@
       wantedBy = [ "multi-user.target" ];
     };
   };
+
+  # Kodi's only video source and three cron jobs in ./cron.nix live here; the
+  # 31 G of old content stayed on /mnt/old, but the directory has to exist.
+  systemd.tmpfiles.rules = [
+    "d /home/${config.my.userName}/Downloads 0755 ${config.my.userName} users -"
+  ];
 }
