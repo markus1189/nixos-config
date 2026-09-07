@@ -164,7 +164,12 @@
     # nightly lock updates as root on purpose (builds the committed
     # flake.lock).
     autoUpgrade = {
-      enable = true;
+      # Off until nuc-ssd-migration lands on master. The timer is
+      # Persistent=true and the fresh SSD root has no stamp in
+      # /var/lib/systemd/timers, so it fires on the first boot rather than at
+      # 04:21 -- and master still describes an sda1 root, so that build would
+      # switch the bootloader away from the NVMe. Re-enable after the merge.
+      enable = false;
       dates = "04:21";
       flake = "github:markus1189/nixos-config#nuc";
       flags = [ "-L" ];
