@@ -49,7 +49,14 @@ let
   # nixos-p1 exactly (decision 2026-05-20: all 14 folders).
   # 2026-06-04: S26U replaces S24U (new phone) across all folders;
   # added Audiobooks (offered by S26U + nixos-p1, nuc also joins).
+  # 2026-09-07: cooklang joins, offered to p1g8 by nuc and S26U.
+  # nixos-p1 does not have it, so it is not a member.
   folderMembership = {
+    cooklang = [
+      "nuc"
+      "p1g8"
+      "S26U"
+    ];
     Audiobooks = [
       "nuc"
       "nixos-p1"
@@ -141,6 +148,7 @@ let
   # with the existing peers; without these, Syncthing would mint
   # new IDs and nixos-p1/nuc/S24U would see them as new folders.
   folderIds = {
+    cooklang = "exkwq-4skde";
     Audiobooks = "azmve-vrodw";
     remind = "7w3sr-tjmd4";
     ePubs = "bldcc-uuzfe";
