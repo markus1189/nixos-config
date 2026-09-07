@@ -48,6 +48,17 @@ in
       {
         "claude-code" = claudeConfig.settings;
         "claude-md" = claudeConfig.globalAgentMd;
+
+        # The Plasma desktop shortcut. It used to be a hand-made symlink into
+        # /nix/store/...-konsole-20.08.3 from 2021, which worked only because
+        # nix-gc had been failing on the old HDD and never collected the path;
+        # the 2026-09-06 reinstall brought an empty store and the icon died.
+        # Declaring it here means home-manager re-points it on every switch,
+        # so it cannot go stale again.
+        "konsole-desktop-entry" = {
+          target = "Desktop/org.kde.konsole.desktop";
+          source = "${pkgs.kdePackages.konsole}/share/applications/org.kde.konsole.desktop";
+        };
       }
       // claudeConfig.agentFiles;
   };
