@@ -1,31 +1,31 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 
 let
   mkMount =
     {
       name,
       uuid,
-      neededForBoot ? false,
       fsType ? "ntfs-3g",
     }:
     {
-      inherit neededForBoot fsType;
+      inherit fsType;
       mountPoint = "/media/${name}";
       device = "/dev/disk/by-uuid/${uuid}";
       # USB disks: without nofail a missing one drops the boot to emergency
       # before sshd. noCheck: ntfs-3g isn't in fsToSkipCheck, so passno 2.
       noCheck = true;
       options = [
-        "defaults"
         "nofail"
+        "nosuid"
+        "nodev"
         "nls=utf8"
-        "umask=000"
+        # fmask, not umask: umask=000 made every file on all three disks 0777.
+        "fmask=027"
         "dmask=027"
-        "uid=1000"
-        "gid=100"
+        "uid=${toString config.users.users.${config.my.userName}.uid}"
+        "gid=${toString config.users.groups.users.gid}"
         "windows_names"
-      ]
-      ++ pkgs.lib.optionals (fsType == "ntfs-3g") [ "big_writes" ];
+      ];
     };
 in
 {
