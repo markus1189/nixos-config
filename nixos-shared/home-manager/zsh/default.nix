@@ -45,8 +45,6 @@ in
         requestyAgentKey = ''REQUESTY_API_KEY_CC="''${REQUESTY_API_KEY_CC:-$(pass api/requesty/agent)}"'';
       in
       {
-        "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
-
         # The GLaDOS persona is the common case, so it gets the short names.
         # -plain keeps the same environment and drops only the persona.
         c = "${claudeEnv} claude ${gladosFlag}";
@@ -62,6 +60,15 @@ in
         pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
 
         pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
+      }
+      # `settings` defaults to {} independent of programs.password-store.enable
+      # (home-manager derives it from home.stateVersion and only feeds the
+      # legacy default to the module's own internals), so hosts that do not set
+      # PASSWORD_STORE_DIR -- nuc -- would hit "attribute missing" on passDir.
+      # optionalAttrs keeps that binding unforced there; laptop/home.nix sets
+      # it, so the alias set on p1/p1g8 is unchanged.
+      // lib.optionalAttrs (config.programs.password-store.settings ? PASSWORD_STORE_DIR) {
+        "aws-vault" = "aws-vault --backend=pass --pass-dir=${passDir} --pass-cmd=pass --pass-prefix=aws";
       };
 
     # mkOrder 1050: after the starship/direnv/atuin init lines other modules
