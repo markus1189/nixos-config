@@ -342,7 +342,7 @@
             # reason not to commit, not a reason to shrug.
             template="$(git config --get init.templatedir || true)"
             if [ -z "$template" ] || [ ! -x "$template/hooks/pre-commit" ]; then
-              echo "pre-commit: no template pre-commit hook via init.templatedir -- refusing to commit without the gitleaks scan (run ./activate.sh)" >&2
+              echo "pre-commit: no template pre-commit hook via init.templatedir -- refusing to commit without the gitleaks scan (run nh os switch)" >&2
               exit 1
             fi
             exec "$template/hooks/pre-commit"

@@ -19,9 +19,9 @@ Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
 ### Host Configurations
 | Host | Build Method | User | Purpose |
 |------|--------------|------|---------|
-| `p1/` | `./activate.sh` (flake attr `p1`, hostname `nixos-p1`) | markus | ThinkPad P1 (primary laptop) |
-| `p1g8/` | `./activate.sh p1g8` | markus | ThinkPad P1 Gen 8 |
-| `nuc/` | `./activate.sh` (flake attr `nuc`) | mediacenter | Home server |
+| `p1/` | `nh os build` / `nh os switch` (flake attr `p1`, hostname `nixos-p1`) | markus | ThinkPad P1 (primary laptop) |
+| `p1g8/` | `nh os build` / `nh os switch` | markus | ThinkPad P1 Gen 8 |
+| `nuc/` | `system.autoUpgrade` from `github:…#nuc`; build-check it from a laptop with `nh os build -H nuc` | mediacenter | Home server |
 
 ### Shared Modules (`nixos-shared/`)
 - **Configuration**: `common-packages.nix`, `common-programs.nix`, `common-services.nix`
@@ -61,11 +61,28 @@ All external dependencies are **flake inputs** (see `flake.nix` / `flake.lock`):
 ## System Commands
 
 ### Building Configurations
+
+`nh` (laptops only, see `laptop/programs.nix`) is the rebuild front end.
+`programs.nh.flake` exports `NH_FLAKE`, so both commands resolve this repo
+from any directory; `-H` picks the `nixosConfigurations` attr, defaulting to
+`$(hostname)` (p1's `nixos-p1` is aliased in `flake.nix`).
+
+**Building is unprivileged; only switching needs sudo.** Agents build freely
+and never activate — `nh os switch` is Markus's to run.
+
 ```bash
-# Any host (defaults to $(hostname); p1's hostname nixos-p1 is aliased)
-./activate.sh            # sudo nixos-rebuild switch --flake .#<host>
-./activate.sh p1g8       # explicit host attr
+# Build only: no privileges, no activation. Agents run these.
+nh os build              # host attr from $(hostname)
+nh os build -H p1g8      # explicit host attr
+nh os build -H nuc       # nuc's config, built on a laptop
+
+# Activate: needs sudo. Markus only, never an agent.
+nh os switch
 ```
+
+`nh os build` already ends in the closure diff that `nixos-rebuild build` +
+`nix store diff-closures` produce in two steps, so it covers the common
+"what would this change" case on its own.
 
 ### Validation and Testing
 ```bash
@@ -75,7 +92,8 @@ nix-instantiate --parse path/to/file.nix
 # Evaluate a host without building (fast)
 nix eval --raw .#nixosConfigurations.p1.config.system.build.toplevel.drvPath
 
-# Build without switching, then inspect the delta
+# Build without switching, then inspect the delta: `nh os build` (above).
+# The manual pair, for a delta against something other than the running system:
 nixos-rebuild build --flake .#p1
 nix store diff-closures /run/current-system ./result
 
@@ -130,7 +148,9 @@ scoping, failure modes: [docs/derivation-diffing.md](docs/derivation-diffing.md)
 
 **nuc update model**: `system.autoUpgrade` rebuilds nightly from the
 committed `flake.lock` (no channel, no automatic input updates). Updating
-nuc means `nix flake update` + commit on a laptop, then pull on nuc.
+nuc means `nix flake update` + commit on a laptop and **push to GitHub** —
+`autoUpgrade.flake` is `github:markus1189/nixos-config#nuc`, so nuc fetches
+from there rather than from a local checkout.
 
 ### Option Reference (offline, version-matched)
 ```bash

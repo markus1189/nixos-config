@@ -22,8 +22,8 @@
   programs.nh = {
     enable = true;
     # Default target for a bare `nh os switch`, so it resolves from any
-    # directory. The host attr still comes from the hostname, as with
-    # activate.sh -- p1's nixos-p1 alias in flake.nix keeps working.
+    # directory. The host attr still comes from the hostname unless -H says
+    # otherwise -- p1's nixos-p1 alias in flake.nix keeps working.
     flake = "/home/${config.my.userName}/repos/nixos-config";
 
     # Deliberately off, matching `nix.gc.automatic = false` in laptop.nix:

@@ -8,7 +8,7 @@
 nix shell nixpkgs#src-cli --command src --help
 
 # Or install permanently: add src-cli to nixos-shared/common-packages.nix
-# in ~/repos/nixos-config, then ./activate.sh
+# in ~/repos/nixos-config, then nh os switch
 ```
 
 ### Manual Installation
