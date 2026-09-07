@@ -16,6 +16,9 @@
       services = {
         resticPhotoBackup = {
           description = "Restic photo backup (${config.my.resticPhotoBackupDir})";
+          # An empty mountpoint snapshots as 0 B; forget --keep-last=3 --prune
+          # then eats the real history.
+          unitConfig.RequiresMountsFor = [ config.my.resticPhotoBackupDir ];
           script = "${pkgs.resticPhotoBackup}/bin/restic-photo-backup ${config.my.resticPhotoBackupDir}";
           startAt = "*-*-* 00:01:00";
         };

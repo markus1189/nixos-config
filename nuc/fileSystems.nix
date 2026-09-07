@@ -12,8 +12,12 @@ let
       inherit neededForBoot fsType;
       mountPoint = "/media/${name}";
       device = "/dev/disk/by-uuid/${uuid}";
+      # USB disks: without nofail a missing one drops the boot to emergency
+      # before sshd. noCheck: ntfs-3g isn't in fsToSkipCheck, so passno 2.
+      noCheck = true;
       options = [
         "defaults"
+        "nofail"
         "nls=utf8"
         "umask=000"
         "dmask=027"

@@ -193,6 +193,26 @@
       };
     };
 
+    # nofail in ./fileSystems.nix makes an absent disk silent; this is the signal.
+    check-media-mounts = {
+      description = "warn about unmounted /media disks";
+      serviceConfig = {
+        Type = "oneshot";
+        User = config.my.userName;
+        Group = "users";
+      };
+      script = ''
+        missing=()
+        for m in /media/backups /media/multimedia /media/multimedia2; do
+          ${pkgs.util-linux}/bin/mountpoint -q "$m" || missing+=("$m")
+        done
+        if [ ''${#missing[@]} -gt 0 ]; then
+          ${pkgs.notifySendTelegram}/bin/notifySendTelegram "nuc: not mounted: ''${missing[*]}"
+        fi
+      '';
+      startAt = "*-*-* 07:00:00";
+    };
+
     remind-personal-notifications = {
       description = "remind unit for personal notifications";
       serviceConfig = {
