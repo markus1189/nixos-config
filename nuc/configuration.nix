@@ -237,6 +237,11 @@
     };
   };
 
+  # nuc's local checkout is stale and cannot `git fetch` (no GitHub credentials),
+  # so point nh at the same place system.autoUpgrade builds from. `--refresh`
+  # stays mandatory: without it the cached tarball rebuilds the same generation.
+  programs.nh.flake = "github:markus1189/nixos-config";
+
   # Kodi's only video source and three cron jobs in ./cron.nix live here; the
   # 31 G of old content stayed on /mnt/old, but the directory has to exist.
   systemd.tmpfiles.rules = [
