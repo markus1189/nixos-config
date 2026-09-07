@@ -55,10 +55,19 @@ in
     # If this ever fails with "recovery required on readonly filesystem"
     # after an unclean shutdown, mount it by hand with `-o ro,noload`. Do NOT
     # put noload here: it would skip journal recovery permanently.
+    #
+    # `noCheck` because `ro` protects the *mount*, not the *device*: without it
+    # NixOS emits fstab passno 2, systemd-fsck sees "contains a file system with
+    # errors, check forced" and runs a full repairing e2fsck across 12.7 M
+    # errors at every boot -- writing to the one disk this block is trying to
+    # keep pristine. Observed 2026-09-07 on the first SSD boot: e2fsck ran 31 s
+    # before being cancelled, and only a hand-typed fsck.mode=skip at the
+    # systemd-boot menu got the machine up.
     "old-hdd" = {
       mountPoint = "/mnt/old";
       device = "/dev/disk/by-uuid/588ec614-3925-475c-9003-d0ca8146e17f";
       fsType = "ext4";
+      noCheck = true;
       options = [
         "ro"
         "nofail"
