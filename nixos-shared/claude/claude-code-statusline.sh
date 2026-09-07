@@ -2,14 +2,107 @@
 
 # Info: BATS unit tests at ./claude-code-statusline.bats
 
-get_output_style() {
-    local style
-    style=$(echo "$input" | jq -r '.output_style.name // "default"')
-    if [ "$style" = "default" ] || [ "$style" = "null" ] || [ -z "$style" ]; then
-        echo ""
-    else
-        echo "$style"
+# Color definitions (RGB values)
+readonly RED="255;120;120"
+readonly ORANGE="255;180;100"
+readonly GREEN="120;220;120"
+readonly BLUE="100;180;255"
+readonly PURPLE="180;140;255"
+readonly PINK="255;140;180"
+readonly CYAN="100;200;200"
+readonly YELLOW="220;180;80"
+
+# ANSI escape sequences
+readonly RESET='\033[0m'
+readonly BLACK_FG='\033[30m'
+
+# Powerline separators (Nerd Font private use area, see laptop/laptop.nix)
+readonly SEP_THICK=$''  # solid arrow, between differently colored segments
+readonly SEP_THIN=$''   # hairline arrow, between segments of equal color
+readonly CACHE_GLYPH=$''  # nf-memory (U+E266), marks the prompt cache segment
+
+readonly PLACEHOLDER="⌀"
+
+# All of the JSON is read in a single jq pass: the status line is re-rendered
+# after every assistant response, so one fork beats twenty.
+read -r -d '' JQ_PROGRAM <<'EOF' || true
+. as $r
+| ($r.context_window // {}) as $cw
+| ($cw.current_usage // {}) as $cu
+| (($cu.input_tokens // 0)
+   + ($cu.cache_creation_input_tokens // 0)
+   + ($cu.cache_read_input_tokens // 0)) as $ctx
+| ($cw.context_window_size // 200000) as $win
+| ($cw.total_input_tokens // 0) as $tot
+# used_percentage survives /compact while current_usage goes null, so prefer it
+# and only fall back to the per-component sum.
+| (if ($cw.used_percentage // null) != null then $cw.used_percentage
+   elif $ctx > 0 and $win > 0 then ($ctx * 100 / $win)
+   else null end) as $pct
+| (if $ctx > 0 then $ctx elif $tot > 0 then $tot else 0 end) as $label
+| ($r.prompt_cache // null) as $pc
+| def kt: if . >= 1000 then ((. * 10 / 1000 | round) as $t
+                             | "\(($t / 10 | floor)).\($t % 10)kt")
+          else (. | tostring) end;
+[
+  ($r.model.display_name // ""),
+  (($r.output_style.name // "default") | if . == "default" then "" else . end),
+  ($r.effort.level // ""),
+  (($r.thinking.enabled // false) | tostring),
+  ($r.version // ""),
+  ($r.transcript_path // ""),
+  ($r.workspace.project_dir // ""),
+  (($r.cost.total_cost_usd // 0) * 100 | round / 100 | tostring),
+  (if $ctx > 0 then ($ctx | tostring) else "" end),
+  (if $pct == null then "" else ($pct | round | tostring) end),
+  (if $pct == null then "" else ([($pct / 10 | floor), 10] | min | tostring) end),
+  (if $tot > 0 then (if $tot >= 1000 then "\($tot / 1000 | round)kt"
+                     else ($tot | tostring) end)
+   else "" end),
+  (if $label > 0 then ($label | kt) else "" end),
+  (($r.exceeds_200k_tokens // false) | tostring),
+  (($r.rate_limits.five_hour.used_percentage // null)
+   | if . == null then "" else (round | tostring) end),
+  (($r.rate_limits.five_hour.resets_at // null)
+   | if . == null then "" else (floor | tostring) end),
+  (if $pc == null then "false" else "true" end),
+  ($pc.ttl // ""),
+  (($pc.hit_ratio // null) | if . == null then "" else (. * 100 | round | tostring) end)
+] | .[]
+EOF
+
+# Populates the J_* globals from $input. main() calls this once up front so the
+# command substitutions below inherit the parsed values instead of re-forking;
+# the guard also lets each getter stand alone under BATS.
+parse_input() {
+    if [ -n "${J_PARSED:-}" ]; then
+        return 0
     fi
+
+    local -a f
+    mapfile -t f < <(printf '%s' "$input" | jq -r "$JQ_PROGRAM")
+
+    J_MODEL="${f[0]-}"
+    J_STYLE="${f[1]-}"
+    J_EFFORT="${f[2]-}"
+    J_THINKING="${f[3]-}"
+    J_VERSION="${f[4]-}"
+    J_TRANSCRIPT="${f[5]-}"
+    J_PROJECT_DIR="${f[6]-}"
+    J_COST="${f[7]-}"
+    J_CONTEXT="${f[8]-}"
+    J_PCT="${f[9]-}"
+    J_FILLED="${f[10]-}"
+    J_WINDOW_FMT="${f[11]-}"
+    J_CONTEXT_FMT="${f[12]-}"
+    J_EXCEEDS="${f[13]-}"
+    J_RL5H="${f[14]-}"
+    J_RL5H_RESET="${f[15]-}"
+    J_CACHE="${f[16]-}"
+    J_CACHE_TTL="${f[17]-}"
+    J_CACHE_HIT="${f[18]-}"
+
+    J_PARSED=1
 }
 
 shorten_bedrock_model() {
@@ -29,26 +122,21 @@ shorten_bedrock_model() {
 }
 
 get_model_name() {
-    local model_name style_suffix effort_suffix indicator_suffix
-    model_name=$(echo "$input" | jq -r '.model.display_name')
+    parse_input
 
-    # Shorten Bedrock model names
-    model_name=$(shorten_bedrock_model "$model_name")
+    local model_name style_suffix effort_suffix indicator_suffix
+    model_name=$(shorten_bedrock_model "$J_MODEL")
 
     # Add output style if not default
-    local output_style
-    output_style=$(get_output_style)
-    if [ -n "$output_style" ]; then
-        style_suffix=" ($output_style)"
+    if [ -n "$J_STYLE" ]; then
+        style_suffix=" ($J_STYLE)"
     else
         style_suffix=""
     fi
 
     # Add effort level (text) if present
-    local effort
-    effort=$(echo "$input" | jq -r '.effort.level // empty')
-    if [ -n "$effort" ]; then
-        effort_suffix=" (${effort})"
+    if [ -n "$J_EFFORT" ]; then
+        effort_suffix=" (${J_EFFORT})"
     else
         effort_suffix=""
     fi
@@ -61,9 +149,7 @@ get_model_name() {
     if [ "${ANTHROPIC_BASE_URL:-}" = "https://router.eu.requesty.ai" ]; then
         indicator_suffix+="🔑"
     fi
-    local thinking_enabled
-    thinking_enabled=$(echo "$input" | jq -r '.thinking.enabled // false')
-    if [ "$thinking_enabled" = "true" ]; then
+    if [ "$J_THINKING" = "true" ]; then
         indicator_suffix+="🧠"
     fi
     if [ -n "${CLAUDE_CODE_ENABLE_TELEMETRY:-}" ]; then
@@ -72,73 +158,62 @@ get_model_name() {
 
     echo "${model_name}${style_suffix}${effort_suffix}${indicator_suffix}"
 }
-get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
-get_project_dir() { echo "$input" | jq -r '.workspace.project_dir' | sed "s|^$HOME|~|"; }
-get_version() { echo "$input" | jq -r '.version'; }
-get_cost() { echo "$input" | jq -r '.cost.total_cost_usd*100|round/100'; }
-get_duration() { echo "$input" | jq -r '.cost.total_duration_ms'; }
-get_lines_added() { echo "$input" | jq -r '.cost.total_lines_added'; }
-get_lines_removed() { echo "$input" | jq -r '.cost.total_lines_removed'; }
-get_transcript_path() { echo "$input" | jq -r '.transcript_path'; }
-get_transcript_id() { basename "$(get_transcript_path)" ".jsonl" | cut -d'-' -f1; }
 
-get_context_size() {
-    local total
-    # Single jq call to sum all current_usage token fields
-    total=$(echo "$input" | jq -r '
-        [.context_window.current_usage.input_tokens,
-         .context_window.current_usage.cache_creation_input_tokens,
-         .context_window.current_usage.cache_read_input_tokens]
-        | map(. // 0) | add')
+get_project_dir() {
+    parse_input
 
-    if [ "$total" -gt 0 ]; then
-        echo "$total"
-    else
-        echo "⌀"
+    local dir="$J_PROJECT_DIR"
+    if [ -n "${HOME:-}" ] && [ "${dir#"$HOME"}" != "$dir" ]; then
+        dir="~${dir#"$HOME"}"
     fi
+    echo "$dir"
 }
 
-get_context_window_size() {
-    local size
-    size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
-    if [ -n "$size" ] && [[ "$size" =~ ^[0-9]+$ ]]; then
-        echo "$size"
+get_version() { parse_input; echo "$J_VERSION"; }
+get_cost() { parse_input; echo "$J_COST"; }
+
+get_transcript_id() {
+    parse_input
+
+    if [ -z "$J_TRANSCRIPT" ]; then
+        echo "$PLACEHOLDER"
+        return
+    fi
+    basename "$J_TRANSCRIPT" ".jsonl" | cut -d'-' -f1
+}
+
+get_context_size() {
+    parse_input
+
+    if [ -n "$J_CONTEXT" ]; then
+        echo "$J_CONTEXT"
     else
-        echo "200000"  # Default fallback
+        echo "$PLACEHOLDER"
     fi
 }
 
 get_context_percentage() {
-    local percentage
-    percentage=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+    parse_input
 
-    if [ -n "$percentage" ] && [[ "$percentage" =~ ^[0-9.]+$ ]]; then
-        printf "%.0f%%" "$percentage"
+    if [ -n "$J_PCT" ]; then
+        echo "${J_PCT}%"
     else
-        echo "⌀"
+        echo "$PLACEHOLDER"
     fi
 }
 
 get_formatted_context_window() {
-    local total_tokens
-    total_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+    parse_input
 
-    # Handle zero or invalid values
-    if [ "$total_tokens" -eq 0 ]; then
-        echo "⌀"
-        return
-    fi
-
-    # Format with kt suffix for thousands
-    if [ "$total_tokens" -ge 1000 ]; then
-        printf "%.0fkt" "$(echo "scale=1; $total_tokens / 1000" | bc)"
+    if [ -n "$J_WINDOW_FMT" ]; then
+        echo "$J_WINDOW_FMT"
     else
-        echo "$total_tokens"
+        echo "$PLACEHOLDER"
     fi
 }
 
 get_git_branch() {
-    git branch --quiet --show-current 2>/dev/null || echo "⌀"
+    git branch --quiet --show-current 2>/dev/null || echo "$PLACEHOLDER"
 }
 
 get_git_status() {
@@ -173,125 +248,173 @@ get_git_status() {
     echo "$status"
 }
 
+# The bar tracks the percentage (which survives /compact) while the label shows
+# the token count, so the two never contradict the neighbouring percentage
+# segment.
 get_context_with_bar() {
-    local context formatted_context window_size scale_factor
-    context=$(get_context_size)
+    parse_input
 
-    if [ "$context" = "⌀" ]; then
-        echo "⌀[○○○○○○○○○○]"
-        return
+    local label="$J_CONTEXT_FMT"
+    if [ -z "$label" ]; then
+        label="$PLACEHOLDER"
     fi
 
-    # Handle non-numeric context gracefully
-    if [[ ! "$context" =~ ^[0-9]+$ ]]; then
-        echo "⌀[○○○○○○○○○○]"
-        return
-    fi
-
-    # Format context with kt suffix for consistency
-    if [ "$context" -ge 1000 ]; then
-        formatted_context=$(printf "%.1fkt" "$(echo "scale=1; $context / 1000" | bc)")
-    else
-        formatted_context="${context}"
-    fi
-
-    # Scale based on actual context window size
-    window_size=$(get_context_window_size)
-    scale_factor=$(( window_size / 10 ))
-    local filled=$(( context / scale_factor ))
-    if [ $filled -gt 10 ]; then filled=10; fi
-    if [ $filled -lt 0 ]; then filled=0; fi
-
+    local filled="${J_FILLED:-0}"
     local bar=""
-    for ((i=1; i<=filled; i++)); do bar+="●"; done
-    for ((i=filled+1; i<=10; i++)); do bar+="○"; done
+    for ((i = 1; i <= filled; i++)); do bar+="●"; done
+    for ((i = filled + 1; i <= 10; i++)); do bar+="○"; done
 
-    echo "${formatted_context}[${bar}]"
+    echo "${label}[${bar}]"
 }
 
-get_rate_limit_5h() {
-    local pct
-    pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+# Shared by every percentage-driven segment: green below 40%, orange below 60%,
+# red above, purple when the number is not known yet.
+percentage_color() {
+    local pct="$1"
+
     if [ -z "$pct" ]; then
+        echo "$PURPLE"
+    elif [ "$pct" -gt 60 ]; then
+        echo "$RED"
+    elif [ "$pct" -gt 40 ]; then
+        echo "$ORANGE"
+    else
+        echo "$GREEN"
+    fi
+}
+
+get_context_color() { parse_input; percentage_color "$J_PCT"; }
+
+get_rate_limit_5h() {
+    parse_input
+
+    if [ -z "$J_RL5H" ]; then
         echo ""
     else
-        printf "5h %.0f%%" "$pct"
+        echo "5h ${J_RL5H}%"
     fi
 }
 
 get_rate_limit_5h_color() {
-    local pct pct_int
-    pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
-    if [ -z "$pct" ]; then
-        echo "180;140;255"  # Default purple
+    parse_input
+
+    if [ -z "$J_RL5H" ]; then
+        echo "$PURPLE"
+    elif [ "$J_RL5H" -gt 75 ]; then
+        echo "$RED"
+    elif [ "$J_RL5H" -gt 50 ]; then
+        echo "$ORANGE"
+    else
+        echo "$GREEN"
+    fi
+}
+
+format_duration() {
+    local seconds="$1"
+    local hours=$((seconds / 3600))
+    local minutes=$(((seconds % 3600) / 60))
+
+    if [ "$hours" -gt 0 ]; then
+        echo "${hours}h${minutes}m"
+    elif [ "$minutes" -gt 0 ]; then
+        echo "${minutes}m"
+    else
+        echo "<1m"
+    fi
+}
+
+# Time until the 5h window rolls over. Claude Code drops the window once
+# resets_at has passed, but a stale value would otherwise render as a negative
+# countdown, so treat anything in the past as absent.
+get_rate_limit_5h_reset() {
+    parse_input
+
+    if [ -z "$J_RL5H_RESET" ]; then
+        echo ""
         return
     fi
-    pct_int="${pct%.*}"
-    if [ "$pct_int" -gt 75 ]; then
-        echo "255;120;120"  # Red
-    elif [ "$pct_int" -gt 50 ]; then
-        echo "255;180;100"  # Orange
+
+    local remaining=$((J_RL5H_RESET - EPOCHSECONDS))
+    if [ "$remaining" -le 0 ]; then
+        echo ""
+        return
+    fi
+
+    echo "↻$(format_duration "$remaining")"
+}
+
+# Prompt cache state: the TTL of the current cached prefix and what fraction of
+# input tokens came out of the cache. The glyph is deliberately constant -- the
+# segment colour is the signal, so a healthy cache never looks like an alert.
+get_cache() {
+    parse_input
+
+    if [ "$J_CACHE" != "true" ]; then
+        echo ""
+        return
+    fi
+
+    local out="$CACHE_GLYPH"
+
+    if [ -n "$J_CACHE_TTL" ]; then
+        out+="$J_CACHE_TTL"
+    fi
+    if [ -n "$J_CACHE_HIT" ]; then
+        out+=" ${J_CACHE_HIT}%"
+    fi
+
+    echo "$out"
+}
+
+# Inverted against the other segments: a *high* hit ratio is the good case.
+get_cache_color() {
+    parse_input
+
+    if [ -z "$J_CACHE_HIT" ]; then
+        echo "$PURPLE"
+    elif [ "$J_CACHE_HIT" -ge 80 ]; then
+        echo "$GREEN"
+    elif [ "$J_CACHE_HIT" -ge 50 ]; then
+        echo "$ORANGE"
     else
-        echo "120;220;120"  # Green
+        echo "$RED"
     fi
 }
 
 get_exceeds_200k_indicator() {
-    local exceeds
-    exceeds=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
-    if [ "$exceeds" = "true" ]; then
+    parse_input
+
+    if [ "$J_EXCEEDS" = "true" ]; then
         echo "🔥"
     else
         echo ""
     fi
 }
 
-get_context_color() {
-    local context window_size threshold_red threshold_orange
-    context=$(get_context_size)
-
-    if [ "$context" = "⌀" ]; then
-        echo "180;140;255"  # Default purple
-        return
-    fi
-
-    # Dynamic thresholds based on context window size
-    window_size=$(get_context_window_size)
-    threshold_red=$(( window_size * 60 / 100 ))      # 60% of window
-    threshold_orange=$(( window_size * 40 / 100 ))   # 40% of window
-
-    if [ "$context" -gt "$threshold_red" ]; then
-        echo "255;120;120"  # Red for high usage (>60%)
-    elif [ "$context" -gt "$threshold_orange" ]; then
-        echo "255;180;100"  # Orange for medium usage (>40%)
-    else
-        echo "120;220;120"  # Green for low usage (<40%)
-    fi
-}
-
-# Color definitions (RGB values)
-readonly RED="255;120;120"
-readonly ORANGE="255;180;100"
-readonly GREEN="120;220;120"
-readonly BLUE="100;180;255"
-readonly PURPLE="180;140;255"
-readonly PINK="255;140;180"
-readonly CYAN="100;200;200"
-readonly YELLOW="220;180;80"
-
-# ANSI escape sequences
-readonly RESET='\033[0m'
-readonly BLACK_FG='\033[30m'
-
 # Color functions
 bg_color() { printf "\033[48;2;%sm" "$1"; }
 fg_color() { printf "\033[38;2;%sm" "$1"; }
 segment() { echo -n "$(bg_color "$1")${BLACK_FG} $2 ${RESET}"; }
-separator() { echo -n "$(fg_color "$1")$(bg_color "$2")${RESET}"; }
+
+# A solid arrow needs two different colors to be visible at all; where adjacent
+# segments happen to share a background (two green ones, say) fall back to the
+# hairline arrow so the boundary does not disappear.
+separator() {
+    if [ "$1" = "$2" ]; then
+        echo -n "$(bg_color "$2")${BLACK_FG}${SEP_THIN}${RESET}"
+    else
+        echo -n "$(fg_color "$1")$(bg_color "$2")${SEP_THICK}${RESET}"
+    fi
+}
+
+row_end() { echo -en "$(fg_color "$1")${SEP_THICK}${RESET}"; echo; }
 
 # Main execution function
 main() {
     input=$(cat)
+
+    # Parse once here so every command substitution below inherits the values.
+    parse_input
 
     # Cache expensive calculations
     local context_color
@@ -303,38 +426,46 @@ main() {
     echo -en "$(segment "$ORANGE" "$(get_version)")"
     echo -en "$(separator "$ORANGE" "$PINK")"
     echo -en "$(segment "$PINK" "$(get_transcript_id)")"
-    echo -en "$(fg_color "$PINK")"
-    echo
+    row_end "$PINK"
 
     # Row 2: Location
     echo -en "$(segment "$BLUE" "$(get_project_dir)")"
     echo -en "$(separator "$BLUE" "$GREEN")"
     echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
-    echo -en "$(fg_color "$GREEN")"
-    echo
+    row_end "$GREEN"
 
     # Row 3: Cost and context metrics
     echo -en "$(segment "$PURPLE" "$(get_cost)$")"
+    local previous_color="$PURPLE"
+
+    # Optional prompt cache segment (only once the cache stats exist)
+    local cache cache_color
+    cache=$(get_cache)
+    if [ -n "$cache" ]; then
+        cache_color=$(get_cache_color)
+        echo -en "$(separator "$previous_color" "$cache_color")"
+        echo -en "$(segment "$cache_color" "$cache")"
+        previous_color="$cache_color"
+    fi
 
     # Optional 5h rate limit segment (only when field present)
     local rate_limit_5h rate_limit_5h_color
     rate_limit_5h=$(get_rate_limit_5h)
     if [ -n "$rate_limit_5h" ]; then
+        rate_limit_5h+="$(get_rate_limit_5h_reset)"
         rate_limit_5h_color=$(get_rate_limit_5h_color)
-        echo -en "$(separator "$PURPLE" "$rate_limit_5h_color")"
+        echo -en "$(separator "$previous_color" "$rate_limit_5h_color")"
         echo -en "$(segment "$rate_limit_5h_color" "$rate_limit_5h")"
-        echo -en "$(separator "$rate_limit_5h_color" "$context_color")"
-    else
-        echo -en "$(separator "$PURPLE" "$context_color")"
+        previous_color="$rate_limit_5h_color"
     fi
 
+    echo -en "$(separator "$previous_color" "$context_color")"
     echo -en "$(segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)")"
     echo -en "$(separator "$context_color" "$YELLOW")"
     echo -en "$(segment "$YELLOW" "$(get_context_percentage)")"
     echo -en "$(separator "$YELLOW" "$CYAN")"
     echo -en "$(segment "$CYAN" "$(get_formatted_context_window)")"
-    echo -en "$(fg_color "$CYAN")"
-    echo
+    row_end "$CYAN"
 }
 
 # Only run main if script is executed directly (not sourced for testing)

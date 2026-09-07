@@ -465,6 +465,7 @@ in
               inherit name;
               runtimeInputs = with pkgs; [
                 coreutils
+                git
                 jq
               ];
               text = builtins.readFile ../../claude/claude-code-statusline.sh;

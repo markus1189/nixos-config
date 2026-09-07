@@ -394,3 +394,217 @@ EOF
     assert_success
     assert_output ""
 }
+
+# Tests for get_cost null handling
+#
+# Regression: total_cost_usd is null before the first API response and right
+# after /clear. Multiplying that in jq aborted the getter and rendered a bare
+# "$" segment.
+
+@test "get_cost: null cost falls back to zero" {
+    input='{"cost": {"total_cost_usd": null}}'
+    run get_cost
+    assert_success
+    assert_output "0"
+}
+
+@test "get_cost: missing cost object falls back to zero" {
+    input='{}'
+    run get_cost
+    assert_success
+    assert_output "0"
+}
+
+# Tests for post-/compact behaviour
+#
+# current_usage goes null after a compaction while used_percentage survives, so
+# the bar and the percentage segment must not disagree.
+
+@test "get_context_with_bar: bar follows used_percentage when current_usage is null" {
+    input='{"context_window": {"current_usage": null, "used_percentage": 35, "total_input_tokens": 70000, "context_window_size": 200000}}'
+    run get_context_with_bar
+    assert_success
+    assert_output "70.0kt[●●●○○○○○○○]"
+}
+
+@test "get_context_color: uses used_percentage when current_usage is null" {
+    input='{"context_window": {"current_usage": null, "used_percentage": 75}}'
+    run get_context_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_context_percentage: derived from current_usage when field absent" {
+    input=$(mock_input_basic)  # 50k/200k
+    run get_context_percentage
+    assert_success
+    assert_output "25%"
+}
+
+# Tests for format_duration
+
+@test "format_duration: hours and minutes" {
+    run format_duration 8000
+    assert_success
+    assert_output "2h13m"
+}
+
+@test "format_duration: minutes only" {
+    run format_duration 2820
+    assert_success
+    assert_output "47m"
+}
+
+@test "format_duration: under a minute" {
+    run format_duration 30
+    assert_success
+    assert_output "<1m"
+}
+
+# Tests for get_rate_limit_5h_reset
+
+@test "get_rate_limit_5h_reset: future reset renders a countdown" {
+    input="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": 10, \"resets_at\": $((EPOCHSECONDS + 8000))}}}"
+    run get_rate_limit_5h_reset
+    assert_success
+    assert_output "↻2h13m"
+}
+
+@test "get_rate_limit_5h_reset: elapsed reset yields empty string" {
+    input="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": 10, \"resets_at\": $((EPOCHSECONDS - 60))}}}"
+    run get_rate_limit_5h_reset
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_5h_reset: missing field yields empty string" {
+    input='{"rate_limits": {"five_hour": {"used_percentage": 10}}}'
+    run get_rate_limit_5h_reset
+    assert_success
+    assert_output ""
+}
+
+# Tests for get_cache
+
+@test "get_cache: absent prompt_cache yields empty string" {
+    input='{}'
+    run get_cache
+    assert_success
+    assert_output ""
+}
+
+@test "get_cache: renders ttl and hit ratio behind the cache glyph" {
+    input='{"prompt_cache": {"warm": true, "ttl": "1h", "hit_ratio": 0.914}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}1h 91%"
+}
+
+@test "get_cache: short ttl and low hit ratio use the same glyph" {
+    input='{"prompt_cache": {"warm": false, "ttl": "5m", "hit_ratio": 0.4}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}5m 40%"
+}
+
+@test "get_cache: null hit ratio omits the percentage" {
+    input='{"prompt_cache": {"warm": true, "ttl": "1h", "hit_ratio": null}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}1h"
+}
+
+# Tests for get_cache_color (inverted: a high hit ratio is the good case)
+
+@test "get_cache_color: high hit ratio (91%) is green" {
+    input='{"prompt_cache": {"hit_ratio": 0.91}}'
+    run get_cache_color
+    assert_success
+    assert_output "120;220;120"
+}
+
+@test "get_cache_color: medium hit ratio (60%) is orange" {
+    input='{"prompt_cache": {"hit_ratio": 0.6}}'
+    run get_cache_color
+    assert_success
+    assert_output "255;180;100"
+}
+
+@test "get_cache_color: low hit ratio (20%) is red" {
+    input='{"prompt_cache": {"hit_ratio": 0.2}}'
+    run get_cache_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_cache_color: unknown hit ratio defaults to purple" {
+    input='{"prompt_cache": {"warm": true}}'
+    run get_cache_color
+    assert_success
+    assert_output "180;140;255"
+}
+
+# Tests for separator glyph selection
+
+@test "separator: differing colors use the solid arrow" {
+    run separator "$RED" "$ORANGE"
+    assert_success
+    assert_output --partial "$SEP_THICK"
+}
+
+@test "separator: matching colors use the hairline arrow" {
+    run separator "$GREEN" "$GREEN"
+    assert_success
+    assert_output --partial "$SEP_THIN"
+    refute_output --partial "$SEP_THICK"
+}
+
+# End-to-end tests for main
+#
+# The getters above are exercised in isolation; these run the script the way
+# Claude Code does, which is where the null-cost crash actually surfaced.
+
+mock_input_full() {
+    cat <<'EOF'
+{
+  "model": {"display_name": "Opus"},
+  "version": "2.1.260",
+  "transcript_path": "/path/to/abc123-timestamp.jsonl",
+  "workspace": {"project_dir": "/home/user/project"},
+  "cost": {"total_cost_usd": 1.2345},
+  "context_window": {
+    "current_usage": {"input_tokens": 8500, "cache_creation_input_tokens": 5000, "cache_read_input_tokens": 82000},
+    "total_input_tokens": 95500,
+    "context_window_size": 200000,
+    "used_percentage": 47.75
+  },
+  "exceeds_200k_tokens": false,
+  "prompt_cache": {"warm": true, "ttl": "1h", "hit_ratio": 0.91},
+  "rate_limits": {"five_hour": {"used_percentage": 23.5}},
+  "effort": {"level": "high"},
+  "thinking": {"enabled": true}
+}
+EOF
+}
+
+@test "main: full payload renders three rows without errors" {
+    run bash -c "$(declare -f mock_input_full); mock_input_full | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_equal "${#lines[@]}" 3
+    refute_output --partial "jq: error"
+    refute_output --partial "command not found"
+}
+
+@test "main: null cost payload renders without a jq error" {
+    run bash -c "printf '%s' '{\"cost\": {\"total_cost_usd\": null}, \"context_window\": {}}' | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    refute_output --partial "jq: error"
+    assert_output --partial "0\$"
+}
+
+@test "main: empty JSON object renders without errors" {
+    run bash -c "printf '%s' '{}' | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_equal "${#lines[@]}" 3
+    refute_output --partial "jq: error"
+}
