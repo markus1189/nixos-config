@@ -690,8 +690,11 @@ rec {
         set +a
 
         MESSAGE=''${1:?"Error: no message given!"}
+        # No --retry, for the reason spelled out at sendTelegramAnimation below: sendMessage is
+        # not idempotent, and both --retry and --retry-all-errors resend on 429/5xx -- i.e.
+        # precisely when Telegram has already accepted the message.
         curl --silent --fail -XPOST \
-         --retry-all-errors --retry 3 \
+         --connect-timeout 10 --max-time 30 \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           -H 'Content-Type: application/json' \
           -d "$(jo chat_id=${chatid} ${
@@ -718,8 +721,9 @@ rec {
 
       QUESTION=''${1:?"Error: no message given!"}
       shift
+      # Not idempotent either; see sendTelegramAnimation.
       curl --silent --fail -XPOST \
-       --retry-all-errors --retry 3 \
+       --connect-timeout 10 --max-time 30 \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
         -H 'Content-Type: application/json' \
         -d "$(jo allows_multiple_answers=true chat_id=299952716 question="''${QUESTION}" options="$(jo -a "$@")")" \
@@ -756,8 +760,15 @@ rec {
         CAPTION=''${2:-}
         # sendAnimation, not sendPhoto: Telegram transcodes the GIF to MP4 and plays it
         # inline, whereas a photo upload would flatten it to a single still frame.
+        # No --retry here, deliberately. sendAnimation is not idempotent: Telegram accepts the
+        # upload and posts the message *before* it answers, so a 429 or a dropped response makes
+        # curl re-upload a GIF that is already in the channel -- and every retry feeds the rate
+        # limit that caused the 429. On nuc that produced four identical radar loops plus the
+        # "Regenradar konnte nicht erzeugt werden" fallback, because curl still exits non-zero
+        # after the last attempt. A missed radar frame is by far the cheaper failure.
+        # --max-time also stops a slow upload from holding the remind child for minutes.
         curl --silent --fail -XPOST \
-          --retry-all-errors --retry 3 \
+          --connect-timeout 10 --max-time 120 \
           --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
           --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendAnimation" \
           -F chat_id=${chatid} \
