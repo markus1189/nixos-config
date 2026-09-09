@@ -19,6 +19,7 @@
   gnuplot,
   gnused,
   haskellPackages,
+  i3lock-color,
   imagemagick,
   jo,
   jq,
@@ -540,13 +541,15 @@ rec {
 
   lockScreen = writeShellApplication {
     name = "lockScreen";
-    runtimeInputs = [ ];
+    runtimeInputs = [ i3lock-color ];
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
-      # i3lock binary comes from programs.i3lock in laptop/programs.nix
-      # (setuid wrapper, required for PAM auth; package is i3lock-color)
-      /run/wrappers/bin/i3lock \
+      # No setuid wrapper: programs.i3lock only creates one with u2fSupport.
+      # PAM auth works without it -- pam_unix shells out to the setuid
+      # unix_chkpwd -- but it does need /etc/pam.d/i3lock, which
+      # programs.i3lock (laptop/programs.nix) declares. Keep that enabled.
+      i3lock \
         --image=${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png \
         --blur=5 \
         --clock \
