@@ -8,7 +8,7 @@
   imports = [
     ../nixos-shared/common-services.nix
     ../nixos-shared/restic/systemd.nix
-    ./cron.nix
+    ./healthcheck.nix
     ../nixos-shared/common-packages.nix
     ../nixos-shared/common-programs.nix
     ../nixos-shared/fasd.nix
@@ -286,10 +286,4 @@
   # so point nh at the same place system.autoUpgrade builds from. `--refresh`
   # stays mandatory: without it the cached tarball rebuilds the same generation.
   programs.nh.flake = "github:markus1189/nixos-config";
-
-  # Kodi's only video source and three cron jobs in ./cron.nix live here; the
-  # 31 G of old content stayed on /mnt/old, but the directory has to exist.
-  systemd.tmpfiles.rules = [
-    "d /home/${config.my.userName}/Downloads 0755 ${config.my.userName} users -"
-  ];
 }

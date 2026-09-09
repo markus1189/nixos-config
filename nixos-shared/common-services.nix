@@ -9,11 +9,6 @@
   services = {
     atd.enable = true;
 
-    cron = {
-      enable = true;
-      mailto = config.my.userName;
-    };
-
     udisks2.enable = true;
 
     unclutter-xfixes.enable = true;
