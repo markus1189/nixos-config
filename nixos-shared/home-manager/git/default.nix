@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  osConfig,
+  ...
+}:
 
 let
   inherit (pkgs)
@@ -13,6 +18,24 @@ let
     ;
 
   gitPackage = gitFull;
+
+  # The secret half of an OpenPGP key lives on exactly one machine, so there is
+  # no single fingerprint that signs everywhere -- pick by host.
+  signingKeys = {
+    # markus+p1g8, ed25519, generated with the host. Its only uid is
+    # markus+p1g8@gmail.com, which is not a deliverable address (gmail
+    # sub-addressing would need markus1189+p1g8@), so GitHub cannot verify
+    # signatures under it until markus1189@gmail.com is added as a second uid:
+    #   gpg --quick-add-uid <fpr> 'Markus Hauck <markus1189@gmail.com>'
+    p1g8 = "C60110B291B876AFD152F871A850811C1F25B661";
+    # UNVERIFIED: the fingerprint this config carried before it was split per
+    # host. p1 was unreachable when that split happened, so nobody has checked
+    # that its secret half is actually on that machine -- if commits there start
+    # failing with "No secret key", this is why.
+    nixos-p1 = "A81E5C8BE9DB291A497B2258B76588292D543934";
+  };
+
+  signingKey = signingKeys.${osConfig.networking.hostName} or null;
 
   # Vendored gitignore.io API output (the URL serves generated, unpinnable
   # content). Refresh manually by re-downloading the API URL if ever needed.
@@ -101,29 +124,12 @@ in
       "*.bin diff=binary"
     ];
 
-    includes = [
-      {
-        condition = "gitdir:~/repos/otto/";
-        contents = {
-          user = {
-            name = userName;
-            email = "markus.hauck@otto.de";
-            signingkey = "23AF17F2873DB4668901D7063FFAE18A1B582ED2";
-          };
-
-          commit = {
-            gpgsign = true;
-          };
-        };
-      }
-    ];
-
     settings = {
       user = {
         name = userName;
         email = "markus1189@gmail.com";
         useConfigOnly = true;
-        signingkey = "A81E5C8BE9DB291A497B2258B76588292D543934";
+        signingkey = signingKey;
       };
 
       alias = {
@@ -214,6 +220,10 @@ in
       commit = {
         template = "${./git-commit-template}";
         verbose = true;
+        # Signed by default: nuc rebuilds from this repo nightly and activates
+        # it as root, so the signature is the only thing distinguishing "Markus
+        # pushed" from "someone with a GitHub token pushed".
+        gpgsign = signingKey != null;
       };
 
       init = {
