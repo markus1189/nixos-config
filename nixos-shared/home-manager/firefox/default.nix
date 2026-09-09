@@ -90,33 +90,6 @@
                  background-color: darkorange !important;
               }
           }
-
-          @-moz-document domain("jenkins.ft1.cloud.otto.de") {
-            .tab > a[href$="Order_Core_Pipeline/"] {
-              background: orange !important;
-              color: black !important;
-            }
-
-            .tab > a[href$="Order_Checkout_Pipeline/"] {
-              background: orange !important;
-              color: black !important;
-            }
-
-            .tab > a[href$="Order_AWS_Bootstrap_Pipeline/"] {
-              background: orange !important;
-              color: black !important;
-            }
-
-            .tab > a[href$="Order_Up_Pipeline/"] {
-              background: orange !important;
-              color: black !important;
-            }
-
-            .tab > a[href$="Order_Common_Pipeline/"] {
-              background: orange !important;
-              color: black !important;
-            }
-          }
         '';
         path = "managed";
       };
