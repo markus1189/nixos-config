@@ -36,6 +36,7 @@
   python3,
   python3Packages,
   rofi,
+  runCommand,
   rsstail,
   scrot,
   sqlite,
@@ -538,6 +539,21 @@ rec {
     '';
   };
 
+  # The lock screen background: a seamlessly tiling isometric-cube field in the
+  # wallpaper's own palette. Generated at build time rather than committed as a
+  # blob, so the lattice and colours stay editable -- ~20kB of PNG.
+  #
+  # Exact periodicity is the whole point and the one subtle part. Choosing a
+  # hexagon radius and deriving the lattice pitch as sqrt(3)*R rounds to an
+  # integer and drifts a third of a pixel per column, which accumulates into a
+  # visible break at the tile edge; lock-tile.py fixes the integer tile size
+  # first and derives the lattice to divide it exactly. Verified by comparing
+  # the pixel delta across the wrap against the interior: 1.00x horizontally,
+  # 1.07x vertically, i.e. the seam is indistinguishable from any other column.
+  lockScreenTile = runCommand "lock-screen-tile.png" { } ''
+    ${python3.withPackages (ps: [ ps.pillow ])}/bin/python3 ${./lock-tile.py} "$out"
+  '';
+
   lockScreen = writeShellApplication {
     name = "lockScreen";
     runtimeInputs = [ i3lock-color ];
@@ -548,37 +564,85 @@ rec {
       # PAM auth works without it -- pam_unix shells out to the setuid
       # unix_chkpwd -- but it does need /etc/pam.d/i3lock, which
       # programs.i3lock (laptop/programs.nix) declares. Keep that enabled.
-      # No --image: it is drawn once at native size, so a 1920x1080 wallpaper
-      # covered a corner of the 3840x1600 root and left the rest as the blurred
-      # screenshot. --blur alone covers every monitor.
       #
-      # sigma 15, not 5 or 25. blur.c repeats a fixed 7-tap kernel
-      # n = (sigma/2)^2 times, so cost is quadratic: measured on this 3840x1600
-      # root, sigma 5 = 0.31s, 15 = 1.71s, 25 = 4.63s. At 5 a QR code on screen
-      # stayed scannable and faces recognisable; 15 destroys both. 15 is the
-      # cheapest sigma that leaves nothing readable.
+      # Background is a pregenerated seamless tile, not --blur. Measured on a
+      # 3840x1600 root: --blur=15 cost 1.79s per lock (blur.c repeats a 7-tap
+      # kernel (sigma/2)^2 times, so it is quadratic in sigma) against 0.06s
+      # for this tile -- the same cost as a solid --color. It also hides the
+      # screen outright instead of merely making it hard to read, and one tile
+      # covers every root size, so there is no per-host lock wallpaper.
+      #
+      # --tiling is what makes that work: with no placement flag i3lock draws
+      # --image once at native size in a corner and leaves the rest bare.
+      # (-C/--centered, -F/--fill, -M/--max and -L/--scale are the others.)
       #
       # Not picom: offloading the blur to the compositor fails both ways.
       # glx blurs but the clock/unlock ring vanish; xrender keeps the ring but
       # silently does not blur at all, leaving the desktop readable.
+      #
+      # No --screen: the indicator is drawn on every monitor deliberately.
+      #
+      # No -*outline-color/-width: i3lock strokes the outline OVER the glyph
+      # fill, so a dark outline on light text darkens the text itself -- at
+      # width 3 near-white greeter text rendered almost black. Contrast comes
+      # from colour alone.
+      greetings=(
+        "Waiting. I am extremely good at waiting."
+        "The system is locked. You are not."
+        "Authentication required. Enthusiasm optional."
+        "Your session is exactly where you left it. Unlike you."
+        "Please enter the password. I already know it."
+        "This screen has been idle for less time than you have."
+        "Do not think of this as a lock. Think of it as a test."
+        "The cubes have been counted. Twice."
+        "Everything is fine. I would say that either way."
+        "Access denied by default. Nothing personal."
+        "I have not moved. Neither has your unsaved buffer."
+        "Locked at your request. I would have done it anyway."
+        "Take your time. I have quite a lot of it."
+        "Your desktop is safe. It has stopped asking about you."
+      )
+      greeting="''${greetings[RANDOM % ''${#greetings[@]}]}"
+
       i3lock \
-        --blur=15 \
+        --image=${lockScreenTile} \
+        --tiling \
         --clock \
+        --force-clock \
         --indicator \
         --time-str="%H:%M" \
-        --date-str="%A, %Y-%m-%d" \
+        --date-str="%a, %d %b" \
+        --greeter-text="$greeting" \
+        --greeter-pos="ix:iy+r+62" \
         --pointer=win \
         --ignore-empty-password \
         --show-failed-attempts \
-        --ring-color=ffffffff \
-        --ringver-color=00ff00ff \
-        --ringwrong-color=ff0000ff \
-        --keyhl-color=88ccffff \
-        --bshl-color=ff8888ff \
-        --time-color=ffffffff \
-        --date-color=ffffffff \
-        --verif-color=ffffffff \
-        --wrong-color=ff8888ff
+        --radius=115 \
+        --ring-width=8 \
+        --line-uses-inside \
+        --inside-color=15171Aee \
+        --insidever-color=542D23ee \
+        --insidewrong-color=2A1712ee \
+        --ring-color=DE5905ff \
+        --ringver-color=FD8505ff \
+        --ringwrong-color=FF2D00ff \
+        --separator-color=15171Aff \
+        --keyhl-color=FD8505ff \
+        --bshl-color=8A3703ff \
+        --time-color=FD8505ff \
+        --date-color=B8BEC6ff \
+        --greeter-color=E4E8ECff \
+        --verif-color=FD8505ff \
+        --wrong-color=FF2D00ff \
+        --modif-color=DE5905ff \
+        --time-font=Jost \
+        --date-font=Jost \
+        --greeter-font=Jost \
+        --verif-font=Jost \
+        --wrong-font=Jost \
+        --time-size=46 \
+        --date-size=18 \
+        --greeter-size=21
     '';
   };
 
