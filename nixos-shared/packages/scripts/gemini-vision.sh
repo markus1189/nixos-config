@@ -17,7 +17,7 @@ readonly MAX_IMAGES=16
 # silently normalised text (asked to transcribe verbatim it turned a whiteboard
 # note's "unabängig" into "unabhängig"), so stay on the non-lite 3.7-flash.
 # Revisit if a further 3.x non-lite tier lands on the EU list.
-readonly MODEL="vertex/gemini-3.7-flash@eu"
+readonly MODEL="vertex/gemini-3.8-flash@eu"
 
 usage() {
   cat >&2 <<EOF

@@ -17,9 +17,9 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `laptop/home.nix` (~line 78) | **opencode** provider block (`@ai-sdk/openai-compatible`, Requesty EU) with its own model list. |
 | `nixos-shared/home-manager/zsh/default.nix` (~line 20) | **gptel alias + claude-code wrapper** — defines haiku/sonnet/opus vertex models + `ANTHROPIC_BASE_URL`. |
 | `nixos-shared/packages/emacs/emacs-config.el` (~line 1530) | **gptel** model list (OpenRouter). |
-| `nixos-shared/packages/scripts/gemini-vision.sh:21` | `MODEL` const for the vision script. |
-| `nixos-shared/claude/skills/transcribe-audio/scripts/transcribe.sh:26` | `MODEL` const for transcription. |
-| `nixos-shared/claude/skills/nano-banana/scripts/nano-banana.sh:24,51-52` | image model mapping (`flash`/`pro`). |
+| `nixos-shared/packages/scripts/gemini-vision.sh:20` | `MODEL` const for the vision script. |
+| `nixos-shared/agent-skills/transcribe-audio/scripts/transcribe.sh:26` | `MODEL` const for transcription. |
+| `nixos-shared/agent-skills/nano-banana/scripts/nano-banana.sh:24,51-52` | image model mapping (`flash`/`pro`). |
 | `nixos-shared/claude/claude-code-statusline.sh:19,61` | parses bedrock model names + gateway URL. |
 
 > **Useful commands to find every mention of a model before/after editing:**
@@ -48,7 +48,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |-------|-----------|
 | `vertex/gemini-3.5-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode) |
 | `vertex/gemini-3.1-flash-lite@eu` | `pi-agent/models.json` |
-| `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json`, `gemini-vision.sh` (Requesty /chat) |
+| `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json` |
+| `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
@@ -76,7 +77,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `sference/kimi-k3`, `tensorx/kimi-k3` (vision) | `pi-agent/models.json` |
 | `tensorx/kimi-k2.7-code`, `inceptron/kimi-k2.7-Code` | `pi-agent/models.json` |
 | `nebius/moonshotai/kimi-k2.5` | `laptop/home.nix` (opencode) |
-| `tensorx/deepseek-v4-pro`, `deepseek-v4-flash`, `sference/deepseek-v4-flash-0731` | `pi-agent/models.json`; F1 → `sference/deepseek-v4-flash-0731` in `model-shortcuts.ts` |
+| `tensorx/deepseek-v4-pro-0813`, `tensorx/deepseek-v4-flash-0731`, `sference/deepseek-v4-flash-0731` | `pi-agent/models.json`; F1 cycles all three in `model-shortcuts.ts` |
 | `tensorx/minimax-m3` | `pi-agent/models.json` |
 | `tensorx/qwen3.8`, `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json` |
 
@@ -114,7 +115,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Key | Requesty primary | OpenRouter fallback |
 |-----|------------------|---------------------|
-| F1 | `sference/deepseek-v4-flash-0731` | `deepseek/deepseek-v4-flash-0731` |
+| F1 | `sference/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-pro-0813` | — |
 | F2 | `vertex/claude-opus-5@eu` | `anthropic/claude-opus-5` |
 | F3 | `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5` |
 | F4 | `sference/glm-5.3` → `sference/glm-5.3-flash` | — |

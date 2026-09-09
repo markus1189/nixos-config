@@ -97,6 +97,10 @@ in
                     name = "Gemini 3.5 Flash";
                   };
 
+                  "vertex/gemini-3.8-flash@eu" = {
+                    name = "Gemini 3.8 Flash";
+                  };
+
                   "azure/gpt-5.4@swedencentral" = {
                     name = "GPT 5.4 Chat";
                   };
