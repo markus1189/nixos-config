@@ -552,11 +552,17 @@ rec {
       # covered a corner of the 3840x1600 root and left the rest as the blurred
       # screenshot. --blur alone covers every monitor.
       #
-      # sigma 25, not 5: at 5 a QR code on screen stayed scannable and faces
-      # stayed recognisable (measured against this exact desktop). 15 kills the
-      # QR, 25 leaves only colour blobs.
+      # sigma 15, not 5 or 25. blur.c repeats a fixed 7-tap kernel
+      # n = (sigma/2)^2 times, so cost is quadratic: measured on this 3840x1600
+      # root, sigma 5 = 0.31s, 15 = 1.71s, 25 = 4.63s. At 5 a QR code on screen
+      # stayed scannable and faces recognisable; 15 destroys both. 15 is the
+      # cheapest sigma that leaves nothing readable.
+      #
+      # Not picom: offloading the blur to the compositor fails both ways.
+      # glx blurs but the clock/unlock ring vanish; xrender keeps the ring but
+      # silently does not blur at all, leaving the desktop readable.
       i3lock \
-        --blur=25 \
+        --blur=15 \
         --clock \
         --indicator \
         --time-str="%H:%M" \
