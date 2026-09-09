@@ -27,7 +27,6 @@
   lib,
   libnotify,
   mozillavpn,
-  nixos-artwork,
   oathToolkit,
   pass,
   playerctl,
@@ -549,9 +548,15 @@ rec {
       # PAM auth works without it -- pam_unix shells out to the setuid
       # unix_chkpwd -- but it does need /etc/pam.d/i3lock, which
       # programs.i3lock (laptop/programs.nix) declares. Keep that enabled.
+      # No --image: it is drawn once at native size, so a 1920x1080 wallpaper
+      # covered a corner of the 3840x1600 root and left the rest as the blurred
+      # screenshot. --blur alone covers every monitor.
+      #
+      # sigma 25, not 5: at 5 a QR code on screen stayed scannable and faces
+      # stayed recognisable (measured against this exact desktop). 15 kills the
+      # QR, 25 leaves only colour blobs.
       i3lock \
-        --image=${nixos-artwork.wallpapers.simple-dark-gray}/share/artwork/gnome/nix-wallpaper-simple-dark-gray.png \
-        --blur=5 \
+        --blur=25 \
         --clock \
         --indicator \
         --time-str="%H:%M" \
