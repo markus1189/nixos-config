@@ -108,6 +108,7 @@
         prettier
         psmisc
         pv
+        qpdf
         rclone
         remind
         wyrd
