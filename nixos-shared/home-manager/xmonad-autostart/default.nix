@@ -106,6 +106,15 @@ in
         # Quitting a program is a decision, not a failure. `systemctl --user
         # start <name>` brings it back within the session.
         Restart = "no";
+        # ExecStart is the window, not the work. Default KillMode is
+        # control-group, so systemd SIGTERMs everything left in the cgroup once
+        # the main process exits -- and a terminal that *created* a tmux server
+        # rather than attaching to one has that server as a cgroup sibling.
+        # Closing the window then kills the session. Observed 2026-09-10: a
+        # stale TMUX_TMPDIR made `tmx default` create its own server inside
+        # term-default.service; closing the ghostty took 4 windows with it.
+        # KillMode=process stops the window and leaves the rest standing.
+        KillMode = "process";
         # The user manager is started by pam_systemd at login, long before any
         # shell profile runs, so its environment block never learns about the
         # agent -- and a unit started from it hands that gap down to every
