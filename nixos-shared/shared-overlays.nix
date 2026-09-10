@@ -11,17 +11,10 @@ let
   visidataOverlay =
     self: super:
     let
+      # everything else visidata needs is already in nixpkgs' `dependencies`
       pypkgs = with self.python3Packages; [
-        requests
-        sh
         pytimeparse
         tomli
-        # plugins that will soon already be included
-        importlib-metadata
-        faker
-        pdfminer-six
-        praw
-        psutil
       ];
     in
     {
@@ -33,7 +26,6 @@ let
             dependencies = old.dependencies ++ pypkgs;
             src = inputs.visidata;
             doCheck = false;
-            patches = [ ];
           });
     };
 
