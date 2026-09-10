@@ -30,7 +30,7 @@ let
           "INFO: Using visidata overlay for more python packages and develop branch [${inputs.visidata.lastModifiedDate} @ ${inputs.visidata.shortRev}]"
           super.visidata.overridePythonAttrs
           (old: {
-            propagatedBuildInputs = old.propagatedBuildInputs ++ pypkgs;
+            dependencies = old.dependencies ++ pypkgs;
             src = inputs.visidata;
             doCheck = false;
             patches = [ ];
