@@ -20,6 +20,7 @@
         lz4
         matplotlib
         numpy
+        openpyxl
         pandas
         pillow
         psutil
