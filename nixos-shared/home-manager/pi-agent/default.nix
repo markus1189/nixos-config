@@ -80,6 +80,7 @@ let
       target = ".pi/agent/extensions/sounds.ts";
       source = pkgs.replaceVars ./extensions/sounds.ts {
         aplay = pkgs.alsa-utils;
+        inherit (pkgs) coreutils;
         sounds = "${../../claude/sounds}";
       };
     };

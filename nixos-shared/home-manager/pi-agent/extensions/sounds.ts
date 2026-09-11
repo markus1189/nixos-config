@@ -3,8 +3,11 @@ import { spawn } from "child_process";
 
 const SOUNDS_DIR = "@sounds@";
 
+// The timeout matches claude-code's playSound and is load-bearing for the
+// same reason: if the audio stack wedges, aplay blocks forever on the
+// PipeWire socket and every tool call leaks an immortal process.
 function playSound(name: string) {
-  spawn("@aplay@/bin/aplay", [`${SOUNDS_DIR}/${name}`], {
+  spawn("@coreutils@/bin/timeout", ["5", "@aplay@/bin/aplay", `${SOUNDS_DIR}/${name}`], {
     detached: true,
     stdio: "ignore",
   }).unref();
