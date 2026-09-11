@@ -175,23 +175,19 @@ in
           };
         };
 
+        # opencode documents ~/.config/opencode/plugins/ (plural); the
+        # singular form still loads in 1.18.29 but is undocumented.
         "opencode-plugin-terminal-bell" = {
-          target = ".config/opencode/plugin/terminal-bell.ts";
+          target = ".config/opencode/plugins/terminal-bell.ts";
           text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
         };
 
         "opencode-plugin-sounds" = {
-          target = ".config/opencode/plugin/sounds.ts";
+          target = ".config/opencode/plugins/sounds.ts";
           source = pkgs.replaceVars ../nixos-shared/home-manager/opencode/sounds.ts {
             aplay = pkgs.alsa-utils;
-            involvedNotificationSound = "${../nixos-shared/claude/sounds/involved-notification.wav}";
-            pullOutSound = "${../nixos-shared/claude/sounds/pull-out-551.wav}";
-            forSureSound = "${../nixos-shared/claude/sounds/for-sure-576.wav}";
-            happyToHelpSound = "${../nixos-shared/claude/sounds/happy-to-help-notification-sound.wav}";
-            comeHereSound = "${../nixos-shared/claude/sounds/come-here-notification.wav}";
-            intuitionSound = "${../nixos-shared/claude/sounds/intuition-561.wav}";
-            timeIsNowSound = "${../nixos-shared/claude/sounds/time-is-now-585.wav}";
-            justMaybeSound = "${../nixos-shared/claude/sounds/just-maybe-577.wav}";
+            inherit (pkgs) coreutils;
+            sounds = "${../nixos-shared/claude/sounds}";
           };
         };
 

@@ -1,59 +1,64 @@
 import type { Plugin } from "@opencode-ai/plugin"
+import { spawn } from "child_process"
 
-export const Sounds: Plugin = async ({ $ }) => {
-  // Helper: Play sound file in background
-  const playSound = async (soundPath: string) => {
-    await $`@aplay@/bin/aplay ${soundPath} >/dev/null 2>&1 &`.nothrow()
-  }
+const SOUNDS_DIR = "@sounds@"
 
-  // Helper: Match tool name against pattern (regex)
-  const matchesTool = (toolName: string, pattern: string): boolean => {
-    const regex = new RegExp(pattern)
-    return regex.test(toolName)
-  }
+// Detached with stdio ignored, so playback never blocks the agent and never
+// writes into the TUI. Bun's `$` is unusable here: it rejects background `&`
+// outright ("Background commands \"&\" are not supported yet") and accepts
+// only one redirect per command, so `>/dev/null 2>&1 &` fails to parse.
+//
+// The timeout matches claude-code's playSound and is load-bearing for the
+// same reason: if the audio stack wedges, aplay blocks forever on the
+// PipeWire socket and every tool call leaks an immortal process.
+function playSound(name: string) {
+  spawn("@coreutils@/bin/timeout", ["5", "@aplay@/bin/aplay", `${SOUNDS_DIR}/${name}`], {
+    detached: true,
+    stdio: "ignore",
+  }).unref()
+}
 
+// Tool ids are lowercase and come from `GET /experimental/tool/ids`:
+// invalid, question, bash, read, glob, grep, edit, write, task, webfetch,
+// todowrite, websearch, skill, apply_patch. There is no `list` tool, and
+// `patch` is spelled `apply_patch`.
+const RESEARCH_TOOLS = new Set(["task", "websearch"])
+const READONLY_TOOLS = new Set(["read", "glob", "grep", "webfetch"])
+const MUTATING_TOOLS = new Set(["bash", "write", "edit", "apply_patch", "todowrite"])
+
+export const Sounds: Plugin = async () => {
   return {
     event: async ({ event }) => {
-      // Session events
-      if (event.type === "session.created") {
-        // Startup/resume sound
-        await playSound("@involvedNotificationSound@")
-      } else if (event.type === "session.compacted") {
-        // Session cleared sound
-        await playSound("@pullOutSound@")
-      } else if (event.type === "session.idle" || event.type === "session.deleted") {
-        // Session stopped/completed sound
-        await playSound("@forSureSound@")
+      switch (event.type) {
+        case "session.created":
+          playSound("involved-notification.wav")
+          break
+        case "session.compacted":
+          // hollow-582 is compaction across the fleet; pull-out-551 means
+          // "cleared / switched" in claude-code and pi-agent, so don't reuse it.
+          playSound("hollow-582.wav")
+          break
+        case "session.idle":
+        case "session.deleted":
+          playSound("for-sure-576.wav")
+          break
       }
+    },
 
-      // Tool execution events - before
-      else if (event.type === "tool.execute.before") {
-        const toolName = event.data?.tool?.name || ""
+    // tool.execute.* are top-level hooks, not bus events -- they never arrive
+    // through `event`, and the tool id is `input.tool`, a bare string.
+    "tool.execute.before": async (input) => {
+      if (input.tool === "skill") playSound("graceful-285.wav")
+      else if (RESEARCH_TOOLS.has(input.tool)) playSound("happy-to-help-notification-sound.wav")
+      else if (READONLY_TOOLS.has(input.tool)) playSound("come-here-notification.wav")
+      else if (MUTATING_TOOLS.has(input.tool)) playSound("intuition-561.wav")
+    },
 
-        if (matchesTool(toolName, "Task|WebSearch")) {
-          // Research/task tools
-          await playSound("@happyToHelpSound@")
-        } else if (matchesTool(toolName, "Read|List|Glob|Grep|WebFetch")) {
-          // Read-only tools
-          await playSound("@comeHereSound@")
-        } else if (matchesTool(toolName, "Bash|Write|Edit|MultiEdit|TodoWrite")) {
-          // State-changing tools
-          await playSound("@intuitionSound@")
-        }
-      }
-
-      // Tool execution events - after
-      else if (event.type === "tool.execute.after") {
-        const toolName = event.data?.tool?.name || ""
-
-        if (toolName === "Task") {
-          // Subagent completion
-          await playSound("@timeIsNowSound@")
-        } else {
-          // General notification for other tool completions
-          await playSound("@justMaybeSound@")
-        }
-      }
-    }
+    // Subagent completion only. Neither sibling chimes after every tool:
+    // claude-code registers no PostToolUse hook, and pi-agent's tool_result
+    // handler fires only when the call errored.
+    "tool.execute.after": async (input) => {
+      if (input.tool === "task") playSound("time-is-now-585.wav")
+    },
   }
 }
