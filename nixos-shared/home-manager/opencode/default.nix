@@ -1,56 +1,70 @@
 { pkgs, ... }:
 
 let
-  # Helper function to check if a file starts with YAML frontmatter
-  hasYamlFrontmatter =
-    filePath:
+  inherit (pkgs) lib;
+
+  # opencode's command frontmatter schema only knows description/agent/model/
+  # subtask. A single unknown key (Claude's argument-hint) fails the whole
+  # parse, and opencode then keeps the raw `---` block as part of the prompt
+  # and shows no description. So instead of skipping every command that has
+  # frontmatter, strip it down to the keys opencode understands.
+  opencodeCommandKeys = [
+    "description"
+    "agent"
+    "model"
+    "subtask"
+  ];
+
+  stripUnknownFrontmatter =
+    content:
     let
-      content = builtins.readFile filePath;
-      lines = pkgs.lib.strings.splitString "\n" content;
-      firstLine = builtins.head lines;
+      lines = lib.strings.splitString "\n" content;
+      rest = builtins.tail lines;
+      closeIdx = lib.lists.findFirstIndex (line: line == "---") null rest;
+      frontmatter = lib.lists.take closeIdx rest;
+      body = lib.lists.drop (closeIdx + 1) rest;
+      keep = builtins.filter (
+        line: builtins.any (key: lib.strings.hasPrefix "${key}:" line) opencodeCommandKeys
+      ) frontmatter;
     in
-    firstLine == "---";
+    if lines == [ ] || builtins.head lines != "---" || closeIdx == null then
+      content
+    else
+      lib.strings.concatStringsSep "\n" ([ "---" ] ++ keep ++ [ "---" ] ++ body);
 
   # Helper function to automatically discover and configure markdown files
   autoConfigMarkdownFiles =
-    sourceDir: targetSubdir: namePrefix: filterFn:
+    sourceDir: targetSubdir: namePrefix: transform:
     let
       files = builtins.readDir sourceDir;
-      isMarkdownFile = name: type: type == "regular" && pkgs.lib.strings.hasSuffix ".md" name;
-      markdownFiles = pkgs.lib.attrsets.filterAttrs isMarkdownFile files;
-
-      # Apply additional filter function
-      filteredFiles = pkgs.lib.attrsets.filterAttrs (
-        filename: _: filterFn (sourceDir + "/${filename}")
-      ) markdownFiles;
+      isMarkdownFile = name: type: type == "regular" && lib.strings.hasSuffix ".md" name;
+      markdownFiles = lib.attrsets.filterAttrs isMarkdownFile files;
 
       makeEntry = filename: {
         target = ".config/opencode/${targetSubdir}/${filename}";
-        text = builtins.readFile (sourceDir + "/${filename}");
+        text = transform (builtins.readFile (sourceDir + "/${filename}"));
       };
 
-      entries = pkgs.lib.attrsets.mapAttrs' (
+      entries = lib.attrsets.mapAttrs' (
         filename: _:
-        pkgs.lib.attrsets.nameValuePair "${namePrefix}-${pkgs.lib.strings.removeSuffix ".md" filename}" (
+        lib.attrsets.nameValuePair "${namePrefix}-${lib.strings.removeSuffix ".md" filename}" (
           makeEntry filename
         )
-      ) filteredFiles;
+      ) markdownFiles;
     in
     entries;
 
-  # Auto-configure command files (exclude files with YAML frontmatter)
-  commandEntries = autoConfigMarkdownFiles ../../claude/commands "command" "opencode-cmd" (
-    filePath: !(hasYamlFrontmatter filePath)
-  );
+  # Auto-configure command files (Claude-only frontmatter keys stripped)
+  commandEntries =
+    autoConfigMarkdownFiles ../../claude/commands "command" "opencode-cmd"
+      stripUnknownFrontmatter;
 
-  # Auto-configure output-styles as agents (no filter needed)
-  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agent" "opencode-agent" (
-    _: true
-  );
+  # Auto-configure output-styles as agents
+  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agent" "opencode-agent" lib.id;
 
   # Auto-configure opencode-native agents (opencode-specific frontmatter:
   # mode/model/permission/temperature) kept separate from Claude output-styles
-  opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" (_: true);
+  opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" lib.id;
 
 in
 {
