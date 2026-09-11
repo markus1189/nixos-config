@@ -1163,8 +1163,8 @@ rec {
     '';
   };
 
-  # What the remind daemon calls: temperature first (it is the quick, reliable one), then the
-  # radar. The radar must not be able to swallow the temperature, hence the `|| true`.
+  # What the remind daemon calls: radar first, then the temperature. Each half guards its own
+  # failure, so neither can swallow the other -- hence the `|| true` on the temperature.
   homeWeatherReport = writeShellApplication {
     name = "homeWeatherReport";
     runtimeInputs = [
@@ -1175,8 +1175,8 @@ rec {
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
-      viessmannOutsideTemperature || true
       dwdRadarTelegram || notifySendHome "Regenradar konnte nicht erzeugt werden"
+      viessmannOutsideTemperature || true
     '';
   };
 
