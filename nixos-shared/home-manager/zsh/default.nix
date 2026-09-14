@@ -57,6 +57,8 @@ in
         c-plain = "${claudeEnv} claude";
         cy-plain = "${claudeEnv} claude ${yolo}";
 
+        oc = "env ${requestyAgentKey} opencode";
+
         pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
 
         pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
