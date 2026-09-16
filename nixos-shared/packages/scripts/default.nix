@@ -1120,7 +1120,9 @@ rec {
   # The rendering half on its own, so the framing (marks, crop, size) lives in one place and
   # botler can ask for exactly the picture the nightly reminder sends. Takes the destination
   # .gif path as $1; dwd-radar-gif's --out is a *base* name it appends the extension to,
-  # hence the ${OUT%.gif}.
+  # hence the ${OUT%.gif}. Anything after $1 is appended to the dwd-radar-gif call, so a caller
+  # can add flags (dwdRadarTelegram adds --min-precip) without a second copy of the framing;
+  # the exit code is the renderer's own, including 3 for "too dry to bother".
   dwdRadarRender = writeShellApplication {
     name = "dwdRadarRender";
     runtimeInputs = [ dwd-radar-gif ];
@@ -1128,6 +1130,7 @@ rec {
     bashOptions = [ "errexit" ];
     text = ''
       OUT=''${1:?"Error: no output path given!"}
+      shift
 
       dwd-radar-gif \
         --past 60 \
@@ -1138,12 +1141,20 @@ rec {
         --margin-km 100 \
         --font ${dejavu_fonts}/share/fonts/truetype/DejaVuSans.ttf \
         --font-bold ${dejavu_fonts}/share/fonts/truetype/DejaVuSans-Bold.ttf \
-        --out "''${OUT%.gif}" > /dev/null
+        --out "''${OUT%.gif}" "$@" > /dev/null
     '';
   };
 
   # One rendered loop, sent to the home group. Kept separate from the reminder wiring so it can
   # be run by hand: `dwdRadarTelegram` needs no arguments.
+  #
+  # A dry evening gets no message at all: the renderer exits 3 when the wettest frame of the
+  # hour covers less than DWD_RADAR_MIN_PRECIP percent of the view, and that is a verdict, not
+  # a failure -- so it must NOT reach homeWeatherReport's `|| notifySendHome "Regenradar konnte
+  # nicht erzeugt werden"`, which would replace one unwanted message with another. 0.5% of the
+  # ~226x226 km view is roughly 250 km2 of rain at intensity class 1 or above, i.e. an actual
+  # shower somewhere in it rather than a few clutter pixels. Set DWD_RADAR_MIN_PRECIP=0 to send
+  # unconditionally, as before.
   dwdRadarTelegram = writeShellApplication {
     name = "dwdRadarTelegram";
     runtimeInputs = [
@@ -1154,10 +1165,20 @@ rec {
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
+      MIN_PRECIP=''${DWD_RADAR_MIN_PRECIP:-0.5}
+
       OUT="$(mktemp -d -t dwd-radar.XXXXXX)"
       trap 'rm -rf "''${OUT}"' EXIT
 
-      dwdRadarRender "''${OUT}/radar.gif"
+      STATUS=0
+      dwdRadarRender "''${OUT}/radar.gif" --min-precip "''${MIN_PRECIP}" || STATUS=$?
+      if [ "''${STATUS}" -eq 3 ]; then
+        echo "dwdRadarTelegram: less than ''${MIN_PRECIP}% of the view is wet, sending nothing"
+        exit 0
+      fi
+      if [ "''${STATUS}" -ne 0 ]; then
+        exit "''${STATUS}"
+      fi
 
       notifySendHomeAnimation "''${OUT}/radar.gif" "Regenradar, letzte Stunde"
     '';

@@ -21,6 +21,7 @@
 #   ./dwd-radar-gif --no-labels           # pristine radar, no basemap/text/legend
 #   ./dwd-radar-gif --gif-only            # skip the webp
 #   ./dwd-radar-gif --frame-ms 500        # slower playback (ms per frame)
+#   ./dwd-radar-gif --min-precip 0.5      # write nothing and exit 3 if the view is (near) dry
 #
 # ── Container semantics (verified) ───────────────────────────────────────────
 # A PRECIPITATION_V4 file is NOT a single snapshot. The animated WebP holds the whole window at
@@ -467,6 +468,17 @@ def load_outline():
     return rings
 
 
+# ── dryness gate ─────────────────────────────────────────────────────────────
+# --min-precip lets a caller ask for the loop only when there is something to see: a nightly
+# Telegram report should stay quiet on a dry evening rather than post sixty frames of empty
+# map. The gate measures *coverage* — the share of the cropped view that reaches
+# --min-precip-level — on the wettest frame of the window, and not the mean over frames: a
+# shower that crosses the view in ten minutes is worth sending even though most frames are
+# dry. Below the threshold the script writes no files and exits DRY_EXIT, which is a verdict,
+# not an error; callers distinguish it from a real failure (exit 1) by that code alone.
+DRY_EXIT = 3
+
+
 # ── colourisation (the app's exact legend) ───────────────────────────────────
 # Intensity: G = 4 + 8k for k = 0..31 (32 levels, G up to 252 — measured over 17 windows /
 # 200+ frames). The legend precip_scale_17.png is a 128-row texture of which only rows 0..84
@@ -894,11 +906,19 @@ def main():
     ap.add_argument("--workers", type=int, default=8, help="parallel fetch/decode threads (default 8)")
     ap.add_argument("--font", help="path to a TTF for labels (env: DWD_RADAR_FONT)")
     ap.add_argument("--font-bold", help="path to a bold TTF (env: DWD_RADAR_FONT_BOLD)")
+    ap.add_argument("--min-precip", type=float, default=0.0, metavar="PCT",
+                    help=f"write nothing and exit {DRY_EXIT} unless the wettest frame covers at least "
+                         "PCT%% of the view (default 0 = always render)")
+    ap.add_argument("--min-precip-level", type=int, default=1, metavar="K",
+                    help=f"intensity class 0..{NLEVEL - 1} a pixel must reach to count towards "
+                         "--min-precip (default 1, i.e. ignore the faintest class)")
     ap.add_argument("--calibrate", action="store_true", help="report geo-referencing quality and exit")
     args = ap.parse_args()
 
     if args.gif_only and args.webp_only:
         sys.exit("--gif-only and --webp-only are mutually exclusive")
+    if not 0 <= args.min_precip_level < NLEVEL:
+        sys.exit(f"--min-precip-level needs 0..{NLEVEL - 1}")
     if args.bbox:
         try:
             lo0, lo1, laS, laN = (float(v) for v in args.bbox.split(","))
@@ -1036,6 +1056,28 @@ def main():
     lat_mid = view.lonlat(W / 2, H / 2)[1]
     kx, ky = km_per_px(lat_mid)
     print(f"      crop {cw}x{ch} px of {SRC}x{SRC} ({cw * kx:.0f}x{ch * ky:.0f} km)  ->  output {W}x{H}")
+
+    # How wet is the *view*? Measured on the source pixels inside `win`, before any resampling:
+    # --size can scale the crop either way, and NEAREST on a 23%-stretched axis would count
+    # some pixels twice. Same rain test as colourise(), plus the class floor.
+    x0, y0, x1, y1 = win
+    peak, peak_ts = 0.0, frames[-1][0]
+    for ts, fr in frames:
+        sub = fr[y0:y1, x0:x1]
+        r, g = sub[:, :, 0], sub[:, :, 1]
+        k = (g.astype(np.int16) - 4) // 8
+        wet = (g > 0) & (r < 255) & (k >= args.min_precip_level)
+        cov = 100.0 * wet.sum() / (cw * ch)
+        if cov > peak:
+            peak, peak_ts = cov, ts
+    if peak > 0:
+        print(f"      wettest frame {peak_ts:%H:%M} UTC: {peak:.2f}% of the view at class "
+              f"{args.min_precip_level}+")
+    else:
+        print(f"      no precipitation at class {args.min_precip_level}+ anywhere in the view")
+    if args.min_precip > 0 and peak < args.min_precip:
+        print(f"      below --min-precip {args.min_precip:.2f}% — nothing written")
+        sys.exit(DRY_EXIT)
 
     lut = load_lut(args.scale)
     font, font_small, font_bold = pick_fonts(H, args.font, args.font_bold)
