@@ -430,6 +430,15 @@
   };
 
   environment = {
+    # Via pam_env, so GUI apps started from xmonad see it too.
+    sessionVariables = {
+      # Firefox (release builds) disables GDK's XInput2 multidevice on X11
+      # unless this is set, and then only receives legacy wheel clicks from
+      # the touchpad: no smooth pan gestures, hence no kinetic scrolling.
+      # See toolkit/xre/nsAppRunner.cpp (gdk_disable_multidevice).
+      MOZ_USE_XINPUT2 = "1";
+    };
+
     variables = {
       EDITOR = "${pkgs.vim}/bin/vim";
       VISUAL = "emacsclient -c -a vim";
