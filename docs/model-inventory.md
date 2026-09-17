@@ -77,7 +77,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `sference/kimi-k3`, `tensorx/kimi-k3` (vision) | `pi-agent/models.json` |
 | `tensorx/kimi-k2.7-code`, `inceptron/kimi-k2.7-Code` | `pi-agent/models.json` |
 | `nebius/moonshotai/kimi-k2.5` | `laptop/home.nix` (opencode) |
-| `tensorx/deepseek-v4-pro-0813`, `tensorx/deepseek-v4-flash-0731`, `sference/deepseek-v4-flash-0731` | `pi-agent/models.json`; F1 cycles all three in `model-shortcuts.ts` |
+| `sference/deepseek-v4.1-flash` (vision) | `pi-agent/models.json` (requesty-completions); F1 default in `model-shortcuts.ts` — vision + tools verified 2026-09 |
+| `tensorx/deepseek-v4-pro-0813`, `tensorx/deepseek-v4-flash-0731`, `sference/deepseek-v4-flash-0731` | `pi-agent/models.json`; F1 cycle after v4.1-flash in `model-shortcuts.ts` |
 | `tensorx/minimax-m3` | `pi-agent/models.json` |
 | `tensorx/qwen3.8`, `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json` |
 
@@ -115,7 +116,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Key | Requesty primary | OpenRouter fallback |
 |-----|------------------|---------------------|
-| F1 | `sference/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-pro-0813` | — |
+| F1 | `sference/deepseek-v4.1-flash` → `sference/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-flash-0731` → `tensorx/deepseek-v4-pro-0813` | — |
 | F2 | `vertex/claude-opus-5@eu` | `anthropic/claude-opus-5` |
 | F3 | `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5` |
 | F4 | `sference/glm-5.3` → `sference/glm-5.3-flash` | — |

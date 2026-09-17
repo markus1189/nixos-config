@@ -261,6 +261,24 @@
           "maxTokens": 128000
         },
         {
+          "id": "sference/deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash (Requesty/Sference EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0.5,
+            "output": 1.5,
+            "cacheRead": 0.05,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 128000
+        },
+        {
           "id": "tensorx/deepseek-v4-pro-0813",
           "name": "DeepSeek V4 Pro 0813 (Requesty/Tensorx EU)",
           "reasoning": true,
