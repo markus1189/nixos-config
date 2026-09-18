@@ -113,6 +113,16 @@ let
         # cache; a SIGKILL there recreates exactly the stale-mount state.
         TimeoutStopSec = "5min";
 
+        # The same argument in the other direction. Under Type=notify systemd
+        # waits for rclone's readiness signal, which it does not send until the
+        # VFS cache has been reloaded and its dirty entries re-queued. On
+        # 2026-09-18 the gdrive mount came back from a stop with 10702 dirty
+        # files (60 MiB, almost all tiny) still owed to Drive, took longer than
+        # the 90s default to get there, and was killed mid-upload -- whereupon
+        # Restart=on-failure looped it and it never converged. The writeback
+        # data survives in the cache either way, but the mount does not come up.
+        TimeoutStartSec = "30min";
+
         Restart = "on-failure";
         RestartSec = "10s";
       };
