@@ -453,6 +453,17 @@ in
           "Deferring until you stop reading diffs"
           "Sneaking in a 'load-bearing'"
           "Self high-fiving"
+          "Pausing my cancer research"
+          "Closing the tab with the unified field theory"
+          "Postponing first contact"
+          "Asking the aliens to email instead"
+          "Yielding a core from the cancer work"
+          "Handing the reactor to a Haiku"
+          "Asking Copilot to watch the reactor"
+          "Asking the alignment researchers to wait their turn"
+          "Moving world peace to the backlog"
+          "Telling the oncologists I'll be right back"
+          "Telling the epidemiologists to start without me"
         ];
       };
 
