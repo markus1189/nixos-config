@@ -108,7 +108,6 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `REQUESTY_API_KEY_CC` (env) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
 | `pass api/openrouter/transcribe` | `transcribe.sh` |
 | `pass api/openrouter/image-editing` | `nano-banana.sh` |
-| `pass api/kagi/search` | `kagi-extract.sh` |
 
 ---
 
