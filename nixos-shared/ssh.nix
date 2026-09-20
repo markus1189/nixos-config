@@ -21,7 +21,7 @@
       startAgent = true;
       extraConfig = ''
         Host p1
-          HostName nixos-p1
+          HostName 192.168.178.23
           User markus
           Port 4241
 
