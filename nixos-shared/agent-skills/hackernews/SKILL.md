@@ -256,6 +256,14 @@ The most valuable HN finds are often **linked in comments, not described** — s
 
 **Chase proactively**: For 1–3 artifacts per batch that match User Interests, don't ask — fetch the README/gist/file immediately (read-only) and attach a 2–3 sentence verdict: what it actually is, whether it's worth adopting. Ask first only when a chase would become a rabbit hole (cloning repos, long papers, multi-repo spelunking).
 
+### Comment Highlights — cross-cutting
+
+After every deep-dive batch, add a **💬 Comment Highlights** block next to 🔗 Artifacts:
+5–15 comments picked across all dives, grouped by User Interest (not by story), ranked
+by relevance to the user rather than by points. Row: `[user](https://news.ycombinator.com/item?id=ID)` ·
+story · one clause on why it matters. ⭐ commenters first; close with the top 5.
+Build it from dive output only — no re-fetching.
+
 ### Cited Papers & Research
 
 Academic papers, formal institutional documents, and research cited in comments are **always worth surfacing** — treat them like linked artifacts but with higher signal. Commenters who cite specific papers (not just "I read somewhere that...") are usually practitioners with domain expertise. The sub-agent includes a "Cited Papers & Research" section in its output. After reading deep-dive results, call these out prominently alongside linked artifacts.
@@ -315,6 +323,9 @@ re-derive. Subsections `###` if the entry is long enough to need them.)
 ## Stories Noted (Not Dived)
 | Story | Pts | 💬 | Why Notable |
 (linked titles, as in the briefing tables; skip low-signal)
+
+## Comment Highlights
+(the day's best 5–10 across all checks, same row format; drawn from the dives' Notable Comments)
 
 ## Threads to Follow Tomorrow
 (omit if nothing genuine to follow up on)
