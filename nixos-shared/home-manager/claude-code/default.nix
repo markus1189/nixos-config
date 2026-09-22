@@ -252,6 +252,10 @@ in
       attribution = {
         commit = "";
         pr = "";
+        # No Claude-Session trailer / PR-body link from Remote Control or
+        # web sessions (default on, and remoteControlAtStartup makes every
+        # session one of those).
+        sessionUrl = false;
       };
       cleanupPeriodDays = 3650;
       autoMemoryEnabled = false;
@@ -264,6 +268,16 @@ in
       # Ring the terminal BEL on task-finish / permission prompts. Fires
       # alongside the Notification sound hooks, not instead of them.
       preferredNotifChannel = "terminal_bell";
+      # Start the Remote Control bridge in every session (same as /config's
+      # "Enable Remote Control for all sessions"). Only honored from user
+      # settings; a `true` in project/local settings is ignored upstream.
+      remoteControlAtStartup = true;
+      # On a claude.ai usage limit, wait for the reset and carry on instead
+      # of parking the session on a dialog nobody at the phone can answer.
+      autoContinueAtUsageLimit = true;
+      # Spawned teammates get tmux panes rather than running in-process.
+      teammateMode = "tmux";
+      showMessageTimestamps = true;
       # Mobile push, both off by default upstream. Only fire while Remote
       # Control is connected; no-ops otherwise.
       agentPushNotifEnabled = true; # Claude decides (long task finished)
