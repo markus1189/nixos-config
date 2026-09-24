@@ -19,7 +19,7 @@ Examples:
 - `vertex/claude-sonnet-4-6@europe-west1`
 - `bedrock/claude-opus-4-8@eu-central-1`
 - `azure/gpt-5.4@swedencentral`
-- `nebius/moonshotai/kimi-k2.5`
+- `nebius/kimi-k3`
 
 Only models on the organization's **Approved Models / Access List** are routable. Check the
 Requesty dashboard (or the `cc Playground` group's access list) for the current set.
@@ -165,10 +165,10 @@ the export to `~/.bashrc` or `~/.zshrc` for persistence.
 - **Affected**: the reasoning GPT and Gemini models previously under `requesty-openai`.
 - **Fix**: Register all Requesty models (GPT, Gemini, open-weight) under an
   `openai-completions` provider using the **bare** slug (no `openai-responses/` prefix) e.g.
-  `azure/gpt-5.6-sol@swedencentral`
+  `azure/gpt-6-sol@swedencentral`
 - **Note**: This only fails when tools are enabled, so a `--no-tools` smoke test will not catch it.
   Verify new models *with* tools. Verified 2026-08: bare GPT-5.6 Sol/Terra/Luna, 5.5 and 5.4
-  slugs all accept tools + `reasoning_effort` on `/v1/chat/completions`.
+  slugs all accept tools + `reasoning_effort` on `/v1/chat/completions`; GPT-6 Sol/Luna too (2026-09).
 
 ### Supported APIs
 
@@ -189,7 +189,7 @@ The `api` field determines the protocol:
 | Bedrock (EU) | `bedrock/` | `bedrock/claude-opus-4-8@eu-central-1` |
 | Azure OpenAI (EU) | `azure/` | `azure/gpt-5.4@swedencentral` |
 | Mistral | `mistral/` | `mistral/mistral-medium-latest` |
-| OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/moonshotai/kimi-k2.5` |
+| OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/kimi-k3` |
 
 Enumerate the current access list rather than guessing at slugs:
 

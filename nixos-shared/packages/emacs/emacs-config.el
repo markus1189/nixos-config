@@ -1557,6 +1557,7 @@ string). It returns t if a new completion is found, nil otherwise."
               (openai/gpt-5-mini :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png"))
               ;;
               (anthropic/claude-sonnet-5 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
+              (anthropic/claude-opus-5.5 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
               (anthropic/claude-opus-5 :capabilities (media tool) :mime-types ("image/jpg" "image/jpeg" "image/png" "application/pdf"))
               ;;
               mistralai/codestral-2508

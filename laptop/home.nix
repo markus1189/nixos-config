@@ -105,6 +105,18 @@ in
                     name = "GPT 5.4 Chat";
                   };
 
+                  "bedrock/claude-opus-5-5@eu-central-1" = {
+                    name = "Claude Opus 5.5";
+                    # No thinking block, same reason as Opus 5 below.
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
                   "vertex/claude-opus-5@eu" = {
                     name = "Claude Opus 5";
                     # No thinking block: like Sonnet 5, Opus 5 rejects the legacy
@@ -152,10 +164,6 @@ in
                       ];
                       output = [ "text" ];
                     };
-                  };
-
-                  "nebius/moonshotai/kimi-k2.5" = {
-                    name = "Kimi K2.5 (OpenWeight EU)";
                   };
                 };
               };

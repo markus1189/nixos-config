@@ -11,11 +11,11 @@ SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_NAME
 readonly MAX_IMAGE_SIZE=$((20 * 1024 * 1024)) # 20MB per image
 readonly MAX_IMAGES=16
-# Requesty's EU access list now carries Gemini 3.7 Flash, which replaces
-# 2.5-flash as the vision workhorse. 3.7-flash keeps the same multimodal input
-# with current-gen reasoning. NOTE: earlier Gemini 3.x flash-lite tiers
-# silently normalised text (asked to transcribe verbatim it turned a whiteboard
-# note's "unabängig" into "unabhängig"), so stay on the non-lite 3.7-flash.
+# Requesty's EU access list now carries Gemini 3.8 Flash, the current vision
+# workhorse (vision + tools verified 2026-09). NOTE: earlier Gemini 3.x
+# flash-lite tiers silently normalised text (asked to transcribe verbatim it
+# turned a whiteboard note's "unabängig" into "unabhängig"), so stay on the
+# non-lite 3.8-flash.
 # Revisit if a further 3.x non-lite tier lands on the EU list.
 readonly MODEL="vertex/gemini-3.8-flash@eu"
 
