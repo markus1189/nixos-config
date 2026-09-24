@@ -27,10 +27,6 @@ in
       Description = "Sync activities from Garmin Connect";
     };
 
-    Install = {
-      WantedBy = [ "network-online.target" ];
-    };
-
     Service = {
       Type = "oneshot";
       # GARMIN_CONNECT_PASSWORD comes from the agenix-decrypted environmentFile,
@@ -53,8 +49,10 @@ in
       ];
     };
 
+    # network-online.target does not exist in the user manager, so hooking
+    # the timer there left it dead after every reboot.
     Install = {
-      WantedBy = [ "network-online.target" ];
+      WantedBy = [ "timers.target" ];
     };
 
     Timer = {
