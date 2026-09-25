@@ -107,7 +107,7 @@ rec {
   };
 
   # Sole writer of ~/Stuff/Today; called by cdt (zsh), Emacs' find-temp-file
-  # advice and the laptop stuff-today timer. Prints the resolved day dir.
+  # advice and the stuff-today user timer (laptops, nuc). Prints the resolved day dir.
   stuffToday = writeShellApplication {
     name = "stuff-today";
     runtimeInputs = [ coreutils ];

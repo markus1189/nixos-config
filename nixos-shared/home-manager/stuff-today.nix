@@ -1,5 +1,6 @@
 # Roll ~/Stuff/Today over to the new day before anything reads it
 # (flameshot savePath, rofi-today, /stuff-it), not only when a shell runs cdt.
+# Imported by laptop/home.nix and nuc/home.nix.
 { pkgs, ... }:
 {
   systemd.user.services.stuff-today = {
