@@ -827,16 +827,10 @@ argument, and for client frames via `after-make-frame-functions'."
   ;; Route temp files into ~/Stuff date dirs instead of /tmp/
   ;; Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
   (defun mh/set-stuff-dir (&rest _)
-    "Ensure today's ~/Stuff scratch dir exists and ~/Stuff/Today points at it."
-    (let* ((day-dir (expand-file-name
-                     (format-time-string "%Y-%m/%d-scratch")
-                     "~/Stuff"))
-           (symlink (expand-file-name "Today" "~/Stuff")))
-      (make-directory day-dir t)
-      (unless (file-equal-p symlink day-dir)
-        (when (file-exists-p symlink) (delete-file symlink))
-        (make-symbolic-link day-dir symlink))
-      (setq find-temp-file-directory (file-name-as-directory day-dir))))
+    "Ensure today's ~/Stuff dir exists and ~/Stuff/Today points at it.
+Delegates to stuff-today, which keeps a same-day `cdt NAME' target."
+    (setq find-temp-file-directory
+          (file-name-as-directory (car (process-lines "@stuffToday@/bin/stuff-today")))))
 
   (advice-add 'find-temp-file :before #'mh/set-stuff-dir))
 

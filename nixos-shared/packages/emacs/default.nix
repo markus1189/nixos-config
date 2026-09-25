@@ -4,12 +4,14 @@
   runCommandLocal,
   plantuml,
   rumdl,
+  myScripts,
   elispSrcs,
 }:
 
 let
   emacsConfig = replaceVars ./emacs-config.el {
     inherit plantuml rumdl;
+    inherit (myScripts) stuffToday;
   };
 
   myEmacsConfig = runCommandLocal "create-my-emacs-config" { } ''

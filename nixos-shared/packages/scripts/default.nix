@@ -106,6 +106,41 @@ rec {
     '';
   };
 
+  # Sole writer of ~/Stuff/Today; called by cdt (zsh), Emacs' find-temp-file
+  # advice and the laptop stuff-today timer. Prints the resolved day dir.
+  stuffToday = writeShellApplication {
+    name = "stuff-today";
+    runtimeInputs = [ coreutils ];
+    inheritPath = false;
+    text = ''
+      # stuff-today        -> keep today's current target if ~/Stuff/Today
+      #                       already points at a dir from today, else DD-scratch
+      # stuff-today NAME   -> explicit: DD-NAME, always repoint
+      stuff="$HOME/Stuff"
+      link="$stuff/Today"
+      day="$stuff/$(date +%Y-%m/%d)" # one date call: no skew across midnight
+
+      if [ $# -eq 0 ]; then
+        cur=$(readlink "$link" || true)
+        case "$cur" in
+          "$day"-*)
+            if [ -d "$cur" ]; then
+              printf '%s\n' "$cur"
+              exit 0
+            fi
+            ;;
+        esac
+      fi
+
+      target="$day-''${1:-scratch}"
+      mkdir -p "$target"
+      # Atomic swap: readers (flameshot, rofi-today) never see a missing link
+      ln -sfn "$target" "$link.tmp.$$"
+      mv -Tf "$link.tmp.$$" "$link"
+      printf '%s\n' "$target"
+    '';
+  };
+
   tmuxPollPane = writeShellApplication {
     name = "tmux-poll-pane";
     runtimeInputs = [
@@ -1601,7 +1636,7 @@ rec {
     bashOptions = [ "errexit" ];
     text = ''
       # ~/Stuff/Today is a symlink kept pointing at today's dated
-      # scratch dir by the `cdt` zsh function. -d follows it, so a
+      # dir by stuff-today (timer, cdt, Emacs). -d follows it, so a
       # dangling/missing link fails this guard.
       today="$HOME/Stuff/Today"
       if [ ! -d "$today" ]; then

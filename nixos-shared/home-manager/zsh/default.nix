@@ -83,19 +83,13 @@ in
 
       # cdt: Create Date-organized directory and cd into it
       # Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
-      # Canonical entrypoint is ~/Stuff/Today (symlink to today's dir)
-      # Usage: cdt [name] -> ~/Stuff/2026-02/13-name
+      # Canonical entrypoint is ~/Stuff/Today, maintained by stuff-today
+      # Usage: cdt [name] -> ~/Stuff/2026-02/13-name; plain cdt keeps
+      # today's current Today target (DD-scratch if none yet)
+      # cd's into the resolved path so $PWD and histdb keep the date
       function cdt() {
-        local name="''${1:-scratch}"
-        local month_dir="$HOME/Stuff/$(date +%Y-%m)"
-        local target="$month_dir/$(date +%d)-$name"
-        local today_link="$HOME/Stuff/Today"
-
-        mkdir -p "$target"
-
-        # Update today symlink
-        ln -sfn "$target" "$today_link"
-
+        local target
+        target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today "$@") || return
         cd "$target" || return
       }
 

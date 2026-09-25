@@ -15,6 +15,7 @@ in
 {
   imports = [
     ./atuin-sync.nix
+    ./stuff-today.nix
     # Sets programs.git and installs the global gitleaks config (xdg.configFile).
     ../nixos-shared/home-manager/git/default.nix
     ../nixos-shared/home-manager/dunst/default.nix
@@ -277,7 +278,7 @@ in
             saveAfterCopy=true
             ; flameshot 14 defaults to xdg-desktop-portal capture; xmonad has no portal
             useX11LegacyScreenshot=true
-            ; Symlink managed by cdt/Emacs to today's Stuff directory
+            ; Symlink to today's Stuff directory, managed by stuff-today
             savePath=${config.home.homeDirectory}/Stuff/Today
             uiColor=#ee8903
 
