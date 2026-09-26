@@ -15,7 +15,7 @@ in
 {
   imports = [
     ./atuin-sync.nix
-    ../nixos-shared/home-manager/stuff-today.nix
+    ../nixos-shared/home-manager/stuff/default.nix
     # Sets programs.git and installs the global gitleaks config (xdg.configFile).
     ../nixos-shared/home-manager/git/default.nix
     ../nixos-shared/home-manager/dunst/default.nix

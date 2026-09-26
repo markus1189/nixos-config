@@ -59,6 +59,10 @@
   tesseract,
   gxmessage,
   bluez,
+  diffutils,
+  fd,
+  rclone,
+  treemd,
 
 }:
 
@@ -139,6 +143,49 @@ rec {
       mv -Tf "$link.tmp.$$" "$link"
       printf '%s\n' "$target"
     '';
+  };
+
+  # ~/Stuff knowledgebase index: llms.txt, YYYY-MM/INDEX.md, .kb/series/.
+  # Was ~/Stuff/.kb/kb-index, bootstrapping fd/treemd from ~/Stuff/.flake.
+  kbIndex = writeShellApplication {
+    name = "kb-index";
+    runtimeInputs = [
+      coreutils
+      diffutils
+      fd
+      gawk
+      gnugrep
+      gnused
+      treemd
+    ];
+    inheritPath = false;
+    # Backticks in single quotes are literal markdown in the generated indexes.
+    excludeShellChecks = [ "SC2016" ];
+    text = builtins.readFile ./kb-index.sh;
+  };
+
+  # Ledger miner for /mh:retro-week. Was ~/Stuff/.kb/retro-scan.
+  kbRetroScan = writeShellApplication {
+    name = "kb-retro-scan";
+    runtimeInputs = [
+      coreutils
+      gawk
+      gnugrep
+      gnused
+    ];
+    inheritPath = false;
+    text = builtins.readFile ./kb-retro-scan.sh;
+  };
+
+  # Mirror ~/Stuff to the gdrive backup; runs on one designated host only.
+  backupStuff = writeShellApplication {
+    name = "backup-stuff";
+    runtimeInputs = [
+      coreutils
+      rclone
+    ];
+    inheritPath = false;
+    text = builtins.readFile ./backup-stuff.sh;
   };
 
   tmuxPollPane = writeShellApplication {

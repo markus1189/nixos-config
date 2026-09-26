@@ -18,7 +18,7 @@ in
   imports = [
     ../nixos-shared/home-manager/easyeffects-autogain.nix
     ../nixos-shared/home-manager/starship/default.nix
-    ../nixos-shared/home-manager/stuff-today.nix
+    ../nixos-shared/home-manager/stuff/default.nix
     # Without this nothing sets programs.zsh.enable on the home-manager side,
     # so HM writes no ~/.zshrc at all and every module contributing to
     # programs.zsh.initContent is silently dropped -- starship above included

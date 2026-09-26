@@ -26,7 +26,7 @@ re-verified claims; quotes keep original language. These are personal
 notes — em dashes and emoji markers are fine (de-AI rule is for
 outbound prose only).
 
-**Then** run `~/Stuff/.kb/kb-index` and report the path + one-line
+**Then** run `kb-index` and report the path + one-line
 title.
 
 If nothing durable is worth keeping, say so instead of manufacturing

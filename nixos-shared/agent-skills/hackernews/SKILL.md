@@ -125,7 +125,7 @@ If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that 
 One file per day, appended across sessions: `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md`
 (current date). It is its own state — no separate tracking block.
 
-### Knowledgebase contract (`~/Stuff/.kb/kb-index`)
+### Knowledgebase contract (`kb-index`)
 
 `kb-index` reads `##` headings and nothing deeper. Levels are load-bearing:
 
@@ -138,7 +138,7 @@ One file per day, appended across sessions: `~/Stuff/YYYY-MM/DD-scratch/hn-daily
 - Filenames exact — a rename splits the series.
 - Dive subsections use `###`, never bold labels: free in the index, and `treemd -s "Notable
   Comments"` works on a 3,000-line file.
-- Run `~/Stuff/.kb/kb-index` after writing (idempotent, ~1s), else today is missing from
+- Run `kb-index` after writing (idempotent, ~10s), else today is missing from
   `llms.txt` and the series indexes.
 
 ### First check of the day
@@ -146,7 +146,7 @@ No `hn-daily.md` for today → full briefing mode (below). Then:
 1. Create file: `# HN Daily — Weekday, Month Day, Year`, then `## Check 1 — HH:MM` holding the
    briefing (categories `###`, tables per format below)
 2. Dives → append each verbatim (`## Title [story_id]` + metadata line)
-3. Run `~/Stuff/.kb/kb-index`
+3. Run `kb-index`
 
 ### Subsequent checks (file exists)
 1. Read file, collect already-handled ids (dedup below)
@@ -156,7 +156,7 @@ No `hn-daily.md` for today → full briefing mode (below). Then:
 4. Write `## Check N — HH:MM` **before** presenting
 5. Present delta only
 6. Dives → append **before** presenting summaries
-7. Run `~/Stuff/.kb/kb-index`
+7. Run `kb-index`
 
 ### Seen-story dedup
 
@@ -221,7 +221,7 @@ When user asks casually about hacker news stories, use this style:
 3. User picks stories they want to dig into
 4. **Launch a deep-dive subagent for each pick** (launch them in parallel — see "Deep-Dive Sub-Agent" above). Do NOT fetch articles or comments directly into main context.
 5. Collect each subagent's summary from its final message
-6. **Write all file updates first** (briefing tables, dive sections appended to the daily file), then run `~/Stuff/.kb/kb-index` — before writing any conversational output. The text summary the user reads is always last.
+6. **Write all file updates first** (briefing tables, dive sections appended to the daily file), then run `kb-index` — before writing any conversational output. The text summary the user reads is always last.
 7. Present summaries to the user
 8. Group related stories together
 9. When user asks "your take?" — give genuine opinions, not hedged summaries
@@ -296,7 +296,7 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 
 1. Read today's `hn-daily.md`
 2. Write `hn-wrapup.md` to the same directory **before** any conversational output
-3. Run `~/Stuff/.kb/kb-index`
+3. Run `kb-index`
 4. Confirm briefly — don't re-summarize
 
 ### Structure

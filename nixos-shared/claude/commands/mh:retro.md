@@ -144,7 +144,8 @@ Suggestions can target:
 - **Global agent instructions** — managed in the **nixos-config repo** (see the global instructions for
   its path). ⚠️ The deployed files under `~/.claude/` are **symlinks into the nix store** — edit the
   *source* in nixos-config, then rebuild; never edit the generated symlink.
-- **Project `AGENTS.md`** — project-specific instructions (e.g. `~/Stuff/AGENTS.md`)
+- **Project `AGENTS.md`** — project-specific instructions. `~/Stuff/AGENTS.md` is a store symlink too:
+  its source is `nixos-shared/home-manager/stuff/AGENTS.md` in nixos-config
 - **Commands** (`mh:*.md`) and **Skills** (`*/SKILL.md`) — **also sourced from nixos-config** and
   symlinked into `~/.claude/`. Same rule: edit the source, deploy via rebuild.
 - **Scripts or tools** — helper scripts worth creating

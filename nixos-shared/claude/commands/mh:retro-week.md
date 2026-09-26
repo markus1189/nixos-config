@@ -9,7 +9,7 @@ decision is theirs**. Present, ask, record. Never decide on their behalf and nev
 they did not name.
 
 Run at the end of a week. Output: `~/Stuff/YYYY-MM/DD-scratch/retro-week.md` in **today's** day dir.
-The filename is exactly `retro-week.md` — `.kb/kb-index` auto-detects a series from a basename
+The filename is exactly `retro-week.md` — `kb-index` auto-detects a series from a basename
 repeating across day dirs, so consistent naming buys a free cross-week index at `.kb/series/`.
 Do not creatively rename it.
 
@@ -17,7 +17,7 @@ Do not creatively rename it.
 
 > **`wrap-up-log.md` is a database. Day dirs are prose.**
 
-`.kb/retro-scan` parses the database: `·`-delimited, closed category set, stable slugs. It is
+`kb-retro-scan` parses the database: `·`-delimited, closed category set, stable slugs. It is
 right every time and you should not second-guess its arithmetic.
 
 Day dirs are prose and **no pattern reads them correctly**. This is settled, not open:
@@ -34,7 +34,7 @@ So: **read the candidate files.** Do not grep for headings and report the hits a
 ## Step 1 — Scan the ledger
 
 ```
-~/Stuff/.kb/retro-scan            # last 7 days; --days N or --since YYYY-MM-DD to change
+kb-retro-scan                     # last 7 days; --days N or --since YYYY-MM-DD to change
 ```
 
 Emits LEDGER (every open finding of any age, plus everything decided in window), RECURRENCE
@@ -128,7 +128,7 @@ follow-through: N% (applied+killed / window) · open: N · carried: N · escalat
 avoiding, what the numbers do not say. No format.]
 ```
 
-Then run `~/Stuff/.kb/kb-index` so the new file lands in the month index and the series.
+Then run `kb-index` so the new file lands in the month index and the series.
 
 ## Applying Fixes
 
