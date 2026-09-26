@@ -705,6 +705,7 @@ in
             sponsorblock
             mpris
             smartskip
+            mpv-notify-send
           ];
         };
 
