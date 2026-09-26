@@ -60,6 +60,7 @@
         pkgs = final;
         inherit (final) marginal;
         hocketSrc = inputs.hocket;
+        mattpocockSkills = inputs.mattpocock-skills;
         agentBrowser = final.agent-browser;
       };
     })

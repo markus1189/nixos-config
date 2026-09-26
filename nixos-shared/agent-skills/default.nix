@@ -21,6 +21,7 @@
   pkgs,
   marginal,
   hocketSrc,
+  mattpocockSkills,
   agentBrowser ? null,
 }:
 
@@ -145,6 +146,16 @@ let
     hocket-rpc = mkAgentSkill {
       name = "hocket-rpc";
       src = hocketSrc + "/skills/hocket-rpc";
+    };
+
+    # Design-tree interview in rounds (the whole "frontier" per round, each
+    # question with a recommended answer). Self-contained: grill-me and
+    # grill-with-docs build on it, not the other way round, so it ships alone.
+    # agents/ is Codex-only metadata.
+    grilling = mkAgentSkill {
+      name = "grilling";
+      src = mattpocockSkills + "/skills/productivity/grilling";
+      postPatch = "rm -r agents";
     };
   }
   // lib.optionalAttrs (agentBrowser != null) {

@@ -91,6 +91,13 @@
       flake = false;
     };
 
+    # Matt Pocock's agent skills repo. Only `grilling` is shipped (see
+    # nixos-shared/agent-skills); the rest of the tree is ignored.
+    mattpocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+
     # Rust CLI for span-level markdown annotation. Consumed via its own flake
     # output (packages.marginal) but built against our nixpkgs for one toolchain.
     marginal = {
@@ -190,6 +197,7 @@
             # it the derivation the hosts install regardless.
             marginal = inputs.marginal.packages.x86_64-linux.marginal;
             hocketSrc = inputs.hocket;
+            mattpocockSkills = inputs.mattpocock-skills;
             agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };
         };
