@@ -713,6 +713,8 @@ in
         config = {
           write-filename-in-watch-later-config = true;
           save-position-on-quit = true;
+          # Enables the built-in g-h watch history menu (select.lua)
+          save-watch-history = true;
           osd-msg3 = "\${time-pos} / \${duration} [\${playtime-remaining} @ \${speed}]";
           osd-duration = 5000;
           osd-font-size = 40;
