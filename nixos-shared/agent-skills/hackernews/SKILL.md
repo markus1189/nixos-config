@@ -122,8 +122,9 @@ If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that 
 
 ## Daily File
 
-One file per day, appended across sessions: `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md`
-(current date). It is its own state — no separate tracking block.
+One file per day, appended across sessions: `$(stuff-today --default)/hn-daily.md`, i.e.
+`~/Stuff/YYYY-MM/DD-<host>/hn-daily.md` for the current date (days before 2026-09-27 used
+`DD-scratch/`). Not `~/Stuff/Today/`: that follows `cdt NAME`, the daily file must not. It is its own state — no separate tracking block.
 
 ### Knowledgebase contract (`kb-index`)
 
@@ -164,7 +165,7 @@ No state block. The tables are the state — briefing titles and dive metadata l
 the thread:
 
 ```bash
-grep -oE 'item\?id=[0-9]+' ~/Stuff/YYYY-MM/DD-scratch/hn-daily.md | sort -u
+grep -oE 'item\?id=[0-9]+' "$(stuff-today --default)/hn-daily.md" | sort -u
 ```
 
 Match `item?id=`, never bare 7–9 digit numbers: dive bodies cite comment ids as `[49379070]`,
@@ -208,7 +209,7 @@ One table per category, categories at `###`:
 `Was`/`Now` are `pts/comments` pairs.
 
 ### When user says "check HN" / "what's new on HN"
-Check for `~/Stuff/YYYY-MM/DD-scratch/hn-daily.md` first: exists → delta mode, absent → full
+Check for `$(stuff-today --default)/hn-daily.md` first: exists → delta mode, absent → full
 briefing mode.
 
 ## Briefing Mode

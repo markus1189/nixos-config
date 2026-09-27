@@ -117,12 +117,25 @@ rec {
     runtimeInputs = [ coreutils ];
     inheritPath = false;
     text = ''
-      # stuff-today        -> keep today's current target if ~/Stuff/Today
-      #                       already points at a dir from today, else DD-scratch
-      # stuff-today NAME   -> explicit: DD-NAME, always repoint
+      # stuff-today           -> keep today's current target if ~/Stuff/Today
+      #                          already points at a dir from today, else DD-HOST
+      # stuff-today NAME      -> explicit: DD-NAME, always repoint
+      # stuff-today --default -> ensure and print DD-HOST; never touches Today.
+      #                          For fixed per-day files (hn-daily.md,
+      #                          wrap-up-log.md) that must not follow a cdt NAME.
+      # The default dir carries the host so ~/Stuff can sync between machines
+      # without two of them writing the same file; `nixos-p1` -> `p1`.
       stuff="$HOME/Stuff"
       link="$stuff/Today"
       day="$stuff/$(date +%Y-%m/%d)" # one date call: no skew across midnight
+      host=$(uname -n)
+      host=''${host#nixos-}
+
+      if [ "''${1:-}" = --default ]; then
+        mkdir -p "$day-$host"
+        printf '%s\n' "$day-$host"
+        exit 0
+      fi
 
       if [ $# -eq 0 ]; then
         cur=$(readlink "$link" || true)
@@ -136,7 +149,7 @@ rec {
         esac
       fi
 
-      target="$day-''${1:-scratch}"
+      target="$day-''${1:-$host}"
       mkdir -p "$target"
       # Atomic swap: readers (flameshot, rofi-today) never see a missing link
       ln -sfn "$target" "$link.tmp.$$"

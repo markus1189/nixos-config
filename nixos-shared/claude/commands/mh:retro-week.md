@@ -8,7 +8,7 @@ A retro the user does, not a report you write. You mine and you draft; **every a
 decision is theirs**. Present, ask, record. Never decide on their behalf and never apply anything
 they did not name.
 
-Run at the end of a week. Output: `~/Stuff/YYYY-MM/DD-scratch/retro-week.md` in **today's** day dir.
+Run at the end of a week. Output: `$(stuff-today --default)/retro-week.md`, **today's** `DD-<host>` day dir.
 The filename is exactly `retro-week.md` — `kb-index` auto-detects a series from a basename
 repeating across day dirs, so consistent naming buys a free cross-week index at `.kb/series/`.
 Do not creatively rename it.
@@ -94,7 +94,7 @@ Prefer 5 real threads read properly over 20 heading matches listed mechanically.
 
 ## Step 5 — Write it
 
-`~/Stuff/YYYY-MM/DD-scratch/retro-week.md`. The **decisions table is the artifact** — the ledger
+`$(stuff-today --default)/retro-week.md`. The **decisions table is the artifact** — the ledger
 lives here, and `wrap-up-log.md` stays an immutable append-only event log that you never edit
 (except to backfill a missing slug). Retro owns decisions; wrap-up owns events.
 

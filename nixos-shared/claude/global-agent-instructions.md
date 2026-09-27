@@ -122,4 +122,5 @@ Syntax notes:
    (`find`/`fd`/`rg`), it blows the timeout; `ls` the likely dir
    instead
 2. ~/Syncthing (/ePubs for eBooks)
-3. ~/Stuff/yyyy-mm/dd-scratch (daily directories), ~/Stuff/Today/
+3. ~/Stuff/yyyy-mm/dd-<host> (daily directories; dd-scratch before
+   2026-09-27), ~/Stuff/Today/

@@ -12,15 +12,19 @@ Change it there and rebuild; an edit here cannot stick.
 ~/Stuff/
   YYYY-MM/          ← month dirs, created automatically
     DD-name/         ← daily working dirs (e.g. 17-some-project-or-topic/)
-    DD-scratch/      ← default scratch dirs, created automatically
+    DD-<host>/       ← default dir per machine (27-p1g8/, 27-p1/, 27-nuc/), created automatically
+    DD-scratch/      ← the same, before 2026-09-27 (one machine, no host in the name)
   Today             ← symlink to today's working dir
 ```
 
 ## Guidelines for Agents
 
-- **Don't create or rename `YYYY-MM/` dirs or `DD-scratch/` dirs** — these are managed automatically
+- **Don't create or rename `YYYY-MM/`, `DD-<host>/` or `DD-scratch/` dirs** — these are managed automatically
 - **Don't write `Today` yourself.** `stuff-today` is its only writer (run by `cdt`, Emacs
   and a daily timer); `stuff-today NAME` creates `DD-NAME` and repoints `Today` at it
+- **Fixed per-day files go in `$(stuff-today --default)`**, today's `DD-<host>/`, not `Today`:
+  `Today` follows `cdt NAME`. The host in the name keeps machines from writing the same file
+  (`nixos-p1` is tagged `p1`)
 - **Start at [`llms.txt`](llms.txt)** — the generated navigation preamble (months, recent activity, per-month indexes)
 
 ## Markdown tooling (treemd + fd)
@@ -61,7 +65,7 @@ no-op. Run it after adding or substantially editing notes.
 
 ## Weekly retro (`kb-retro-scan` + `/mh:retro-week`)
 
-`/mh:retro` appends per-session findings to `YYYY-MM/DD-scratch/wrap-up-log.md`. A single
+`/mh:retro` appends per-session findings to `YYYY-MM/DD-<host>/wrap-up-log.md`. A single
 session can't see across sessions, so recurring mistakes and unapplied findings pile up unnoticed.
 `/mh:retro-week` is the weekly pass that reads them; `kb-retro-scan` is its miner.
 

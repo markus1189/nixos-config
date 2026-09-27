@@ -85,7 +85,7 @@ in
       # Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
       # Canonical entrypoint is ~/Stuff/Today, maintained by stuff-today
       # Usage: cdt [name] -> ~/Stuff/2026-02/13-name; plain cdt keeps
-      # today's current Today target (DD-scratch if none yet)
+      # today's current Today target (DD-<host> if none yet)
       # cd's into the resolved path so $PWD and histdb keep the date
       function cdt() {
         local target

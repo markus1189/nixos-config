@@ -6,6 +6,8 @@
 { pkgs, ... }:
 {
   home.packages = [
+    # On PATH for agents: `stuff-today --default` names today's DD-<host> dir.
+    pkgs.myScripts.stuffToday
     pkgs.myScripts.kbIndex
     pkgs.myScripts.kbRetroScan
     pkgs.myScripts.backupStuff

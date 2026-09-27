@@ -71,8 +71,8 @@ Tag every finding with an apply-tier:
 
 ## Persistence — Log Every Run
 
-Append a one-line-per-finding record to `~/Stuff/YYYY-MM/DD-scratch/wrap-up-log.md` (create the file if
-absent; use today's date dir). Format: `date · session · slug · category · tier · title · target file · applied?`.
+Append a one-line-per-finding record to `$(stuff-today --default)/wrap-up-log.md`, today's
+`~/Stuff/YYYY-MM/DD-<host>/` dir (create the file if absent). Format: `date · session · slug · category · tier · title · target file · applied?`.
 
 Fill `session` with a session/conversation id **if your runtime exposes one** — check scratch, temp, or
 transcript paths, env vars, or similar. It lets a recurring finding be traced back to the transcript that
