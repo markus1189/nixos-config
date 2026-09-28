@@ -363,8 +363,7 @@
         "rss-bridge-src": "rss-bridge-src",
         "stevenblack-hosts": "stevenblack-hosts",
         "visidata": "visidata",
-        "xclip": "xclip",
-        "zsh-histdb": "zsh-histdb"
+        "xclip": "xclip"
       }
     },
     "rss-bridge-src": {
@@ -495,22 +494,6 @@
       "original": {
         "owner": "astrand",
         "repo": "xclip",
-        "type": "github"
-      }
-    },
-    "zsh-histdb": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1713463338,
-        "narHash": "sha256-vtG1poaRVbfb/wKPChk1WpPgDq+7udLqLfYfLqap4Vg=",
-        "owner": "larkery",
-        "repo": "zsh-histdb",
-        "rev": "90a6c104d0fcc0410d665e148fa7da28c49684eb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "larkery",
-        "repo": "zsh-histdb",
         "type": "github"
       }
     }

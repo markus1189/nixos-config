@@ -23,7 +23,7 @@ in
     # so HM writes no ~/.zshrc at all and every module contributing to
     # programs.zsh.initContent is silently dropped -- starship above included
     # (it wrote starship.toml and never got a hook). Also brings the shared
-    # history/histdb settings and the aliases.
+    # history settings and the aliases.
     ../nixos-shared/home-manager/zsh/default.nix
   ];
 

@@ -2,13 +2,11 @@
   config,
   lib,
   pkgs,
-  inputs,
   ...
 }:
 let
   # Single source of truth is programs.password-store (laptop/home.nix).
   passDir = config.programs.password-store.settings.PASSWORD_STORE_DIR;
-  zshHistdb = inputs.zsh-histdb;
 in
 {
   programs.zsh = {
@@ -78,15 +76,12 @@ in
     # would otherwise sort before them; inline in home.nix it came after),
     # but before the alias block HM emits at order 1100.
     initContent = lib.mkOrder 1050 ''
-      source ${zshHistdb}/sqlite-history.zsh
-      autoload -Uz add-zsh-hook
-
       # cdt: Create Date-organized directory and cd into it
       # Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
       # Canonical entrypoint is ~/Stuff/Today, maintained by stuff-today
       # Usage: cdt [name] -> ~/Stuff/2026-02/13-name; plain cdt keeps
       # today's current Today target (DD-<host> if none yet)
-      # cd's into the resolved path so $PWD and histdb keep the date
+      # cd's into the resolved path so $PWD and shell history keep the date
       function cdt() {
         local target
         target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today "$@") || return

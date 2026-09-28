@@ -67,10 +67,6 @@
       url = "github:StevenBlack/hosts";
       flake = false;
     };
-    zsh-histdb = {
-      url = "github:larkery/zsh-histdb";
-      flake = false;
-    };
     # rss-bridge upstream, tracked for its revision alone: the registry
     # publishes one image tag per commit, named sha-<shortRev>, so
     # `nix flake update rss-bridge-src` is what bumps the container. See
