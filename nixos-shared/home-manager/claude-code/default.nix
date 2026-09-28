@@ -498,6 +498,9 @@ in
           in
           "${script}/bin/${name}";
         "padding" = 0;
+        # Seconds. Countdowns, projections and the cache expiry otherwise only
+        # move on the next message.
+        "refreshInterval" = 30;
       };
 
       permissions = {

@@ -76,7 +76,17 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   # Not `// ""`: jq's alternative operator treats false as absent.
   ($pc.warm | if . == null then "" else tostring end),
   ($pc.caching_observed | if . == null then "" else tostring end),
-  ($pc.expires_at | if . == null then "" else (floor | tostring) end)
+  ($pc.expires_at | if . == null then "" else (floor | tostring) end),
+  # User text from /rename: a newline would add a row, an escape recolour it.
+  (($r.session_name // "") | gsub("[[:cntrl:]]"; "")
+   | if length > 40 then .[0:39] + "…" else . end),
+  (($pc.recache_tokens_if_cold // null) | if . == null then "" else kt end),
+  (($r.rate_limits.seven_day.used_percentage // null)
+   | if . == null then "" else (round | tostring) end),
+  (($r.rate_limits.seven_day.resets_at // null)
+   | if . == null then "" else (floor | tostring) end),
+  (($r.rate_limits.seven_day.used_percentage // null)
+   | if . == null then "" else (. * 100 | round | tostring) end)
 ] | .[]
 EOF
 
@@ -114,6 +124,11 @@ parse_input() {
     J_CACHE_WARM="${f[20]-}"
     J_CACHE_OBSERVED="${f[21]-}"
     J_CACHE_EXPIRES="${f[22]-}"
+    J_SESSION_NAME="${f[23]-}"
+    J_CACHE_RECACHE="${f[24]-}"
+    J_RL7D="${f[25]-}"
+    J_RL7D_RESET="${f[26]-}"
+    J_RL7D_CENTI="${f[27]-}"
 
     J_PARSED=1
 }
@@ -195,6 +210,8 @@ get_transcript_id() {
     fi
     basename "$J_TRANSCRIPT" ".jsonl" | cut -d'-' -f1
 }
+
+get_session_name() { parse_input; echo "$J_SESSION_NAME"; }
 
 get_context_size() {
     parse_input
@@ -301,16 +318,31 @@ readonly RL5H_PRIOR_SECONDS=1800
 # The prior's usage over RL5H_PRIOR_SECONDS, in hundredths of a percent.
 readonly RL5H_PRIOR_CENTI=$((RL5H_PRIOR_PCT * 100 * RL5H_PRIOR_SECONDS / RL5H_WINDOW))
 
-# Seconds elapsed in the 5h window, derived from resets_at (the window opens
-# RL5H_WINDOW before it resets). Empty while too early to extrapolate from.
-rate_limit_5h_elapsed() {
-    if [ -z "$J_RL5H_CENTI" ] || [ -z "$J_RL5H_RESET" ]; then
+# The weekly window, with the same pace logic. Usage follows the working day, so
+# a few hours say little about the week: wait 6h and weigh the prior as a full
+# day.
+readonly RL7D_WINDOW=604800
+readonly RL7D_MIN_ELAPSED=21600
+readonly RL7D_PRIOR_PCT=50
+readonly RL7D_PRIOR_SECONDS=86400
+readonly RL7D_PRIOR_CENTI=$((RL7D_PRIOR_PCT * 100 * RL7D_PRIOR_SECONDS / RL7D_WINDOW))
+
+# The pace functions below take one window's parameters in this order:
+#   centi reset window min_elapsed prior_centi prior_seconds
+# where centi is the usage in hundredths of a percent and reset its resets_at.
+# Always pass them quoted: an unquoted empty centi would shift the rest.
+
+# Seconds elapsed in the window, derived from resets_at (the window opens one
+# window length before it resets). Empty while too early to extrapolate from.
+rate_limit_elapsed() {
+    local centi="$1" reset="$2" window="$3" min_elapsed="$4"
+    if [ -z "$centi" ] || [ -z "$reset" ]; then
         return
     fi
 
-    local remaining=$((J_RL5H_RESET - EPOCHSECONDS))
-    local elapsed=$((RL5H_WINDOW - remaining))
-    if [ "$remaining" -le 0 ] || [ "$elapsed" -lt "$RL5H_MIN_ELAPSED" ]; then
+    local remaining=$((reset - EPOCHSECONDS))
+    local elapsed=$((window - remaining))
+    if [ "$remaining" -le 0 ] || [ "$elapsed" -lt "$min_elapsed" ]; then
         return
     fi
 
@@ -318,39 +350,38 @@ rate_limit_5h_elapsed() {
 }
 
 # Usage at reset: what is used so far, plus the prior-shrunk burn rate
-# (J_RL5H_CENTI + RL5H_PRIOR_CENTI) / (elapsed + RL5H_PRIOR_SECONDS) over the
-# rest of the window.
-get_rate_limit_5h_projection() {
-    parse_input
+# (centi + prior_centi) / (elapsed + prior_seconds) over the rest of the window.
+rate_limit_projection() {
+    local centi="$1" reset="$2" window="$3" min_elapsed="$4" prior_centi="$5" prior_seconds="$6"
 
     local elapsed
-    elapsed=$(rate_limit_5h_elapsed)
+    elapsed=$(rate_limit_elapsed "$centi" "$reset" "$window" "$min_elapsed")
     if [ -z "$elapsed" ]; then
         echo ""
         return
     fi
 
-    local weight=$((elapsed + RL5H_PRIOR_SECONDS))
-    local remaining=$((RL5H_WINDOW - elapsed))
+    local weight=$((elapsed + prior_seconds))
+    local remaining=$((window - elapsed))
     # Round half up; the numerator is in hundredths of a percent.
-    echo $(((J_RL5H_CENTI * weight + (J_RL5H_CENTI + RL5H_PRIOR_CENTI) * remaining + weight * 50) / (weight * 100)))
+    echo $(((centi * weight + (centi + prior_centi) * remaining + weight * 50) / (weight * 100)))
 }
 
 # Time until 100% at the prior-shrunk burn, but only when that comes before
 # the reset -- otherwise the window rolls over first and there is nothing to warn
 # about.
-get_rate_limit_5h_warning() {
-    parse_input
+rate_limit_warning() {
+    local centi="$1" reset="$2" window="$3" min_elapsed="$4" prior_centi="$5" prior_seconds="$6"
 
     local elapsed
-    elapsed=$(rate_limit_5h_elapsed)
-    if [ -z "$elapsed" ] || [ "$J_RL5H_CENTI" -le 0 ]; then
+    elapsed=$(rate_limit_elapsed "$centi" "$reset" "$window" "$min_elapsed")
+    if [ -z "$elapsed" ] || [ "$centi" -le 0 ]; then
         echo ""
         return
     fi
 
-    local exhausted_in=$(((10000 - J_RL5H_CENTI) * (elapsed + RL5H_PRIOR_SECONDS) / (J_RL5H_CENTI + RL5H_PRIOR_CENTI)))
-    if [ "$exhausted_in" -ge $((J_RL5H_RESET - EPOCHSECONDS)) ]; then
+    local exhausted_in=$(((10000 - centi) * (elapsed + prior_seconds) / (centi + prior_centi)))
+    if [ "$exhausted_in" -ge $((reset - EPOCHSECONDS)) ]; then
         echo ""
         return
     fi
@@ -361,70 +392,86 @@ get_rate_limit_5h_warning() {
     echo "⚠$(format_duration "$exhausted_in")"
 }
 
-get_rate_limit_5h() {
-    parse_input
-
-    if [ -z "$J_RL5H" ]; then
+# Time until the window rolls over. Claude Code drops a window once resets_at
+# has passed, but a stale value would otherwise render as a negative countdown,
+# so treat anything in the past as absent.
+rate_limit_reset() {
+    local reset="$1"
+    if [ -z "$reset" ]; then
         echo ""
         return
     fi
 
-    local projection
-    projection=$(get_rate_limit_5h_projection)
-    if [ -n "$projection" ]; then
-        echo "5h ${J_RL5H}%→${projection}%"
-    else
-        echo "5h ${J_RL5H}%"
-    fi
-}
-
-# Coloured by where the window is heading rather than where it is: 70% with ten
-# minutes left is fine, 40% an hour in is not. Falls back to the current
-# usage while the projection is still too noisy to trust.
-get_rate_limit_5h_color() {
-    parse_input
-
-    local projection
-    projection=$(get_rate_limit_5h_projection)
-    if [ -n "$projection" ]; then
-        percentage_color "$projection" 80 100
-    else
-        percentage_color "$J_RL5H" 50 75
-    fi
-}
-
-format_duration() {
-    local seconds="$1"
-    local hours=$((seconds / 3600))
-    local minutes=$(((seconds % 3600) / 60))
-
-    if [ "$hours" -gt 0 ]; then
-        echo "${hours}h${minutes}m"
-    elif [ "$minutes" -gt 0 ]; then
-        echo "${minutes}m"
-    else
-        echo "<1m"
-    fi
-}
-
-# Time until the 5h window rolls over. Claude Code drops the window once
-# resets_at has passed, but a stale value would otherwise render as a negative
-# countdown, so treat anything in the past as absent.
-get_rate_limit_5h_reset() {
-    parse_input
-
-    if [ -z "$J_RL5H_RESET" ]; then
-        echo ""
-        return
-    fi
-
-    local remaining=$((J_RL5H_RESET - EPOCHSECONDS))
+    local remaining=$((reset - EPOCHSECONDS))
     if [ "$remaining" -le 0 ]; then
         echo ""
         return
     fi
 
     echo "↻$(format_duration "$remaining")"
+}
+
+rate_limit_label() {
+    local name="$1" pct="$2" projection="$3"
+    if [ -z "$pct" ]; then
+        echo ""
+    elif [ -n "$projection" ]; then
+        echo "$name ${pct}%→${projection}%"
+    else
+        echo "$name ${pct}%"
+    fi
+}
+
+# Coloured by where the window is heading rather than where it is: 70% with ten
+# minutes left is fine, 40% an hour in is not. Falls back to the current
+# usage while the projection is still too noisy to trust.
+rate_limit_color() {
+    local pct="$1" projection="$2"
+    if [ -n "$projection" ]; then
+        percentage_color "$projection" 80 100
+    else
+        percentage_color "$pct" 50 75
+    fi
+}
+
+get_rate_limit_5h_projection() {
+    parse_input
+    rate_limit_projection "$J_RL5H_CENTI" "$J_RL5H_RESET" "$RL5H_WINDOW" "$RL5H_MIN_ELAPSED" "$RL5H_PRIOR_CENTI" "$RL5H_PRIOR_SECONDS"
+}
+get_rate_limit_5h_warning() {
+    parse_input
+    rate_limit_warning "$J_RL5H_CENTI" "$J_RL5H_RESET" "$RL5H_WINDOW" "$RL5H_MIN_ELAPSED" "$RL5H_PRIOR_CENTI" "$RL5H_PRIOR_SECONDS"
+}
+get_rate_limit_5h_reset() { parse_input; rate_limit_reset "$J_RL5H_RESET"; }
+get_rate_limit_5h() { parse_input; rate_limit_label 5h "$J_RL5H" "$(get_rate_limit_5h_projection)"; }
+get_rate_limit_5h_color() { parse_input; rate_limit_color "$J_RL5H" "$(get_rate_limit_5h_projection)"; }
+
+get_rate_limit_7d_projection() {
+    parse_input
+    rate_limit_projection "$J_RL7D_CENTI" "$J_RL7D_RESET" "$RL7D_WINDOW" "$RL7D_MIN_ELAPSED" "$RL7D_PRIOR_CENTI" "$RL7D_PRIOR_SECONDS"
+}
+get_rate_limit_7d_warning() {
+    parse_input
+    rate_limit_warning "$J_RL7D_CENTI" "$J_RL7D_RESET" "$RL7D_WINDOW" "$RL7D_MIN_ELAPSED" "$RL7D_PRIOR_CENTI" "$RL7D_PRIOR_SECONDS"
+}
+get_rate_limit_7d_reset() { parse_input; rate_limit_reset "$J_RL7D_RESET"; }
+get_rate_limit_7d() { parse_input; rate_limit_label 7d "$J_RL7D" "$(get_rate_limit_7d_projection)"; }
+get_rate_limit_7d_color() { parse_input; rate_limit_color "$J_RL7D" "$(get_rate_limit_7d_projection)"; }
+
+format_duration() {
+    local seconds="$1"
+    local hours=$((seconds / 3600))
+    local minutes=$(((seconds % 3600) / 60))
+
+    if [ "$hours" -ge 24 ]; then
+        echo "$((hours / 24))d$((hours % 24))h"
+    elif [ "$hours" -gt 0 ]; then
+        echo "${hours}h${minutes}m"
+    elif [ "$minutes" -gt 0 ]; then
+        echo "${minutes}m"
+    else
+        echo "<1m"
+    fi
 }
 
 # Cold means the cached prefix is gone and the next request re-caches it. Only
@@ -460,9 +507,21 @@ get_cache() {
         out+="$J_CACHE_TTL"
     fi
     if cache_is_cold; then
+        # What the next turn pays for. Not last_miss_cause: that explains the
+        # previous miss, not why the cache went cold since.
         out+=" cold"
-    elif [ -n "$J_CACHE_HIT" ]; then
+        if [ -n "$J_CACHE_RECACHE" ]; then
+            out+=" +$J_CACHE_RECACHE"
+        fi
+        echo "$out"
+        return
+    fi
+
+    if [ -n "$J_CACHE_HIT" ]; then
         out+=" ${J_CACHE_HIT}%"
+    fi
+    if [ -n "$J_CACHE_EXPIRES" ]; then
+        out+=" ⧗$(format_duration $((J_CACHE_EXPIRES - EPOCHSECONDS)))"
     fi
 
     echo "$out"
@@ -530,6 +589,12 @@ main() {
     echo -en "$(segment "$ORANGE" "$(get_version)")"
     echo -en "$(separator "$ORANGE" "$PINK")"
     echo -en "$(segment "$PINK" "$(get_transcript_id)")"
+    local session_name
+    session_name=$(get_session_name)
+    if [ -n "$session_name" ]; then
+        echo -en "$(separator "$PINK" "$PINK")"
+        echo -en "$(segment "$PINK" "$session_name")"
+    fi
     row_end "$PINK"
 
     # Row 2: Location
@@ -552,21 +617,23 @@ main() {
         previous_color="$cache_color"
     fi
 
-    # Optional 5h rate limit segment (only when field present)
-    local rate_limit_5h rate_limit_5h_color
-    rate_limit_5h=$(get_rate_limit_5h)
-    if [ -n "$rate_limit_5h" ]; then
-        local part
-        for part in "$(get_rate_limit_5h_warning)" "$(get_rate_limit_5h_reset)"; do
+    # Optional rate limit segments (only when the window is reported)
+    local window rate_limit rate_limit_color part
+    for window in 5h 7d; do
+        rate_limit=$("get_rate_limit_$window")
+        if [ -z "$rate_limit" ]; then
+            continue
+        fi
+        for part in "$("get_rate_limit_${window}_warning")" "$("get_rate_limit_${window}_reset")"; do
             if [ -n "$part" ]; then
-                rate_limit_5h+=" $part"
+                rate_limit+=" $part"
             fi
         done
-        rate_limit_5h_color=$(get_rate_limit_5h_color)
-        echo -en "$(separator "$previous_color" "$rate_limit_5h_color")"
-        echo -en "$(segment "$rate_limit_5h_color" "$rate_limit_5h")"
-        previous_color="$rate_limit_5h_color"
-    fi
+        rate_limit_color=$("get_rate_limit_${window}_color")
+        echo -en "$(separator "$previous_color" "$rate_limit_color")"
+        echo -en "$(segment "$rate_limit_color" "$rate_limit")"
+        previous_color="$rate_limit_color"
+    done
 
     echo -en "$(separator "$previous_color" "$context_color")"
     echo -en "$(segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)")"

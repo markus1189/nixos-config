@@ -664,11 +664,18 @@ rl5h_input() {
     assert_output "${CACHE_GLYPH}1h cold"
 }
 
-@test "get_cache: expires_at in the future stays warm" {
-    input="{\"prompt_cache\": {\"warm\": true, \"caching_observed\": true, \"ttl\": \"1h\", \"hit_ratio\": 0.93, \"expires_at\": $((EPOCHSECONDS + 600))}}"
+@test "get_cache: warm cache counts down to expires_at" {
+    input="{\"prompt_cache\": {\"warm\": true, \"caching_observed\": true, \"ttl\": \"1h\", \"hit_ratio\": 0.93, \"expires_at\": $((EPOCHSECONDS + 630))}}"
     run get_cache
     assert_success
-    assert_output "${CACHE_GLYPH}1h 93%"
+    assert_output "${CACHE_GLYPH}1h 93% ⧗10m"
+}
+
+@test "get_cache: cold cache shows what the next turn re-caches" {
+    input='{"prompt_cache": {"warm": false, "caching_observed": true, "ttl": "1h", "hit_ratio": 0.93, "recache_tokens_if_cold": 60243}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}1h cold +60.2kt"
 }
 
 @test "get_cache: unobserved caching is never shown as cold" {
@@ -906,4 +913,130 @@ JSON
     assert_output --partial "95.5kt/200k 48%["
     refute_output --partial "96kt"
     assert_equal "$(grep -o '48%' <<<"$output" | wc -l)" 1
+}
+
+# Tests for the 7-day rate limit
+#
+# Same pace logic as the 5h window: 604800 s long, projections only after 6h,
+# shrunk towards a prior of 50% worth one day of observation.
+
+@test "get_rate_limit_7d: missing field yields empty string" {
+    input='{}'
+    run get_rate_limit_7d
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_7d: no projection in the first 6 hours" {
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 5, \"resets_at\": $((EPOCHSECONDS + 604800 - 3600))}}}"
+    run get_rate_limit_7d
+    assert_success
+    assert_output "7d 5%"
+}
+
+@test "get_rate_limit_7d: projection halfway through the week" {
+    # 3 days elapsed: (3200 + 3200 + 714 + 50) / 100 -> 71
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 32, \"resets_at\": $((EPOCHSECONDS + 345600))}}}"
+    run get_rate_limit_7d
+    assert_success
+    assert_output "7d 32%→71%"
+}
+
+@test "get_rate_limit_7d_warning: burning week warns before the reset" {
+    # 2 days elapsed at 80%: 2000 * 259200 / 8714 = 59490 s
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 80, \"resets_at\": $((EPOCHSECONDS + 432000))}}}"
+    run get_rate_limit_7d_warning
+    assert_success
+    assert_output "⚠16h31m"
+}
+
+@test "get_rate_limit_7d_warning: silent when the reset comes first" {
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 32, \"resets_at\": $((EPOCHSECONDS + 345600))}}}"
+    run get_rate_limit_7d_warning
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_7d_reset: countdown in days" {
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 32, \"resets_at\": $((EPOCHSECONDS + 345630))}}}"
+    run get_rate_limit_7d_reset
+    assert_success
+    assert_output "↻4d0h"
+}
+
+@test "get_rate_limit_7d_color: on pace is green" {
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 32, \"resets_at\": $((EPOCHSECONDS + 345600))}}}"
+    run get_rate_limit_7d_color
+    assert_success
+    assert_output "120;220;120"
+}
+
+@test "get_rate_limit_7d_color: projected past 100% is red" {
+    input="{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 80, \"resets_at\": $((EPOCHSECONDS + 432000))}}}"
+    run get_rate_limit_7d_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_rate_limit_7d_projection: resets_at without a percentage yields nothing" {
+    input="{\"rate_limits\": {\"seven_day\": {\"resets_at\": $((EPOCHSECONDS + 345600))}}}"
+    run get_rate_limit_7d_projection
+    assert_success
+    assert_output ""
+    run get_rate_limit_7d_warning
+    assert_success
+    assert_output ""
+}
+
+@test "format_duration: a day or more shows days and hours" {
+    run format_duration 90000
+    assert_success
+    assert_output "1d1h"
+}
+
+@test "main: burning week renders projection, warning and reset" {
+    run bash -c "printf '%s' '{\"rate_limits\": {\"seven_day\": {\"used_percentage\": 80, \"resets_at\": '$((EPOCHSECONDS + 432030))'}}}' | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_output --partial "7d 80%→225% ⚠16h31m ↻5d0h"
+}
+
+# Tests for get_session_name
+#
+# The name is set via /rename, so it is user text: control characters would
+# break the row layout (a newline adds a row).
+
+@test "get_session_name: present name is shown" {
+    input='{"session_name": "statusline review"}'
+    run get_session_name
+    assert_success
+    assert_output "statusline review"
+}
+
+@test "get_session_name: missing name yields empty string" {
+    input='{}'
+    run get_session_name
+    assert_success
+    assert_output ""
+}
+
+@test "get_session_name: control characters are stripped" {
+    input='{"session_name": "two\nlines\u001b[31m"}'
+    run get_session_name
+    assert_success
+    assert_output "twolines[31m"
+}
+
+@test "get_session_name: long names are cut at 40 characters" {
+    input='{"session_name": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"}'
+    run get_session_name
+    assert_success
+    assert_output "abcdefghijklmnopqrstuvwxyzabcdefghijklm…"
+}
+
+@test "main: session name follows the transcript id on row 1" {
+    run bash -c "printf '%s' '{\"session_name\": \"two\\nlines\", \"transcript_path\": \"/p/abc123-x.jsonl\"}' | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_equal "${#lines[@]}" 3
+    assert_output --partial "abc123"
+    assert_output --partial "twolines"
 }
