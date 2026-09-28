@@ -86,6 +86,8 @@ let
   # 2026-09-27: S24U retired; LocusMaps declared (was S24U-only);
   # nuc joins PhotoLogs and ShareToFolder (its copies were S24U-only).
   # Versioning and ignores copied from the GUI configs they lived in.
+  # 2026-09-28: S26U leaves activities, finance, pen_and_paper. S24U had
+  # them, S26U never accepted them; declared since 2026-06-04 regardless.
   folders = {
     cooklang = {
       id = "exkwq-4skde";
@@ -160,7 +162,6 @@ let
         "nuc"
         "nixos-p1"
         "p1g8"
-        "S26U"
       ];
     };
     buku = {
@@ -220,7 +221,6 @@ let
         "nuc"
         "nixos-p1"
         "p1g8"
-        "S26U"
       ];
     };
     Inbox = {
@@ -249,7 +249,6 @@ let
         "nuc"
         "nixos-p1"
         "p1g8"
-        "S26U"
       ];
     };
   };
