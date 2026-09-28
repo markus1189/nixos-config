@@ -25,6 +25,16 @@ Change it there and rebuild; an edit here cannot stick.
 - **Fixed per-day files go in `$(stuff-today --default)`**, today's `DD-<host>/`, not `Today`:
   `Today` follows `cdt NAME`. The host in the name keeps machines from writing the same file
   (`nixos-p1` is tagged `p1`)
+- **Only notes and code reach the other machines.** Syncthing syncs `~/Stuff` between p1g8,
+  p1 and nuc, opt-in by extension: `md org py sh nix hs ts el toml yaml yml`. Everything else
+  (html, json, pdf, images, dumps) stays on the host that wrote it, and so do junk dirs
+  (`node_modules`, `*venv*`, `.git`, `jadx*`, …) even for their `.md`. Anything meant for the
+  other machines must be one of those types. The list lives in nixos-config
+  (`nixos-shared/stuff-patterns.nix`); `.stignore` is generated, don't edit it
+- **Never put secrets in a synced type**: tokens, cookies and credentials go in `.env`,
+  `*.cookies`, `*.json` or similar, which stay local
+- **Deleting a dir deletes only its synced files elsewhere.** A host that still holds local
+  non-synced files in it keeps the dir with those files in it
 - **Start at [`llms.txt`](llms.txt)** — the generated navigation preamble (months, recent activity, per-month indexes)
 
 ## Markdown tooling (treemd + fd)

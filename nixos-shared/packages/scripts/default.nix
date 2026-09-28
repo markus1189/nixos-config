@@ -53,6 +53,7 @@
   zbar,
   zsh,
   writeShellApplication,
+  writeText,
   writers,
   dejavu_fonts,
   flameshot,
@@ -191,15 +192,36 @@ rec {
   };
 
   # Mirror ~/Stuff to the gdrive backup; runs on one designated host only.
-  backupStuff = writeShellApplication {
-    name = "backup-stuff";
-    runtimeInputs = [
-      coreutils
-      rclone
-    ];
-    inheritPath = false;
-    text = builtins.readFile ./backup-stuff.sh;
-  };
+  # Junk dirs come from the list the Syncthing `stuff` folder uses too.
+  backupStuff =
+    let
+      inherit (import ../../stuff-patterns.nix) junkDirs;
+      excludes = writeText "backup-stuff-excludes" (
+        lib.concatLines (
+          map (d: "${d}/**") junkDirs
+          ++ [
+            # Backup only: one 2026-03 capture, and strace logs (~300M).
+            "2026-03/24-scratch/bedjet/**"
+            "*.strace"
+            # Syncthing's trashcan for the stuff folder; it is a peer's
+            # old version of a file, not ~/Stuff.
+            ".stversions/**"
+          ]
+        )
+      );
+    in
+    writeShellApplication {
+      name = "backup-stuff";
+      runtimeInputs = [
+        coreutils
+        rclone
+      ];
+      inheritPath = false;
+      text = ''
+        readonly EXCLUDES=${excludes}
+      ''
+      + builtins.readFile ./backup-stuff.sh;
+    };
 
   tmuxPollPane = writeShellApplication {
     name = "tmux-poll-pane";
