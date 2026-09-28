@@ -40,18 +40,6 @@ emacs.pkgs.withPackages (
     with epkgs.melpaPackages;
     with epkgs.elpaPackages;
     with epkgs;
-    let
-      my_gptel = epkgs.gptel.overrideAttrs (_: rec {
-        # MELPA-style date version (YYYYMMDD.HMM) from the flake input's
-        # lastModifiedDate (YYYYMMDDHHMMSS).
-        version =
-          builtins.replaceStrings [ ".00" ".0" ] [ "." "." ]
-            "${builtins.substring 0 8 elispSrcs.gptel.lastModifiedDate}.${
-              builtins.substring 8 4 elispSrcs.gptel.lastModifiedDate
-            }";
-        src = elispSrcs.gptel;
-      });
-    in
     [
       treesit-grammars.with-all-grammars
 
@@ -173,6 +161,8 @@ emacs.pkgs.withPackages (
       rainbow-mode
       myEmacsConfig
     ]
-    ++ [ my_gptel ]
+    # MELPA builds gptel from git HEAD; a bare `gptel` would resolve to the
+    # NonGNU release, since the innermost `with epkgs` wins.
+    ++ [ melpaPackages.gptel ]
   )
 )

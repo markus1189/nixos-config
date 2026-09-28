@@ -59,10 +59,7 @@ in
   emacs = final.callPackage ./emacs {
     inherit (prev) emacs;
     elispSrcs = {
-      inherit (inputs)
-        gptel
-        iy-go-to-char
-        ;
+      inherit (inputs) iy-go-to-char;
     };
   };
 }

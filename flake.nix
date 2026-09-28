@@ -63,10 +63,6 @@
       url = "github:astrand/xclip";
       flake = false;
     };
-    gptel = {
-      url = "github:karthink/gptel";
-      flake = false;
-    };
     stevenblack-hosts = {
       url = "github:StevenBlack/hosts";
       flake = false;

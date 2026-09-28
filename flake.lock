@@ -175,22 +175,6 @@
         "type": "github"
       }
     },
-    "gptel": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788926030,
-        "narHash": "sha256-pxqGzFkyXTeCNNG+s5TBFag8gYR8TZgEcZubj+8/UCM=",
-        "owner": "karthink",
-        "repo": "gptel",
-        "rev": "b907507d0e417218a9a1c372d72354c23c096036",
-        "type": "github"
-      },
-      "original": {
-        "owner": "karthink",
-        "repo": "gptel",
-        "type": "github"
-      }
-    },
     "hocket": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -367,7 +351,6 @@
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
         "fasd": "fasd",
-        "gptel": "gptel",
         "hocket": "hocket",
         "home-manager": "home-manager",
         "iy-go-to-char": "iy-go-to-char",
