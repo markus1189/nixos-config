@@ -274,9 +274,13 @@ let
         "S26U"
       ];
     };
-    # 2026-09-28: new. Not S26U: some day dirs hold session cookies.
-    # Day dirs carry the host (DD-p1g8, DD-p1, DD-nuc) so two hosts never
-    # write the same file; `cdt NAME` dirs are shared on purpose.
+    # 2026-09-28: new. Day dirs carry the host (DD-p1g8, DD-p1, DD-nuc) so
+    # two hosts never write the same file; `cdt NAME` dirs are shared on
+    # purpose. S26U joined the same day: it was left out for session
+    # cookies in day dirs, but those live in .json/.html/.txt, which the
+    # opt-in never sends (checked: synced types only hold placeholders).
+    # The phone's own .stignore is not declared here; the hosts' patterns
+    # decide what they send and what they accept from it.
     stuff = {
       id = "mh-stuff";
       path = "${userHome}/Stuff";
@@ -289,6 +293,7 @@ let
         "nuc"
         "nixos-p1"
         "p1g8"
+        "S26U"
       ];
     };
     finance = {
