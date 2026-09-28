@@ -15,6 +15,10 @@
 # hosts get reverted on the next reload. Folder IDs below are
 # copied from the existing config.xml on nixos-p1 (audit
 # 2026-05-20) so sync state is preserved.
+#
+# Each folder is written whole (the module POSTs the folder object),
+# so a folder setting that is not declared here -- versioning -- is
+# reset to Syncthing's default on the next rebuild.
 
 { config, lib, ... }:
 
@@ -44,133 +48,162 @@ let
     };
   };
 
-  # Folder name -> list of all participating device names (incl. self).
+  # Folder name -> { id; members; } plus optional `path` (default
+  # ~/Syncthing/<name>) and any other Syncthing folder attribute
+  # (versioning, ignorePatterns, ...), passed through as is.
+  # `id` preserves sync continuity with the existing peers; without it
+  # Syncthing would mint a new ID and the peers would see a new folder.
+  # `members` lists all participating device names, self included.
+  #
   # Audit baseline = nixos-p1's config.xml @ 2026-05-20. p1g8 mirrors
   # nixos-p1 exactly (decision 2026-05-20: all 14 folders).
   # 2026-06-04: S26U replaces S24U (new phone) across all folders;
   # added Audiobooks (offered by S26U + nixos-p1, nuc also joins).
   # 2026-09-07: cooklang joins, offered to p1g8 by nuc and S26U.
   # nixos-p1 does not have it, so it is not a member.
-  folderMembership = {
-    cooklang = [
-      "nuc"
-      "p1g8"
-      "S26U"
-    ];
-    Audiobooks = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    remind = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    ePubs = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    timejot = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    Buecher = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-    ];
-    jrnl = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    activities = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    buku = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    ShareToFolder = [
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    rides = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-    ];
-    runs = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-    ];
-    PhotoLogs = [
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    pen_and_paper = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    Inbox = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-    finance = [
-      "nuc"
-      "nixos-p1"
-      "p1g8"
-      "S26U"
-    ];
-  };
-
-  # Folder ID -> human-readable name. IDs preserve sync continuity
-  # with the existing peers; without these, Syncthing would mint
-  # new IDs and nixos-p1/nuc/S24U would see them as new folders.
-  folderIds = {
-    cooklang = "exkwq-4skde";
-    Audiobooks = "azmve-vrodw";
-    remind = "7w3sr-tjmd4";
-    ePubs = "bldcc-uuzfe";
-    timejot = "dudaq-5whha";
-    Buecher = "fkwvi-pjazp";
-    jrnl = "gvuip-mhtmw";
-    activities = "hxnix-vtagq";
-    buku = "phgrh-e7j2r";
-    ShareToFolder = "rh3eg-wjgqe";
-    rides = "spw9m-bqrpq";
-    runs = "ssidi-kckkk";
-    PhotoLogs = "tephm-fyigj";
-    pen_and_paper = "unmei-apdtd";
-    Inbox = "x6nxp-oaslb";
-    finance = "ykdhx-5pemk";
+  folders = {
+    cooklang = {
+      id = "exkwq-4skde";
+      members = [
+        "nuc"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    Audiobooks = {
+      id = "azmve-vrodw";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    remind = {
+      id = "7w3sr-tjmd4";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    ePubs = {
+      id = "bldcc-uuzfe";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    timejot = {
+      id = "dudaq-5whha";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    Buecher = {
+      id = "fkwvi-pjazp";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+      ];
+    };
+    jrnl = {
+      id = "gvuip-mhtmw";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    activities = {
+      id = "hxnix-vtagq";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    buku = {
+      id = "phgrh-e7j2r";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    ShareToFolder = {
+      id = "rh3eg-wjgqe";
+      members = [
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    rides = {
+      id = "spw9m-bqrpq";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+      ];
+    };
+    runs = {
+      id = "ssidi-kckkk";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+      ];
+    };
+    PhotoLogs = {
+      id = "tephm-fyigj";
+      members = [
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    pen_and_paper = {
+      id = "unmei-apdtd";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    Inbox = {
+      id = "x6nxp-oaslb";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
+    finance = {
+      id = "ykdhx-5pemk";
+      members = [
+        "nuc"
+        "nixos-p1"
+        "p1g8"
+        "S26U"
+      ];
+    };
   };
 
   # Folders this host participates in.
-  myFolders = lib.filterAttrs (_: members: builtins.elem hostName members) folderMembership;
-
-  # Peer device names for a folder (= all members minus self).
-  peersOf = name: builtins.filter (d: d != hostName) folderMembership.${name};
+  myFolders = lib.filterAttrs (_: f: builtins.elem hostName f.members) folders;
 in
 {
   # Declared devices: all known peers except self.
@@ -178,11 +211,17 @@ in
 
   # Folders this host participates in, preserving original IDs.
   # path defaults to ~/Syncthing/<name> (matches existing layout).
-  services.syncthing.settings.folders = builtins.mapAttrs (name: _: {
-    id = folderIds.${name};
-    path = "${userHome}/Syncthing/${name}";
-    devices = peersOf name;
-  }) myFolders;
+  services.syncthing.settings.folders = builtins.mapAttrs (
+    name: f:
+    {
+      path = "${userHome}/Syncthing/${name}";
+    }
+    // removeAttrs f [ "members" ]
+    // {
+      # Peer device names (= all members minus self).
+      devices = builtins.filter (d: d != hostName) f.members;
+    }
+  ) myFolders;
 
   services.syncthing.overrideDevices = true;
   services.syncthing.overrideFolders = true;
