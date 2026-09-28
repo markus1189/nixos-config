@@ -267,23 +267,21 @@ get_context_with_bar() {
     echo "${label}[${bar}]"
 }
 
-# Shared by every percentage-driven segment: green below 40%, orange below 60%,
-# red above, purple when the number is not known yet.
 percentage_color() {
-    local pct="$1"
+    local pct="$1" orange_above="$2" red_above="$3"
 
     if [ -z "$pct" ]; then
         echo "$PURPLE"
-    elif [ "$pct" -gt 60 ]; then
+    elif [ "$pct" -gt "$red_above" ]; then
         echo "$RED"
-    elif [ "$pct" -gt 40 ]; then
+    elif [ "$pct" -gt "$orange_above" ]; then
         echo "$ORANGE"
     else
         echo "$GREEN"
     fi
 }
 
-get_context_color() { parse_input; percentage_color "$J_PCT"; }
+get_context_color() { parse_input; percentage_color "$J_PCT" 40 60; }
 
 get_rate_limit_5h() {
     parse_input
@@ -295,19 +293,7 @@ get_rate_limit_5h() {
     fi
 }
 
-get_rate_limit_5h_color() {
-    parse_input
-
-    if [ -z "$J_RL5H" ]; then
-        echo "$PURPLE"
-    elif [ "$J_RL5H" -gt 75 ]; then
-        echo "$RED"
-    elif [ "$J_RL5H" -gt 50 ]; then
-        echo "$ORANGE"
-    else
-        echo "$GREEN"
-    fi
-}
+get_rate_limit_5h_color() { parse_input; percentage_color "$J_RL5H" 50 75; }
 
 format_duration() {
     local seconds="$1"
