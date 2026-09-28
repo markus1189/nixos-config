@@ -199,11 +199,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788681955,
-        "narHash": "sha256-pKodAneBuB2Y0UbD0uKoLPBQRc8gKPNeDIOjuc/9KWQ=",
+        "lastModified": 1790501396,
+        "narHash": "sha256-dsw5Dq+t5369X7ykqrfcFhOqZX4fEOKqk3VLutrULRs=",
         "owner": "markus1189",
         "repo": "hocket",
-        "rev": "cca64cc7a80f020de6c04f77872e315673107424",
+        "rev": "b01b00df7cc14ff14054a7b0c9bb741763452ab8",
         "type": "github"
       },
       "original": {
@@ -279,11 +279,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788681982,
-        "narHash": "sha256-NExg7LTmDP5Wk80eTSmZ3VvqJB7FXV7qtOCaYYv2SLA=",
+        "lastModified": 1790501430,
+        "narHash": "sha256-LbP6nbqgvBkVdFl95DibF4zDvlb2G2Avc8tOYGIsek4=",
         "owner": "markus1189",
         "repo": "marginal",
-        "rev": "59776c53d622273357439aba36bf7571d6970ad1",
+        "rev": "b785e282f33749a45a612f49edd39f2d42f1dcea",
         "type": "github"
       },
       "original": {
@@ -403,11 +403,11 @@
     "stevenblack-hosts": {
       "flake": false,
       "locked": {
-        "lastModified": 1788994729,
-        "narHash": "sha256-4XxaSGWKmG3AM89H3mnNpQQWfsnjOubURZbnlrth9iI=",
+        "lastModified": 1790475659,
+        "narHash": "sha256-WGl+RRNR4daLTxSqzaJFdyned6jEOwGIy26Pk9ZUtFc=",
         "owner": "StevenBlack",
         "repo": "hosts",
-        "rev": "83dd698bbcdcb8c11a7796af7188d7ab4ccd02f1",
+        "rev": "abe587abf7979d93b7a8267d5d3e1fbc32541163",
         "type": "github"
       },
       "original": {
