@@ -71,6 +71,11 @@ let
       ".#*"
     ]
     ++ junkDirs
+    # A pattern also matches everything below a dir it matches, so
+    # `!*.org` would let all of repo.gradle.org/ through (found 2026-09-28:
+    # Gradle's maven-metadata.xml). Ignore the contents of dirs named like
+    # a note first; the files themselves still match the `!` lines.
+    ++ map (e: "*.${e}/**") syncExtensions
     ++ map (e: "!*.${e}") syncExtensions
     ++ [ "*" ];
 

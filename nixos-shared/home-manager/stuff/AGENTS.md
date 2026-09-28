@@ -28,7 +28,8 @@ Change it there and rebuild; an edit here cannot stick.
 - **Only notes and code reach the other machines.** Syncthing syncs `~/Stuff` between p1g8,
   p1 and nuc, opt-in by extension: `md org py sh nix hs ts el toml yaml yml`. Everything else
   (html, json, pdf, images, dumps) stays on the host that wrote it, and so do junk dirs
-  (`node_modules`, `*venv*`, `.git`, `jadx*`, …) even for their `.md`. Anything meant for the
+  (`node_modules`, `*venv*`, `.git`, `jadx*`, …) even for their `.md`, as do dirs named like a
+  synced file (`repo.gradle.org/`, `x.md/`). Anything meant for the
   other machines must be one of those types. The list lives in nixos-config
   (`nixos-shared/stuff-patterns.nix`); `.stignore` is generated, don't edit it
 - **Never put secrets in a synced type**: tokens, cookies and credentials go in `.env`,
