@@ -9,8 +9,6 @@ readonly GREEN="120;220;120"
 readonly BLUE="100;180;255"
 readonly PURPLE="180;140;255"
 readonly PINK="255;140;180"
-readonly CYAN="100;200;200"
-readonly YELLOW="220;180;80"
 
 # ANSI escape sequences
 readonly RESET='\033[0m'
@@ -51,14 +49,17 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   (($r.thinking.enabled // false) | tostring),
   ($r.version // ""),
   ($r.transcript_path // ""),
-  ($r.workspace.project_dir // ""),
+  ($r.workspace.current_dir // $r.workspace.project_dir // ""),
   (($r.cost.total_cost_usd // 0) * 100 | round / 100 | tostring),
   (if $ctx > 0 then ($ctx | tostring) else "" end),
   (if $pct == null then "" else ($pct | round | tostring) end),
   (if $pct == null then "" else ([($pct / 10 | floor), 10] | min | tostring) end),
-  (if $tot > 0 then (if $tot >= 1000 then "\($tot / 1000 | round)kt"
-                     else ($tot | tostring) end)
-   else "" end),
+  (($cw.context_window_size // 0)
+   | if . >= 1000000 then ((. / 100000 | round) as $t
+                           | if $t % 10 == 0 then "\($t / 10)M"
+                             else "\($t / 10 | floor).\($t % 10)M" end)
+     elif . > 0 then "\(. / 1000 | round)k"
+     else "" end),
   (if $label > 0 then ($label | kt) else "" end),
   (($r.exceeds_200k_tokens // false) | tostring),
   (($r.rate_limits.five_hour.used_percentage // null)
@@ -71,7 +72,11 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   # Hundredths of a percent: the rounded integer is too coarse to extrapolate
   # from early in the window (1% after 15 minutes would project to 20%).
   (($r.rate_limits.five_hour.used_percentage // null)
-   | if . == null then "" else (. * 100 | round | tostring) end)
+   | if . == null then "" else (. * 100 | round | tostring) end),
+  # Not `// ""`: jq's alternative operator treats false as absent.
+  ($pc.warm | if . == null then "" else tostring end),
+  ($pc.caching_observed | if . == null then "" else tostring end),
+  ($pc.expires_at | if . == null then "" else (floor | tostring) end)
 ] | .[]
 EOF
 
@@ -92,12 +97,12 @@ parse_input() {
     J_THINKING="${f[3]-}"
     J_VERSION="${f[4]-}"
     J_TRANSCRIPT="${f[5]-}"
-    J_PROJECT_DIR="${f[6]-}"
+    J_DIR="${f[6]-}"
     J_COST="${f[7]-}"
     J_CONTEXT="${f[8]-}"
     J_PCT="${f[9]-}"
     J_FILLED="${f[10]-}"
-    J_WINDOW_FMT="${f[11]-}"
+    J_WINDOW_SIZE="${f[11]-}"
     J_CONTEXT_FMT="${f[12]-}"
     J_EXCEEDS="${f[13]-}"
     J_RL5H="${f[14]-}"
@@ -106,6 +111,9 @@ parse_input() {
     J_CACHE_TTL="${f[17]-}"
     J_CACHE_HIT="${f[18]-}"
     J_RL5H_CENTI="${f[19]-}"
+    J_CACHE_WARM="${f[20]-}"
+    J_CACHE_OBSERVED="${f[21]-}"
+    J_CACHE_EXPIRES="${f[22]-}"
 
     J_PARSED=1
 }
@@ -164,10 +172,11 @@ get_model_name() {
     echo "${model_name}${style_suffix}${effort_suffix}${indicator_suffix}"
 }
 
-get_project_dir() {
+# current_dir rather than project_dir, so a cd into a subdirectory shows.
+get_working_dir() {
     parse_input
 
-    local dir="$J_PROJECT_DIR"
+    local dir="$J_DIR"
     if [ -n "${HOME:-}" ] && [ "${dir#"$HOME"}" != "$dir" ]; then
         dir="~${dir#"$HOME"}"
     fi
@@ -197,35 +206,22 @@ get_context_size() {
     fi
 }
 
-get_context_percentage() {
-    parse_input
-
-    if [ -n "$J_PCT" ]; then
-        echo "${J_PCT}%"
-    else
-        echo "$PLACEHOLDER"
-    fi
-}
-
-get_formatted_context_window() {
-    parse_input
-
-    if [ -n "$J_WINDOW_FMT" ]; then
-        echo "$J_WINDOW_FMT"
-    else
-        echo "$PLACEHOLDER"
-    fi
-}
+get_context_window_size() { parse_input; echo "$J_WINDOW_SIZE"; }
 
 get_git_branch() {
     git branch --quiet --show-current 2>/dev/null || echo "$PLACEHOLDER"
 }
 
 get_git_status() {
-    local status=""
+    local status="" porcelain
 
-    # Check for uncommitted changes
-    if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+    # Porcelain lists untracked files too, which git diff does not. No optional
+    # locks: a status refresh must never collide with the user's own git.
+    if ! porcelain=$(git --no-optional-locks status --porcelain 2>/dev/null); then
+        echo ""
+        return
+    fi
+    if [ -z "$porcelain" ]; then
         status+="✓"
     else
         status+="±"
@@ -253,15 +249,20 @@ get_git_status() {
     echo "$status"
 }
 
-# The bar tracks the percentage (which survives /compact) while the label shows
-# the token count, so the two never contradict the neighbouring percentage
-# segment.
+# One segment for the context: tokens, window size, percentage and a bar. The
+# bar tracks the percentage (which survives /compact) rather than the tokens.
 get_context_with_bar() {
     parse_input
 
     local label="$J_CONTEXT_FMT"
     if [ -z "$label" ]; then
         label="$PLACEHOLDER"
+    fi
+    if [ -n "$J_WINDOW_SIZE" ] && [ -n "$J_CONTEXT_FMT" ]; then
+        label+="/$J_WINDOW_SIZE"
+    fi
+    if [ -n "$J_PCT" ]; then
+        label+=" ${J_PCT}%"
     fi
 
     local filled="${J_FILLED:-0}"
@@ -426,9 +427,25 @@ get_rate_limit_5h_reset() {
     echo "↻$(format_duration "$remaining")"
 }
 
+# Cold means the cached prefix is gone and the next request re-caches it. Only
+# when caching was observed at all: a provider that reports no cache tokens is
+# not cold, just silent. expires_at is checked too, because warm is only as
+# fresh as the last render.
+cache_is_cold() {
+    if [ "$J_CACHE_OBSERVED" = "false" ]; then
+        return 1
+    fi
+    if [ "$J_CACHE_WARM" = "false" ]; then
+        return 0
+    fi
+    [ -n "$J_CACHE_EXPIRES" ] && [ "$J_CACHE_EXPIRES" -le "$EPOCHSECONDS" ]
+}
+
 # Prompt cache state: the TTL of the current cached prefix and what fraction of
-# input tokens came out of the cache. The glyph is deliberately constant -- the
-# segment colour is the signal, so a healthy cache never looks like an alert.
+# input tokens came out of the cache, or "cold" once the prefix has expired (the
+# hit ratio is a session average and says nothing then). The glyph is
+# deliberately constant -- the segment colour is the signal, so a healthy cache
+# never looks like an alert.
 get_cache() {
     parse_input
 
@@ -442,7 +459,9 @@ get_cache() {
     if [ -n "$J_CACHE_TTL" ]; then
         out+="$J_CACHE_TTL"
     fi
-    if [ -n "$J_CACHE_HIT" ]; then
+    if cache_is_cold; then
+        out+=" cold"
+    elif [ -n "$J_CACHE_HIT" ]; then
         out+=" ${J_CACHE_HIT}%"
     fi
 
@@ -453,7 +472,9 @@ get_cache() {
 get_cache_color() {
     parse_input
 
-    if [ -z "$J_CACHE_HIT" ]; then
+    if cache_is_cold; then
+        echo "$RED"
+    elif [ -z "$J_CACHE_HIT" ]; then
         echo "$PURPLE"
     elif [ "$J_CACHE_HIT" -ge 80 ]; then
         echo "$GREEN"
@@ -512,7 +533,7 @@ main() {
     row_end "$PINK"
 
     # Row 2: Location
-    echo -en "$(segment "$BLUE" "$(get_project_dir)")"
+    echo -en "$(segment "$BLUE" "$(get_working_dir)")"
     echo -en "$(separator "$BLUE" "$GREEN")"
     echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
     row_end "$GREEN"
@@ -549,11 +570,7 @@ main() {
 
     echo -en "$(separator "$previous_color" "$context_color")"
     echo -en "$(segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)")"
-    echo -en "$(separator "$context_color" "$YELLOW")"
-    echo -en "$(segment "$YELLOW" "$(get_context_percentage)")"
-    echo -en "$(separator "$YELLOW" "$CYAN")"
-    echo -en "$(segment "$CYAN" "$(get_formatted_context_window)")"
-    row_end "$CYAN"
+    row_end "$context_color"
 }
 
 # Only run main if script is executed directly (not sourced for testing)

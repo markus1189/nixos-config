@@ -142,7 +142,7 @@ EOF
     input=$(mock_input_basic)
     run get_context_with_bar
     assert_success
-    assert_regex "$output" '50\.0kt\[●●○○○○○○○○\]'
+    assert_output "50.0kt/200k 25%[●●○○○○○○○○]"
 }
 
 @test "get_context_with_bar: Missing data shows empty bar" {
@@ -186,71 +186,60 @@ EOF
     assert_output "abc123"
 }
 
-# Tests for get_formatted_context_window function
+# Tests for get_context_window_size
+#
+# Regression: this used to render total_input_tokens as a third copy of the
+# context size; the window itself was never shown.
 
-@test "get_formatted_context_window: 50k tokens shows as 50kt" {
+@test "get_context_window_size: 200k window" {
     input=$(mock_input_basic)
-    run get_formatted_context_window
+    run get_context_window_size
     assert_success
-    assert_output "50kt"
+    assert_output "200k"
 }
 
-@test "get_formatted_context_window: 150k tokens shows as 150kt" {
-    input=$(mock_input_high_usage)
-    run get_formatted_context_window
+@test "get_context_window_size: 1M window" {
+    input='{"context_window": {"context_window_size": 1000000}}'
+    run get_context_window_size
     assert_success
-    assert_output "150kt"
+    assert_output "1M"
 }
 
-@test "get_formatted_context_window: Small number (under 1000) shows as-is" {
-    input='{"context_window": {"total_input_tokens": 500}}'
-    run get_formatted_context_window
+@test "get_context_window_size: fractional millions keep one decimal" {
+    input='{"context_window": {"context_window_size": 1500000}}'
+    run get_context_window_size
     assert_success
-    assert_output "500"
+    assert_output "1.5M"
 }
 
-@test "get_formatted_context_window: Zero tokens shows placeholder" {
-    input='{"context_window": {"total_input_tokens": 0}}'
-    run get_formatted_context_window
-    assert_success
-    assert_output "⌀"
-}
-
-@test "get_formatted_context_window: Missing data shows placeholder" {
+@test "get_context_window_size: missing field yields empty string" {
     input='{"context_window": {}}'
-    run get_formatted_context_window
+    run get_context_window_size
     assert_success
-    assert_output "⌀"
+    assert_output ""
 }
 
-# Tests for get_context_percentage function
+# Tests for the percentage inside the context segment
 
-@test "get_context_percentage: Uses native percentage" {
+@test "get_context_with_bar: native percentage rounded" {
     input='{"context_window": {"used_percentage": 42.6}}'
-    run get_context_percentage
+    run get_context_with_bar
     assert_success
-    assert_output "43%"
+    assert_output "⌀ 43%[●●●●○○○○○○]"
 }
 
-@test "get_context_percentage: Rounds to nearest integer" {
-    input='{"context_window": {"used_percentage": 75.8}}'
-    run get_context_percentage
-    assert_success
-    assert_output "76%"
-}
-
-@test "get_context_percentage: Missing percentage shows placeholder" {
-    input='{"context_window": {}}'
-    run get_context_percentage
-    assert_success
-    assert_output "⌀"
-}
-
-@test "get_context_percentage: Null percentage shows placeholder" {
+@test "get_context_with_bar: null percentage and no tokens show placeholder only" {
     input='{"context_window": {"used_percentage": null}}'
-    run get_context_percentage
+    run get_context_with_bar
     assert_success
-    assert_output "⌀"
+    assert_output "⌀[○○○○○○○○○○]"
+}
+
+@test "get_context_with_bar: 1M window" {
+    input='{"context_window": {"current_usage": {"input_tokens": 62036}, "context_window_size": 1000000, "used_percentage": 6}}'
+    run get_context_with_bar
+    assert_success
+    assert_output "62.0kt/1M 6%[○○○○○○○○○○]"
 }
 
 # Tests for get_model_name effort and thinking extensions
@@ -424,7 +413,7 @@ EOF
     input='{"context_window": {"current_usage": null, "used_percentage": 35, "total_input_tokens": 70000, "context_window_size": 200000}}'
     run get_context_with_bar
     assert_success
-    assert_output "70.0kt[●●●○○○○○○○]"
+    assert_output "70.0kt/200k 35%[●●●○○○○○○○]"
 }
 
 @test "get_context_color: uses used_percentage when current_usage is null" {
@@ -434,11 +423,11 @@ EOF
     assert_output "255;120;120"
 }
 
-@test "get_context_percentage: derived from current_usage when field absent" {
+@test "get_context_with_bar: percentage derived from current_usage when field absent" {
     input=$(mock_input_basic)  # 50k/200k
-    run get_context_percentage
+    run get_context_with_bar
     assert_success
-    assert_output "25%"
+    assert_output --partial " 25%["
 }
 
 # Tests for format_duration
@@ -606,7 +595,7 @@ rl5h_input() {
 }
 
 @test "get_cache: short ttl and low hit ratio use the same glyph" {
-    input='{"prompt_cache": {"warm": false, "ttl": "5m", "hit_ratio": 0.4}}'
+    input='{"prompt_cache": {"warm": true, "ttl": "5m", "hit_ratio": 0.4}}'
     run get_cache
     assert_success
     assert_output "${CACHE_GLYPH}5m 40%"
@@ -649,6 +638,46 @@ rl5h_input() {
     assert_output "180;140;255"
 }
 
+# Cold cache
+#
+# Regression: hit_ratio is a session average, so a cache that had gone cold
+# still rendered as a healthy green segment.
+
+@test "get_cache: warm false renders cold instead of the hit ratio" {
+    input='{"prompt_cache": {"warm": false, "caching_observed": true, "ttl": "5m", "hit_ratio": 0.93}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}5m cold"
+}
+
+@test "get_cache_color: cold cache is red despite a high hit ratio" {
+    input='{"prompt_cache": {"warm": false, "caching_observed": true, "ttl": "5m", "hit_ratio": 0.93}}'
+    run get_cache_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_cache: expires_at in the past is cold even while warm is stale" {
+    input="{\"prompt_cache\": {\"warm\": true, \"caching_observed\": true, \"ttl\": \"1h\", \"hit_ratio\": 0.93, \"expires_at\": $((EPOCHSECONDS - 60))}}"
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}1h cold"
+}
+
+@test "get_cache: expires_at in the future stays warm" {
+    input="{\"prompt_cache\": {\"warm\": true, \"caching_observed\": true, \"ttl\": \"1h\", \"hit_ratio\": 0.93, \"expires_at\": $((EPOCHSECONDS + 600))}}"
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}1h 93%"
+}
+
+@test "get_cache: unobserved caching is never shown as cold" {
+    input='{"prompt_cache": {"warm": false, "caching_observed": false, "ttl": "5m", "hit_ratio": null}}'
+    run get_cache
+    assert_success
+    assert_output "${CACHE_GLYPH}5m"
+}
+
 # Tests for separator glyph selection
 
 @test "separator: differing colors use the solid arrow" {
@@ -662,6 +691,70 @@ rl5h_input() {
     assert_success
     assert_output --partial "$SEP_THIN"
     refute_output --partial "$SEP_THICK"
+}
+
+# Tests for get_git_status
+#
+# Regression: git diff ignores untracked files, so a repo holding only a new
+# file rendered as clean.
+
+git_tmp_repo() {
+    cd "$BATS_TEST_TMPDIR" || return 1
+    git init -q repo && cd repo || return 1
+    git -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+}
+
+@test "get_git_status: clean repo is a tick" {
+    git_tmp_repo
+    run get_git_status
+    assert_success
+    assert_output "✓"
+}
+
+@test "get_git_status: untracked file counts as dirty" {
+    git_tmp_repo
+    touch newfile.txt
+    run get_git_status
+    assert_success
+    assert_output "±"
+}
+
+@test "get_git_status: staged change counts as dirty" {
+    git_tmp_repo
+    touch staged.txt && git add staged.txt
+    run get_git_status
+    assert_success
+    assert_output "±"
+}
+
+@test "get_git_status: outside a repo yields empty string" {
+    cd "$BATS_TEST_TMPDIR" || return 1
+    GIT_CEILING_DIRECTORIES="$BATS_TEST_TMPDIR" run get_git_status
+    assert_success
+    assert_output ""
+}
+
+# Tests for get_working_dir
+
+@test "get_working_dir: prefers current_dir over project_dir" {
+    input='{"workspace": {"current_dir": "/srv/project/sub", "project_dir": "/srv/project"}}'
+    run get_working_dir
+    assert_success
+    assert_output "/srv/project/sub"
+}
+
+@test "get_working_dir: falls back to project_dir" {
+    input='{"workspace": {"project_dir": "/srv/project"}}'
+    run get_working_dir
+    assert_success
+    assert_output "/srv/project"
+}
+
+@test "get_working_dir: home is abbreviated" {
+    input="{\"workspace\": {\"current_dir\": \"$HOME/repos\"}}"
+    run get_working_dir
+    assert_success
+    assert_output "~/repos"
 }
 
 # End-to-end tests for main
@@ -712,4 +805,105 @@ EOF
     assert_success
     assert_equal "${#lines[@]}" 3
     refute_output --partial "jq: error"
+}
+
+# Recorded from a live Claude Code 2.1.283 session (ids and paths replaced).
+# Its timestamps are absolute, so only assert what does not depend on the
+# clock.
+mock_input_live_2_1_283() {
+    cat <<'JSON'
+{
+  "session_id": "00000000-0000-0000-0000-000000000000",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/00000000-0000-0000-0000-000000000000.jsonl",
+  "cwd": "/home/user/project",
+  "scratchpad_dir": "/tmp/claude-1000/scratchpad",
+  "prompt_id": "11111111-1111-1111-1111-111111111111",
+  "effort": {
+    "level": "medium"
+  },
+  "session_name": "statusline fixture",
+  "model": {
+    "id": "claude-opus-5-5",
+    "display_name": "Opus 5.5"
+  },
+  "workspace": {
+    "current_dir": "/home/user/project",
+    "project_dir": "/home/user/project",
+    "added_dirs": []
+  },
+  "version": "2.1.283",
+  "output_style": {
+    "name": "default"
+  },
+  "cost": {
+    "total_cost_usd": 0.5324084000000001,
+    "total_duration_ms": 253990,
+    "total_api_duration_ms": 71521,
+    "total_lines_added": 0,
+    "total_lines_removed": 0
+  },
+  "context_window": {
+    "total_input_tokens": 62036,
+    "total_output_tokens": 378,
+    "context_window_size": 1000000,
+    "current_usage": {
+      "input_tokens": 2,
+      "output_tokens": 378,
+      "cache_creation_input_tokens": 1793,
+      "cache_read_input_tokens": 60241
+    },
+    "used_percentage": 6,
+    "remaining_percentage": 94
+  },
+  "exceeds_200k_tokens": false,
+  "prompt_cache": {
+    "warm": true,
+    "caching_observed": true,
+    "ttl": "1h",
+    "expires_at": 1790602139,
+    "requests": 11,
+    "misses": 0,
+    "expected_rebuilds": 0,
+    "hit_ratio": 0.9451518802082814,
+    "cache_write_tokens": 33032,
+    "miss_recache_tokens": 0,
+    "last_miss_at": null,
+    "last_miss_cause": null,
+    "miss_causes": {},
+    "recache_tokens_if_cold": 62036
+  },
+  "fast_mode": false,
+  "thinking": {
+    "enabled": true
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 14,
+      "resets_at": 1790610000
+    },
+    "seven_day": {
+      "used_percentage": 32,
+      "resets_at": 1790805600
+    }
+  }
+}
+JSON
+}
+
+@test "main: live 2.1.283 payload renders three rows without errors" {
+    run bash -c "$(declare -f mock_input_live_2_1_283); mock_input_live_2_1_283 | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_equal "${#lines[@]}" 3
+    refute_output --partial "jq: error"
+    assert_output --partial "62.0kt/1M 6%["
+}
+
+# Regression: the same context size used to render three times (token label,
+# a separate percentage segment and total_input_tokens rounded to kt).
+@test "main: context size and percentage appear once" {
+    run bash -c "$(declare -f mock_input_full); mock_input_full | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_output --partial "95.5kt/200k 48%["
+    refute_output --partial "96kt"
+    assert_equal "$(grep -o '48%' <<<"$output" | wc -l)" 1
 }
