@@ -1,14 +1,12 @@
 # Declarative Syncthing mesh, keyed on the importing host's
 # `networking.hostName` (device names below match hostnames exactly).
 #
-# Composes with `./syncthing-base.nix` (which provides `enable`,
-# `configDir`, `dataDir`, `user`, `systemService`). This file only
-# adds devices, folders, and the override flags.
-#
-# Adoption is opt-in per host. As of 2026-05-20 only p1g8 imports
-# this module; nixos-p1 and nuc still run from their GUI-managed
-# config.xml. When migrating those later, the same module file
-# stays — they just start importing it.
+# Imports `./syncthing-base.nix` (which provides `enable`,
+# `configDir`, `dataDir`, `user`, `systemService`) and adds devices,
+# folders, and the override flags. Hosts import this file, never the
+# base alone, so no host runs a GUI-managed Syncthing: p1g8 since
+# 2026-05-20, nixos-p1 and nuc since 2026-09 (laptop/laptop.nix,
+# nuc/configuration.nix).
 #
 # overrideDevices/overrideFolders = true means the Nix declaration
 # is authoritative: GUI changes to devices/folders on importing
@@ -260,6 +258,8 @@ let
   myFolders = lib.filterAttrs (_: f: builtins.elem hostName f.members) folders;
 in
 {
+  imports = [ ./syncthing-base.nix ];
+
   # Declared devices: all known peers except self.
   services.syncthing.settings.devices = lib.filterAttrs (n: _: n != hostName) devices;
 

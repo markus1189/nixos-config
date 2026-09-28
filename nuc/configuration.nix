@@ -23,7 +23,7 @@
     ../nixos-shared/ripgrep.nix
     ../nixos-shared/ssh.nix
     ../nixos-shared/sudo.nix
-    ../nixos-shared/syncthing-base.nix
+    ../nixos-shared/syncthing.nix
     ../nixos-shared/user.nix
     ../nixos-shared/zsh.nix
     # disko (module wired in flake.nix) provides the schema for ./disko.nix

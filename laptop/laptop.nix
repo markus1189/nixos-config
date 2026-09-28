@@ -32,7 +32,7 @@
     ./lastpass.nix
     ./low-battery.nix
     ./programs.nix
-    ../nixos-shared/syncthing-base.nix
+    ../nixos-shared/syncthing.nix
     ../nixos-shared/runtime-secrets.nix
     ./codecentric.nix
     ../nixos-shared/nix-ld.nix

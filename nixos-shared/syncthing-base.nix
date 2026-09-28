@@ -1,8 +1,8 @@
 { config, pkgs, ... }:
 
 # Base Syncthing service (enable, dirs, user) shared by all hosts.
-# The declarative device/folder mesh lives in ./syncthing.nix and is
-# opt-in per host on top of this.
+# Imported by ./syncthing.nix, which adds the declarative
+# device/folder mesh; hosts import that, not this file.
 {
   services.syncthing = {
     enable = true;
