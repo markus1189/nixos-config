@@ -70,6 +70,20 @@ in
       // claudeConfig.agentFiles;
   };
 
+  # Client for the atuin server in ./atuin.nix. The server listens on
+  # loopback here, so nuc syncs directly -- no tunnel, unlike the laptops'
+  # atuin-sync timer -- and auto_sync can stay on. Registration is closed:
+  # enrol with `atuin login` against the laptops' existing account.
+  programs.atuin = {
+    enable = true;
+    settings = {
+      history_filter = [ "DONOTTRACK" ];
+      update_check = false;
+      sync_address = "http://127.0.0.1:49888";
+      auto_sync = true;
+    };
+  };
+
   systemd.user = {
     startServices = true;
     services =
