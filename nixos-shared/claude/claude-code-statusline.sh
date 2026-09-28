@@ -67,7 +67,11 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
    | if . == null then "" else (floor | tostring) end),
   (if $pc == null then "false" else "true" end),
   ($pc.ttl // ""),
-  (($pc.hit_ratio // null) | if . == null then "" else (. * 100 | round | tostring) end)
+  (($pc.hit_ratio // null) | if . == null then "" else (. * 100 | round | tostring) end),
+  # Hundredths of a percent: the rounded integer is too coarse to extrapolate
+  # from early in the window (1% after 15 minutes would project to 20%).
+  (($r.rate_limits.five_hour.used_percentage // null)
+   | if . == null then "" else (. * 100 | round | tostring) end)
 ] | .[]
 EOF
 
@@ -101,6 +105,7 @@ parse_input() {
     J_CACHE="${f[16]-}"
     J_CACHE_TTL="${f[17]-}"
     J_CACHE_HIT="${f[18]-}"
+    J_RL5H_CENTI="${f[19]-}"
 
     J_PARSED=1
 }
@@ -283,17 +288,97 @@ percentage_color() {
 
 get_context_color() { parse_input; percentage_color "$J_PCT" 40 60; }
 
+readonly RL5H_WINDOW=18000
+# Below this the average burn is dominated by the first few requests.
+readonly RL5H_MIN_ELAPSED=900
+
+# Seconds elapsed in the 5h window, derived from resets_at (the window opens
+# RL5H_WINDOW before it resets). Empty while too early to extrapolate from.
+rate_limit_5h_elapsed() {
+    if [ -z "$J_RL5H_CENTI" ] || [ -z "$J_RL5H_RESET" ]; then
+        return
+    fi
+
+    local remaining=$((J_RL5H_RESET - EPOCHSECONDS))
+    local elapsed=$((RL5H_WINDOW - remaining))
+    if [ "$remaining" -le 0 ] || [ "$elapsed" -lt "$RL5H_MIN_ELAPSED" ]; then
+        return
+    fi
+
+    echo "$elapsed"
+}
+
+# Usage at reset, assuming the average burn since the window opened continues.
+get_rate_limit_5h_projection() {
+    parse_input
+
+    local elapsed
+    elapsed=$(rate_limit_5h_elapsed)
+    if [ -z "$elapsed" ]; then
+        echo ""
+        return
+    fi
+
+    # Round half up; the numerator is in hundredths of a percent.
+    echo $(((J_RL5H_CENTI * RL5H_WINDOW + elapsed * 50) / (elapsed * 100)))
+}
+
+# Time until 100% at the current average burn, but only when that comes before
+# the reset -- otherwise the window rolls over first and there is nothing to warn
+# about.
+get_rate_limit_5h_warning() {
+    parse_input
+
+    local elapsed
+    elapsed=$(rate_limit_5h_elapsed)
+    if [ -z "$elapsed" ] || [ "$J_RL5H_CENTI" -le 0 ]; then
+        echo ""
+        return
+    fi
+
+    local exhausted_in=$(((10000 - J_RL5H_CENTI) * elapsed / J_RL5H_CENTI))
+    if [ "$exhausted_in" -ge $((J_RL5H_RESET - EPOCHSECONDS)) ]; then
+        echo ""
+        return
+    fi
+    if [ "$exhausted_in" -lt 0 ]; then
+        exhausted_in=0
+    fi
+
+    echo "⚠$(format_duration "$exhausted_in")"
+}
+
 get_rate_limit_5h() {
     parse_input
 
     if [ -z "$J_RL5H" ]; then
         echo ""
+        return
+    fi
+
+    local projection
+    projection=$(get_rate_limit_5h_projection)
+    if [ -n "$projection" ]; then
+        echo "5h ${J_RL5H}%→${projection}%"
     else
         echo "5h ${J_RL5H}%"
     fi
 }
 
-get_rate_limit_5h_color() { parse_input; percentage_color "$J_RL5H" 50 75; }
+# Coloured by where the window is heading rather than where it is: 70% with ten
+# minutes left is fine, 40% an hour in is not. Falls back to the current
+# usage while the projection is still too noisy to trust.
+get_rate_limit_5h_color() {
+    parse_input
+
+    local projection
+    projection=$(get_rate_limit_5h_projection)
+    if [ -n "$projection" ]; then
+        percentage_color "$projection" 80 100
+    else
+        percentage_color "$J_RL5H" 50 75
+    fi
+}
 
 format_duration() {
     local seconds="$1"
@@ -438,7 +523,12 @@ main() {
     local rate_limit_5h rate_limit_5h_color
     rate_limit_5h=$(get_rate_limit_5h)
     if [ -n "$rate_limit_5h" ]; then
-        rate_limit_5h+="$(get_rate_limit_5h_reset)"
+        local part
+        for part in "$(get_rate_limit_5h_warning)" "$(get_rate_limit_5h_reset)"; do
+            if [ -n "$part" ]; then
+                rate_limit_5h+=" $part"
+            fi
+        done
         rate_limit_5h_color=$(get_rate_limit_5h_color)
         echo -en "$(separator "$previous_color" "$rate_limit_5h_color")"
         echo -en "$(segment "$rate_limit_5h_color" "$rate_limit_5h")"

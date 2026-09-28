@@ -484,6 +484,97 @@ EOF
     assert_output ""
 }
 
+# Tests for the 5h projection. rl5h_input PCT ELAPSED builds a window that
+# opened ELAPSED seconds ago.
+
+rl5h_input() {
+    input="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": $1, \"resets_at\": $((EPOCHSECONDS + 18000 - $2))}}}"
+}
+
+@test "get_rate_limit_5h: projection appended once the window is old enough" {
+    rl5h_input 10 3600
+    run get_rate_limit_5h
+    assert_success
+    assert_output "5h 10%→50%"
+}
+
+@test "get_rate_limit_5h: no projection in the first 15 minutes" {
+    rl5h_input 3 300
+    run get_rate_limit_5h
+    assert_success
+    assert_output "5h 3%"
+}
+
+@test "get_rate_limit_5h_projection: extrapolates from the unrounded percentage" {
+    rl5h_input 1.4 900
+    run get_rate_limit_5h_projection
+    assert_success
+    assert_output "28"
+}
+
+@test "get_rate_limit_5h_projection: elapsed reset yields empty string" {
+    input="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": 10, \"resets_at\": $((EPOCHSECONDS - 60))}}}"
+    run get_rate_limit_5h_projection
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_5h_color: high usage late in the window stays green" {
+    rl5h_input 70 17400
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "120;220;120"
+}
+
+@test "get_rate_limit_5h_color: projection right at 100% is orange" {
+    rl5h_input 20 3600
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "255;180;100"
+}
+
+@test "get_rate_limit_5h_color: low usage burning fast is red" {
+    rl5h_input 30 3600
+    run get_rate_limit_5h_color
+    assert_success
+    assert_output "255;120;120"
+}
+
+@test "get_rate_limit_5h_warning: time to exhaustion when it precedes the reset" {
+    rl5h_input 30 3600
+    run get_rate_limit_5h_warning
+    assert_success
+    assert_output "⚠2h20m"
+}
+
+@test "get_rate_limit_5h_warning: silent when the reset comes first" {
+    rl5h_input 20 3600
+    run get_rate_limit_5h_warning
+    assert_success
+    assert_output ""
+}
+
+@test "get_rate_limit_5h_warning: exhausted window warns immediately" {
+    rl5h_input 100 3600
+    run get_rate_limit_5h_warning
+    assert_success
+    assert_output "⚠<1m"
+}
+
+@test "get_rate_limit_5h_warning: zero usage yields empty string" {
+    rl5h_input 0 3600
+    run get_rate_limit_5h_warning
+    assert_success
+    assert_output ""
+}
+
+@test "main: burning 5h window renders projection, warning and reset" {
+    rl5h_input 30 3600
+    run main <<<"$input"
+    assert_success
+    assert_output --partial "5h 30%→150% ⚠2h20m ↻"
+}
+
 # Tests for get_cache
 
 @test "get_cache: absent prompt_cache yields empty string" {
