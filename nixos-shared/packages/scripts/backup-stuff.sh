@@ -1,10 +1,11 @@
 # Mirror ~/Stuff to Google Drive backup, skipping whales + regenerable junk.
 # Writes through the existing gdrive: FUSE mount (no rclone remote config needed).
 #
-# One writer only. `rclone sync` mirrors, so a host whose ~/Stuff lacks months
-# another host has would delete them from the backup. ~/Stuff lives on several
-# machines and they are not in sync, so the destination belongs to BACKUP_HOST
-# and every other host refuses to run.
+# One writer only. `rclone sync` mirrors, so a host whose ~/Stuff lacks files
+# another host has would delete them from the backup. Only notes and code sync
+# between hosts (Syncthing, nixos-shared/stuff-patterns.nix); everything else
+# lives on one host. So the destination belongs to BACKUP_HOST, every other
+# host refuses to run, and other hosts' local-only files are not backed up.
 #
 # Decompiler output is the thing to watch: it is enormous by file COUNT, not by
 # size, and Drive bills a round trip per file. On 2026-09-18 the gdrive mount

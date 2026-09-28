@@ -1,6 +1,7 @@
 # ~/Stuff, the date-organized note tree, set up the same way on every host
-# that imports this (laptop/home.nix, nuc/home.nix). The tree's content is
-# per machine; its tooling and agent instructions come from here, so the
+# that imports this (laptop/home.nix, nuc/home.nix). Notes and code sync
+# between hosts (the `stuff` folder in ../../syncthing.nix); the rest of the
+# tree is per machine. Tooling and agent instructions come from here, so the
 # hosts cannot drift apart. Generated indexes (llms.txt, INDEX.md,
 # .kb/series/) are data and stay in ~/Stuff, written by kb-index.
 { pkgs, ... }:

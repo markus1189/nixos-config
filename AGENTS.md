@@ -28,6 +28,7 @@ Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
 - **Custom packages**: `packages/` - emacs, xmonad, xmobarrc, kanata, tmux, scripts
 - **Home Manager**: `home-manager/` - user-level configs (git, zsh, dunst, firefox, vim, claude-code)
 - **Claude Code configs**: `claude/` - commands, skills, output-styles, docs
+- **Syncthing**: `syncthing.nix` declares all devices/folders (GUI edits get reverted); `~/Stuff`'s `.stignore` is generated from `stuff-patterns.nix`. Read [docs/syncthing.md](docs/syncthing.md) before changing either
 - **Overlays**: `shared-overlays.nix` (a function of flake `inputs`) - wallpapers, visidata, xclip overlays; flake-level overlays (emacs-overlay, masterPkgs) in `flake-base.nix`
 
 ### Secrets Management
