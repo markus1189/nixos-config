@@ -289,8 +289,16 @@ percentage_color() {
 get_context_color() { parse_input; percentage_color "$J_PCT" 40 60; }
 
 readonly RL5H_WINDOW=18000
-# Below this the average burn is dominated by the first few requests.
+# Below this the projection is little more than the prior.
 readonly RL5H_MIN_ELAPSED=900
+# The burn rate is shrunk towards a prior window ending at RL5H_PRIOR_PCT, worth
+# RL5H_PRIOR_SECONDS of observation. The window opens on the first request, so
+# its start is the busiest stretch by construction; extrapolating that alone
+# overshoots. The prior's weight fades as the real elapsed time grows.
+readonly RL5H_PRIOR_PCT=50
+readonly RL5H_PRIOR_SECONDS=1800
+# The prior's usage over RL5H_PRIOR_SECONDS, in hundredths of a percent.
+readonly RL5H_PRIOR_CENTI=$((RL5H_PRIOR_PCT * 100 * RL5H_PRIOR_SECONDS / RL5H_WINDOW))
 
 # Seconds elapsed in the 5h window, derived from resets_at (the window opens
 # RL5H_WINDOW before it resets). Empty while too early to extrapolate from.
@@ -308,7 +316,9 @@ rate_limit_5h_elapsed() {
     echo "$elapsed"
 }
 
-# Usage at reset, assuming the average burn since the window opened continues.
+# Usage at reset: what is used so far, plus the prior-shrunk burn rate
+# (J_RL5H_CENTI + RL5H_PRIOR_CENTI) / (elapsed + RL5H_PRIOR_SECONDS) over the
+# rest of the window.
 get_rate_limit_5h_projection() {
     parse_input
 
@@ -319,11 +329,13 @@ get_rate_limit_5h_projection() {
         return
     fi
 
+    local weight=$((elapsed + RL5H_PRIOR_SECONDS))
+    local remaining=$((RL5H_WINDOW - elapsed))
     # Round half up; the numerator is in hundredths of a percent.
-    echo $(((J_RL5H_CENTI * RL5H_WINDOW + elapsed * 50) / (elapsed * 100)))
+    echo $(((J_RL5H_CENTI * weight + (J_RL5H_CENTI + RL5H_PRIOR_CENTI) * remaining + weight * 50) / (weight * 100)))
 }
 
-# Time until 100% at the current average burn, but only when that comes before
+# Time until 100% at the prior-shrunk burn, but only when that comes before
 # the reset -- otherwise the window rolls over first and there is nothing to warn
 # about.
 get_rate_limit_5h_warning() {
@@ -336,7 +348,7 @@ get_rate_limit_5h_warning() {
         return
     fi
 
-    local exhausted_in=$(((10000 - J_RL5H_CENTI) * elapsed / J_RL5H_CENTI))
+    local exhausted_in=$(((10000 - J_RL5H_CENTI) * (elapsed + RL5H_PRIOR_SECONDS) / (J_RL5H_CENTI + RL5H_PRIOR_CENTI)))
     if [ "$exhausted_in" -ge $((J_RL5H_RESET - EPOCHSECONDS)) ]; then
         echo ""
         return

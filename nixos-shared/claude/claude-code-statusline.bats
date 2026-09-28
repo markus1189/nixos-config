@@ -509,7 +509,7 @@ rl5h_input() {
     rl5h_input 1.4 900
     run get_rate_limit_5h_projection
     assert_success
-    assert_output "28"
+    assert_output "42"
 }
 
 @test "get_rate_limit_5h_projection: elapsed reset yields empty string" {
@@ -527,7 +527,7 @@ rl5h_input() {
 }
 
 @test "get_rate_limit_5h_color: projection right at 100% is orange" {
-    rl5h_input 20 3600
+    rl5h_input 23.64 3600
     run get_rate_limit_5h_color
     assert_success
     assert_output "255;180;100"
@@ -544,7 +544,7 @@ rl5h_input() {
     rl5h_input 30 3600
     run get_rate_limit_5h_warning
     assert_success
-    assert_output "⚠2h20m"
+    assert_output "⚠3h0m"
 }
 
 @test "get_rate_limit_5h_warning: silent when the reset comes first" {
@@ -568,11 +568,25 @@ rl5h_input() {
     assert_output ""
 }
 
+@test "get_rate_limit_5h_projection: early burst is shrunk towards the prior" {
+    rl5h_input 13.3 900
+    run get_rate_limit_5h_projection
+    assert_success
+    assert_output "129"
+}
+
+@test "get_rate_limit_5h_projection: light early usage is pulled up to the prior" {
+    rl5h_input 0.5 900
+    run get_rate_limit_5h_projection
+    assert_success
+    assert_output "35"
+}
+
 @test "main: burning 5h window renders projection, warning and reset" {
     rl5h_input 30 3600
     run main <<<"$input"
     assert_success
-    assert_output --partial "5h 30%→150% ⚠2h20m ↻"
+    assert_output --partial "5h 30%→123% ⚠3h0m ↻"
 }
 
 # Tests for get_cache
