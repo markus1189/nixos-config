@@ -611,6 +611,7 @@ in
 
           keybind = [
             "alt+v=paste_from_clipboard"
+            "ctrl+enter=unbind"
             "ctrl+shift+f=unbind"
             "ctrl+shift+o=unbind"
             "ctrl+shift+t=unbind"
