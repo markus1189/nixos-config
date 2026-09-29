@@ -86,7 +86,12 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   (($r.rate_limits.seven_day.resets_at // null)
    | if . == null then "" else (floor | tostring) end),
   (($r.rate_limits.seven_day.used_percentage // null)
-   | if . == null then "" else (. * 100 | round | tostring) end)
+   | if . == null then "" else (. * 100 | round | tostring) end),
+  # Unrounded, for the rate limit log: whether these carry decimals is unknown.
+  (($r.rate_limits.five_hour.used_percentage // null) | if . == null then "" else tostring end),
+  (($r.rate_limits.five_hour.resets_at // null) | if . == null then "" else tostring end),
+  (($r.rate_limits.seven_day.used_percentage // null) | if . == null then "" else tostring end),
+  (($r.rate_limits.seven_day.resets_at // null) | if . == null then "" else tostring end)
 ] | .[]
 EOF
 
@@ -129,6 +134,10 @@ parse_input() {
     J_RL7D="${f[25]-}"
     J_RL7D_RESET="${f[26]-}"
     J_RL7D_CENTI="${f[27]-}"
+    J_RL5H_RAW="${f[28]-}"
+    J_RL5H_RAW_RESET="${f[29]-}"
+    J_RL7D_RAW="${f[30]-}"
+    J_RL7D_RAW_RESET="${f[31]-}"
 
     J_PARSED=1
 }
@@ -458,6 +467,52 @@ get_rate_limit_7d_reset() { parse_input; rate_limit_reset "$J_RL7D_RESET"; }
 get_rate_limit_7d() { parse_input; rate_limit_label 7d "$J_RL7D" "$(get_rate_limit_7d_projection)"; }
 get_rate_limit_7d_color() { parse_input; rate_limit_color "$J_RL7D" "$(get_rate_limit_7d_projection)"; }
 
+# Appends a row to $XDG_STATE_HOME/claude-code/rate-limits.tsv whenever a window
+# moves forward, as data for fitting the prior constants above:
+#   window  resets_at  now  used_percentage   (resets_at and usage unrounded)
+# The first row per resets_at approximates when the window opened, which
+# resets_at itself may not tell (it looked rounded to 10 minutes).
+#
+# Every open session re-renders every 30 s with the values from its own last
+# response, so an idle one keeps reporting old usage. Only a later resets_at, or
+# higher usage in the same window, counts as new; rate-limits.last holds the
+# newest "reset centi" per window. Builtins only until something is written,
+# and it never fails: a lost row beats a broken status line.
+rate_limit_is_newer() {
+    local reset="$1" centi="$2" last_reset="$3" last_centi="$4"
+    [ -n "$reset" ] && [ -n "$centi" ] || return 1
+    # An idle session can still report a window that has already reset.
+    [ "$reset" -gt "$EPOCHSECONDS" ] || return 1
+    [ "$reset" -gt "$last_reset" ] || { [ "$reset" -eq "$last_reset" ] && [ "$centi" -gt "$last_centi" ]; }
+}
+
+log_rate_limits() {
+    local dir="${XDG_STATE_HOME:-$HOME/.local/state}/claude-code"
+    local r5=0 c5=0 r7=0 c7=0 v rows=""
+    { read -r r5 c5 r7 c7 <"$dir/rate-limits.last"; } 2>/dev/null || true
+    for v in r5 c5 r7 c7; do
+        [[ "${!v}" =~ ^[0-9]+$ ]] || printf -v "$v" 0
+    done
+
+    if rate_limit_is_newer "$J_RL5H_RESET" "$J_RL5H_CENTI" "$r5" "$c5"; then
+        rows+="5h"$'\t'"$J_RL5H_RAW_RESET"$'\t'"$EPOCHSECONDS"$'\t'"$J_RL5H_RAW"$'\n'
+        r5="$J_RL5H_RESET" c5="$J_RL5H_CENTI"
+    fi
+    if rate_limit_is_newer "$J_RL7D_RESET" "$J_RL7D_CENTI" "$r7" "$c7"; then
+        rows+="7d"$'\t'"$J_RL7D_RAW_RESET"$'\t'"$EPOCHSECONDS"$'\t'"$J_RL7D_RAW"$'\n'
+        r7="$J_RL7D_RESET" c7="$J_RL7D_CENTI"
+    fi
+    if [ -z "$rows" ]; then
+        return 0
+    fi
+
+    {
+        mkdir -p "$dir" &&
+            printf '%s' "$rows" >>"$dir/rate-limits.tsv" &&
+            printf '%s %s %s %s\n' "$r5" "$c5" "$r7" "$c7" >"$dir/rate-limits.last"
+    } 2>/dev/null || true
+}
+
 format_duration() {
     local seconds="$1"
     local hours=$((seconds / 3600))
@@ -578,6 +633,7 @@ main() {
 
     # Parse once here so every command substitution below inherits the values.
     parse_input
+    log_rate_limits || true
 
     # Cache expensive calculations
     local context_color

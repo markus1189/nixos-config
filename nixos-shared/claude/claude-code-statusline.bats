@@ -14,6 +14,9 @@ setup() {
     # Ensure deterministic state: bats inherits the parent shell env, and
     # this var is set in the user's normal shell.
     unset CLAUDE_CODE_ENABLE_TELEMETRY
+
+    # main() logs rate limits; keep that out of the real ~/.local/state.
+    export XDG_STATE_HOME="$BATS_TEST_TMPDIR/state"
 }
 
 # Test fixture helpers
@@ -1039,4 +1042,123 @@ JSON
     assert_equal "${#lines[@]}" 3
     assert_output --partial "abc123"
     assert_output --partial "twolines"
+}
+
+# Tests for the rate limit log. rl_input PCT5 RESET5 [PCT7 RESET7] builds a
+# payload with raw values; the log goes to $XDG_STATE_HOME from setup().
+rl_input() {
+    local seven=""
+    if [ -n "${3-}" ]; then
+        seven=", \"seven_day\": {\"used_percentage\": $3, \"resets_at\": $4}"
+    fi
+    input="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": $1, \"resets_at\": $2}$seven}}"
+    unset J_PARSED
+    parse_input
+}
+
+rl_log() { cat "$XDG_STATE_HOME/claude-code/rate-limits.tsv"; }
+
+@test "log_rate_limits: first sample writes a row per window, unrounded" {
+    rl_input 23.64 4000018000 32 4000600000
+    log_rate_limits
+    run rl_log
+    assert_output "$(printf '5h\t4000018000\t%s\t23.64\n7d\t4000600000\t%s\t32' "$EPOCHSECONDS" "$EPOCHSECONDS")"
+    run cat "$XDG_STATE_HOME/claude-code/rate-limits.last"
+    assert_output "4000018000 2364 4000600000 3200"
+}
+
+@test "log_rate_limits: unchanged values write nothing" {
+    rl_input 10 4000018000
+    log_rate_limits
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 1
+}
+
+@test "log_rate_limits: higher usage in the same window writes a row" {
+    rl_input 10 4000018000
+    log_rate_limits
+    rl_input 11.5 4000018000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 2
+    assert_line --index 1 --partial $'\t11.5'
+}
+
+@test "log_rate_limits: stale lower usage from an idle session is ignored" {
+    rl_input 30 4000018000
+    log_rate_limits
+    rl_input 12 4000018000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 1
+}
+
+@test "log_rate_limits: an older window from an idle session is ignored" {
+    rl_input 5 4000018000
+    log_rate_limits
+    rl_input 90 4000000000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 1
+}
+
+@test "log_rate_limits: a new window writes a row despite lower usage" {
+    rl_input 90 4000018000
+    log_rate_limits
+    rl_input 1 4000036000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 2
+    assert_line --index 1 --partial $'5h\t4000036000\t'
+}
+
+@test "log_rate_limits: only the window that moved gets a row" {
+    rl_input 10 4000018000 30 4000600000
+    log_rate_limits
+    rl_input 11 4000018000 30 4000600000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 3
+    assert_line --index 2 --partial $'5h\t'
+}
+
+@test "log_rate_limits: a window that has already reset is ignored" {
+    rl_input 50 $((EPOCHSECONDS - 60))
+    log_rate_limits
+    assert [ ! -e "$XDG_STATE_HOME/claude-code" ]
+}
+
+@test "log_rate_limits: no rate limits in the payload writes nothing" {
+    input='{}'
+    unset J_PARSED
+    parse_input
+    log_rate_limits
+    assert [ ! -e "$XDG_STATE_HOME/claude-code" ]
+}
+
+@test "log_rate_limits: a corrupt state file counts as no state" {
+    mkdir -p "$XDG_STATE_HOME/claude-code"
+    echo 'garbage x' >"$XDG_STATE_HOME/claude-code/rate-limits.last"
+    rl_input 10 4000018000
+    log_rate_limits
+    run rl_log
+    assert_equal "${#lines[@]}" 1
+}
+
+@test "log_rate_limits: an unwritable state dir fails silently" {
+    mkdir -p "$XDG_STATE_HOME"
+    touch "$XDG_STATE_HOME/claude-code"
+    rl_input 10 4000018000
+    run log_rate_limits
+    assert_success
+    assert_output ""
+}
+
+@test "main: logs rate limits under errexit and nounset, as packaged" {
+    local payload="{\"rate_limits\": {\"five_hour\": {\"used_percentage\": 10, \"resets_at\": $((EPOCHSECONDS + 8000))}}}"
+    run bash -c "printf '%s' '$payload' | bash -euo pipefail '$BATS_TEST_DIRNAME/claude-code-statusline.sh' >/dev/null"
+    assert_success
+    run rl_log
+    assert_output --partial $'5h\t'
 }
