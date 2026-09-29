@@ -240,6 +240,13 @@ These workarounds are **temporary** — remove them once the overlay's JSON catc
 
 Package sources: `epkgs.melpaPackages`, `epkgs.elpaPackages`, `epkgs`
 
+### Elfeed Scoring
+
+Rules live in `nixos-shared/packages/emacs/elfeed.score`, which Emacs edits
+in place in the checkout. Measure a rule change with
+`nixos-shared/packages/emacs/elfeed-score-eval.py` before and after. Read
+[docs/elfeed-score.md](docs/elfeed-score.md) before touching either.
+
 ### Elfeed RSS Feed Management
 
 Feeds configured in `nixos-shared/packages/emacs/emacs-config.el`. ALWAYS verify feed doesn't already exist before adding.

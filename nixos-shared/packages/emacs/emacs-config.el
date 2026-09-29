@@ -2685,10 +2685,60 @@ Provides more detailed messages on failure."
 (use-package elfeed-score
   :ensure t
   :after elfeed
+  :custom
+  ;; Rules live in the repo for history; see docs/elfeed-score.md. Point at
+  ;; the checkout directly, never via a symlink: the writer saves with
+  ;; temp-file + rename, which would replace a symlink with a plain file.
+  ;; The stats file stays machine-local in ~/.emacs.d.
+  (elfeed-score-serde-score-file
+   (expand-file-name "~/repos/nixos-config/nixos-shared/packages/emacs/elfeed.score"))
   :config
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map)
-  (setq elfeed-search-print-entry-function #'elfeed-score-print-entry))
+  (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
+
+  (defun mh/elfeed-score-export (file &optional since)
+    "Write labeled elfeed entries dated SINCE (YYYY-MM-DD) or later to FILE.
+TSV for elfeed-score-eval.py; see docs/elfeed-score.md. Rescores
+every entry against the rules currently loaded without touching the
+db, so a rule edit can be measured on history before it goes live."
+    (let ((clean (lambda (s) (replace-regexp-in-string "[\t\n\r]+" " " (format "%s" (or s ""))))))
+      (with-temp-file file
+        (insert "date\tlabel\tstored\trescored\tfeed\tfeed_url\ttags\ttitle\trules\n")
+        (with-elfeed-db-visit (e f)
+          (let ((date (format-time-string "%F" (elfeed-entry-date e)))
+                (tags (elfeed-entry-tags e)))
+            (when (or (null since) (not (string< date since)))
+              (let* ((matches (append (elfeed-score-scoring--explain-title e)
+                                      (elfeed-score-scoring--explain-feed e)
+                                      (elfeed-score-scoring--explain-content e)
+                                      (elfeed-score-scoring--explain-title-or-content e)
+                                      (elfeed-score-scoring--explain-authors e)
+                                      (elfeed-score-scoring--explain-tags e)
+                                      (elfeed-score-scoring--explain-link e)
+                                      (elfeed-score-scoring--explain-udf e)))
+                     (contribs (mapcar #'elfeed-score-scoring--get-match-contribution matches)))
+                (insert
+                 (mapconcat
+                  clean
+                  (list date
+                        (cond ((memq 'mh/pocketed tags) "pos")
+                              ((memq 'unread tags) "unread")
+                              (t "neg"))
+                        (elfeed-score-scoring-get-score-from-entry e)
+                        (apply #'+ elfeed-score-scoring-default-score contribs)
+                        (elfeed-feed-title f)
+                        (elfeed-feed-url f)
+                        (mapconcat #'symbol-name tags ",")
+                        (elfeed-entry-title e)
+                        (mapconcat
+                         (lambda (m)
+                           (elfeed-score-rules-pp-rule-to-string
+                            (cl-struct-slot-value (type-of m) 'rule m)))
+                         matches " | "))
+                  "\t")
+                 "\n"))))))
+      file)))
 
 (use-package pcre2el
   :ensure t)
