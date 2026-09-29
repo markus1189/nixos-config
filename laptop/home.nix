@@ -874,7 +874,7 @@ in
     gpg-agent = {
       enable = true;
       defaultCacheTtl = 60 * 60 * 9;
-      maxCacheTtl = 60 * 60 * 12;
+      maxCacheTtl = 60 * (14 * 60 + 45);
     };
 
     pass-secret-service = {
