@@ -111,7 +111,7 @@ rec {
     '';
   };
 
-  # Sole writer of ~/Stuff/Today; called by cdt (zsh), Emacs' find-temp-file
+  # Sole writer of ~/Stuff/Today; called by cdt/cdp/cdn (zsh), Emacs' find-temp-file
   # advice and the stuff-today user timer (laptops, nuc). Prints the resolved day dir.
   stuffToday = writeShellApplication {
     name = "stuff-today";
@@ -124,6 +124,11 @@ rec {
       # stuff-today --default -> ensure and print DD-HOST; never touches Today.
       #                          For fixed per-day files (hn-daily.md,
       #                          wrap-up-log.md) that must not follow a cdt NAME.
+      # stuff-today --prev [N] / --next [N]
+      #                       -> print the existing day dir N entries before/after
+      #                          the one holding $PWD (else Today's target);
+      #                          every DD-* dir is one step. Read-only: creates
+      #                          nothing, never touches Today. Backs cdp/cdn.
       # The default dir carries the host so ~/Stuff can sync between machines
       # without two of them writing the same file; `nixos-p1` -> `p1`.
       stuff="$HOME/Stuff"
@@ -135,6 +140,46 @@ rec {
       if [ "''${1:-}" = --default ]; then
         mkdir -p "$day-$host"
         printf '%s\n' "$day-$host"
+        exit 0
+      fi
+
+      if [ "''${1:-}" = --prev ] || [ "''${1:-}" = --next ]; then
+        n=''${2:-1}
+        case "$n" in "" | *[!0-9]*) echo "stuff-today: bad count: $n" >&2; exit 2 ;; esac
+        export LC_ALL=C # glob order and [[ < ]] must agree: plain byte order
+        shopt -s nullglob
+        dirs=("$stuff"/[0-9][0-9][0-9][0-9]-[0-9][0-9]/[0-9][0-9]-*/)
+        dirs=("''${dirs[@]%/}")
+        dirs=("''${dirs[@]#"$stuff"/}")
+
+        # Anchor: the day dir holding $PWD, else Today's target, else today's
+        # date (sorts just before today's dirs). Needn't exist in the list.
+        here=$(pwd -P)/
+        rel=''${here#"$stuff"/}
+        if [[ $rel != "$here" && $rel == [0-9][0-9][0-9][0-9]-[0-9][0-9]/[0-9][0-9]-*/* ]]; then
+          rest=''${rel#*/}
+          anchor=''${rel%%/*}/''${rest%%/*}
+        else
+          anchor=$(readlink "$link" || true)
+          anchor=''${anchor#"$stuff"/}
+          [[ $anchor == [0-9][0-9][0-9][0-9]-[0-9][0-9]/[0-9][0-9]-* ]] || anchor=''${day#"$stuff"/}
+        fi
+
+        # lo = entries sorting before the anchor; lo itself is the anchor if listed
+        lo=0
+        while [ "$lo" -lt "''${#dirs[@]}" ] && [[ ''${dirs[lo]} < $anchor ]]; do lo=$((lo + 1)); done
+        if [ "$1" = --prev ]; then
+          i=$((lo - n))
+        elif [ "$lo" -lt "''${#dirs[@]}" ] && [ "''${dirs[lo]}" = "$anchor" ]; then
+          i=$((lo + n))
+        else
+          i=$((lo + n - 1))
+        fi
+        if [ "$i" -lt 0 ] || [ "$i" -ge "''${#dirs[@]}" ]; then
+          echo "stuff-today: no day dir $n step(s) $1 from $anchor" >&2
+          exit 1
+        fi
+        printf '%s\n' "$stuff/''${dirs[i]}"
         exit 0
       fi
 

@@ -88,6 +88,19 @@ in
         cd "$target" || return
       }
 
+      # cdp/cdn [N]: previous/next existing day dir, from the one you're in
+      # (else Today's target); each DD-* dir is one step. Leaves Today alone.
+      function cdp() {
+        local target
+        target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today --prev "$@") || return
+        cd "$target" || return
+      }
+      function cdn() {
+        local target
+        target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today --next "$@") || return
+        cd "$target" || return
+      }
+
       # Fuzzy find a directory in Stuff and jump to it
       function cdf() {
         local dir
