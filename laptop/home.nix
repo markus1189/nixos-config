@@ -703,7 +703,15 @@ in
         enable = true;
         package = pkgs.mpv.override {
           scripts = with pkgs.mpvScripts; [
-            sponsorblock
+            # Its default g/G/h/H keys (segment submission and votes) outrank
+            # mpv's builtin g-* prefix menus (g-h history, g-c chapters, ...),
+            # and even a user input.conf g-h does not win. Drop the keys; the
+            # named bindings stay reachable via script-binding sponsorblock/<name>.
+            (sponsorblock.overrideAttrs (old: {
+              postPatch = (old.postPatch or "") + ''
+                sed -Ei 's/mp\.add_key_binding\("[gGhH]", /mp.add_key_binding(nil, /' sponsorblock.lua
+              '';
+            }))
             mpris
             smartskip
             mpv-notify-send
