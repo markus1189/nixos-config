@@ -27,18 +27,6 @@ const SLOTS: Record<(typeof SHORTCUT_KEYS)[number], ModelRef[]> = {
       provider: "requesty-completions",
       modelId: "sference/deepseek-v4.1-flash",
     },
-    {
-      provider: "requesty-completions",
-      modelId: "sference/deepseek-v4-flash-0731",
-    },
-    {
-      provider: "requesty-completions",
-      modelId: "tensorx/deepseek-v4-flash-0731",
-    },
-    {
-      provider: "requesty-completions",
-      modelId: "tensorx/deepseek-v4-pro-0813",
-    },
   ],
   f2: [
     {
