@@ -14,7 +14,7 @@ NZB (or add it to the Treasure Maps cart).
 
 | Indexer                 | Prefix          | Notes                                       |
 | ----------------------- | --------------- | ------------------------------------------- |
-| Treasure Maps (default) | `@treasuremaps` | Only one with a cart; German/Spanish categories |
+| Treasure Maps (default) | `@treasuremaps` | Only one with a cart; German/Spanish categories; reports no grabs |
 | NZBgeek                 | `@nzbgeek`      |                                             |
 | NZBFinder               | `@nzbfinder`    | **15 calls/24h** — only when asked or others came up empty |
 | NZBPlanet               | `@nzbplanet`    |                                             |
@@ -71,11 +71,14 @@ Pipe any search output into `results`. Do not hand-roll jq over the raw response
    guid bbb222 · Tue, 02 Sep 2026 10:00:00 +0000
 ```
 
-- `--sort grabs` (default) | `size` | `none` (indexer order, usually newest first)
+- `--sort grabs` (default) | `size` | `none` (indexer order, usually newest first).
+  Treasure Maps reports no grabs (`grabs ?`), so its results keep indexer
+  order: rank them by resolution, size and subs instead
 - Without `--table`: a JSON array of `{indexer, title, guid, size_gb, grabs,
   resolution, subs, category, pubDate}`. Use it for filtering, e.g.
   `| jq 'map(select(.resolution != "2160p"))'`
-- `resolution` comes from metadata, else from the title; `null` if neither has it
+- `resolution` is `1080p`-style: from the title, else from the metadata's
+  `WxH`; `null` if neither has it
 
 **What to prefer:**
 

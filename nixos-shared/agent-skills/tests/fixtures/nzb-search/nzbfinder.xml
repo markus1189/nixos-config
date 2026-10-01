@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:newznab="http://www.newznab.com/DTD/2010/feeds/attributes/">
+ <channel>
+  <title>NZBFinder</title>
+  <newznab:response offset="0" total="1"/>
+  <item>
+   <title>Show.S01E03.1080p.WEB.h264-GRP</title>
+   <guid isPermaLink="true">https://nzbfinder.ws/details/0bbfda1f-3941-49dd-86d4-ab148782ff0d</guid>
+   <pubDate>Wed, 03 Sep 2026 10:00:00 +0000</pubDate>
+   <enclosure url="https://nzbfinder.ws/api/v1/getnzb?id=0bbfda1f.nzb&amp;apikey=FAKEKEY" length="2147483648" type="application/x-nzb"/>
+   <newznab:attr name="category" value="5000"/>
+   <newznab:attr name="category" value="5040"/>
+   <newznab:attr name="size" value="2147483648"/>
+   <newznab:attr name="grabs" value="7"/>
+  </item>
+ </channel>
+</rss>

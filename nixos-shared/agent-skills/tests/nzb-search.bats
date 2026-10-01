@@ -123,24 +123,24 @@ answer() { # answer HOST FIXTURE
     answer treasure-maps.com treasuremaps.json
     run bash -c "bash '$SCRIPT' search inception | bash '$SCRIPT' results"
     assert_success
-    run jq -c '[.[] | [.guid, .grabs, .size_gb, .resolution, .subs]]' <<< "$output"
-    assert_output '[["bbb222",340,10,"1920x1080",null],["aaa111",12,4,"720p","English"]]'
+    run jq -c '[.[] | [.guid, .grabs, .size_gb, .resolution, .subs, .category]]' <<< "$output"
+    assert_output '[["bbb222",340,10,"1080p",null,"2040"],["aaa111",12,4,"720p","English","Movies > HD"]]'
 }
 
-@test "results handles a single-item object" {
+@test "results handles a single-item object without grabs, WxH resolution" {
     answer treasure-maps.com single.json
     run bash -c "bash '$SCRIPT' search one | bash '$SCRIPT' results"
     assert_success
     run jq -c '[.[] | [.guid, .size_gb, .resolution, .grabs]]' <<< "$output"
-    assert_output '[["ccc333",1,"2160p",0]]'
+    assert_output '[["ccc333",1,"2160p",null]]'
 }
 
-@test "results reads NZBFinder's newznab:attr and @content guid" {
-    answer nzbfinder.ws nzbfinder.json
+@test "results reads NZBFinder's RSS XML (it ignores o=json)" {
+    answer nzbfinder.ws nzbfinder.xml
     run bash -c "bash '$SCRIPT' @nzbfinder search show | bash '$SCRIPT' results"
     assert_success
-    run jq -c '.[0] | [.indexer, .guid, .size_gb, .grabs, .resolution]' <<< "$output"
-    assert_output '["nzbfinder","ddd444",2,7,"1080p"]'
+    run jq -c '.[0] | [.indexer, .guid, .size_gb, .grabs, .resolution, .category]' <<< "$output"
+    assert_output '["nzbfinder","0bbfda1f-3941-49dd-86d4-ab148782ff0d",2,7,"1080p","5040"]'
 }
 
 @test "results reads DrunkenSlug's unwrapped, underscore-keyed shape" {
@@ -156,7 +156,7 @@ answer() { # answer HOST FIXTURE
     run bash -c "bash '$SCRIPT' search inception | bash '$SCRIPT' results --sort size --table"
     assert_success
     assert_line --index 0 "1. Inception.2010.German.DL.1080p.BluRay.x264-GRP"
-    assert_line --index 1 "   10 GB · grabs 340 · 1920x1080 · treasuremaps"
+    assert_line --index 1 "   10 GB · grabs 340 · 1080p · treasuremaps"
     assert_line --index 3 "2. Inception.2010.720p.BluRay.x264-GRP"
     assert_line --index 4 "   4 GB · grabs 12 · 720p · subs: English · treasuremaps"
 }
@@ -174,6 +174,20 @@ answer() { # answer HOST FIXTURE
     run nzb search inception
     assert_failure
     assert_output "Error: treasuremaps: Incorrect user credentials"
+}
+
+@test "Treasure Maps' bare @attributes error exits non-zero" {
+    answer treasure-maps.com treasuremaps-badkey.json
+    run nzb search inception
+    assert_failure
+    assert_output "Error: treasuremaps: Incorrect user credentials"
+}
+
+@test "NZBgeek's bad-key account status exits non-zero" {
+    answer api.nzbgeek.info nzbgeek-badkey.json
+    run nzb @nzbgeek search inception
+    assert_failure
+    assert_output "Error: nzbgeek: Invalid API Key"
 }
 
 @test "XML error under o=json exits non-zero with its description" {
@@ -208,7 +222,7 @@ answer() { # answer HOST FIXTURE
     answer drunkenslug.com drunkenslug.json
     answer api.nzbgeek.info error.json
     answer api.nzbplanet.net single.json
-    answer nzbfinder.ws nzbfinder.json
+    answer nzbfinder.ws nzbfinder.xml
     run --separate-stderr nzb search_all inception
     assert_success
     run jq -r '[.channel.item[].indexer] | unique | join(",")' <<< "$output"
@@ -228,7 +242,7 @@ answer() { # answer HOST FIXTURE
 }
 
 @test "search_all --include nzbfinder queries it" {
-    answer nzbfinder.ws nzbfinder.json
+    answer nzbfinder.ws nzbfinder.xml
     answer default single.json
     run --separate-stderr nzb search_all --include nzbfinder show
     assert_success

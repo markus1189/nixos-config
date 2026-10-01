@@ -16,8 +16,13 @@ quirk, or are adding an indexer.
 
 ## Per-Indexer Notes
 
+**Treasure Maps:** no `grabs` attribute in search results, even with
+`extended=1`. `t=movie` must use `title=`: `q=` matches release-group names
+too (a search for "inception" returns the iNCEPTiON group's Saw remuxes).
+
 **NZBgeek:** cart operations need a web session and internal release IDs the
-Newznab API does not expose. Download instead.
+Newznab API does not expose. Download instead. A bad API key returns an empty
+channel with `account.@attributes.status = "Invalid API Key"`, not an error.
 
 **NZBPlanet:** cart needs a web session (POST `/cart?add=ID` with PHPSESSID).
 The Newznab `t=cartadd` endpoint is documented but answers error 300.
@@ -28,6 +33,8 @@ Download instead.
 - **Rate limit:** free tier allows 15 API calls per 24h. `search_all` skips it
   unless given `--include nzbfinder`.
 - **UHD downloads** need a premium account; non-UHD works on the free tier.
+- **Ignores `o=json`:** always answers RSS XML. `api` converts it with `yq`
+  before normalizing (as of 2026-10).
 
 **DrunkenSlug:**
 
@@ -74,12 +81,16 @@ under `.channel.item`; `results` flattens both cases. What gets rewritten:
 - Top-level `.item` (DrunkenSlug) → wrapped under `.channel.item`
 - `newznab:attr` (NZBFinder, DrunkenSlug) → `attr`
 - `{_name,_value}` (DrunkenSlug) → `{"@attributes":{name,value}}`
+- RSS XML (NZBFinder) → JSON via `yq`, `+@attr` / `+content` mapped onto
+  `@attributes` / `@content`
 - `guid."@content"` (NZBFinder) / `guid.text` (DrunkenSlug) → GUID taken from the
   URL, set as a flat string and added to `attr`
 - `{_url,_length,_type}` enclosure (DrunkenSlug) → `{"@attributes":{url,length,type}}`
 
-Indexer errors (Newznab XML `<error description=…>` even under `o=json`, or a
-JSON `error` object) exit non-zero with the description on stderr.
+Indexer errors exit non-zero with the description on stderr: Newznab XML
+`<error description=…>`, a JSON `error` object, a bare top-level
+`{"@attributes":{code,description}}` (Treasure Maps' bad-key reply), or
+NZBgeek's `account` status.
 
 ## Adding an Indexer
 

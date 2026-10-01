@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq --command bash
+#! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq nixpkgs#yq-go --command bash
 set -euo pipefail
 
 # Indexer configuration
@@ -100,6 +100,20 @@ normalize_response() {
     '
 }
 
+# NZBFinder ignores o=json and answers RSS XML. yq turns it into JSON with
+# "+@name" attributes and "+content" text; map those onto the "@attributes" /
+# "@content" forms the other indexers use, so normalize_response sees one shape.
+xml_to_json() {
+    yq -p xml -o json '.' | jq '
+      (.rss // .)
+      | walk(if type == "object" then
+          (with_entries(select(.key | startswith("+@") | not))
+           | if has("+content") then . + {"@content": ."+content"} | del(."+content") else . end)
+          + (to_entries | map(select(.key | startswith("+@")) | {key: .key[2:], value})
+             | if length > 0 then {"@attributes": from_entries} else {} end)
+        else . end)'
+}
+
 # Fail loudly on indexer errors instead of passing them on as "no results".
 # Newznab reports errors as XML (<error code=".." description=".."/>) even
 # when o=json was asked for; some indexers send a JSON error object instead.
@@ -112,6 +126,9 @@ check_response() {
           elif .error then (.error."@attributes".description // .error.description // (.error | tostring))
           elif (.channel == null and .item == null and ."@attributes".code != null)
             then (."@attributes".description // ."@attributes".code)
+          # NZBgeek: bad key answers an empty channel carrying account status
+          elif .channel.account."@attributes".status
+            then .channel.account."@attributes".status
           else empty end' <<< "$body")
         [[ -z "$err" ]] || die "$INDEXER: $err"
         return 0
@@ -134,6 +151,9 @@ api() {
     local body
     body=$(curl -sS "${BASE_URL}?apikey=${API_KEY}&${params}&o=json") \
         || die "$INDEXER: request failed"
+    if [[ "$body" == *"<rss"* ]] && ! jq empty 2>/dev/null <<< "$body"; then
+        body=$(xml_to_json <<< "$body") || die "$INDEXER: unparseable XML response"
+    fi
     check_response "$body"
     normalize_response <<< "$body"
 }
@@ -208,21 +228,25 @@ results() {
     [[ "$sort" =~ ^(grabs|size|none)$ ]] || die "results: --sort must be grabs, size or none"
     local records
     records=$(jq --arg sort "$sort" '
-      def attr($n): [(.attr // [])[]? | select(."@attributes".name == $n) | ."@attributes".value] | first;
+      def attrs($n): [(.attr // [])[]? | select(."@attributes".name == $n) | ."@attributes".value];
+      def attr($n): attrs($n) | first;
+      def lastattr($n): attrs($n) | last;
       [.channel.item] | flatten | map(select(. != null)) | map({
         indexer,
         title,
         guid: ((attr("guid") // .guid) | if type == "string" then split("/") | last else . end),
         size_gb: ((.size // attr("size") // .enclosure."@attributes".length)
                   | if . == null then null else (tonumber / 1073741824 * 100 | floor / 100) end),
-        grabs: ((attr("grabs") // "0") | tonumber),
-        resolution: (attr("resolution")
-                     // ((.title // "") | [match("2160p|1080p|720p|576p|480p"; "i").string] | first)),
+        grabs: (attr("grabs") | if . == null then null else tonumber end),
+        resolution: (((.title // "") | [match("2160p|1080p|720p|576p|480p"; "i").string | ascii_downcase] | first)
+                     // (attr("resolution") | if . == null then null
+                         else ([capture("\\d+x(?<h>\\d+)").h] | first | if . then "\(.)p" else null end) end)),
         subs: attr("subs"),
-        category: (attr("category") // .category),
+        # parent and child categories both appear (2000, 2050); keep the child
+        category: (lastattr("category") // .category),
         pubDate
       })
-      | if $sort == "grabs" then sort_by(-.grabs)
+      | if $sort == "grabs" then sort_by(-(.grabs // -1))
         elif $sort == "size" then sort_by(-(.size_gb // 0))
         else . end')
     if [[ -z "$table" ]]; then
@@ -230,7 +254,7 @@ results() {
         return 0
     fi
     jq -r 'to_entries[] | .key as $i | .value |
-      "\($i + 1). \(.title)\n   \(if .size_gb then "\(.size_gb) GB" else "? GB" end) · grabs \(.grabs) · \(.resolution // "res ?")\(if .subs then " · subs: \(.subs)" else "" end) · \(.indexer)\n   guid \(.guid) · \(.pubDate)"' \
+      "\($i + 1). \(.title)\n   \(if .size_gb then "\(.size_gb) GB" else "? GB" end) · grabs \(.grabs // "?") · \(.resolution // "res ?")\(if .subs then " · subs: \(.subs)" else "" end) · \(.indexer)\n   guid \(.guid) · \(.pubDate)"' \
         <<< "$records"
 }
 
@@ -286,6 +310,8 @@ movie() {
     local query="$1"
     shift
     split_extra "$@"
+    # title=, not q=: Treasure Maps matches q= against everything (release
+    # group names included), title= against the movie title
     if [[ "$query" =~ ^(tt)?([0-9]+)$ ]]; then
         api "t=movie&imdbid=${BASH_REMATCH[2]}${EXTRA}"
     else
@@ -359,8 +385,13 @@ case "${1:-}" in
         "$cmd" "$@"
         ;;
     normalize)
-        # stdin -> normalized JSON; for tests and for raw responses saved by hand
-        normalize_response
+        # stdin (JSON or RSS XML) -> normalized JSON; for tests and for raw
+        # responses saved by hand
+        body=$(cat)
+        if [[ "$body" == *"<rss"* ]] && ! jq empty 2>/dev/null <<< "$body"; then
+            body=$(xml_to_json <<< "$body")
+        fi
+        normalize_response <<< "$body"
         ;;
     "")
         usage

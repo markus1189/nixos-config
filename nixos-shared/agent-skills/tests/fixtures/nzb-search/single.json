@@ -1,2 +1,2 @@
-{"channel":{"item":{"title":"Only.One.2160p.WEB-GRP","guid":"https://example/details/ccc333",
-  "attr":[{"@attributes":{"name":"size","value":"1073741824"}}]}}}
+{"channel":{"item":{"title":"Only.One.WEB-GRP","guid":"https://example/details/ccc333",
+  "attr":[{"@attributes":{"name":"size","value":"1073741824"}},{"@attributes":{"name":"resolution","value":"3840x2160 16:9"}}]}}}

@@ -303,6 +303,7 @@
                 nativeBuildInputs = [
                   batsWith
                   pkgs.jq
+                  pkgs.yq-go
                 ];
               }
               ''
