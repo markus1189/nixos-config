@@ -1,0 +1,9 @@
+{"channel":{"title":"Treasure Maps","item":[
+ {"title":"Inception.2010.720p.BluRay.x264-GRP","pubDate":"Mon, 01 Sep 2026 10:00:00 +0000","category":"Movies > HD",
+  "enclosure":{"@attributes":{"url":"https://treasure-maps.com/getnzb/aaa111.nzb","length":"4294967296","type":"application/x-nzb"}},
+  "attr":[{"@attributes":{"name":"guid","value":"aaa111"}},{"@attributes":{"name":"size","value":"4294967296"}},
+          {"@attributes":{"name":"grabs","value":"12"}},{"@attributes":{"name":"subs","value":"English"}}]},
+ {"title":"Inception.2010.German.DL.1080p.BluRay.x264-GRP","pubDate":"Tue, 02 Sep 2026 10:00:00 +0000",
+  "attr":[{"@attributes":{"name":"guid","value":"bbb222"}},{"@attributes":{"name":"size","value":"10737418240"}},
+          {"@attributes":{"name":"grabs","value":"340"}},{"@attributes":{"name":"resolution","value":"1920x1080"}}]}
+]}}

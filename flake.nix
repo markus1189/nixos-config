@@ -194,9 +194,9 @@
           };
         };
 
-      # The two bats suites, gated by `nix flake check` instead of human whim.
+      # The bats suites, gated by `nix flake check` instead of human whim.
       # They source their script-under-test via $BATS_TEST_DIRNAME, so the
-      # whole claude/ tree is the test fixture.
+      # whole claude/ (or agent-skills/) tree is the test fixture.
       checks.x86_64-linux =
         let
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -293,6 +293,21 @@
               ''
                 cd ${./nixos-shared/claude}
                 HOME=$TMPDIR bats hooks/check-dangerous-commands.bats
+                touch $out
+              '';
+
+          # curl and pass are stubbed inside the suite: no network, no keys.
+          nzb-search-bats =
+            pkgs.runCommand "nzb-search-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.jq
+                ];
+              }
+              ''
+                cd ${./nixos-shared/agent-skills}
+                HOME=$TMPDIR bats tests/nzb-search.bats
                 touch $out
               '';
         };
