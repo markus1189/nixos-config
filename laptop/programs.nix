@@ -84,7 +84,6 @@
         marginal
         mitmproxy
         mpc
-        mr
         mtools
         libressl.nc
         nethogs

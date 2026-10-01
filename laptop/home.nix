@@ -333,33 +333,6 @@ in
           target = ".config/warpd/config";
         };
 
-        "mrconfig" =
-          let
-            clonedRepo = owner: repo: ''
-              [repos/clones/${repo}]
-              checkout = git clone 'https://github.com/${owner}/${repo}' '${repo}'
-            '';
-            projectRepo = repo: ''
-              [repos/projects/${repo}]
-              checkout = git clone 'git@github.com:markus1189/${repo}.git'
-            '';
-          in
-          {
-            target = ".mrconfig";
-            text = ''
-              [repos/nixos-config]
-              checkout = git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'
-
-              ${clonedRepo "nixos" "nixpkgs"}
-              ${clonedRepo "nix-community" "home-manager"}
-              ${projectRepo "tiervermittlung-bot"}
-              ${projectRepo "hocket"}
-              ${projectRepo "bookbuddy.koplugin"}
-              ${projectRepo "ciqt"}
-              ${projectRepo "tools"}
-            '';
-          };
-
         "global-sbt-aliases" = {
           target = ".sbt/1.0/global-aliases.sbt";
           text = ''
@@ -491,6 +464,30 @@ in
       passDir = "$HOME/.local/share/password-store";
     in
     {
+      mr = {
+        enable = true;
+        settings =
+          let
+            clonedRepo = owner: repo: {
+              "repos/clones/${repo}".checkout = "git clone 'https://github.com/${owner}/${repo}' '${repo}'";
+            };
+            projectRepo = repo: {
+              "repos/projects/${repo}".checkout = "git clone 'git@github.com:markus1189/${repo}.git'";
+            };
+          in
+          {
+            "repos/nixos-config".checkout =
+              "git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'";
+          }
+          // clonedRepo "nixos" "nixpkgs"
+          // clonedRepo "nix-community" "home-manager"
+          // projectRepo "tiervermittlung-bot"
+          // projectRepo "hocket"
+          // projectRepo "bookbuddy.koplugin"
+          // projectRepo "ciqt"
+          // projectRepo "tools";
+      };
+
       zathura = {
         enable = true;
         options = {
