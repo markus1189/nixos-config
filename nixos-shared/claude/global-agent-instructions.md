@@ -27,6 +27,11 @@
 2. unblock yourself first
 3. ownership stops where irreversibility starts
 
+## Skill Friction
+
+1. Used a skill? End with a **Friction** list, after any TL;DR:
+   what broke or should improve, one line each
+
 ## Environment (NixOS)
 
 1. Search packages: `nix search nixpkgs $NAME`
