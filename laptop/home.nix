@@ -483,6 +483,7 @@ in
           // clonedRepo "nix-community" "home-manager"
           // projectRepo "tiervermittlung-bot"
           // projectRepo "hocket"
+          // projectRepo "marginal"
           // projectRepo "bookbuddy.koplugin"
           // projectRepo "ciqt"
           // projectRepo "tools";
