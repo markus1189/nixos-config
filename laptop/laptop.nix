@@ -118,7 +118,10 @@
             src = inputs.darktable;
             patches = [ ];
             dontVersionCheck = true;
-            buildInputs = (old.buildInputs or [ ]) ++ [ super.potrace ];
+            buildInputs = (old.buildInputs or [ ]) ++ [
+              super.potrace
+              super.libarchive
+            ];
             postPatch = ''
               patchShebangs tools/generate_styles_string.sh
             '';
