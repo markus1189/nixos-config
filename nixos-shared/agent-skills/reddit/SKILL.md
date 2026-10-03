@@ -27,7 +27,8 @@ the single comment when given a comment permalink.
 ./scripts/reddit.py history saved|upvoted|submitted|comments|downvoted|hidden
 ```
 
-All take `--limit N` and `--json`. The last three need user context and fail
+All but `whoami` take `--limit N` and `--json` (before or after the
+subcommand). `frontpage`, `subs` and `history` need user context and fail
 loudly without it, rather than passing generic popular posts off as the feed.
 
 ## Comment search is a heuristic

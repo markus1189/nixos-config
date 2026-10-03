@@ -49,7 +49,14 @@ def _pass(entry):
                            timeout=20)
     except (OSError, subprocess.TimeoutExpired):
         return None
-    if r.returncode != 0 or not r.stdout.strip():
+    if r.returncode != 0:
+        # A missing entry is a normal fallthrough; anything else (locked
+        # gpg-agent, pinentry failure) must not masquerade as "no credentials".
+        err = r.stderr.strip()
+        if err and "is not in the password store" not in err:
+            die(f"pass {entry} failed: {err[:300]}")
+        return None
+    if not r.stdout.strip():
         return None
     return r.stdout.splitlines()[0].strip()
 
@@ -144,6 +151,12 @@ def api(path, params=None, token=None):
                 time.sleep(2 ** attempt)
                 continue
             if e.code in (401, 403):
+                if e.code == 401:
+                    # Cached token was revoked/expired early: drop it so the
+                    # next run fetches a fresh one.
+                    for f in os.listdir(CACHE_DIR):
+                        if f.startswith("token-"):
+                            os.remove(os.path.join(CACHE_DIR, f))
                 die(f"HTTP {e.code} on {path} — token lacks scope, or this "
                     f"endpoint needs user context (set REDDIT_REFRESH_TOKEN "
                     f"via scripts/reddit_auth.py)")
@@ -539,9 +552,15 @@ def main():
     p = argparse.ArgumentParser(
         prog="reddit", description="Read-only Reddit via the official OAuth API")
     p.add_argument("--json", action="store_true", help="raw JSON output")
+    # Also accept --json after the subcommand. SUPPRESS keeps the subparser
+    # from overwriting a top-level --json with its own default.
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--json", action="store_true",
+                        default=argparse.SUPPRESS, help="raw JSON output")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    s = sub.add_parser("search", help="search posts")
+    s = sub.add_parser("search", parents=[common],
+                       help="search posts")
     s.add_argument("query")
     s.add_argument("--sub", help="restrict to a subreddit")
     s.add_argument("--sort", choices=SORTS, default="relevance")
@@ -549,7 +568,7 @@ def main():
     s.add_argument("--limit", type=int, default=10)
     s.set_defaults(func=cmd_search)
 
-    s = sub.add_parser("search-comments",
+    s = sub.add_parser("search-comments", parents=[common],
                        help="find comments matching a query (two-stage)")
     s.add_argument("query")
     s.add_argument("--sub")
@@ -561,14 +580,16 @@ def main():
     s.add_argument("--body-chars", type=int, default=400)
     s.set_defaults(func=cmd_search_comments)
 
-    s = sub.add_parser("frontpage", help="YOUR personalised frontpage")
+    s = sub.add_parser("frontpage", parents=[common],
+                       help="YOUR personalised frontpage")
     s.add_argument("--sort", choices=["best", "hot", "new", "top"],
                    default="best")
     s.add_argument("--time", choices=TIMES, default="day")
     s.add_argument("--limit", type=int, default=15)
     s.set_defaults(func=cmd_frontpage)
 
-    s = sub.add_parser("sub", help="listing for one subreddit")
+    s = sub.add_parser("sub", parents=[common],
+                       help="listing for one subreddit")
     s.add_argument("sub")
     s.add_argument("--sort", choices=["hot", "new", "top", "rising"],
                    default="hot")
@@ -576,7 +597,8 @@ def main():
     s.add_argument("--limit", type=int, default=15)
     s.set_defaults(func=cmd_sub)
 
-    s = sub.add_parser("comments", help="full comment thread for a post")
+    s = sub.add_parser("comments", parents=[common],
+                       help="full comment thread for a post")
     s.add_argument("post", help="post id, t3_id, or reddit URL")
     s.add_argument("--sort", default="top",
                    choices=["top", "best", "new", "controversial", "old", "qa"])
@@ -585,19 +607,22 @@ def main():
     s.add_argument("--body-chars", type=int, default=400)
     s.set_defaults(func=cmd_comments)
 
-    s = sub.add_parser("subs", help="your subscribed subreddits")
+    s = sub.add_parser("subs", parents=[common],
+                       help="your subscribed subreddits")
     # High enough to fetch every subscription in one go; paginate() stops as
     # soon as Reddit runs out of pages, so this costs nothing extra.
     s.add_argument("--limit", type=int, default=2000)
     s.set_defaults(func=cmd_subs)
 
-    s = sub.add_parser("history", help="your saved / upvoted / submitted")
+    s = sub.add_parser("history", parents=[common],
+                       help="your saved / upvoted / submitted")
     s.add_argument("what", choices=["saved", "upvoted", "submitted",
                                     "comments", "downvoted", "hidden"])
     s.add_argument("--limit", type=int, default=25)
     s.set_defaults(func=cmd_history)
 
-    s = sub.add_parser("user", help="another user's posts or comments")
+    s = sub.add_parser("user", parents=[common],
+                       help="another user's posts or comments")
     s.add_argument("username")
     s.add_argument("what", nargs="?", default="overview",
                    choices=["overview", "submitted", "comments"])
@@ -607,8 +632,9 @@ def main():
     s.add_argument("--body-chars", type=int, default=300)
     s.set_defaults(func=cmd_user)
 
-    s = sub.add_parser("url", help="fetch any reddit URL (thread, comment "
-                                   "permalink, subreddit, user, share link)")
+    s = sub.add_parser("url", parents=[common],
+                       help="fetch any reddit URL (thread, comment "
+                            "permalink, subreddit, user, share link)")
     s.add_argument("url")
     s.add_argument("--limit", type=int, default=100)
     s.add_argument("--depth", type=int, default=4)
