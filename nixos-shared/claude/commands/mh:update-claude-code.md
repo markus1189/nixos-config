@@ -1,12 +1,18 @@
+---
+description: Bump claude-code + the VS Code extension in nixpkgs via update.nix and open a draft PR (AI-disclosure policy enforced)
+argument-hint: [target-version]
+---
+
 Update claude-code in nixpkgs. Arguments: $ARGUMENTS
 
 ## Files
+- Work happens in `~/repos/clones/nixpkgs` (remotes `upstream` =
+  NixOS, `origin` = fork); all paths below are relative to it.
 - `pkgs/by-name/cl/claude-code/manifest.zst.json` — version source of
   truth; `package.nix` fetches the zstd-compressed binary it lists and
   `unzstd`s it at install time, and is never touched by the updater. No
-  npm build (`claude-code-bin` folded in, #511120). The plain
-  `manifest.json` was **removed** in #556673 (merged 2026-09-01); any
-  reference to it is stale.
+  npm build (`claude-code-bin` folded in, #511120); `manifest.json` is
+  gone (#556673), any reference to it is stale.
 - `pkgs/applications/editors/vscode/extensions/anthropic.claude-code/default.nix`
   — one vsix hash per arch; the only `.nix` file the update changes.
 - Upstream: `curl -s
@@ -43,6 +49,9 @@ The steps below are guidance — adapt them. The **bolded** warnings in
 them are not.
 
 ## Flow
+0. Check for competing PRs first: `gh pr list --repo NixOS/nixpkgs
+   --search "claude-code in:title" --state open`. If someone else's
+   already covers NEW, report and stop (see step 7 for handling).
 1. Sync to clean `master`: `git fetch upstream && git checkout master
    && git reset --hard upstream/master`. **The fetch is load-bearing**
    — `upstream/master` is only as fresh as the last one, and a stale
@@ -54,15 +63,10 @@ them are not.
 2. Branch `claude-code-OLD-to-NEW`. If your own earlier update PR is
    still open and npm has moved past it, branch fresh from `master` to
    the newest version rather than extending it — identical net diff,
-   no force-push, supersedes the old PR. **Different case:** if
-   `master` restructured the packaging under an open draft of yours
-   (#556673 deleted `manifest.json` mid-flight), rebase instead of
-   opening a second PR — reset to fresh `master`, re-run the updater,
-   then force-push onto the *existing* PR branch with
-   `--force-with-lease=<branch>:<remote sha>` and fix the title and
-   body with `gh pr edit`. Re-derive OLD from the newly merged
-   `master`: the OLD the PR was opened against is dead, and the branch
-   name keeping the old span is cosmetic.
+   no force-push, supersedes the old PR. If `master` restructured the
+   packaging under your open draft: reset to fresh `master`, re-run the
+   updater, `--force-with-lease` onto the *existing* PR branch, fix
+   title/body via `gh pr edit`, re-derive OLD from new `master`.
 3. Run the updater from the checkout root:
    ```bash
    echo "" | NIX_PATH=nixpkgs=$PWD nix-shell maintainers/scripts/update.nix --arg predicate \
@@ -114,8 +118,7 @@ them are not.
    set: `nohup bash -c "DISPLAY=:0 xdg-open '$PR_URL'" >/dev/null 2>&1
    &`.  If the PR is ever going ready *without* a green all-arch
    review, untick the platform boxes and `Ran nixpkgs-review` first.
-7. `gh pr list --repo NixOS/nixpkgs --search "claude-code in:title"
-   --state open`. Others': report only. Your own superseded one: close
+7. Re-run the step-0 `gh pr list` (things move during the build). Others': report only. Your own superseded one: close
    only with user approval *and* a green review here. A competing PR
    can restructure the packaging and not just the version, so check
    *what* landed: `gh pr view N --json state,mergedAt,mergeCommit`
@@ -139,6 +142,7 @@ gh workflow run review --repo markus1189/nixpkgs-review-gha -f pr=NUM \
   -f push-to-cache=true -f upterm=false \
   -f post-result=true -f on-success=mark_as_ready
 ```
+Review-only dispatch on someone else's PR: drop `-f on-success=mark_as_ready` (not your gate to flip).
 It prints the run URL; the trailing number is `RUN_ID`. Babysit in background, polling until status is `completed` — not `!= in_progress` (Actions sits in `queued` between `prepare` and the arch matrix, so that exits after `prepare` alone). Expect `prepare`, 3× `review (...)`, `report`, all `success`. Confirm the flip with `gh pr view NUM --json isDraft`. If the arch jobs are green but `report` failed, the builds are fine and the flip didn't happen: diagnose with `gh run view $RUN_ID --log-failed`, then **stop and report** — never run `gh pr ready` yourself, that is the gate.
 
 ## Gotchas
