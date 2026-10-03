@@ -142,14 +142,20 @@ trap 'rm -rf "$WORK_DIR"' EXIT
 readonly USAGE_FILE="$WORK_DIR/usage.jsonl"
 
 # Get API key
-if ! OPENROUTER_API_KEY="$(pass api/openrouter/transcribe 2>/dev/null)"; then
-  error_exit "Failed to retrieve API key from pass (api/openrouter/transcribe)"
+if ! OPENROUTER_API_KEY="$(pass api/openrouter/transcribe 2>"$WORK_DIR/pass.err")"; then
+  error_exit "Failed to retrieve API key from pass (api/openrouter/transcribe): $(cat "$WORK_DIR/pass.err")"
 fi
 [[ -n "$OPENROUTER_API_KEY" ]] || error_exit "API key is empty"
 
 readonly BASENAME="$(basename "$FILE")"
 
 # --- Helpers ------------------------------------------------------------------
+
+# auth_curl [curl args...]: curl with the Authorization header fed as a config
+# on stdin, so the API key never shows up in argv (ps)
+auth_curl() {
+  printf 'header = "Authorization: Bearer %s"\n' "$OPENROUTER_API_KEY" | curl -K - "$@"
+}
 
 # curl_with_retry <payload_file> <response_out>
 # Echoes the final HTTP code on success (caller inspects it). Returns non-zero
@@ -161,11 +167,10 @@ curl_with_retry() {
 
   while (( attempt <= MAX_ATTEMPTS )); do
     set +e
-    http_code="$(curl -sS -w '%{http_code}' --max-time "$CURL_MAX_TIME" \
+    http_code="$(auth_curl -sS -w '%{http_code}' --max-time "$CURL_MAX_TIME" \
       -o "$resp" \
       https://openrouter.ai/api/v1/chat/completions \
       -H "Content-Type: application/json" \
-      -H "Authorization: Bearer $OPENROUTER_API_KEY" \
       -d @"$payload" 2>"$errlog")"
     curl_rc=$?
     set -e
