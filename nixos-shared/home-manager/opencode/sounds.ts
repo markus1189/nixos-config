@@ -29,7 +29,9 @@ const MUTATING_TOOLS = new Set(["bash", "write", "edit", "apply_patch", "todowri
 export const Sounds: Plugin = async () => {
   return {
     event: async ({ event }) => {
-      switch (event.type) {
+      // As string: the plugin's Event union is the v1 SDK's, which still says
+      // "permission.updated"; the runtime emits the v2 "permission.asked".
+      switch (event.type as string) {
         case "session.created":
           playSound("involved-notification.wav")
           break
@@ -37,6 +39,10 @@ export const Sounds: Plugin = async () => {
           // hollow-582 is compaction across the fleet; pull-out-551 means
           // "cleared / switched" in claude-code and pi-agent, so don't reuse it.
           playSound("hollow-582.wav")
+          break
+        case "permission.asked":
+          // Blocked on the user, like claude-code's permission_prompt.
+          playSound("your-turn-491.wav")
           break
         case "session.idle":
         case "session.deleted":
