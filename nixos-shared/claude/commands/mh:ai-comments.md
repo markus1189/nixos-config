@@ -1,3 +1,8 @@
+---
+description: Find and execute `AI:` instruction comments left in code (// AI:, # AI:, ;; AI:), removing each once done
+argument-hint: [path-or-glob]
+---
+
 # AI Comments Processing
 
 Process `AI:` comments (pattern: `\bAI:`, e.g., `// AI:`, `# AI:`,
@@ -8,7 +13,7 @@ Optional argument: $ARGUMENTS
 
 ## Workflow
 
-1. **Discover**: Search for `\bAI:\b` pattern, catalog comments, create TODO list
+1. **Discover**: Search for `\bAI:` pattern (in `$ARGUMENTS` if given, else repo root), catalog comments, create TODO list
 2. **Execute**: Mark in_progress, match code style/architecture, verify functionality works, mark completed
 3. **Cleanup**: Remove `AI:` comment on success, preserve on failure with reason
 
