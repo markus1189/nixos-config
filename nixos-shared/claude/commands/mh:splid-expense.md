@@ -1,3 +1,8 @@
+---
+description: Create a Splid expense (title + Gesamtsumme) from the latest receipt/cart screenshot in ~/Stuff/Today
+argument-hint: [expense|refund|split]
+---
+
 # /splid-expense
 
 Extract expense information from the latest screenshot and create a Splid entry.
@@ -34,30 +39,26 @@ Then automatically creates a Splid expense entry using the extracted information
 ## Implementation
 
 ```bash
-#!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#findutils --command bash
-set -euo pipefail
-
-# Find the most recent screenshot
-LATEST_SCREENSHOT=$(find ~/Stuff/Today -maxdepth 1 -type f | sort -r | head -1)
-
-if [[ -z "$LATEST_SCREENSHOT" ]]; then
-    echo "No recent screenshots found in ~/Stuff/Today"
-    exit 1
-fi
-
-echo "Found latest screenshot: $LATEST_SCREENSHOT"
-echo "Please analyze this screenshot to extract the expense title and total amount, then create the Splid entry."
+# Newest image by mtime (Today is a symlink; -t sorts by age, not name)
+LATEST_SCREENSHOT=$(ls -t ~/Stuff/Today/*.png ~/Stuff/Today/*.jpg ~/Stuff/Today/*.jpeg 2>/dev/null | head -1)
+[[ -n "$LATEST_SCREENSHOT" ]] || { echo "No screenshots found in ~/Stuff/Today"; exit 1; }
+echo "$LATEST_SCREENSHOT"
 ```
 
 ## Workflow
 
-1. Locates the most recent screenshot from `~/Stuff/Today`
-2. Claude analyzes the screenshot to extract:
+1. Locate the newest screenshot in `~/Stuff/Today` (snippet above) and read it
+2. Extract:
    - Expense title (brief description of all items)
    - Total amount (Gesamtsumme)
-3. Creates Splid expense entry using `/home/markus/src/scripts/splid-claude.sh`
-4. Confirms successful creation
+3. Duplicate check: `/home/markus/src/scripts/splid-claude.sh list 7` — if an
+   entry with the same amount and a similar title exists, stop and ask
+4. Create the entry:
+   `/home/markus/src/scripts/splid-claude.sh create "TITLE" "AMOUNT" TYPE`
+   (TYPE: `expense` | `refund` | `split`; AMOUNT accepts `49.97` or `49,97 €`).
+   Pass the bare title: the script itself prepends `50/50: ` (split) and
+   `Gutschrift: ` (refund)
+5. Confirm successful creation
 
 ## Examples
 
