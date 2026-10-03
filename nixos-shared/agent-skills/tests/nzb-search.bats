@@ -20,8 +20,9 @@ setup() {
     mkdir -p "$FAKE_CURL_DIR"
     : > "$FAKE_CURL_LOG"
 
-    # Fake curl: logs the URL, answers with $FAKE_CURL_DIR/<host> (or
-    # default), honours -o. Shebang from the real bash: no /usr/bin/env in
+    # Fake curl: logs the URL (from argv or a `-K -` config on stdin, which
+    # is how the script keeps the key out of argv), answers with
+    # $FAKE_CURL_DIR/<host> (or default), honours -o. Shebang from the real bash: no /usr/bin/env in
     # the build sandbox.
     cat > "$STUBS/curl" <<EOF
 #!$(command -v bash)
@@ -29,6 +30,8 @@ out=""; url=""
 while [ \$# -gt 0 ]; do
     case "\$1" in
         -o) out="\$2"; shift 2 ;;
+        --max-time) shift 2 ;;
+        -K) url=\$(sed -n 's/^url = "\(.*\)"\$/\1/p'); shift 2 ;;
         -*) shift ;;
         *) url="\$1"; shift ;;
     esac
@@ -228,6 +231,27 @@ answer() { # answer HOST FIXTURE
     run jq -r '[.channel.item[].indexer] | unique | join(",")' <<< "$output"
     assert_output "drunkenslug,nzbplanet,treasuremaps"
     run ! grep -q nzbfinder.ws "$FAKE_CURL_LOG"
+}
+
+@test "search_all exits non-zero when every indexer fails" {
+    answer default error.json
+    run --separate-stderr nzb search_all inception
+    assert_failure
+    [ -z "$output" ]
+    [[ "$stderr" == *"every indexer failed"* ]]
+}
+
+@test "the API key stays out of curl's argv" {
+    answer treasure-maps.com treasuremaps.json
+    printf '#!%s\necho "$*" >> "$FAKE_CURL_LOG.argv"\nexec %q "$@"\n' \
+        "$(command -v bash)" "$STUBS/curl.real" > "$STUBS/curl.wrap"
+    mv "$STUBS/curl" "$STUBS/curl.real"
+    mv "$STUBS/curl.wrap" "$STUBS/curl"
+    chmod +x "$STUBS/curl"
+    run nzb search inception
+    assert_success
+    grep -q 'apikey=testkey' "$FAKE_CURL_LOG"
+    run ! grep -q testkey "$FAKE_CURL_LOG.argv"
 }
 
 @test "search_all output works with results" {

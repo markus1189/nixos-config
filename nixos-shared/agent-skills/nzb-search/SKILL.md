@@ -16,7 +16,7 @@ NZB (or add it to the Treasure Maps cart).
 | ----------------------- | --------------- | ------------------------------------------- |
 | Treasure Maps (default) | `@treasuremaps` | Only one with a cart; German/Spanish categories; reports no grabs |
 | NZBgeek                 | `@nzbgeek`      |                                             |
-| NZBFinder               | `@nzbfinder`    | **15 calls/24h** — only when asked or others came up empty |
+| NZBFinder               | `@nzbfinder`    | **15 calls/24h** — only when asked or others came up empty; no `book` search, use `search` + `&cat=7000` |
 | NZBPlanet               | `@nzbplanet`    |                                             |
 | DrunkenSlug             | `@drunkenslug`  | No `book` search, use `search` + `&cat=7000` |
 
@@ -44,7 +44,8 @@ quirks and the full category tree: [references/indexers.md](references/indexers.
 - Trailing `&key=value` arguments are passed to the indexer verbatim; always
   add `&extended=1`, without it there are no grabs, resolution or subtitles.
 - `search_all` queries every indexer in parallel (NZBFinder only with
-  `--include`), reports failing ones on stderr and merges the rest.
+  `--include`), reports failing ones on stderr and merges the rest (exit 0).
+  Only when every queried indexer fails does it exit non-zero.
 - Indexer errors (bad key, rate limit) exit non-zero with the reason on stderr.
   Empty output with exit 0 really means no results.
 

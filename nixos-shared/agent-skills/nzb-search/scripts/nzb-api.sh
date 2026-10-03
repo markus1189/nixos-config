@@ -40,6 +40,15 @@ ensure_key() {
     [[ -n "$API_KEY" ]] || die "API key at $PASS_PATH is empty"
 }
 
+# key_curl PARAMS [curl args...]: request BASE_URL?apikey=KEY&PARAMS. The URL
+# goes to curl as a config on stdin, so the key never shows up in argv (ps).
+key_curl() {
+    local url="${BASE_URL}?apikey=${API_KEY}&$1"
+    shift
+    url="${url//\\/\\\\}"
+    printf 'url = "%s"\n' "${url//\"/\\\"}" | curl -K - "$@"
+}
+
 # Percent-encode as UTF-8 (a per-character printf encodes "ü" as the Latin-1
 # code point %fc, which indexers reject or mismatch)
 urlencode() {
@@ -149,7 +158,7 @@ api() {
     fi
     ensure_key
     local body
-    body=$(curl -sS "${BASE_URL}?apikey=${API_KEY}&${params}&o=json") \
+    body=$(key_curl "${params}&o=json" -sS --max-time 30) \
         || die "$INDEXER: request failed"
     if [[ "$body" == *"<rss"* ]] && ! jq empty 2>/dev/null <<< "$body"; then
         body=$(xml_to_json <<< "$body") || die "$INDEXER: unparseable XML response"
@@ -185,7 +194,8 @@ search() {
 
 # search_all [--include NAME]... QUERY [&extra...]
 # Same output shape as search ({channel:{item:[...]}}, each item tagged with
-# .indexer); failing indexers are reported on stderr and skipped.
+# .indexer); failing indexers are reported on stderr and skipped. Exits
+# non-zero only when every queried indexer failed.
 search_all() {
     local -a include=()
     while [[ "${1:-}" == --include ]]; do
@@ -205,11 +215,14 @@ search_all() {
         (
             select_indexer "$idx"
             search "$query" "$@" > "$tmpdir/$idx.json"
-        ) || echo "  ($idx skipped: see error above)" >&2 &
+        ) || { rm -f "$tmpdir/$idx.json"; echo "  ($idx skipped: see error above)" >&2; } &
     done
     wait
-    # Failed indexers leave empty files, which jq -s simply contributes nothing for
-    jq -s '{channel: {item: [.[] | [.channel.item] | flatten | .[] | select(. != null)]}}' "$tmpdir"/*.json
+    # Failed indexers leave no file behind; none at all means nothing answered
+    local -a answered=("$tmpdir"/*.json)
+    [[ -e "${answered[0]}" ]] \
+        || die "search_all: every indexer failed, see errors above"
+    jq -s '{channel: {item: [.[] | [.channel.item] | flatten | .[] | select(. != null)]}}' "${answered[@]}"
 }
 
 # results [--sort grabs|size|none] [--table]
@@ -266,7 +279,7 @@ details() {
 # Get NFO for a specific NZB (raw text, not JSON)
 nfo() {
     ensure_key
-    curl -sSf "${BASE_URL}?apikey=${API_KEY}&t=getnfo&id=$1&raw=1" \
+    key_curl "t=getnfo&id=$1&raw=1" -sSf --max-time 30 \
         || die "$INDEXER: no NFO for $1"
 }
 
@@ -281,7 +294,8 @@ download() {
         output="$NZB_DIR/${guid}.nzb"
     fi
     ensure_key
-    curl -sSfL "${BASE_URL}?apikey=${API_KEY}&t=get&id=${guid}" -o "$output" \
+    # NZBs run to a few MB: a looser limit than the API calls
+    key_curl "t=get&id=${guid}" -sSfL --max-time 120 -o "$output" \
         || { rm -f "$output"; die "$INDEXER: download of $guid failed"; }
     if ! grep -q '<nzb' "$output"; then
         local body
@@ -343,7 +357,7 @@ caps() {
     ensure_key
     out=$(api "t=caps")
     if [[ "$out" == "null" ]]; then
-        curl -sS "${BASE_URL}?apikey=${API_KEY}&t=caps"
+        key_curl "t=caps" -sS --max-time 30
     else
         echo "$out"
     fi
