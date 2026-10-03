@@ -1,3 +1,8 @@
+---
+description: Write a handoff plan of this conversation to .plan/handoffs/ so a fresh session can continue via /mh:pickup
+argument-hint: <purpose of the next session>
+---
+
 Creates a detailed handoff plan of the conversation for continuing the
 work in a new session.
 
@@ -82,7 +87,7 @@ Together with the slug create a "Readable Summary".  Examples:
 
 Here's an example of how your output should be structured:
 
-```markdown
+````markdown
 # Readable Summary
 
 <analysis>
@@ -120,16 +125,26 @@ Here's an example of how your output should be structured:
 ## 4. Problem Solving
 [Description of solved problems and ongoing troubleshooting]
 
-## 5. Next Step
-[Required next step to take, directly aligned with user's explicit
-handoff purpose] </plan> ```
+## 5. Pending Tasks
+- [Task explicitly requested but not yet done]
+
+## 6. Current Work
+[Precisely what was being worked on right before this handoff, with
+file names and code snippets]
+
+## 7. Optional Next Step
+[Next step, directly aligned with user's explicit handoff purpose]
+</plan>
+````
 
 ## Final Step
 
-After providing your analysis and summary, write the handoff summary
-to a markdown file at `.plan/handoffs/[timestamp]-[slug].md` where
-[timestamp] is the current date in format YYYY-MM-DD and the slug is
-what we defined before.
+After providing your analysis and summary, write the handoff to a
+markdown file at `.plan/handoffs/[timestamp]-[slug].md` where
+[timestamp] is the current local time as YYYY-MM-DD-HHMM (`date
++%F-%H%M`) and the slug is what we defined before.  The file contains
+only the `# Readable Summary` title line followed by the content inside
+`<plan>...</plan>` (without the tags); the `<analysis>` stays out.
 
 Then tell the user about this file (with an absolute path) and that
 they can use `/mh:pickup FILENAME` to continue.
