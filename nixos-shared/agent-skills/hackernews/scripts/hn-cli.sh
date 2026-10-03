@@ -8,14 +8,18 @@ set -uo pipefail
 readonly API_BASE="https://hacker-news.firebaseio.com/v0"
 readonly ALGOLIA_API="https://hn.algolia.com/api/v1"
 
-# Colors
-readonly RESET=$'\033[0m'
-readonly BOLD=$'\033[1m'
-readonly DIM=$'\033[2m'
-readonly ORANGE=$'\033[38;5;208m'
-readonly GRAY=$'\033[38;5;245m'
-readonly WHITE=$'\033[38;5;255m'
-readonly CYAN=$'\033[38;5;81m'
+# Colors: only on a terminal, and never when NO_COLOR is set (no-color.org)
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  readonly RESET=$'\033[0m'
+  readonly BOLD=$'\033[1m'
+  readonly DIM=$'\033[2m'
+  readonly ORANGE=$'\033[38;5;208m'
+  readonly GRAY=$'\033[38;5;245m'
+  readonly WHITE=$'\033[38;5;255m'
+  readonly CYAN=$'\033[38;5;81m'
+else
+  readonly RESET='' BOLD='' DIM='' ORANGE='' GRAY='' WHITE='' CYAN=''
+fi
 readonly FLAME='🔥'
 
 # Hot thresholds (matching Materialistic app)

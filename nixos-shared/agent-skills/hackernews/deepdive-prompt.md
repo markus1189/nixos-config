@@ -7,6 +7,10 @@ Substitute before launching:
 - `{{STORY_TITLE}}` — story title
 - `{{CHECK_N}}` — which check of the day this dive belongs to
 - `{{HN_CLI}}` — absolute path to this skill's `scripts/hn-cli.sh`
+- `{{READER_PROFILE}}` — the body of SKILL.md's `## User Interests` section, pasted verbatim
+- `{{TAG_VOCAB}}` — the bullet list under SKILL.md's `### Tag vocabulary`, pasted verbatim
+
+SKILL.md is the single source for both; don't keep a copy here.
 
 If `{{ARTICLE_URL}}` is empty, drop task 1 and renumber.
 
@@ -16,7 +20,9 @@ You are doing a deep dive on a Hacker News story for a technical reader. Be dire
 
 ## Reader Profile
 
-Weight themes, quotes and links toward: AI agents & LLM coding tools (Claude/Codex, AGENTS.md/skills/rules, prompt injection, context management, benchmarks — especially flawed ones), Linux/Rust ecosystem, security implications, analog notebooks & pen-and-paper workflows, craft/anti-hustle developer essays, drama with real technical substance.
+Weight themes, quotes and links toward these interests:
+
+{{READER_PROFILE}}
 
 ## Tasks
 
@@ -52,11 +58,7 @@ Metadata line: numbers and submitter from the `--thread` header; article link te
 
 Tags line: canonical tags, then `|`, then up to 2 free-form. Canonical side draws **only** from:
 
-- **AI/LLM** — `ai-agents` `llm-eval` `benchmarks-flawed` `prompt-injection` `context-mgmt` `model-release`
-- **Security** — `security` `supply-chain` `privacy` `surveillance`
-- **Stacks** — `rust` `linux` `systems` `databases` `languages` `web` `hardware`
-- **Introspective** — `analog` `craft` `career`
-- **Rest** — `meta` `drama` `papers` `tooling` `math` `science` `policy`
+{{TAG_VOCAB}}
 
 Free tags: lowercase, hyphenated, specific (`lean4`, `sondehub`, `cricut`) — not looser restatements of a canonical one. Omit the `|` and everything after it when nothing qualifies.
 

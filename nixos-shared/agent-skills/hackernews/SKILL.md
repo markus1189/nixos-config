@@ -45,13 +45,13 @@ Fetch top stories, search, and view comments from Hacker News.
 
 Story IDs appear in brackets `[12345678]` in output — use these for `--comments`/`--thread`.
 
-**Script Execution:** Always use absolute paths when invoking scripts. Resolve `./scripts/` against this skill's directory. Example: `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`. All scripts use Nix shebangs so no manual dependency installation is required.
+**Script Execution:** Always use absolute paths when invoking scripts. Resolve `./scripts/` against the directory containing this SKILL.md (its install location varies by agent, e.g. `~/.claude/skills/` or `~/.agents/skills/`). All scripts use Nix shebangs so no manual dependency installation is required.
 
 ## Typical workflows
 
 1. **Browse HN**: Run with no args, scan titles
 2. **Search for topics**: Use `-s "query"` to find stories on specific topics
-3. **Dive into discussion**: Note story ID, run with `-c ID -d 2`
+3. **Dive into discussion**: Note story ID, run with `-t ID` (use `-c ID -d 2` only for a quick pretty tree)
 4. **Research a topic**: Search with `-s`, then fetch comments for interesting stories
 5. **Summarize for user**: Fetch stories + comments, summarize key points and insights
 6. **Briefing mode**: See below
@@ -66,10 +66,11 @@ structured markdown summary, keeping the raw content out of the main context.
 **How to launch one:**
 1. Read [`deepdive-prompt.md`](deepdive-prompt.md).
 2. Substitute `{{STORY_ID}}`, `{{ARTICLE_URL}}` (empty for Ask HN / no link),
-   `{{STORY_TITLE}}`, `{{CHECK_N}}` (which check this dive belongs to), and `{{HN_CLI}}` →
-   absolute path to `scripts/hn-cli.sh`, resolving `./scripts/` against this skill's directory
-   (e.g. `/home/markus/.claude/skills/hackernews/scripts/hn-cli.sh`). Drop the article-fetch
-   step when there's no URL.
+   `{{STORY_TITLE}}`, `{{CHECK_N}}` (which check this dive belongs to), `{{HN_CLI}}` →
+   absolute path to `scripts/hn-cli.sh`, resolving `./scripts/` against the directory
+   containing this SKILL.md, `{{READER_PROFILE}}` → the body of [User Interests](#user-interests),
+   and `{{TAG_VOCAB}}` → the bullet list under [Tag vocabulary](#tag-vocabulary). Drop the
+   article-fetch step when there's no URL.
 3. Spawn a subagent with that filled-in text as its prompt. Its result *is* the summary —
    read it directly, no temp files.
 
