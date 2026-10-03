@@ -17,7 +17,7 @@ Activate when the user explicitly asks for a **"guided code review"**.
 
 1. Identify commits to review:
    - `git log --oneline --grep 'TICKET-ID'` or diff against a branch
-   - `git show --stat` across the range for a file-level overview
+   - `git diff --stat base...HEAD` for a file-level overview of the whole range (net change, not per commit)
 2. If the user provides a story/ticket description, ingest it:
    - Extract acceptance criteria
    - Note if it's a subtask — not all ACs may apply to this changeset
@@ -42,7 +42,7 @@ Present a proposed **chunk structure** before diving in:
 - Plumbing (pure parameter threading with zero business logic) always comes after the code it connects
 - Flag chunks that may need splitting (e.g., two unrelated endpoints both touched)
 
-Present the map and **wait for the reviewer to approve, reorder, merge, or skip areas** before proceeding.
+Present the map and **wait for the reviewer to approve, reorder, merge, or skip areas** before proceeding — ask via the question tool (`AskUserQuestion` in Claude Code, `questionnaire` in pi).
 
 ### Phase 4: Chunk-by-Chunk Walkthrough
 
@@ -53,7 +53,7 @@ For each chunk in the agreed map:
 3. **Assess** against review dimensions (see [references/review-dimensions.md](references/review-dimensions.md))
 4. **Wait for reviewer feedback** before proceeding to the next chunk
 
-IMPORTANT: Use the question/questionnaire tool to step through this process!
+IMPORTANT: Use the question tool (`AskUserQuestion` / `questionnaire`) to step through this process!
 
 #### Reviewer Steering Commands
 
