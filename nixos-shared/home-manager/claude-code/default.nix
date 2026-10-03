@@ -189,6 +189,12 @@ in
       };
       cleanupPeriodDays = 3650;
       autoMemoryEnabled = false;
+      # Built-in mod: a side agent forks the transcript every few steps and
+      # flags things worth knowing above the prompt. settings.json is a
+      # read-only store path, so /plugin enable can't write this itself.
+      enabledPlugins = {
+        "cc-plugin-you-should-know@builtin" = true;
+      };
 
       effortLevel = "high";
       viewMode = "verbose";
