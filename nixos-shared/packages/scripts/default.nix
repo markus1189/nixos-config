@@ -1654,6 +1654,22 @@ rec {
     libraries = [ python3Packages.colorama ];
   } (builtins.readFile ./claude-history.py);
 
+  # Kagi search from the shell. Session link first (covered by the subscription), the paid
+  # API as fallback; credentials from /run/agenix/kagi-{session,api-key} or env. Tests and
+  # notes: ~/Stuff/2026-10/03-p1g8/kagi-search/. No shebang in the .py: the writer adds one.
+  kagi-search = writers.writePython3Bin "kagi-search" {
+    libraries = with python3Packages; [
+      requests
+      beautifulsoup4
+      lxml
+    ];
+    flakeIgnore = [
+      "E501"
+      "W503"
+      "W504"
+    ];
+  } (builtins.readFile ./kagi-search.py);
+
   gemini-vision = writeShellApplication {
     name = "gemini-vision";
     runtimeInputs = [

@@ -36,6 +36,7 @@ in
       dunst
       myScripts.mpv-watch-later-overview
       myScripts.claude-history
+      myScripts.kagi-search
       myScripts.addToRaindropScript
     ];
 
