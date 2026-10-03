@@ -111,10 +111,10 @@ src search 'lang:python ThreadPoolExecutor'
 
 ```bash
 # Generic credentials
-src search 'patternType:regexp (password|secret|api_key|token)\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp (password|secret|api_key|token)\s*=\s*["\x27][^"\x27]+["\x27]'
 
 # Case-sensitive credential search
-src search 'patternType:regexp case:yes (PASSWORD|SECRET|API_KEY)\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp case:yes (PASSWORD|SECRET|API_KEY)\s*=\s*["\x27][^"\x27]+["\x27]'
 
 # Environment variable assignments (potential leaks)
 src search 'patternType:regexp (export|set)\s+[A-Z_]*KEY[A-Z_]*\s*='
@@ -159,7 +159,7 @@ src search 'patternType:regexp (mysql|postgres|mongodb)://\w+:\w+@'
 src search 'patternType:regexp jdbc:(mysql|postgresql)://.*password='
 
 # Hardcoded database credentials
-src search 'patternType:regexp db_password\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp db_password\s*=\s*["\x27][^"\x27]+["\x27]'
 ```
 
 ### API tokens and secrets
@@ -169,7 +169,7 @@ src search 'patternType:regexp db_password\s*=\s*["\'][^"\']+["\']'
 src search 'patternType:regexp gh[pousr]_[A-Za-z0-9_]{16,}'
 
 # Generic API tokens
-src search 'patternType:regexp (api|access)_token\s*=\s*["\'][A-Za-z0-9]{20,}["\']'
+src search 'patternType:regexp (api|access)_token\s*=\s*["\x27][A-Za-z0-9]{20,}["\x27]'
 
 # Bearer tokens in headers
 src search 'patternType:regexp Authorization:\s*Bearer\s+[A-Za-z0-9._-]+'
@@ -794,7 +794,7 @@ src search 'lang:rust ?'
 src search 'patternType:regexp lang:python -file:test cursor.execute.*\+.*SELECT'
 
 # Hardcoded credentials not in config files
-src search 'patternType:regexp password\s*=\s*["\'][^"\']+["\'] -file:config -file:\.env'
+src search 'patternType:regexp password\s*=\s*["\x27][^"\x27]+["\x27] -file:config -file:\.env'
 
 # Private keys committed in last month
 src search 'type:diff after:"1 month ago" BEGIN.*PRIVATE KEY'

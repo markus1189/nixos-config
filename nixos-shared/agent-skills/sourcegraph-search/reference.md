@@ -82,7 +82,7 @@ Uses RE2 regex syntax for pattern matching.
 ```bash
 src search 'patternType:regexp func \w+Handler'
 src search 'patternType:regexp import.*useState.*useEffect'
-src search 'patternType:regexp (password|secret|api_key)\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp (password|secret|api_key)\s*=\s*["\x27][^"\x27]+["\x27]'
 ```
 
 **RE2 Regex Syntax** (subset of common patterns):
@@ -941,7 +941,7 @@ src search 'patternType:regexp ^import \w+'
 src search 'patternType:regexp ^from [\w.]+ import'
 
 # JavaScript/TypeScript imports
-src search 'patternType:regexp import .* from ["\']'
+src search 'patternType:regexp import .* from ["\x27]'
 
 # Go imports
 src search 'patternType:regexp import \('
@@ -1014,7 +1014,7 @@ src search 'patternType:regexp /(api|v[0-9]+)/[a-z/]+'
 **Security patterns**:
 ```bash
 # Credentials in code
-src search 'patternType:regexp (password|secret|api_key|token)\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp (password|secret|api_key|token)\s*=\s*["\x27][^"\x27]+["\x27]'
 
 # Private keys
 src search 'patternType:regexp -----BEGIN.*PRIVATE KEY-----'

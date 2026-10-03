@@ -1,6 +1,6 @@
 ---
 name: sourcegraph-search
-description: Search code using Sourcegraph CLI. Use when (re)searching codebases, finding implementation examples, analyzing code patterns
+description: Searches public/open-source code across many repositories with the Sourcegraph CLI (src). Use when asking "how do others implement X", finding real-world usage examples of an API, library or function, locating code patterns or commits across repos, or researching code outside the local checkout.
 ---
 
 # Sourcegraph Code Search Skill
@@ -28,15 +28,15 @@ The reference files are comprehensive. To find specific topics quickly:
 
 ```bash
 # Search reference.md sections
-grep -n "^##" references/reference.md
+grep -n "^##" reference.md
 
 # Find specific filter documentation
-grep -n "^### \`repo:" references/reference.md
-grep -n "^### \`file:" references/reference.md
-grep -n "^### \`lang:" references/reference.md
+grep -n "^### \`repo:" reference.md
+grep -n "^### \`file:" reference.md
+grep -n "^### \`lang:" reference.md
 
 # Find examples by use case
-grep -n "^##" references/examples.md
+grep -n "^##" examples.md
 ```
 
 See **reference.md** for complete syntax documentation.
@@ -148,7 +148,7 @@ src search 'lang:typescript repo:facebook/react use.*Hook'
 
 ```bash
 # Find hardcoded credentials
-src search 'patternType:regexp (password|secret|api_key)\s*=\s*["\'][^"\']+["\']'
+src search 'patternType:regexp (password|secret|api_key)\s*=\s*["\x27][^"\x27]+["\x27]'
 
 # Exposed private keys
 src search 'type:diff BEGIN.*PRIVATE KEY'
