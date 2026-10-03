@@ -1,5 +1,6 @@
 #!/usr/bin/env nix
 #! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#curl nixpkgs#jq nixpkgs#util-linux --command bash
+# shellcheck shell=bash
 set -euo pipefail
 
 # Query the Lieferando / Just Eat Takeaway discovery API for a location.

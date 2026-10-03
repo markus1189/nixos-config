@@ -1,5 +1,6 @@
 #!/usr/bin/env nix
 #! nix shell nixpkgs#bash nixpkgs#curl nixpkgs#jq nixpkgs#yq-go --command bash
+# shellcheck shell=bash
 set -euo pipefail
 
 # Indexer configuration
