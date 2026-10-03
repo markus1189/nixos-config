@@ -55,7 +55,7 @@ Raw (non-`-pretty`) variants return the full response.
 
 ## Warnings
 
-- Key must be server-side (no HTTP-referrer restriction) with Geocoding + Directions + Distance Matrix + Static + Places (New) + Weather enabled — opaque `REQUEST_DENIED` otherwise.
+- Key must be server-side (no HTTP-referrer restriction) with Geocoding + Routes (directions and distance matrix) + Maps Static + Places (New) + Weather enabled — opaque `REQUEST_DENIED` otherwise. The legacy Directions and Distance Matrix APIs are not used.
 - `alternatives` is a magic 4th arg to `directions`; only the literal string `alternatives` enables it.
 - `units` accepts only `METRIC` or `IMPERIAL`; other values return 400.
 - `429` / `RESOURCE_EXHAUSTED` → back off; don't retry immediately.

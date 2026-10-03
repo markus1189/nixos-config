@@ -66,12 +66,31 @@ travel_mode_enum() {
     esac
 }
 
+# key_curl URL [curl args...]: curl with API_KEY kept out of argv (ps). The
+# key replaces the URL's @KEY@ placeholder, or goes into an X-Goog-Api-Key
+# header when there is none; URL and header reach curl as a config on stdin.
+key_curl() {
+    local url="$1" header=""
+    shift
+    if [[ "$url" == *@KEY@* ]]; then
+        url="${url//@KEY@/$API_KEY}"
+    else
+        header="X-Goog-Api-Key: ${API_KEY}"
+    fi
+    {
+        printf 'url = "%s"\n' "$url"
+        [ -z "$header" ] || printf 'header = "%s"\n' "$header"
+    } | curl -K - "$@"
+}
+
 # Core HTTP wrapper used by all JSON endpoints. Distinguishes transport errors,
 # HTTP 4xx/5xx (body captured via --fail-with-body), and non-JSON responses
 # (e.g. HTML 503 pages that would otherwise crash downstream jq).
+# _curl_json URL [curl args...]
 _curl_json() {
-    local body rc=0
-    body=$(curl -sS --fail-with-body "$@") || rc=$?
+    local url="$1" body rc=0
+    shift
+    body=$(key_curl "$url" -sS --fail-with-body --max-time 30 "$@") || rc=$?
     if [ "$rc" -ne 0 ]; then
         local err=""
         if [ -n "$body" ]; then
@@ -129,7 +148,7 @@ check_places_status() {
 geocode() {
     local address body
     address=$(urlencode "$1")
-    body=$(api_get "${BASE}/geocode/json?address=${address}&key=${API_KEY}")
+    body=$(api_get "${BASE}/geocode/json?address=${address}&key=@KEY@")
     check_status "$body"
     printf '%s\n' "$body"
 }
@@ -140,7 +159,7 @@ geocode_pretty() {
 
 reverse_geocode() {
     local lat="$1" lng="$2" body
-    body=$(api_get "${BASE}/geocode/json?latlng=${lat},${lng}&key=${API_KEY}")
+    body=$(api_get "${BASE}/geocode/json?latlng=${lat},${lng}&key=@KEY@")
     check_status "$body"
     printf '%s\n' "$body"
 }
@@ -170,9 +189,8 @@ directions() {
         --argjson alt "$alt_flag" \
         '{origin: {address: $o}, destination: {address: $d}, travelMode: $m, computeAlternativeRoutes: $alt} +
          (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
-    response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
+    response=$(_curl_json "${ROUTES_BASE}/directions/v2:computeRoutes" -X POST \
         -H "Content-Type: application/json" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${ROUTES_FIELD_MASK}" \
         -d "$body")
     check_places_status "$response"
@@ -225,9 +243,8 @@ directions_waypoints() {
             travelMode: $m
          } +
          (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
-    response=$(_curl_json -X POST "${ROUTES_BASE}/directions/v2:computeRoutes" \
+    response=$(_curl_json "${ROUTES_BASE}/directions/v2:computeRoutes" -X POST \
         -H "Content-Type: application/json" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${ROUTES_FIELD_MASK}" \
         -d "$body")
     check_places_status "$response"
@@ -258,9 +275,8 @@ distance_matrix() {
             travelMode: $m
          } +
          (if $m == "DRIVE" then {routingPreference: "TRAFFIC_AWARE", departureTime: $dep} else {} end)')
-    response=$(_curl_json -X POST "${ROUTES_BASE}/distanceMatrix/v2:computeRouteMatrix" \
+    response=$(_curl_json "${ROUTES_BASE}/distanceMatrix/v2:computeRouteMatrix" -X POST \
         -H "Content-Type: application/json" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${ROUTE_MATRIX_FIELD_MASK}" \
         -d "$body")
     printf '%s\n' "$response"
@@ -306,9 +322,8 @@ places_search() {
                 }
             })
           else {} end)')
-    response=$(_curl_json -X POST "${PLACES_BASE}/places:searchText" \
+    response=$(_curl_json "${PLACES_BASE}/places:searchText" -X POST \
         -H "Content-Type: application/json" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${PLACES_SEARCH_MASK}" \
         -d "$body")
     check_places_status "$response"
@@ -327,6 +342,7 @@ places_search_pretty() {
         "\n  \(.formattedAddress)" +
         (if .regularOpeningHours.openNow != null then "\n  Open now: \(.regularOpeningHours.openNow)" else "" end) +
         (if .priceLevel then "\n  Price: \(.priceLevel | price)" else "" end) +
+        (if .location then "\n  loc: \(.location.latitude),\(.location.longitude)" else "" end) +
         "\n  place_id: \(.id)\n"'
 }
 
@@ -346,9 +362,8 @@ places_nearby() {
             }
          } +
          (if $t != "" then {includedTypes: [$t]} else {} end)')
-    response=$(_curl_json -X POST "${PLACES_BASE}/places:searchNearby" \
+    response=$(_curl_json "${PLACES_BASE}/places:searchNearby" -X POST \
         -H "Content-Type: application/json" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
         -H "X-Goog-FieldMask: ${PLACES_SEARCH_MASK}" \
         -d "$body")
     check_places_status "$response"
@@ -362,6 +377,7 @@ places_nearby_pretty() {
         "\n  \(.formattedAddress)" +
         (if .regularOpeningHours.openNow != null then "\n  Open now: \(.regularOpeningHours.openNow)" else "" end) +
         (if .priceLevel then "\n  Price: \(.priceLevel | price)" else "" end) +
+        (if .location then "\n  loc: \(.location.latitude),\(.location.longitude)" else "" end) +
         "\n  place_id: \(.id)\n"'
 }
 
@@ -369,9 +385,7 @@ place_details() {
     local place_id response mask
     place_id=$(urlencode "$1")
     mask=$(place_details_mask)
-    response=$(_curl_json "${PLACES_BASE}/places/${place_id}" \
-        -H "X-Goog-Api-Key: ${API_KEY}" \
-        -H "X-Goog-FieldMask: ${mask}")
+    response=$(_curl_json "${PLACES_BASE}/places/${place_id}" -H "X-Goog-FieldMask: ${mask}")
     check_places_status "$response"
     printf '%s\n' "$response"
 }
@@ -395,7 +409,7 @@ place_details_pretty() {
 
 weather_current() {
     local lat="$1" lng="$2" units="${3:-METRIC}" response
-    response=$(api_get "${WEATHER_BASE}/currentConditions:lookup?key=${API_KEY}&location.latitude=${lat}&location.longitude=${lng}&unitsSystem=${units}")
+    response=$(api_get "${WEATHER_BASE}/currentConditions:lookup?key=@KEY@&location.latitude=${lat}&location.longitude=${lng}&unitsSystem=${units}")
     check_places_status "$response"
     printf '%s\n' "$response"
 }
@@ -420,10 +434,10 @@ weather_current_pretty() {
     TZ="$tz" jq -r "${WEATHER_HELPERS}"'
         "Current weather \(.currentTime | local_dt)  (\(.timeZone.id // "UTC"))" +
         "\n  \(.weatherCondition.description.text // "Unknown")  \(.temperature | temp) (feels \(.feelsLikeTemperature | temp))" +
-        "\n  Humidity: \(.relativeHumidity)%   UV: \(.uvIndex // "n/a")   Pressure: \(.airPressure.meanSeaLevelMillibars | round) mb" +
+        "\n  Humidity: \(.relativeHumidity)%   UV: \(.uvIndex // "n/a")   Pressure: \(.airPressure.meanSeaLevelMillibars | if . == null then "n/a" else round end) mb" +
         "\n  Wind: \(.wind.direction.cardinal // "?") \(.wind.speed | speed)" +
         (if .wind.gust then " (gusts \(.wind.gust | speed))" else "" end) +
-        "\n  Precipitation: \(.precipitation.probability.percent)% \(.precipitation.probability.type | ascii_downcase)" +
+        "\n  Precipitation: \(.precipitation.probability.percent // 0)% \(.precipitation.probability.type // "" | ascii_downcase)" +
         (if (.precipitation.qpf.quantity // 0) > 0 then " (\(.precipitation.qpf.quantity) \(.precipitation.qpf.unit | qpf_unit))" else "" end) +
         "\n  Cloud cover: \(.cloudCover // 0)%   Visibility: \(.visibility.distance // "?") \(.visibility.unit // "" | ascii_downcase)"
     ' <<<"$data"
@@ -438,7 +452,7 @@ _weather_forecast() {
     local accumulated="{\"${array_field}\": []}"
     local token='' pages=0 response url
     while [ "$pages" -lt "$pages_needed" ]; do
-        url="${WEATHER_BASE}/${endpoint}?key=${API_KEY}&location.latitude=${lat}&location.longitude=${lng}&unitsSystem=${units}&${count_param}=${count}&pageSize=${page_size}"
+        url="${WEATHER_BASE}/${endpoint}?key=@KEY@&location.latitude=${lat}&location.longitude=${lng}&unitsSystem=${units}&${count_param}=${count}&pageSize=${page_size}"
         if [ -n "$token" ]; then
             url+="&pageToken=$(urlencode "$token")"
         fi
@@ -504,7 +518,7 @@ static_map() {
     local center="$1" zoom="${2:-13}" size="${3:-600x400}" markers="${4:-}" outfile="${5:-/tmp/map.png}"
     local encoded_center url
     encoded_center=$(urlencode "$center")
-    url="${BASE}/staticmap?center=${encoded_center}&zoom=${zoom}&size=${size}&key=${API_KEY}"
+    url="${BASE}/staticmap?center=${encoded_center}&zoom=${zoom}&size=${size}&key=@KEY@"
     if [ -n "$markers" ]; then
         local marker
         local -a marker_arr
@@ -514,7 +528,7 @@ static_map() {
         done
     fi
     local curl_out http_code content_type rc=0
-    curl_out=$(curl -sS -o "$outfile" -w '%{http_code}|%{content_type}' "$url") || rc=$?
+    curl_out=$(key_curl "$url" -sS --max-time 30 -o "$outfile" -w '%{http_code}|%{content_type}') || rc=$?
     if [ "$rc" -ne 0 ]; then
         echo "static-map: curl failed (exit $rc)" >&2
         rm -f "$outfile"
