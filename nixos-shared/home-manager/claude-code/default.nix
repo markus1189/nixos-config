@@ -65,11 +65,26 @@ let
     text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
   };
 
-  # Play a notification sound in the background. The timeout is load-bearing:
-  # if the audio stack wedges, aplay blocks forever on the PipeWire socket and
-  # every tool call leaks an immortal process.
-  playSound =
-    wav: "${pkgs.coreutils}/bin/timeout 5 ${pkgs.alsa-utils}/bin/aplay ${wav} >/dev/null 2>&1 &";
+  # One dispatcher picks the sound for every event: tool kind, Bash command
+  # class, notification type (nixos-shared/claude/hooks/agent-sound.py).
+  # async: Claude Code doesn't wait for it, so the Python start-up never
+  # delays a tool call; the script itself detaches playback.
+  agentSoundScript = pkgs.writers.writePython3Bin "agent-sound" { flakeIgnore = [ "E501" ]; } (
+    builtins.replaceStrings
+      [ "@sounds@" "@timeout@" "@aplay@" ]
+      [
+        "${../../claude/sounds}"
+        "${pkgs.coreutils}/bin/timeout"
+        "${pkgs.alsa-utils}/bin/aplay"
+      ]
+      (builtins.readFile ../../claude/hooks/agent-sound.py)
+  );
+
+  agentSoundHook = {
+    type = "command";
+    command = "${agentSoundScript}/bin/agent-sound";
+    async = true;
+  };
 
   # Hook definitions for compositional building
   soundNotificationHooks = [
@@ -112,106 +127,21 @@ let
             ''
           }/bin/claude-code-notifier";
         }
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/just-maybe-577.wav;
-        }
+        agentSoundHook
       ];
     }
   ];
 
-  soundPreToolUseHooks = [
+  # "*" covers every tool, MCP included; the script maps names to sounds.
+  soundAllHooks = [
     {
-      matcher = "Task|Agent|WebSearch";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/happy-to-help-notification-sound.wav;
-        }
-      ];
-    }
-    {
-      matcher = "Read|Glob|Grep|WebFetch";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/come-here-notification.wav;
-        }
-      ];
-    }
-    {
-      # Matchers are exact-match lists, not substring regexes: "Bash" does not
-      # cover "BashOutput", and "TodoWrite" does not cover "TaskCreate".
-      matcher = "Bash|Write|Edit|NotebookEdit|TodoWrite|TaskCreate|TaskUpdate";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/intuition-561.wav;
-        }
-      ];
-    }
-    {
-      matcher = "Skill";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/graceful-285.wav;
-        }
-      ];
+      matcher = "*";
+      hooks = [ agentSoundHook ];
     }
   ];
 
-  soundSessionStartHooks = [
-    {
-      matcher = "startup|resume";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/involved-notification.wav;
-        }
-      ];
-    }
-    {
-      matcher = "clear";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/pull-out-551.wav;
-        }
-      ];
-    }
-    {
-      matcher = "compact";
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/hollow-582.wav;
-        }
-      ];
-    }
-  ];
-
-  soundStopHooks = [
-    {
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/for-sure-576.wav;
-        }
-      ];
-    }
-  ];
-
-  soundSubagentStopHooks = [
-    {
-      hooks = [
-        {
-          type = "command";
-          command = playSound ../../claude/sounds/time-is-now-585.wav;
-        }
-      ];
-    }
-  ];
+  # Stop and SubagentStop take no matcher.
+  soundNoMatcherHooks = [ { hooks = [ agentSoundHook ]; } ];
 
   dangerousCommandCheckHook = {
     matcher = "Bash";
@@ -230,10 +160,10 @@ let
       {
         Notification = soundNotificationHooks;
         PreToolUse =
-          soundPreToolUseHooks ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
-        SessionStart = soundSessionStartHooks;
-        Stop = soundStopHooks;
-        SubagentStop = soundSubagentStopHooks;
+          soundAllHooks ++ (pkgs.lib.optional enableDangerousCommandCheck dangerousCommandCheckHook);
+        SessionStart = soundAllHooks;
+        Stop = soundNoMatcherHooks;
+        SubagentStop = soundNoMatcherHooks;
       }
     else
       let

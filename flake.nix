@@ -288,11 +288,12 @@
                   batsWith
                   pkgs.jq
                   pkgs.ast-grep
+                  pkgs.python3
                 ];
               }
               ''
                 cd ${./nixos-shared/claude}
-                HOME=$TMPDIR bats hooks/check-dangerous-commands.bats
+                HOME=$TMPDIR bats hooks/check-dangerous-commands.bats hooks/agent-sound.bats
                 touch $out
               '';
 
