@@ -137,6 +137,27 @@ rec {
       host=$(uname -n)
       host=''${host#nixos-}
 
+      usage() {
+        cat <<'EOF'
+      usage: stuff-today [NAME]            repoint ~/Stuff/Today (NAME -> DD-NAME)
+             stuff-today --default         ensure + print DD-HOST, Today untouched
+             stuff-today --prev|--next [N] print neighbouring day dir, read-only
+             stuff-today -h|--help
+      EOF
+      }
+
+      # Anything flag-shaped that isn't a known flag is a typo, not a NAME:
+      # `stuff-today --help` once created DD---help and repointed Today.
+      case "''${1:-}" in
+        -h | --help) usage; exit 0 ;;
+        --default | --prev | --next) ;;
+        -*) echo "stuff-today: unknown option: $1" >&2; usage >&2; exit 2 ;;
+        "") [ $# -eq 0 ] || { echo "stuff-today: empty NAME" >&2; exit 2; } ;;
+        *[!A-Za-z0-9._-]* | . | ..)
+          echo "stuff-today: bad NAME: $1 (allowed: A-Z a-z 0-9 . _ -)" >&2; exit 2 ;;
+        *) [ $# -eq 1 ] || { echo "stuff-today: one NAME only" >&2; exit 2; } ;;
+      esac
+
       if [ "''${1:-}" = --default ]; then
         mkdir -p "$day-$host"
         printf '%s\n' "$day-$host"
