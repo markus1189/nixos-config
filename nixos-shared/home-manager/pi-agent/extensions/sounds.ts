@@ -27,18 +27,24 @@ function notifyDesktop(
 }
 
 export default function (pi: ExtensionAPI) {
+  // pi 1.0 folded the old session_switch event into session_start's reason.
+  // "new" is /new, the counterpart of claude-code's /clear; "reload" only
+  // reloads extensions and stays silent.
   pi.on("session_start", async (event, ctx) => {
-    playSound("involved-notification.wav");
+    switch (event.reason) {
+      case "new":
+        playSound("pull-out-551.wav");
+        break;
+      case "startup":
+      case "resume":
+      case "fork":
+        playSound("involved-notification.wav");
+        break;
+    }
   });
 
   pi.on("agent_end", async (event, ctx) => {
     playSound("for-sure-576.wav");
-  });
-
-  pi.on("session_switch", async (event, ctx) => {
-    // event.reason = [new, resume]
-
-    playSound("pull-out-551.wav");
   });
 
   pi.on("session_compact", async (event, ctx) => {
