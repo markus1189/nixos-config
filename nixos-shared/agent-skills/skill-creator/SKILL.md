@@ -150,6 +150,10 @@ where the exact sequence matters.
   use the upstream eval pipeline, at least 3 scenarios, across Haiku, Sonnet
   and Opus. **Subjective skills** (writing style, design) are exempt: direct
   user feedback is the test.
+- **Script tests** live in `nixos-shared/agent-skills/tests/<name>.bats` and run
+  as the flake check `checks.<system>.<name>-bats` (registered in `flake.nix`).
+  Run them only via `nix build --no-link .#checks.x86_64-linux.<name>-bats`:
+  plain `bats` lacks the assert/support libraries and the sandbox's bash.
 
 Undertriggering: add the trigger phrases and technical terms users say.
 Overtriggering: add negative triggers ("Do NOT use for ...") and narrow scope.

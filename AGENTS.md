@@ -110,12 +110,19 @@ nix run .#myScripts.<scriptName>
 nix build --no-link .#checks.x86_64-linux.xmonad-config
 
 # Eval-only sanity across all outputs (fast); full check also runs the
-# bats suites (claude statusline + dangerous-commands hook), statix and
-# deadnix as flake checks. Most of `nix flake check`'s ~24s is evaluating the three
-# hosts, not the checks; build them directly to skip that:
+# bats suites (every `*-bats` check in flake.nix: claude statusline,
+# dangerous-commands hook, nzb-search, ...), statix and deadnix as flake
+# checks. Most of `nix flake check`'s ~24s is evaluating the three hosts, not
+# the checks; build them directly to skip that:
 nix flake check --no-build
 nix flake check
 nix build --no-link .#checks.x86_64-linux.statix   # the lint alone, <1s
+
+# Run a bats suite ONLY through its check. Plain `bats FILE` (or
+# `nix run nixpkgs#bats`) lacks bats-support/bats-assert and runs a different
+# bash than the sandbox, so its pass/fail does not match the real check:
+nix build --no-link .#checks.x86_64-linux.nzb-search-bats
+nix log <drv>   # on failure: the per-test output
 
 # Update flake inputs (all or one)
 nix flake update
