@@ -36,9 +36,8 @@ Before sharing a skill, verify against this checklist.
 - [ ] Scripts are single-touch where possible (fold setup + teardown into one command)
 - [ ] Scripts expose clean, composable primitives (not monolithic with complex interdependencies)
 - [ ] Scripts target repo-specific workflows (generic tools already exist)
-- [ ] Script paths use simple relative syntax: `./scripts/script.sh`
-- [ ] No complex path resolution patterns (`SKILL_DIR`, `cd` tricks, absolute paths)
-- [ ] Standard note included: "Scripts should be executed from the skill directory"
+- [ ] Scripts documented as `./scripts/x` relative to SKILL.md, no `cd` tricks
+- [ ] Standard note included: invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory
 - [ ] No "voodoo constants" (all magic numbers justified and documented)
 - [ ] Required packages listed in instructions and verified as available
 - [ ] No Windows-style paths (all forward slashes)
@@ -48,11 +47,10 @@ Before sharing a skill, verify against this checklist.
 
 ## Testing
 
-- [ ] At least 3 evaluation scenarios created
-- [ ] Tested with Haiku (may need more explicit guidance)
-- [ ] Tested with Sonnet (balanced)
-- [ ] Tested with Opus (may be over-explained)
 - [ ] Tested with real usage scenarios
+- [ ] Objectively verifiable skills only (exempt: subjective skills such as writing style or design, where direct user feedback is the test):
+  - [ ] At least 3 evaluation scenarios created
+  - [ ] Tested with Haiku (may need more explicit guidance), Sonnet, and Opus (may be over-explained)
 - [ ] Team feedback incorporated (if applicable)
 - [ ] Observed how Claude navigates the skill (file access patterns)
 
@@ -73,10 +71,9 @@ Before sharing a skill, verify against this checklist.
 - [ ] Includes specific triggers/contexts for when to use
 - [ ] Not vague ("helps with documents" → bad)
 
-## Distribution (if sharing publicly)
+## Install (nixos-config)
 
-- [ ] Hosted on GitHub with public repo
-- [ ] Repo-level README.md for human users (separate from skill folder - skill folder must NOT contain README.md)
-- [ ] Clear installation instructions in repo README
-- [ ] Example usage with screenshots if applicable
-- [ ] If MCP companion: link to skill from MCP docs, explain combined value
+- [ ] Lives in `~/repos/nixos-config/nixos-shared/agent-skills/<name>/`
+- [ ] New files `git add`ed (flake src = git index; untracked files are invisible to the build)
+- [ ] `nix build --no-link .#agentSkills.<name>` passes (frontmatter, shellcheck, py_compile)
+- [ ] Rebuilt; the skill shows up in `~/.claude/skills/`

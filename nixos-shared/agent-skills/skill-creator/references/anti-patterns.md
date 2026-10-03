@@ -200,34 +200,23 @@ def process_file(path):
         return ''
 ```
 
-### Complex Path Resolution
+### Relative Paths Executed from the Wrong cwd
 
-Use simple relative paths from the skill directory. Never use complex path resolution patterns.
+The agent's cwd is the user's project, never the skill directory, so a bare
+`./scripts/x.sh` resolves against the wrong place. Document scripts relative
+to SKILL.md, and tell the agent to invoke them by absolute path.
 
 **Bad:**
 ```bash
-# Unnecessarily complex
-SKILL_DIR=$(dirname /path/to/skill/SKILL.md)
-cd "$SKILL_DIR/scripts" && ./script.sh
-
-# Absolute paths
-~/.claude/skills/skill-name/scripts/script.sh
-
-# Path computation
-cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && ./script.sh
+./scripts/script.sh [args]            # runs against the user's cwd: not found
+cd "$SKILL_DIR/scripts" && ./script.sh  # cd changes the user's working dir
 ```
 
-**Good:**
-```bash
-# Simple and standard
-./scripts/script.sh [args]
-./scripts/another-script.py --flag value
-```
-
-**Standard note to include:**
+**Good:** in SKILL.md, list `./scripts/script.sh [args]` for readability, plus:
 ```markdown
-**Script Execution:** Scripts should be executed from the skill directory. 
-All scripts use Nix shebangs so no manual dependency installation is required.
+**Script Execution:** Always invoke scripts by absolute path: resolve
+`./scripts/` against this SKILL.md's directory. All scripts use Nix shebangs,
+so no dependency installation is needed.
 ```
 
 ### Voodoo Constants
