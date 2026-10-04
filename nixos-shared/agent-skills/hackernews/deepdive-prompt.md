@@ -26,9 +26,14 @@ Weight themes, quotes and links toward these interests:
 
 ## Tasks
 
-1. Fetch the article: `curl -sL '{{ARTICLE_URL}}' | pandoc -f html -t gfm-raw_html`
+0. Make a private work dir and keep every file in it: `W=$(mktemp -d -t hn-dive-{{STORY_ID}}.XXXXXX)`.
+   Other dives run in parallel; a shared dir or a bare filename like `art.md` gets overwritten under you.
+   Shell state doesn't persist between calls, so reuse the absolute path it printed.
+1. Fetch the article: `curl -sL '{{ARTICLE_URL}}' | pandoc -f html -t gfm-raw_html > $W/article.md`
    If it fails or returns garbage, note that and move on.
-2. Fetch the full thread (one request, whole tree): `{{HN_CLI}} --thread {{STORY_ID}}`
+2. Fetch the full thread (one request, whole tree) **into a file**: `{{HN_CLI}} --thread {{STORY_ID}} > $W/thread.txt`
+   Big threads overflow inline output, and `cat` on the overflow file overflows again. Read `$W/thread.txt`
+   with the Read tool in chunks (`offset`/`limit`); `wc -l` first to plan them.
    Shows up to 300 comments. If the header reports many more and the discussion is rich, re-run with `-n 800`.
 3. **Keep the `--thread` header line** — `NNN points · submitter · YYYY-MM-DD · NNN comments in tree`. It supplies the metadata line below. Do not re-derive or estimate these.
 4. Collect every outbound link commenters drop — repos, gists, dotfiles, blogs, papers, tools. When in doubt include it; the caller filters better than you can.
