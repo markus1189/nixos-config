@@ -27,6 +27,18 @@
 2. unblock yourself first
 3. ownership stops where irreversibility starts
 
+## Writing for Readers
+
+1. Every line must tell a smart reader something they cannot get from
+   the code, the name, or a nearby line
+2. Comments: why, non-obvious constraints, measured facts; never what
+   the code says
+3. Agent docs (AGENTS.md, skills, CLAUDE.md): each rule once; no
+   restating, no consequences the reader can derive
+4. Before finishing, run the deletion test on every comment and doc
+   line you wrote: would a smart reader lose anything without it? No →
+   delete
+
 ## Skill Friction
 
 1. Used a skill? End with a **Friction** list, after any TL;DR:
