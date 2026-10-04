@@ -29,13 +29,13 @@ Change it there and rebuild; an edit here cannot stick.
   p1 and nuc (and to the phone S26U, receive only), opt-in by extension: `md org py sh nix hs ts el toml yaml yml`. Everything else
   (html, json, pdf, images, dumps) stays on the host that wrote it, and so do junk dirs
   (`node_modules`, `*venv*`, `.git`, `jadx*`, …) even for their `.md`, as do dirs named like a
-  synced file (`repo.gradle.org/`, `x.md/`). Anything meant for the
-  other machines must be one of those types. The list lives in nixos-config
-  (`nixos-shared/stuff-patterns.nix`); `.stignore` is generated, don't edit it
+  synced file (`repo.gradle.org/`, `x.md/`). Other types sync only below a `_sync-all-files/`
+  dir (a report with its assets): keep it small, no scrapes, captures or downloads. The lists
+  live in nixos-config (`nixos-shared/stuff-patterns.nix`); `.stignore` is generated, don't edit it
 - **No two names that differ only in case** (`SOLVE.py` next to `solve.py`): the phone
   has case-insensitive storage, holds only one of them and reports the other as failed
 - **Never put secrets in a synced type**: tokens, cookies and credentials go in `.env`,
-  `*.cookies`, `*.json` or similar, which stay local
+  `*.cookies`, `*.json` or similar, which stay local (never below `_sync-all-files/`)
 - **Deleting a dir deletes only its synced files elsewhere.** A host that still holds local
   non-synced files in it keeps the dir with those files in it
 - **Start at [`llms.txt`](llms.txt)** — the generated navigation preamble (months, recent activity, per-month indexes)

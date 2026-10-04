@@ -46,4 +46,8 @@
     "yaml"
     "yml"
   ];
+
+  # Every file below a dir of this name syncs, whatever its type. Not
+  # plain `sync`: extracted Kotlin/npm trees have 6 (2026-10-03).
+  syncAllFilesDir = "_sync-all-files";
 }
