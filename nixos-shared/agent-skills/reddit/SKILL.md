@@ -27,9 +27,20 @@ the single comment when given a comment permalink.
 ./scripts/reddit.py history saved|upvoted|submitted|comments|downvoted|hidden
 ```
 
-All but `whoami` take `--limit N` and `--json` (before or after the
-subcommand). `frontpage`, `subs` and `history` need user context and fail
-loudly without it, rather than passing generic popular posts off as the feed.
+All but `whoami` take `--limit N`, `--json` (raw API) and `--jsonl` (one flat
+record per post/comment: permalink, ISO date, depth, parent, full body; ~5x
+smaller than `--json`), before or after the subcommand. Prefer `--jsonl` for
+anything you will parse or quote. `--body-chars 0` prints full bodies in text
+mode. `frontpage`, `subs` and `history` need user context and fail loudly
+without it, rather than passing generic popular posts off as the feed.
+
+## Narrowing search
+
+`--sub` takes several subreddits joined by `+` (`--sub ClaudeAI+ClaudeCode`).
+The query accepts Reddit's operators: `title:"exact phrase"`, `selftext:word`,
+`author:name`, `NOT word`. An ambiguous term (a tool named after a cartoon
+character) drowns in off-topic hits site-wide: scope to subreddits and use
+`title:"…"` before raising `--limit`.
 
 ## Comment search is a heuristic
 
@@ -43,8 +54,9 @@ thread is already known, `comments` on it directly is exact.
 
 ## Notes
 
-- `… 14 more replies` marks branches cut off by `--depth`. Raise it, or pass that
-  comment's permalink to `url`.
+- `… replies continue deeper → URL` marks a branch cut by `--depth`;
+  `… 14 more replies → URL` marks siblings withheld by `--limit`. Raise the
+  flag, or pass the URL to `url`.
 - API reference: <https://www.reddit.com/dev/api>
 
 **Script Execution:** Scripts should be executed from the skill directory.

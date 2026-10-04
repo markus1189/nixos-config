@@ -44,18 +44,25 @@ def die(msg, code=1):
 def _pass(entry):
     """Read the first line of a pass entry; None if it doesn't exist."""
     import subprocess
-    try:
-        r = subprocess.run(["pass", entry], capture_output=True, text=True,
-                           timeout=20)
-    except (OSError, subprocess.TimeoutExpired):
-        return None
-    if r.returncode != 0:
+    for attempt in range(2):
+        try:
+            r = subprocess.run(["pass", entry], capture_output=True, text=True,
+                               timeout=20)
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if r.returncode == 0:
+            break
         # A missing entry is a normal fallthrough; anything else (locked
         # gpg-agent, pinentry failure) must not masquerade as "no credentials".
         err = r.stderr.strip()
-        if err and "is not in the password store" not in err:
-            die(f"pass {entry} failed: {err[:300]}")
-        return None
+        if not err or "is not in the password store" in err:
+            return None
+        # gpg-agent sporadically answers "Wrong secret key used" under
+        # concurrent decrypts; the identical call succeeds a moment later.
+        if attempt == 0:
+            time.sleep(1)
+            continue
+        die(f"pass {entry} failed: {err[:300]}")
     if not r.stdout.strip():
         return None
     return r.stdout.splitlines()[0].strip()
@@ -76,7 +83,6 @@ def _post_form(url, data, cid, csec):
     body = urllib.parse.urlencode(data).encode()
     req = urllib.request.Request(url, data=body, method="POST")
     req.add_header("User-Agent", UA)
-    basic = urllib.parse.quote(cid), urllib.parse.quote(csec)
     import base64
     raw = base64.b64encode(f"{cid}:{csec}".encode()).decode()
     req.add_header("Authorization", f"Basic {raw}")
@@ -87,24 +93,48 @@ def _post_form(url, data, cid, csec):
         die(f"token request failed ({e.code}): {e.read().decode()[:300]}")
 
 
+_token = None
+
+
+def _cache_path():
+    """Token cache file, chosen WITHOUT touching pass.
+
+    Each pass read is a gpg decrypt; keying the cache on the pass contents
+    cost three of them per API call. Env credentials are free to read, so they
+    keep a content-derived key; pass credentials share one fixed slot, at the
+    price that a rotated refresh token is noticed only when the cached access
+    token expires (≤1h).
+    """
+    if os.environ.get("REDDIT_CLIENT_ID"):
+        ident = (f"{os.environ['REDDIT_CLIENT_ID']}:"
+                 f"{os.environ.get('REDDIT_REFRESH_TOKEN') or 'app'}")
+        key = hashlib.sha256(ident.encode()).hexdigest()[:16]
+    else:
+        key = "pass"
+    os.makedirs(CACHE_DIR, mode=0o700, exist_ok=True)
+    return os.path.join(CACHE_DIR, f"token-{key}.json")
+
+
 def get_token():
     """Return (access_token, is_user_context). Cached on disk until expiry."""
-    cid, csec = _creds()
-    refresh = (os.environ.get("REDDIT_REFRESH_TOKEN")
-               or _pass("api/reddit/refreshToken"))
-    key = hashlib.sha256(f"{cid}:{refresh or 'app'}".encode()).hexdigest()[:16]
-    os.makedirs(CACHE_DIR, mode=0o700, exist_ok=True)
-    path = os.path.join(CACHE_DIR, f"token-{key}.json")
+    global _token
+    if _token:
+        return _token
+    path = _cache_path()
 
     if os.path.exists(path):
         try:
             with open(path) as f:
                 c = json.load(f)
             if c.get("expires_at", 0) > time.time() + 60:
-                return c["access_token"], c["user"]
+                _token = c["access_token"], c["user"]
+                return _token
         except (OSError, ValueError, KeyError):
             pass
 
+    cid, csec = _creds()
+    refresh = (os.environ.get("REDDIT_REFRESH_TOKEN")
+               or _pass("api/reddit/refreshToken"))
     if refresh:
         data = {"grant_type": "refresh_token", "refresh_token": refresh}
         user = True
@@ -124,7 +154,8 @@ def get_token():
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as f:
         json.dump(entry, f)
-    return entry["access_token"], user
+    _token = entry["access_token"], user
+    return _token
 
 
 # ---------------------------------------------------------------- http
@@ -198,7 +229,16 @@ def age(ts):
     return "now"
 
 
+def ymd(ts):
+    return time.strftime("%Y-%m-%d", time.gmtime(ts)) if ts else "?"
+
+
+def link(permalink):
+    return f"https://reddit.com{permalink}" if permalink else ""
+
+
 def clean(text, width=None):
+    """One line: for titles and descriptions."""
     if not text:
         return ""
     # Reddit HTML-escapes bodies: &gt; &amp; &#39; all show up raw otherwise.
@@ -206,6 +246,19 @@ def clean(text, width=None):
     if width and len(t) > width:
         t = t[:width - 1].rstrip() + "…"
     return t
+
+
+def body_text(text, width, pad):
+    """Multi-line body. Line breaks carry lists, quotes and code, so they
+    survive; blank lines don't, they cost tokens and say nothing. width 0 or
+    None means no truncation."""
+    if not text:
+        return ""
+    lines = [ln.rstrip() for ln in html.unescape(text).strip().splitlines()]
+    t = "\n".join(ln for ln in lines if ln.strip())
+    if width and len(t) > width:
+        t = t[:width - 1].rstrip() + "…"
+    return pad + t.replace("\n", "\n" + pad)
 
 
 def fmt_post(p, idx=None, body_chars=280):
@@ -216,11 +269,11 @@ def fmt_post(p, idx=None, body_chars=280):
         f"{head}{d.get('title', '(no title)')}{flair}",
         f"   r/{d.get('subreddit')} · u/{d.get('author')} · "
         f"{d.get('score', 0)} pts · {d.get('num_comments', 0)} comments · "
-        f"{age(d.get('created_utc'))} ago",
-        f"   https://reddit.com{d.get('permalink', '')}",
+        f"{ymd(d.get('created_utc'))}",
+        f"   {link(d.get('permalink'))}",
     ]
     if d.get("selftext"):
-        lines.append(f"   {clean(d['selftext'], body_chars)}")
+        lines.append(body_text(d["selftext"], body_chars, "   "))
     elif d.get("url") and not d.get("is_self"):
         lines.append(f"   → {d['url']}")
     return "\n".join(lines)
@@ -229,25 +282,68 @@ def fmt_post(p, idx=None, body_chars=280):
 def fmt_comment(d, indent=0, body_chars=400):
     pad = "  " * indent
     return (f"{pad}▸ u/{d.get('author')} · {d.get('score', 0)} pts · "
-            f"{age(d.get('created_utc'))} ago\n"
-            f"{pad}  {clean(d.get('body', ''), body_chars)}")
+            f"{ymd(d.get('created_utc'))} · {link(d.get('permalink'))}\n"
+            f"{body_text(d.get('body', ''), body_chars, pad + '  ')}")
 
 
-def walk_comments(children, depth, max_depth, out, body_chars):
+def more_note(m, parent_link):
+    """Text for a `more` stub. count > 0: siblings the listing withheld
+    (--limit). count 0: Reddit's "continue this thread", i.e. the --depth cut;
+    it carries no count, so it used to vanish without trace."""
+    n = m.get("count", 0)
+    what = f"{n} more replies" if n else "replies continue deeper"
+    return f"… {what} → {parent_link}" if parent_link else f"… {what}"
+
+
+def walk_comments(children, depth, out, body_chars, parent_link=""):
+    # No local depth cap: the API already applied --depth and marks the cut
+    # with count-0 `more` stubs, which are rendered here.
     for c in children:
         if c.get("kind") == "more":
-            n = c["data"].get("count", 0)
-            if n:
-                out.append("  " * depth + f"… {n} more replies")
+            out.append("  " * depth + more_note(c["data"], parent_link))
             continue
         if c.get("kind") != "t1":
             continue
         d = c["data"]
         out.append(fmt_comment(d, depth, body_chars))
         replies = d.get("replies")
-        if replies and isinstance(replies, dict) and depth + 1 < max_depth:
-            walk_comments(replies["data"]["children"], depth + 1,
-                          max_depth, out, body_chars)
+        if replies and isinstance(replies, dict):
+            walk_comments(replies["data"]["children"], depth + 1, out,
+                          body_chars, link(d.get("permalink")))
+
+
+def record(thing, depth=None):
+    """Flat, context-cheap form of a t1/t3 for --jsonl: full body, no
+    Reddit envelope (raw --json runs ~140 KB for a 90-comment thread)."""
+    kind, d = thing.get("kind"), thing.get("data", {})
+    r = {"type": {"t1": "comment", "t3": "post"}.get(kind, kind),
+         "id": d.get("id"), "permalink": link(d.get("permalink")),
+         "subreddit": d.get("subreddit"), "author": d.get("author"),
+         "score": d.get("score"), "date": ymd(d.get("created_utc"))}
+    if kind == "t3":
+        r.update(title=d.get("title"), num_comments=d.get("num_comments"),
+                 body=html.unescape(d.get("selftext") or ""),
+                 url=None if d.get("is_self") else d.get("url"))
+    elif kind == "t1":
+        r.update(parent=d.get("parent_id"), depth=depth,
+                 body=html.unescape(d.get("body") or ""))
+    return r
+
+
+def comment_records(children, depth=0, parent_link=""):
+    out = []
+    for c in children:
+        if c.get("kind") == "more":
+            out.append({"type": "more", "count": c["data"].get("count", 0),
+                        "parent": c["data"].get("parent_id"), "depth": depth,
+                        "permalink": parent_link})
+        elif c.get("kind") == "t1":
+            out.append(record(c, depth))
+            r = c["data"].get("replies")
+            if r and isinstance(r, dict):
+                out += comment_records(r["data"]["children"], depth + 1,
+                                       link(c["data"].get("permalink")))
+    return out
 
 
 def flatten_comments(children, acc):
@@ -341,8 +437,16 @@ def parse_id(s):
         f"routes any reddit link to the right endpoint")
 
 
-def emit(args, raw, text):
-    print(json.dumps(raw, indent=2) if args.json else text)
+def emit(args, raw, text, records=None):
+    if getattr(args, "jsonl", False):
+        if records is None:
+            records = [record(k) for k in raw]
+        for r in records:
+            print(json.dumps(r, ensure_ascii=False))
+    elif args.json:
+        print(json.dumps(raw, indent=2))
+    else:
+        print(text)
 
 
 # ---------------------------------------------------------------- commands
@@ -403,12 +507,16 @@ def cmd_comments(args):
 
     post = res[0]["data"]["children"][0]
     out = []
-    walk_comments(res[1]["data"]["children"], 0, args.depth, out,
-                  args.body_chars)
+    thread_link = link(post["data"].get("permalink"))
+    walk_comments(res[1]["data"]["children"], 0, out, args.body_chars,
+                  thread_link)
     header = (f"--- focused on comment {focus} (sort={args.sort}) ---"
               if focus else f"--- comments (sort={args.sort}) ---")
-    body = f"{fmt_post(post, body_chars=1500)}\n\n{header}\n\n" + "\n\n".join(out)
-    emit(args, res, body)
+    post_chars = args.body_chars and max(1500, args.body_chars)
+    body = (f"{fmt_post(post, body_chars=post_chars)}\n\n{header}\n\n"
+            + "\n\n".join(out))
+    emit(args, res, body, [record(post)] + comment_records(
+        res[1]["data"]["children"], 0, thread_link))
 
 
 def cmd_url(args):
@@ -465,16 +573,17 @@ def cmd_search_comments(args):
     for i, (m, _, c, td) in enumerate(hits, 1):
         chunks.append(
             f"{i}. u/{c.get('author')} · {c.get('score', 0)} pts · "
-            f"{age(c.get('created_utc'))} ago · {m}/{len(terms)} terms\n"
+            f"{ymd(c.get('created_utc'))} · {m}/{len(terms)} terms\n"
             f"   in: {clean(td.get('title'), 80)} (r/{td.get('subreddit')})\n"
-            f"   https://reddit.com{c.get('permalink', '')}\n"
-            f"   {clean(c.get('body'), args.body_chars)}")
+            f"   {link(c.get('permalink'))}\n"
+            f"{body_text(c.get('body'), args.body_chars, '   ')}")
     body = (f"{len(hits)} comments matching {args.query!r}, mined from "
             f"{len(threads)} threads\n"
             f"(Reddit's API has no comment index — these are the best "
             f"comments inside the most relevant threads)\n\n"
             + "\n\n".join(chunks))
-    emit(args, [h[2] for h in hits], body)
+    emit(args, [h[2] for h in hits], body,
+         [record({"kind": "t1", "data": h[2]}) for h in hits])
 
 
 def cmd_subs(args):
@@ -487,7 +596,25 @@ def cmd_subs(args):
     body = f"{len(rows)} subscribed subreddits\n\n" + "\n".join(
         f"  r/{d['display_name']:<28} {d.get('subscribers', 0):>9,} subs  "
         f"{clean(d.get('public_description'), 60)}" for d in rows)
-    emit(args, kids, body)
+    emit(args, kids, body, [
+        {"type": "subreddit", "name": d["display_name"],
+         "subscribers": d.get("subscribers"),
+         "description": d.get("public_description")} for d in rows])
+
+
+def fmt_listing(kids, body_chars):
+    """User and history listings mix comments (t1) and posts (t3)."""
+    parts = []
+    for i, k in enumerate(kids, 1):
+        d = k["data"]
+        if k["kind"] == "t1":
+            parts.append(f"{i}. [comment] r/{d['subreddit']} · "
+                         f"{d.get('score', 0)} pts · {ymd(d.get('created_utc'))}\n"
+                         f"   {link(d.get('permalink'))}\n"
+                         f"{body_text(d.get('body'), body_chars, '   ')}")
+        else:
+            parts.append(fmt_post(k, i))
+    return "\n\n".join(parts)
 
 
 def cmd_history(args):
@@ -498,17 +625,8 @@ def cmd_history(args):
     kids = paginate(f"/user/{me}/{args.what}", {}, args.limit)
     if not kids:
         return emit(args, [], f"nothing in {args.what}")
-    parts = []
-    for i, k in enumerate(kids, 1):
-        d = k["data"]
-        if k["kind"] == "t1":
-            parts.append(f"{i}. [comment] r/{d['subreddit']} · "
-                         f"{d.get('score', 0)} pts · {age(d.get('created_utc'))} ago\n"
-                         f"   https://reddit.com{d.get('permalink', '')}\n"
-                         f"   {clean(d.get('body'), 200)}")
-        else:
-            parts.append(fmt_post(k, i))
-    emit(args, kids, f"your {args.what} — {len(kids)}\n\n" + "\n\n".join(parts))
+    emit(args, kids, f"your {args.what} — {len(kids)}\n\n"
+         + fmt_listing(kids, 200))
 
 
 def cmd_user(args):
@@ -516,18 +634,8 @@ def cmd_user(args):
                     {"sort": args.sort, "t": args.time}, args.limit)
     if not kids:
         return emit(args, [], f"nothing found for u/{args.username}")
-    parts = []
-    for i, k in enumerate(kids, 1):
-        d = k["data"]
-        if k["kind"] == "t1":
-            parts.append(f"{i}. [comment] r/{d['subreddit']} · "
-                         f"{d.get('score', 0)} pts · {age(d.get('created_utc'))} ago\n"
-                         f"   https://reddit.com{d.get('permalink', '')}\n"
-                         f"   {clean(d.get('body'), args.body_chars)}")
-        else:
-            parts.append(fmt_post(k, i))
-    emit(args, kids,
-         f"u/{args.username} · {args.what} — {len(kids)}\n\n" + "\n\n".join(parts))
+    emit(args, kids, f"u/{args.username} · {args.what} — {len(kids)}\n\n"
+         + fmt_listing(kids, args.body_chars))
 
 
 def cmd_whoami(args):
@@ -551,12 +659,16 @@ TIMES = ["hour", "day", "week", "month", "year", "all"]
 def main():
     p = argparse.ArgumentParser(
         prog="reddit", description="Read-only Reddit via the official OAuth API")
+    jsonl_help = "one compact JSON record per line, full bodies"
     p.add_argument("--json", action="store_true", help="raw JSON output")
-    # Also accept --json after the subcommand. SUPPRESS keeps the subparser
-    # from overwriting a top-level --json with its own default.
+    p.add_argument("--jsonl", action="store_true", help=jsonl_help)
+    # Also accept both after the subcommand. SUPPRESS keeps the subparser
+    # from overwriting a top-level flag with its own default.
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--json", action="store_true",
                         default=argparse.SUPPRESS, help="raw JSON output")
+    common.add_argument("--jsonl", action="store_true",
+                        default=argparse.SUPPRESS, help=jsonl_help)
     sub = p.add_subparsers(dest="cmd", required=True)
 
     s = sub.add_parser("search", parents=[common],
@@ -577,7 +689,8 @@ def main():
     s.add_argument("--threads", type=int, default=5,
                    help="how many threads to mine (default 5)")
     s.add_argument("--limit", type=int, default=15, help="comments to return")
-    s.add_argument("--body-chars", type=int, default=400)
+    s.add_argument("--body-chars", type=int, default=400,
+                   help="truncate bodies; 0 = full text")
     s.set_defaults(func=cmd_search_comments)
 
     s = sub.add_parser("frontpage", parents=[common],
@@ -604,7 +717,8 @@ def main():
                    choices=["top", "best", "new", "controversial", "old", "qa"])
     s.add_argument("--limit", type=int, default=100)
     s.add_argument("--depth", type=int, default=4)
-    s.add_argument("--body-chars", type=int, default=400)
+    s.add_argument("--body-chars", type=int, default=400,
+                   help="truncate bodies; 0 = full text")
     s.set_defaults(func=cmd_comments)
 
     s = sub.add_parser("subs", parents=[common],
@@ -629,7 +743,8 @@ def main():
     s.add_argument("--sort", choices=["new", "hot", "top"], default="new")
     s.add_argument("--time", choices=TIMES, default="all")
     s.add_argument("--limit", type=int, default=15)
-    s.add_argument("--body-chars", type=int, default=300)
+    s.add_argument("--body-chars", type=int, default=300,
+                   help="truncate bodies; 0 = full text")
     s.set_defaults(func=cmd_user)
 
     s = sub.add_parser("url", parents=[common],
@@ -638,7 +753,8 @@ def main():
     s.add_argument("url")
     s.add_argument("--limit", type=int, default=100)
     s.add_argument("--depth", type=int, default=4)
-    s.add_argument("--body-chars", type=int, default=400)
+    s.add_argument("--body-chars", type=int, default=400,
+                   help="truncate bodies; 0 = full text")
     s.set_defaults(func=cmd_url)
 
     s = sub.add_parser("whoami", help="show which token is in use")
