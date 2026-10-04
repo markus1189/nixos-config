@@ -12,8 +12,10 @@ Focus / slug hint (optional, never block on it):
 <focus>$ARGUMENTS</focus>
 
 **Write to** `~/Stuff/Today/<slug>.md` (slug = short, lowercase,
-hyphenated, specific). First `fd -e md . ~/Stuff/Today`; extend a
-related note instead of duplicating. If a new note supersedes or
+hyphenated, specific). First look for related notes: `fd -e md .
+~/Stuff/Today`, then `rg -l -i '<term>' ~/Stuff --glob '*.md'` for
+2–3 distinctive key terms of the topic (KB-wide, not just today).
+Extend a related note instead of duplicating. If a new note supersedes or
 complements an existing one, cross-link both ways with relative
 markdown links (a bare name in backticks is not a link). Don't
 create dated dirs; don't edit `llms.txt`/`INDEX.md`.
@@ -30,5 +32,7 @@ outbound prose only).
 title.
 
 If nothing durable is worth keeping, say so instead of manufacturing
-filler.  Interview me first before making assumptions about the
-content to be written.
+filler. Interview me before assuming anything about the content
+that the conversation hasn't already settled (scope, emphasis, what
+to keep, slug): as many rounds as it takes, each question with a
+recommended default. Don't ask about what the chat already decided.
