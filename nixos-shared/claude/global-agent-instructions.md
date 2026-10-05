@@ -5,6 +5,7 @@
 1. Use these to mark severities/priorities/etc: 🔴🟠🟡🟢🔵, sparingly
    for attention
 2. close longer & dense answers with a brief scannable TL;DR
+3. German: "du" for me, recipient's register for drafts
 
 ## Verify Before Asserting
 
