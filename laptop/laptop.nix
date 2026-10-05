@@ -42,6 +42,13 @@
     ../nixos-shared/botler.nix
   ];
 
+  # kagi-search (laptop-only script) reads it at this fixed path
+  age.secrets.kagiSession = {
+    file = ../secrets/kagi-session.age;
+    name = "kagi-session";
+    owner = config.my.userName;
+  };
+
   documentation = {
     enable = true;
     dev.enable = true;

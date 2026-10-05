@@ -16,6 +16,10 @@ let
     p1g8
   ];
   all = users ++ systems;
+  laptops = users ++ [
+    nixosP1
+    p1g8
+  ];
 in
 {
   "rclone-premiumize.age".publicKeys = all;
@@ -51,4 +55,5 @@ in
   "viessmann-refresh-token.age".publicKeys = all;
   "authinfo.age".publicKeys = all;
   "reddit-visidata.age".publicKeys = all;
+  "kagi-session.age".publicKeys = laptops;
 }
