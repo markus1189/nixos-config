@@ -219,7 +219,7 @@ When user asks casually about hacker news stories, use this style:
 
 ### Flow
 1. Check for today's daily file (see Daily File above)
-2. Fetch top 20-50 stories **in main context**, present hot/notable ones in a table
+2. Fetch top 20-50 stories **in main context**, present them per [Presenting the briefing](#presenting-the-briefing)
 3. User picks stories they want to dig into
 4. **Launch a deep-dive subagent for each pick** (launch them in parallel — see "Deep-Dive Sub-Agent" above). Do NOT fetch articles or comments directly into main context.
 5. Collect each subagent's summary from its final message
@@ -227,6 +227,21 @@ When user asks casually about hacker news stories, use this style:
 7. Present summaries to the user
 8. Group related stories together
 9. When user asks "your take?" — give genuine opinions, not hedged summaries
+
+### Presenting the briefing
+
+The chat summary is where stories get lost, not the file: a story the user cares about,
+buried mid-bullet among five other links, is one they never see.
+
+- **Every story matching a [User Interest](#user-interests) gets its own table row** with
+  a Note giving the angle, in the chat as in the file.
+- **Interest beats rank.** A stack hit at #50 with 13 pts outranks a 600-pt story outside
+  the interests. Never demote a match to a footnote, a "worth knowing" bullet or the
+  "rest is in the file" line because its numbers are small.
+- **Prose may only group non-matches** (obituaries, archives, general news): at most 2 links
+  per bullet. More → a table.
+- Before sending, walk the fetched list once: every interest match is a row, or its absence
+  is explained.
 
 ### Tone
 - **HN-native**: direct, slightly cynical, technically literate
