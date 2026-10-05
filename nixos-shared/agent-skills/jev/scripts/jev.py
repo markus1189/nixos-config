@@ -62,6 +62,8 @@ def call(body, k, stop):
             d = {"error": {"code": 0, "message": f"transport: {e}"}}
         code = (d.get("error") or {}).get("code")
         if code is None:
+            if "answers" not in d:
+                return {"error": {"code": "no_answers", "message": f"response without answers: {json.dumps(d)[:200]}"}}
             return d
         if code in FATAL:
             stop.set()
@@ -133,17 +135,19 @@ def main():
         return 0
 
     k, stop, t0 = key(), threading.Event(), time.monotonic()
+    results = []
+    # Print each line as it arrives (map keeps input order) so an interrupted or timed-out
+    # batch leaves its paid answers behind.
     with ThreadPoolExecutor(a.jobs) as ex:
-        results = list(ex.map(lambda b: call(b, k, stop), bodies))
+        for i, r in enumerate(ex.map(lambda b: call(b, k, stop), bodies)):
+            results.append(r)
+            if a.each:
+                print(json.dumps({"i": i, **({"error": r["error"]} if "error" in r else {"answers": r["answers"]})},
+                                 ensure_ascii=False), flush=True)
+    if not a.each:
+        print(json.dumps(results[0], indent=2, ensure_ascii=False))
     cost = sum((r.get("usage") or {}).get("cost", 0) for r in results)
     failed = sum(1 for r in results if "error" in r)
-
-    if a.each:
-        for i, r in enumerate(results):
-            print(json.dumps({"i": i, **({"error": r["error"]} if "error" in r else {"answers": r["answers"]})},
-                             ensure_ascii=False))
-    else:
-        print(json.dumps(results[0], indent=2, ensure_ascii=False))
     models = ",".join(sorted({r["model"] for r in results if "model" in r})) or "?"
     print(f"jev.py: {len(results)} req, {failed} failed, ${cost:.6f}, {time.monotonic() - t0:.2f}s, model={models}",
           file=sys.stderr)
