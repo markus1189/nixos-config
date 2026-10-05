@@ -56,7 +56,10 @@ def call(body, k, stop):
             try: d = json.load(e)
             except ValueError: d = {}
             if not isinstance(d.get("error"), dict):
-                d = {"error": {"code": e.code, "message": str(e)}}
+                # A non-JSON 403 comes from Cloudflare, which users saw trigger on one item's content;
+                # a bad key gets OpenRouter's JSON error. Fail the item, not the batch.
+                code = "waf_403" if e.code == 403 else e.code
+                d = {"error": {"code": code, "message": str(e)}}
             d["error"].setdefault("code", e.code)
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             d = {"error": {"code": 0, "message": f"transport: {e}"}}
@@ -64,6 +67,8 @@ def call(body, k, stop):
         if code is None:
             if "answers" not in d:
                 return {"error": {"code": "no_answers", "message": f"response without answers: {json.dumps(d)[:200]}"}}
+            if missing := sorted(set(body.get("questions") or {}) - set(d["answers"])):
+                return {"error": {"code": "missing_answers", "message": f"no answer for {missing}"}}
             return d
         if code in FATAL:
             stop.set()
