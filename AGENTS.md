@@ -201,6 +201,8 @@ changed (reuse an existing one from `git log --oneline`). The scope is
 **what changed, not who changed it** — `claude-code:` means the
 claude-code package changed, not that an agent made the commit.
 
+By default, work on `master`.
+
 ## Emacs Configuration
 
 ### emacs-overlay (nix-community)
