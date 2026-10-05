@@ -2504,6 +2504,7 @@ Provides more detailed messages on failure."
            ("https://contributors.scala-lang.org/latest.rss")
            ("https://crawshaw.io/atom.xml" programming programming-general)
            ("https://sunilpai.dev/rss.xml" programming ai)
+           ("https://claude.dev/rss.xml" programming ai)
            ("https://discourse.nixos.org/latest.rss" programming programming-general)
            ("https://discourse.haskell.org/latest.rss" programming haskell-discourse)
            ("https://carlillustration.wordpress.com/tag/dungeon-world/feed")
