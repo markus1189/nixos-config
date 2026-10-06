@@ -5,9 +5,9 @@ description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) 
 
 # Jev
 
-Jev answers typed questions about a `state` you send it. It never writes prose. Cost is ~$0.04 per 1M input tokens, output is free, and a call takes ~0.3–0.8 s, so a judgment costs less than reading the item yourself.
+Jev answers typed questions about a `state` you send it. It never writes prose. Cost is ~USD 0.042 per 1M input tokens, output is free, and a call takes ~0.3–0.8 s, so a judgment costs less than reading the item yourself.
 
-**State leaves the machine** (OpenRouter → TypeSafe). If the user hasn't named Jev in this session, ask once before sending their private data. Never send secrets, tokens or credentials.
+**State leaves the machine** (OpenRouter → TypeSafe, which neither trains on nor retains it; `jev.py` requests zero data retention). If the user hasn't named Jev in this session, ask once before sending their private data. Never send secrets, tokens or credentials.
 
 ## Run it
 
@@ -40,14 +40,15 @@ Every question needs `instructions`. A string works; use an object or array when
 ## Writing questions
 
 - Ask one narrow judgment per question. Split "is this good" into the properties you actually care about.
+- Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once, and answers don't change with what else is asked.
 - Question IDs are never sent to the model. Put the full meaning in `instructions`, including whether world knowledge may be used, and point into state with backticked paths such as `` `item.title` ``.
-- For a choice, list every legal option plus `none`. For a score, describe a concrete situation at each level, with no numbers and no "more than the previous level". Phrase a noul so that "yes" is the thing you're looking for, consider writing its `false` criterion as the near miss rather than the plain opposite, and avoid double negatives and multi-hop logic.
+- For a choice, list every legal option plus `none`. Jev leans towards the first option, so for a choice that matters, reorder the options and check the answer holds. For a score, describe a concrete situation at each level, with no numbers and no "more than the previous level". Phrase a noul so that "yes" is the thing you're looking for, consider writing its `false` criterion as the near miss rather than the plain opposite, and avoid double negatives and multi-hop logic.
 - Questions in one request are answered independently. If one depends on another's answer, send a second request.
 
 ## Reading answers
 
 - For a noul, ≥0.7 is yes and ≤0.3 is no. In between means *uncertain*, so read those items yourself. 0.5 means "can't tell", not "medium". P(X) and P(not X) asked separately don't sum to 1 (0.80–0.95 measured), so ask the side you act on.
-- A low-`confidence` score is a flat distribution: a precise-looking 1.53 can mean nothing. High confidence isn't accuracy on contested items or numeric state.
+- A low-`confidence` score is a flat distribution: a precise-looking 1.53 can mean nothing. A score between levels is a position, not a magnitude; to combine scores, divide each by its top level index first. High confidence isn't accuracy on contested items or numeric state.
 - Values are rounded to 0.01, so break ties in code.
 - Thresholds are uncalibrated. When the outcome matters, label 20–50 items yourself and compare.
 - Before concluding, read the selected originals **and** a sample of the rejected and uncertain items.
@@ -56,8 +57,8 @@ Every question needs `instructions`. A string works; use an object or array when
 
 - Don't use it to count, do arithmetic, compare dates or produce text.
 - Don't gate untrusted input with it: injected instructions in `state` move the answers, and planted false facts move them far more.
-- Don't pad state. Context rot is documented, and state plus questions are capped at 32k tokens.
-- Don't pack several items into one request: scores shift by position, in either direction, by up to ~0.37. Use `--each`.
+- Don't pad state. Context rot is documented, and state plus the longest question are capped at 32k tokens: keep an item under ~100k characters and truncate longer ones in code.
+- Don't pack several items into one `state`: scores shift by position, in either direction, by up to ~0.37. Use `--each`. TypeSafe's own pattern for comparing one state against many candidates (dedupe, rerank) puts each candidate in its own question's `instructions` object instead; that pays for a large shared state once, but its position effects are unmeasured here.
 - Don't trust answers for non-English or specialist domains (e.g. German accounting) without a labelled check. Write the instructions in English even when the state isn't.
 - OpenRouter doesn't enforce every documented limit: a 1-level score is accepted and returns `confidence: 1`.
 

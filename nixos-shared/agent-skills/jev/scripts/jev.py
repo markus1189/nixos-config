@@ -12,14 +12,24 @@ cost, resolved model) on stderr. Exit: 0 ok, 1 some requests failed, 2 usage/inp
 import argparse, json, os, random, subprocess, sys, threading, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-URL = "https://openrouter.ai/api/alpha/decisions"
+# Same schema as the still-alpha /api/alpha/decisions, without the alpha label.
+URL = "https://openrouter.ai/api/v1/systemone"
 # Pinned: thresholds tuned on one version don't carry over. `~typesafe/jev-latest` tracks releases.
 MODEL = "typesafe/jev-1.13"
+# Zero data retention, no data collection: TypeSafe's endpoint qualifies, so the promise is enforced
+# per request rather than assumed from the provider listing.
+PROVIDER = {"zdr": True, "data_collection": "deny"}
+# USD per input token for jev-1.13 (output is free); only for estimating when usage.cost is absent,
+# which the response schema allows.
+PRICE = 0.042e-6
 # Transient: rate limits, upstream/gateway errors, overload (529). OpenRouter also returns 520
 # with HTTP 200 and the code in the body, so the body's error.code is checked too.
 RETRY = {408, 429, 500, 502, 503, 504, 520, 524, 529}
 # Bad key, no credits, forbidden: every further request fails the same way, so stop the batch.
+# Exceptions in call(): the in-flight-budget 402 is transient, and a 403 carrying metadata is a
+# moderation or guardrail verdict on one item's content.
 FATAL = {401, 402, 403}
+RETRY_AFTER_MAX = 60  # seconds; a longer Retry-After fails the item instead of stalling the batch
 TRIES = 5        # backoff 1+2+4+8 s ≈ 15 s before giving up on one request
 TIMEOUT = 30     # p95 latency is ~0.4 s; 30 s only bounds a hung connection
 JOBS = 8         # community reports trouble above ~8 concurrent workers per key
@@ -49,10 +59,12 @@ def call(body, k, stop):
     data = json.dumps(body).encode()
     for attempt in range(TRIES):
         req = urllib.request.Request(URL, data, {"Authorization": f"Bearer {k}", "Content-Type": "application/json"})
+        retry_after = None
         try:
             with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
                 d = json.load(r)
         except urllib.error.HTTPError as e:
+            retry_after = e.headers.get("Retry-After")
             try: d = json.load(e)
             except ValueError: d = {}
             if not isinstance(d.get("error"), dict):
@@ -70,12 +82,25 @@ def call(body, k, stop):
             if missing := sorted(set(body.get("questions") or {}) - set(d["answers"])):
                 return {"error": {"code": "missing_answers", "message": f"no answer for {missing}"}}
             return d
-        if code in FATAL:
+        meta = d["error"].get("metadata") or {}
+        if code == 402 and meta.get("limit_source") == "openrouter_in_flight_budget":
+            pass
+        elif code == 403 and meta:
+            return d
+        elif code in FATAL:
             stop.set()
             return d
-        if code not in RETRY and code != 0:
+        elif code not in RETRY and code != 0:
             return d
-        time.sleep(2 ** attempt + random.random())
+        if attempt == TRIES - 1:
+            break
+        wait = 2 ** attempt + random.random()
+        if retry_after:
+            try: wait = float(retry_after)
+            except ValueError: pass  # HTTP-date form: keep the backoff
+            if wait > RETRY_AFTER_MAX:
+                break
+        time.sleep(wait)
     return d
 
 
@@ -125,7 +150,8 @@ def main():
             except OSError as e: die(f"--context: {e}")
             try: ctx = json.loads(raw)
             except ValueError: ctx = raw
-        bodies = [{"model": a.model, "state": {"item": it, **({"context": ctx} if ctx is not None else {})},
+        bodies = [{"model": a.model, "provider": PROVIDER,
+                   "state": {"item": it, **({"context": ctx} if ctx is not None else {})},
                    "questions": qs} for it in load_items(a.each)]
     else:
         if sys.stdin.isatty():
@@ -133,6 +159,7 @@ def main():
         try: b = json.load(sys.stdin)
         except ValueError as e: die(f"stdin: invalid JSON: {e}")
         b.setdefault("model", a.model)
+        b.setdefault("provider", PROVIDER)
         bodies = [b]
 
     if a.dry_run:
@@ -151,11 +178,18 @@ def main():
                                  ensure_ascii=False), flush=True)
     if not a.each:
         print(json.dumps(results[0], indent=2, ensure_ascii=False))
-    cost = sum((r.get("usage") or {}).get("cost", 0) for r in results)
+    cost, estimated = 0.0, False
+    for r in results:
+        u = r.get("usage") or {}
+        if "cost" in u:
+            cost += u["cost"]
+        elif "input_tokens" in u:
+            cost += u["input_tokens"] * PRICE
+            estimated = True
     failed = sum(1 for r in results if "error" in r)
     models = ",".join(sorted({r["model"] for r in results if "model" in r})) or "?"
-    print(f"jev.py: {len(results)} req, {failed} failed, ${cost:.6f}, {time.monotonic() - t0:.2f}s, model={models}",
-          file=sys.stderr)
+    print(f"jev.py: {len(results)} req, {failed} failed, ${cost:.6f}{' (est.)' if estimated else ''}, "
+          f"{time.monotonic() - t0:.2f}s, model={models}", file=sys.stderr)
     if stop.is_set():
         print("jev.py: stopped on an auth/billing error (see the error lines)", file=sys.stderr)
         return 2
