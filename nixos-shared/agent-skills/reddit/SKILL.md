@@ -29,10 +29,12 @@ the single comment when given a comment permalink.
 
 All but `whoami` take `--limit N`, `--json` (raw API) and `--jsonl` (one flat
 record per post/comment: permalink, ISO date, depth, parent, full body; ~5x
-smaller than `--json`), before or after the subcommand. Prefer `--jsonl` for
-anything you will parse or quote. `--body-chars 0` prints full bodies in text
-mode. `frontpage`, `subs` and `history` need user context and fail loudly
-without it, rather than passing generic popular posts off as the feed.
+smaller than `--json`). Only `--json`/`--jsonl` may precede the subcommand;
+every other flag goes after it. Prefer `--jsonl` for anything you will parse
+or quote. `--body-chars 0` prints full bodies in text mode (`url`,
+`comments`, `user`, `search-comments`). `frontpage`, `subs` and `history`
+need user context and fail loudly without it, rather than passing generic
+popular posts off as the feed.
 
 ## Narrowing search
 
