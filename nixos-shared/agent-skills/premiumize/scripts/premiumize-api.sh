@@ -433,7 +433,7 @@ cmd_account_pretty() {
     api_get "account/info" | jq -r '
         "Account Info\n" +
         "  Customer ID: \(.customer_id)\n" +
-        "  Premium Until: \(.premium_until)\n" +
+        "  Premium Until: \(if .premium_until then (.premium_until | localtime | strftime("%Y-%m-%d")) else "N/A" end)\n" +
         "  Fair Use: \(.limit_used * 100 | floor)%\n" +
         "  Booster Points: \(.booster_points // "N/A")\n" +
         "  Space Used: \(if .space_used then (.space_used / 1073741824 * 100 | floor / 100 | tostring) + " GB" else "Unknown" end)"
