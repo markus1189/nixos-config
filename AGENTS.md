@@ -313,7 +313,7 @@ rg ":id" nixos-shared/packages/emacs/emacs-config.el            # Newsletters
 ## Claude Code Configurations
 
 Custom Claude Code setup in `nixos-shared/claude/`:
-- `commands/` - Custom slash commands (mh:agent-race, mh:iterate, mh:fact-check, etc.)
+- `commands/` - Custom slash commands (mh:agent-race, mh:iterate, mh:handoff, etc.)
 - `global-agent-instructions.md` - Global instructions shared across agents (Claude, Gemini, Copilot, opencode, pi)
 
 **Skills location**: `nixos-shared/agent-skills/[skill-name]/SKILL.md` —
