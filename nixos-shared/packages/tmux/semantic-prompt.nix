@@ -15,8 +15,10 @@
   '';
   programs.tmux.extraConfig = ''
     bind O copy-mode \; send -X previous-prompt -o
-    bind -T copy-mode-vi [ send -X previous-prompt -o
-    bind -T copy-mode-vi ] send -X next-prompt -o
+    # Claude Code (2.1.289) emits no OSC 133 outside screen-reader mode, and
+    # tmux loses the marks it emits there; its user prompts start with "❯ ".
+    bind -T copy-mode-vi [ if -F '#{==:#{pane_current_command},claude}' { send -X search-backward '^❯ ' } { send -X previous-prompt -o }
+    bind -T copy-mode-vi ] if -F '#{==:#{pane_current_command},claude}' { send -X search-forward '^❯ ' } { send -X next-prompt -o }
     bind -T copy-mode-vi ( send -X previous-prompt
     bind -T copy-mode-vi ) send -X next-prompt
   '';
