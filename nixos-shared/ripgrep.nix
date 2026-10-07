@@ -11,6 +11,8 @@ let
     --smart-case
 
     --hidden
+
+    --hyperlink-format=file://{host}{path}#{line}:{column}
   '';
 in
 {

@@ -19,6 +19,7 @@ in
     # Sets programs.git and installs the global gitleaks config (xdg.configFile).
     ../nixos-shared/home-manager/git/default.nix
     ../nixos-shared/home-manager/dunst/default.nix
+    ../nixos-shared/home-manager/emacs-links/default.nix
     ../nixos-shared/home-manager/firefox/default.nix
     ../nixos-shared/home-manager/imv/default.nix
     ../nixos-shared/home-manager/rumdl/default.nix
