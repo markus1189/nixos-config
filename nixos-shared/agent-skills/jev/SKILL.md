@@ -53,14 +53,14 @@ Every question needs `instructions`. A string works; use an object or array when
 
 | task | run |
 |---|---|
-| where in one long text (log, doc, diff) is X | one request: state = the lines prefixed `L1:`…; a choice whose criteria map each line id to `null` (≤255 lines, else narrow to a window first), plus a noul "does any line answer X?", since a choice ranks some line first even when none fits |
-| pull a value (date, URL, amount, name) | over-find candidates with `rg`/regex, then a choice over them plus `none`; copy the pick verbatim. It can't pick a value you didn't list |
-| best matches for a query | shortlist with `rg`, then `--each` over the candidates with the query in `--context` and a noul "Does `item` answer `context`?"; sort on it |
-| dedupe | candidate pairs from code, one `{"a": …, "b": …}` line each; a score whose middle level is "related, possibly not the same" (read those), a noul per field, numbers compared in code. A wrong merge usually costs more than a miss, so cut high |
-| pick one of many (skills, files, categories) | request 1: a choice over all names with short descriptions plus a noul "is any needed?"; request 2: the top 3 with full text, a noul each, drop all if every one is low. Deep taxonomies: one choice per level, or report the parent when `confidence` is low |
-| check claims against a source | match quotes exactly in code first; per claim, the cited section as state and a choice `supported`/`unsupported`/`contradicted`; read the low-confidence ones |
+| where in one long text (log, doc, diff) is X ([recipe](https://docs.typesafe.ai/cookbooks/semantic_find.md)) | one request: state = the lines prefixed `L1:`…; a choice whose criteria map each line id to `null` (≤255 lines, else narrow to a window first), plus a noul "does any line answer X?", since a choice ranks some line first even when none fits |
+| pull a value (date, URL, amount, name) ([recipe](https://docs.typesafe.ai/cookbooks/pre_parsed_value_extraction_cookbook.md), [dates](https://docs.typesafe.ai/cookbooks/date_extraction_cookbook.md)) | over-find candidates with `rg`/regex, then a choice over them plus `none`; copy the pick verbatim. It can't pick a value you didn't list |
+| best matches for a query ([recipe](https://docs.typesafe.ai/cookbooks/rerank_typesafe.md)) | shortlist with `rg`, then `--each` over the candidates with the query in `--context` and a noul "Does `item` answer `context`?"; sort on it |
+| dedupe ([recipe](https://docs.typesafe.ai/cookbooks/entity_alignment.md)) | candidate pairs from code, one `{"a": …, "b": …}` line each; a score whose middle level is "related, possibly not the same" (read those), a noul per field, numbers compared in code. A wrong merge usually costs more than a miss, so cut high |
+| pick one of many (skills, files, categories) ([recipe](https://docs.typesafe.ai/cookbooks/skill_suggestion.md), [taxonomy](https://docs.typesafe.ai/cookbooks/hierarchical_classification.md), [parent fallback](https://docs.typesafe.ai/cookbooks/classification_using_confidence.md)) | request 1: a choice over all names with short descriptions plus a noul "is any needed?"; request 2: the top 3 with full text, a noul each, drop all if every one is low. Deep taxonomies: one choice per level, or report the parent when `confidence` is low |
+| check claims against a source ([recipe](https://docs.typesafe.ai/cookbooks/citation_check.md)) | match quotes exactly in code first; per claim, the cited section as state and a choice `supported`/`unsupported`/`contradicted`; read the low-confidence ones |
 
-Options in one choice compete and Jev leans towards the first, so a single-request ranking says where to look, not the verdict.
+Options in one choice compete and Jev leans towards the first, so a single-request ranking says where to look, not the verdict. The recipes are Python SDK code: their question wording carries over to `q.json`, their thresholds were measured on their data. More in the [cookbook index](https://docs.typesafe.ai/cookbooks.md).
 
 ## Clef
 
