@@ -59,6 +59,8 @@ in
       {
         "claude-code" = claudeConfig.settings;
         "claude-md" = claudeConfig.globalAgentMd;
+        # Laptops only: its one binding opens the marginal mod, which nuc lacks.
+        "claude-keybindings" = claudeConfig.keybindings;
 
         "gemini-global" = {
           target = ".gemini/GEMINI.md";

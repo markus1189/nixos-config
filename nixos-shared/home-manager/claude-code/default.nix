@@ -485,6 +485,22 @@ in
     };
   };
 
+  # `command:<name>` submits `/<name>` as if typed; undocumented in 2.1.289,
+  # found in the binary. Its name pattern forbids arguments, so `/marginal all`
+  # cannot be bound.
+  keybindings = {
+    target = ".claude/keybindings.json";
+    text = pkgs.lib.strings.toJSON {
+      "$schema" = "https://www.schemastore.org/claude-code-keybindings.json";
+      bindings = [
+        {
+          context = "Chat";
+          bindings."ctrl+x m" = "command:marginal";
+        }
+      ];
+    };
+  };
+
   globalAgentMd = {
     target = ".claude/CLAUDE.md";
     text = builtins.readFile ../../claude/global-agent-instructions.md;
