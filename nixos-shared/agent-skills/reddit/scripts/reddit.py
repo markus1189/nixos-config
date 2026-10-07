@@ -3,7 +3,8 @@
 """Reddit read-only CLI over the official OAuth API.
 
 Auth: app-only (client_credentials) by default; user context (personalised
-frontpage, subscriptions, saved/upvoted) when REDDIT_REFRESH_TOKEN is set.
+frontpage, subscriptions, saved/upvoted) once reddit_auth.py has stored a
+token at `pass api/reddit/refreshToken`. REDDIT_REFRESH_TOKEN overrides it.
 """
 
 import argparse
@@ -189,8 +190,8 @@ def api(path, params=None, token=None):
                         if f.startswith("token-"):
                             os.remove(os.path.join(CACHE_DIR, f))
                 die(f"HTTP {e.code} on {path} — token lacks scope, or this "
-                    f"endpoint needs user context (set REDDIT_REFRESH_TOKEN "
-                    f"via scripts/reddit_auth.py)")
+                    f"endpoint needs user context (run reddit_auth.py "
+                    f"next to this script to store a refresh token)")
             die(f"HTTP {e.code} on {path}: {e.read().decode()[:200]}")
         except urllib.error.URLError as e:
             if attempt == 3:
@@ -469,8 +470,9 @@ def cmd_search(args):
 def cmd_frontpage(args):
     token, user = get_token()
     if not user:
-        die("frontpage needs your account. Set REDDIT_REFRESH_TOKEN "
-            "(run scripts/reddit_auth.py once). Without it Reddit returns "
+        die("frontpage needs your account. Run reddit_auth.py "
+            "(next to this script) once to store a token at pass "
+            "api/reddit/refreshToken; REDDIT_REFRESH_TOKEN overrides. Without it Reddit returns "
             "generic popular posts, not your feed.")
     path = "/best" if args.sort == "best" else f"/{args.sort}"
     kids = paginate(path, {"t": args.time}, args.limit)
@@ -523,6 +525,8 @@ def cmd_url(args):
     """Route any reddit URL to the right endpoint. The entry point when the
     user pastes a link and WebFetch would 403."""
     kind, *rest = classify(args.url)
+    if args.limit is None:  # comment-oriented default only for threads
+        args.limit = 100 if kind in ("thread", "comment") else 15
     if kind in ("thread", "comment"):
         args.post, args.sort = args.url, "top"
         return cmd_comments(args)
@@ -751,7 +755,8 @@ def main():
                        help="fetch any reddit URL (thread, comment "
                             "permalink, subreddit, user, share link)")
     s.add_argument("url")
-    s.add_argument("--limit", type=int, default=100)
+    s.add_argument("--limit", type=int, default=None,
+                   help="default 100 for threads, 15 for subreddits/users")
     s.add_argument("--depth", type=int, default=4)
     s.add_argument("--body-chars", type=int, default=400,
                    help="truncate bodies; 0 = full text")

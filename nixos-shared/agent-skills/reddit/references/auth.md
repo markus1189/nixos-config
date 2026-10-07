@@ -20,8 +20,8 @@ override them.
 ## Traps
 
 **`invalid_grant`** — the password grant works only for apps of type "script" and
-breaks under 2FA. The `pass api/reddit/agent/*` username and password entries are
-dead weight; they return this. Use the flow above.
+breaks under 2FA. Any username/password entries in pass (e.g. `api/reddit/agent/*`)
+are dead weight; they return this. Use the flow above.
 
 **`invalid redirect_uri parameter`** — Reddit byte-compares the redirect URI
 against the registration at <https://www.reddit.com/prefs/apps>, trailing slash

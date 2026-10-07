@@ -6,8 +6,7 @@ Reddit's password grant only works for apps registered as type "script", and
 breaks under 2FA. The authorization-code flow works for any app type, survives
 2FA, and yields a refresh token that never expires. Run this once.
 
-    ./reddit_auth.py                 # uses pass api/reddit/{clientId,clientSecret}
-    ./reddit_auth.py --client agent  # uses pass api/reddit/agent/*
+    ./reddit_auth.py   # uses pass api/reddit/{clientId,clientSecret}
 """
 
 import argparse
@@ -21,6 +20,7 @@ import threading
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 UA = "claude-code:reddit-skill:v0.2 (by /u/markus1189)"
 SCOPES = ["identity", "read", "mysubreddits", "history"]
@@ -56,8 +56,6 @@ def sh(cmd):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--client", choices=["default", "agent"], default="default",
-                    help="which pass credential pair to use")
     # Matches the URI registered for this app at reddit.com/prefs/apps. Reddit
     # compares it byte-for-byte and answers "invalid redirect_uri parameter"
     # on any mismatch, trailing slash included.
@@ -68,7 +66,7 @@ def main():
                     help="print the refresh token instead of writing to pass")
     args = ap.parse_args()
 
-    base = "api/reddit/agent" if args.client == "agent" else "api/reddit"
+    base = "api/reddit"
     cid = sh(["pass", f"{base}/clientId"])
     csec = sh(["pass", f"{base}/clientSecret"])
 
@@ -161,10 +159,7 @@ Stored refresh token at: pass {PASS_ENTRY}
 Granted scopes: {tok.get('scope')}
 
 Verify with:
-  env REDDIT_CLIENT_ID="$(pass {base}/clientId)" \\
-      REDDIT_CLIENT_SECRET="$(pass {base}/clientSecret)" \\
-      REDDIT_REFRESH_TOKEN="$(pass {PASS_ENTRY})" \\
-      ~/.claude/skills/reddit/scripts/reddit.py whoami
+  {Path(__file__).resolve().parent / "reddit.py"} whoami
 """)
 
 

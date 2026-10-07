@@ -24,6 +24,7 @@ the single comment when given a comment permalink.
 
 ./scripts/reddit.py frontpage [--sort best|hot|new|top]   # the user's OWN feed
 ./scripts/reddit.py subs
+./scripts/reddit.py whoami                                # which token (app-only vs user) is in use
 ./scripts/reddit.py history saved|upvoted|submitted|comments|downvoted|hidden
 ```
 
