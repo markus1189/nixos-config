@@ -64,3 +64,39 @@ test('/tps reset clears the samples', async ($, on) => {
   const after = await $.ui.mount({ plugin: 'tps-meter', surface: 'terminal', component: 'AbovePrompt', props })
   expect(await after.find({ type: 'Text', text: /tok\/s/ })).toBeFalsy()
 })
+
+test('pane: singular for one request, no sparkline below two samples', async ($, on) => {
+  on('turn.step', async function* (_$, e) {
+    yield { kind: 'text', index: 0, text: 'x' }
+    yield { kind: 'stop', stopReason: 'end_turn', usage }
+    return { turnId: e.turnId, index: e.index, answer: 'x', toolUses: [], stopReason: 'end_turn', usage }
+  })
+  const stream = $.turn.step({ turnId: 't1', index: 0, model: 'claude-test', messageCount: 1 })
+  while (!(await stream.next()).done) {}
+
+  const pane = await $.ui.mount({ plugin: 'tps-meter', surface: 'terminal', component: 'Pane', requestId: 'tps-meter', props: { bodyColumns: 80 } } as never)
+  expect(await pane.find({ type: 'Text', text: /^1 request \(/ })).toBeTruthy()
+  expect(await pane.find({ type: 'Text', text: /[▁▂▃▄▅▆▇█]/ })).toBeFalsy()
+  expect(await pane.find({ type: 'Text', text: /1 req$/ })).toBeTruthy()
+})
+
+test('/tps toggles the pane', async ($, on) => {
+  let isOpen = false
+  on('ui.open', () => {
+    isOpen = true
+    return { value: { isPlaced: true } }
+  })
+  on('ui.close', () => {
+    isOpen = false
+    return { value: undefined }
+  })
+  on('ui.panes', () => ({
+    value: isOpen ? [{ id: 'tps-meter', title: 'Tokens / s', isShown: true, hasFocus: false, isPlaced: true }] : [],
+  }) as never)
+
+  await $.command.run({ command: 'tps', args: '', origin: 'user' } as never)
+  expect(isOpen).toBe(true)
+  const closed = await $.command.run({ command: 'tps', args: '', origin: 'user' } as never)
+  expect(isOpen).toBe(false)
+  expect(closed.text).toMatch(/closed/)
+})

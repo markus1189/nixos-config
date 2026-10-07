@@ -43,13 +43,14 @@ function sparkline(values: number[]): string {
 }
 
 const fmt = (n: number) => n.toFixed(0)
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)}s`
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'tps',
-      description: 'Show tokens-per-second metrics for this session; /tps reset clears them',
+      description: 'Toggle the tokens-per-second pane; /tps reset clears the samples',
     })
     // An earlier version pinned a status notice; it outlives reloads until cleared.
     $.ui.status(undefined)
@@ -61,10 +62,14 @@ export const register: Register = on => {
       await update($, samples, () => [])
       return { text: 'samples cleared.' }
     }
+    if ((await $.ui.panes()).some(pane => pane.id === PANE)) {
+      await $.ui.close({ id: PANE })
+      return { text: 'pane closed.' }
+    }
     await $.ui.open({ id: PANE, title: 'Tokens / s' })
     const s = summarize(await read($, samples))
     return {
-      text: `${s.requests} requests, ${s.totalOut} output tokens; ${fmt(s.weightedTps)} tok/s weighted, p50 ${fmt(s.p50)}, p90 ${fmt(s.p90)}, TTFT p50 ${secs(s.ttftP50)}`,
+      text: `${plural(s.requests, 'request')}, ${s.totalOut} output tokens; ${fmt(s.weightedTps)} tok/s weighted, p50 ${fmt(s.p50)}, p90 ${fmt(s.p90)}, TTFT p50 ${secs(s.ttftP50)}`,
     }
   })
 
@@ -149,15 +154,14 @@ export const register: Register = on => {
             <Text bold>{fmt(s.weightedTps)} tok/s (token-weighted)</Text>
             <Text>p50 {fmt(s.p50)} · p90 {fmt(s.p90)} · TTFT p50 {secs(s.ttftP50)}</Text>
             <Text dimColor>
-              {s.requests} requests ({s.counted} ≥{MIN_TOKENS} tok) · {s.totalOut} output tokens
+              {plural(s.requests, 'request')} ({s.counted} ≥{MIN_TOKENS} tok) · {s.totalOut} output tokens
             </Text>
-            <Text color="cyan">{sparkline(counted.slice(-width).map(x => x.tps))}</Text>
-            <Text> </Text>
+            {counted.length > 1 && <Text color="cyan">{sparkline(counted.slice(-width).map(x => x.tps))}</Text>}
             {[...byModel].map(([model, xs]) => {
               const m = summarize(xs)
               return (
                 <Text>
-                  {model}: {fmt(m.weightedTps)} tok/s · {m.requests} req
+                  {model}: {fmt(m.weightedTps)} tok/s · {plural(m.requests, 'req')}
                   {xs.some(x => x.isSubagent) ? ` (${xs.filter(x => x.isSubagent).length} subagent)` : ''}
                 </Text>
               )
