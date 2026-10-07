@@ -136,3 +136,38 @@ test('band draws a coloured Raster on the terminal, plain text elsewhere', async
   expect(await desktop.find({ type: 'Raster' })).toBeFalsy()
   expect(await desktop.find({ type: 'Text', text: /[▁▂▃▄▅▆▇█]{2}/ })).toBeTruthy()
 })
+
+const bandProps = { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 160, scroll: { offset: 0, bodyRows: 10 }, view: {} }
+
+test('streamed rate ignores tool arguments', async ($, on) => {
+  on('turn.step', async function* (_$, e) {
+    yield { kind: 'tool', index: 0, id: 'toolu_1', name: 'Bash' }
+    yield { kind: 'input', index: 0, json: JSON.stringify({ command: 'x'.repeat(2000) }) }
+    yield { kind: 'stop', stopReason: 'tool_use', usage }
+    return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'tool_use', usage }
+  })
+  const stream = $.turn.step({ turnId: 't1', index: 0, model: 'claude-test', messageCount: 1 })
+  while (!(await stream.next()).done) {}
+
+  const band = await $.ui.mount({ plugin: 'tps-meter', surface: 'terminal', component: 'AbovePrompt', props: bandProps })
+  expect(await band.find({ type: 'Text', text: /tok\/s/ })).toBeTruthy()
+  expect(await band.find({ type: 'Text', text: /streamed/ })).toBeFalsy()
+})
+
+test('streamed rate shows for text that streams over time', async ($, on) => {
+  on('turn.step', async function* (_$, e) {
+    for (const piece of ['a'.repeat(200), 'b'.repeat(200), 'c'.repeat(200)]) {
+      yield { kind: 'text', index: 0, text: piece }
+      // The mod times with performance.now(), which no test clock moves.
+      const until = performance.now() + 150
+      while (performance.now() < until) {}
+    }
+    yield { kind: 'stop', stopReason: 'end_turn', usage }
+    return { turnId: e.turnId, index: e.index, answer: 'abc', toolUses: [], stopReason: 'end_turn', usage }
+  })
+  const stream = $.turn.step({ turnId: 't1', index: 0, model: 'claude-test', messageCount: 1 })
+  while (!(await stream.next()).done) {}
+
+  const band = await $.ui.mount({ plugin: 'tps-meter', surface: 'terminal', component: 'AbovePrompt', props: bandProps })
+  expect(await band.find({ type: 'Text', text: /streamed ~\d+/ })).toBeTruthy()
+})

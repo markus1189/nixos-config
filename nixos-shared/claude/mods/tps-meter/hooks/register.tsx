@@ -8,6 +8,8 @@ const PANE = 'tps-meter'
 const MIN_TOKENS = 20
 // Rough English/code average; the visible rate is an estimate, the API counts no subtotal.
 const CHARS_PER_TOKEN = 4
+// Text that lands in one burst has no rate worth showing.
+const MIN_STREAM_MS = 250
 
 const samples = atom({ plugin: 'tps-meter', key: 'samples' } as const, [])
 
@@ -110,14 +112,21 @@ export const register: Register = on => {
     const sentAt = performance.now()
     let firstAt: number | undefined
     let stopAt: number | undefined
+    let textFirstAt: number | undefined
+    let textLastAt: number | undefined
     let visibleChars = 0
 
     const stream = next(e)
     for await (const chunk of stream) {
       if (chunk.kind !== 'engine') {
         firstAt ??= performance.now()
-        if (chunk.kind === 'text' || chunk.kind === 'thinking') visibleChars += chunk.text.length
-        if (chunk.kind === 'input') visibleChars += chunk.json.length
+        // Not tool arguments: measured 2026-10-07, they arrive in bursts (593 tok/s) and
+        // undercount at chars/4.
+        if (chunk.kind === 'text' || chunk.kind === 'thinking') {
+          textFirstAt ??= performance.now()
+          textLastAt = performance.now()
+          visibleChars += chunk.text.length
+        }
         if (chunk.kind === 'stop') stopAt = performance.now()
       }
       yield chunk
@@ -132,7 +141,7 @@ export const register: Register = on => {
     // included, so any window opening at a chunk counts its tokens in near-zero time
     // (9778 tok/s). From the send, the rate includes prefill and can only understate.
     const genMs = stopAt - sentAt
-    const streamMs = stopAt - firstAt
+    const streamMs = textFirstAt !== undefined && textLastAt !== undefined ? textLastAt - textFirstAt : 0
     const visibleTokens = visibleChars / CHARS_PER_TOKEN
     const sample: Sample = {
       model: usage.model,
@@ -141,7 +150,7 @@ export const register: Register = on => {
       ttftMs: firstAt - sentAt,
       genMs,
       tps: genMs > 0 ? usage.output_tokens / (genMs / 1000) : 0,
-      visibleTps: visibleTokens >= MIN_TOKENS && streamMs > 0 ? visibleTokens / (streamMs / 1000) : null,
+      visibleTps: visibleTokens >= MIN_TOKENS && streamMs >= MIN_STREAM_MS ? visibleTokens / (streamMs / 1000) : null,
     }
     await update($, samples, list => [...list, sample].slice(-500))
     return result
