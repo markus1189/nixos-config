@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#ripgrep nixpkgs#findutils nixpkgs#gnused nixpkgs#gawk --command bash
+#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#ripgrep nixpkgs#findutils nixpkgs#gnused nixpkgs#gawk nixpkgs#gnugrep --command bash
 # pipefail intentionally omitted: every `jq ... | head -n1` would otherwise
 # raise SIGPIPE and abort the script via `set -e`.
 set -eu
@@ -14,18 +14,34 @@ Usage:
   cc-find [OPTIONS] PATTERN
 
 Options:
-  --cwd PATTERN          Only sessions whose project dir contains PATTERN
-                         (e.g. --cwd nixpkgs, --cwd nixos-config).
+  --cwd PATH             Only sessions whose project dir contains PATH, as a
+                         substring of the working directory: --cwd nixpkgs,
+                         --cwd repos/nixpkgs, --cwd /home/me/repos/foo.
+                         (Project dirs encode every non-alphanumeric char of
+                         the cwd as '-'; PATH is encoded the same way.)
   --since DATE           Only sessions modified after DATE (GNU date string).
                          e.g. --since '2 weeks ago' or --since 2025-10-01.
   --until DATE           Only sessions modified before DATE.
   --limit N              Max results (default 10).
+  --include-self         Do not exclude the calling session. By default the
+                         session named by $CLAUDE_CODE_SESSION_ID (if set) is
+                         dropped, since it trivially matches its own topic.
   -s, --case-sensitive   Case-sensitive PATTERN (default: case-insensitive).
   -h, --help             This help.
 
 PATTERN is a ripgrep regex matched against the raw JSONL of each candidate
-session file. Matching sessions are then enriched with ai-title + first
-substantive user prompt and sorted by recency (newest first).
+session file.
+
+Ranking: tier 1 = PATTERN occurs in the ai-title or first user prompt (the
+session was *about* it), tier 0 = it occurs only deeper in the transcript.
+Tier 1 comes first; within a tier, newest first (by first-record timestamp).
+
+For speed only a bounded candidate set is enriched and ranked: the 4*LIMIT
+most recently modified matching files plus the 4*LIMIT with the most matches.
+A tier-1 session that is both old and rarely mentions the term can fall
+outside it; narrow with --cwd/--since or use a more specific PATTERN.
+Skill names occur in every transcript (injected skill listing), so they make
+poor PATTERNs.
 
 Output (TSV): TIMESTAMP \t UUID \t CWD \t TITLE \t FIRST_USER_PROMPT
 
@@ -42,7 +58,7 @@ Tips:
 
 Examples:
   cc-find easyeffects
-  cc-find --cwd nixpkgs 'backport.*claude-code'
+  cc-find --cwd repos/nixpkgs 'backport.*claude-code'
   cc-find --since '2 weeks ago' kanata
   cc-find -s 'OTEL_|OpenTelemetry'
 EOF
@@ -53,14 +69,21 @@ SINCE=""
 UNTIL=""
 LIMIT=10
 CASE_FLAG="-i"
+INCLUDE_SELF=0
 PATTERN=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --cwd) CWD_FILTER="$2"; shift 2;;
-    --since) SINCE="$2"; shift 2;;
-    --until) UNTIL="$2"; shift 2;;
-    --limit) LIMIT="$2"; shift 2;;
+    --cwd|--since|--until|--limit)
+      [[ $# -ge 2 ]] || { echo "cc-find: $1 needs a value" >&2; exit 2; }
+      case "$1" in
+        --cwd) CWD_FILTER="$2";;
+        --since) SINCE="$2";;
+        --until) UNTIL="$2";;
+        --limit) LIMIT="$2";;
+      esac
+      shift 2;;
+    --include-self) INCLUDE_SELF=1; shift;;
     -s|--case-sensitive) CASE_FLAG=""; shift;;
     -h|--help) usage; exit 0;;
     --) shift; PATTERN="${PATTERN:-$*}"; break;;
@@ -75,46 +98,75 @@ done
 
 [[ -z "$PATTERN" ]] && { usage >&2; exit 2; }
 [[ -d "$PROJECTS_DIR" ]] || { echo "cc-find: missing $PROJECTS_DIR" >&2; exit 1; }
+if ! [[ "$LIMIT" =~ ^[0-9]+$ ]] || (( LIMIT < 1 )); then
+  echo "cc-find: --limit needs a positive integer" >&2; exit 2
+fi
 
 TMPDIR=$(mktemp -d -t claude-code.XXXXXX)
 trap 'rm -rf "$TMPDIR"' EXIT
 CANDS="$TMPDIR/cands"
 MATCHES="$TMPDIR/matches"
 
-# Stage 1: candidate files (date + cwd pre-filter).
+# Stage 1: candidate files (date + cwd + self pre-filter), as "mtime<TAB>path".
 # -maxdepth 2 keeps top-level session files only, excluding sub-session logs
 # under <uuid>/subagents/ and <uuid>/tool-results/.
 find_args=( "$PROJECTS_DIR" -maxdepth 2 -type f -name '*.jsonl' )
 [[ -n "$SINCE" ]] && find_args+=( -newermt "$SINCE" )
 [[ -n "$UNTIL" ]] && find_args+=( ! -newermt "$UNTIL" )
-find "${find_args[@]}" > "$CANDS"
+find "${find_args[@]}" -printf '%T@\t%p\n' > "$CANDS"
 
 if [[ -n "$CWD_FILTER" ]]; then
-  grep -F -- "$CWD_FILTER" "$CANDS" > "$CANDS.f" || true
+  # Claude Code names project dirs after the cwd with every non-alphanumeric
+  # char turned into '-'; match the encoded filter against the dir name only.
+  enc=$(printf '%s' "$CWD_FILTER" | tr -c 'A-Za-z0-9' '-')
+  awk -F'\t' -v enc="$enc" '
+    { n = split($2, parts, "/"); if (index(parts[n-1], enc)) print }
+  ' "$CANDS" > "$CANDS.f"
+  mv "$CANDS.f" "$CANDS"
+fi
+
+if [[ "$INCLUDE_SELF" -eq 0 && -n "${CLAUDE_CODE_SESSION_ID:-}" ]]; then
+  grep -v -F -- "/$CLAUDE_CODE_SESSION_ID.jsonl" "$CANDS" > "$CANDS.f" || true
   mv "$CANDS.f" "$CANDS"
 fi
 
 [[ -s "$CANDS" ]] || exit 0
 
-# Stage 2: rg pattern over candidate files.
-xargs -a "$CANDS" -d '\n' -r rg $CASE_FLAG -l -- "$PATTERN" 2>/dev/null > "$MATCHES" || true
+# Stage 2: per-file match counts ("path:count"; files without a match are
+# omitted).
+# shellcheck disable=SC2086 # CASE_FLAG is empty or a single flag
+cut -f2 "$CANDS" \
+  | xargs -d '\n' -r rg $CASE_FLAG -c --with-filename -- "$PATTERN" 2>/dev/null \
+  > "$TMPDIR/counts" || true
 
-[[ -s "$MATCHES" ]] || exit 0
+[[ -s "$TMPDIR/counts" ]] || exit 0
 
-# Stage 3: enrich each match with title + first substantive user prompt + timestamp.
-extract_prompt() {
-  local f="$1" line cleaned lines
-  # First 5 user-message text bodies, newlines collapsed; pick the first that
-  # has substantive content after stripping XML-style wrappers
-  # (<command-name>, <local-command-caveat>, <system-reminder>, etc.).
-  lines=$(jq -r '
-    select(.type=="user")
-    | (.message.content
-        | if type=="string" then .
-          else ([.[]? | select(.type=="text") | .text] | join(" "))
-          end)
-    | gsub("\n"; " ")
-  ' "$f" 2>/dev/null | head -n 5)
+# Bound the set that gets enriched: N newest by mtime plus N highest counts,
+# deduped. Tier-1 sessions (term in title/first prompt) are usually recent or
+# dense in the term, so the union keeps them while capping the per-file work.
+N=$(( LIMIT * 4 ))
+awk -F'\t' '
+  NR == FNR { mt[$2] = $1; next }
+  {
+    c = $0; sub(/^.*:/, "", c)
+    p = $0; sub(/:[0-9]+$/, "", p)
+    printf "%s\t%s\t%s\n", mt[p], c, p
+  }
+' "$CANDS" "$TMPDIR/counts" > "$TMPDIR/joined"
+{
+  sort -t$'\t' -k1,1nr "$TMPDIR/joined" | head -n "$N"
+  sort -t$'\t' -k2,2nr -k1,1nr "$TMPDIR/joined" | head -n "$N"
+} | cut -f3 | sort -u > "$MATCHES"
+
+# Stage 3: enrich each remaining match with title + first substantive user
+# prompt + timestamp. cwd/timestamp/first prompts sit in the first lines of a
+# transcript, so one jq pass over a bounded head suffices. ai-title was seen
+# at lines ~6-30 but is looked up with rg -m1 in case it comes later.
+HEAD_LINES=80
+clean_prompt() {
+  local line cleaned
+  # Pick the first user text that is non-empty after stripping XML-style
+  # wrappers (<command-name>, <local-command-caveat>, <system-reminder>, ...).
   while IFS= read -r line; do
     cleaned=$(printf '%s' "$line" | sed -E '
       s|<[a-zA-Z][a-zA-Z0-9_-]*>[^<]*</[a-zA-Z][a-zA-Z0-9_-]*>||g
@@ -125,23 +177,35 @@ extract_prompt() {
       printf '%s' "$cleaned"
       return
     fi
-  done <<< "$lines"
+  done
 }
 
 ENRICHED="$TMPDIR/enriched"
 while IFS= read -r f; do
   [[ -z "$f" ]] && continue
   uuid=$(basename "$f" .jsonl)
-  cwd=$(jq -r 'select(.cwd != null and .cwd != "") | .cwd' "$f" 2>/dev/null | head -n1)
+  # One pass: C = cwd, T = timestamp, U = user text (first 5 used below).
+  head_out=$(head -n "$HEAD_LINES" "$f" | jq -r '
+    (select(.cwd != null and .cwd != "") | "C\t" + .cwd),
+    (select(.timestamp != null and .timestamp != "") | "T\t" + .timestamp),
+    (select(.type=="user")
+      | "U\t" + ((.message.content
+          | if type=="string" then .
+            else ([.[]? | select(.type=="text") | .text] | join(" "))
+            end) | gsub("\n"; " ")))
+  ' 2>/dev/null || true)
+  cwd=$(awk -F'\t' '$1=="C"{print $2; exit}' <<< "$head_out")
+  ts=$(awk -F'\t' '$1=="T"{print $2; exit}' <<< "$head_out")
   [[ -z "$cwd" ]] && cwd=$(basename "$(dirname "$f")")
-  title=$(jq -r 'select(.type=="ai-title") | .aiTitle' "$f" 2>/dev/null | head -n1)
-  ts=$(jq -r 'select(.timestamp != null and .timestamp != "") | .timestamp' "$f" 2>/dev/null | head -n1)
-  prompt=$(extract_prompt "$f")
+  title=$(rg -m1 -F -- '"type":"ai-title"' "$f" 2>/dev/null \
+    | jq -r '.aiTitle // empty' 2>/dev/null | head -n1 || true)
+  prompt=$(awk -F'\t' '$1=="U"{print substr($0,3); if (++n==5) exit}' <<< "$head_out" | clean_prompt)
   prompt=${prompt:0:160}
   # Relevance tier: 1 if PATTERN matches title or first prompt, 0 otherwise
   # (i.e. matched only in tool output / assistant text / etc.). Sorting by
   # tier first surfaces "session was *about* X" above "session *mentioned* X".
   tier=0
+  # shellcheck disable=SC2086 # CASE_FLAG is empty or a single flag
   if printf '%s\n%s' "${title:-}" "${prompt:-}" \
        | rg -q $CASE_FLAG -- "$PATTERN" 2>/dev/null; then
     tier=1

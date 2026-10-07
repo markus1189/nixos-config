@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#findutils --command bash
+#! nix shell nixpkgs#bash nixpkgs#coreutils nixpkgs#jq nixpkgs#findutils nixpkgs#gawk --command bash
 set -eu
 
 readonly PROJECTS_DIR="${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}"
@@ -14,24 +14,40 @@ Usage:
 Options:
   --full         Include thinking and tool_use/tool_result content too.
   --tools        Show only the sequence of tool_use calls (compact action log).
-  --raw          Dump the raw JSONL.
+  --raw          Dump the raw JSONL (ignores --grep/--tail).
+  --grep PATTERN Only show messages matching PATTERN (awk ERE, case-insensitive)
+                 plus context; groups are separated by `--`. Non-matching
+                 context messages are cut to 400 chars.
+  -C N           Context for --grep: N messages around each hit (default 2;
+                 lines instead of messages with --tools).
+  --tail N       Only the last N messages (lines with --tools). Applied
+                 before --grep.
   -h, --help     This help.
 
 UUID may be a full session UUID or any unique prefix (>=4 chars).
 By default prints USER/ASSISTANT text only.
-
-Tip: pipe through `less -R`.
 EOF
 }
 
 MODE="text"   # text | full | tools | raw
 QUERY=""
+GREP=""
+CTX=2
+TAIL=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --full) MODE="full"; shift;;
     --tools) MODE="tools"; shift;;
     --raw) MODE="raw"; shift;;
+    --grep|-C|--tail)
+      [[ $# -ge 2 ]] || { echo "cc-show: $1 needs a value" >&2; exit 2; }
+      case "$1" in
+        --grep) GREP="$2";;
+        -C) CTX="$2";;
+        --tail) TAIL="$2";;
+      esac
+      shift 2;;
     -h|--help) usage; exit 0;;
     -*) echo "cc-show: unknown option: $1" >&2; usage >&2; exit 2;;
     *) QUERY="$1"; shift;;
@@ -39,6 +55,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -z "$QUERY" ]] && { usage >&2; exit 2; }
+[[ "$CTX" =~ ^[0-9]+$ ]] || { echo "cc-show: -C needs a number" >&2; exit 2; }
+[[ -z "$TAIL" || "$TAIL" =~ ^[0-9]+$ ]] || { echo "cc-show: --tail needs a number" >&2; exit 2; }
 (( ${#QUERY} >= 4 )) || { echo "cc-show: prefix must be >=4 chars" >&2; exit 2; }
 
 mapfile -t hits < <(find "$PROJECTS_DIR" -maxdepth 2 -type f -name "${QUERY}*.jsonl" 2>/dev/null)
@@ -73,6 +91,41 @@ started=$(jq -r 'select(.timestamp != null and .timestamp != "") | .timestamp' "
   printf 'file:    %s\n\n' "$f"
 }
 
+# Reads records on stdin, separated by the separator in $1 (messages: \x01,
+# --tools: newline); applies --tail, then --grep with context.
+filter_records() {
+  if [[ -z "$GREP" && -z "$TAIL" ]]; then
+    tr -d '\001'
+    return
+  fi
+  gawk -v RS="$1" -v pat="$GREP" -v ctx="$CTX" -v tail="${TAIL:-0}" -v hastail="${TAIL:+1}" '
+    BEGIN { IGNORECASE = 1 }
+    { sub(/^\n/, ""); if ($0 != "") rec[n++] = $0 }
+    END {
+      start = 0
+      if (hastail && tail < n) start = n - tail
+      if (pat == "") {
+        for (i = start; i < n; i++) print rec[i]
+        exit
+      }
+      last = start - 1; any = 0
+      for (i = start; i < n; i++) {
+        if (rec[i] ~ pat) {
+          lo = i - ctx; if (lo <= last) lo = last + 1; if (lo < start) lo = start
+          hi = i + ctx; if (hi >= n) hi = n - 1
+          if (any && lo > last + 1) print "--"
+          for (j = lo; j <= hi; j++) {
+            if (rec[j] ~ pat || length(rec[j]) <= 400) print rec[j]
+            else print substr(rec[j], 1, 400) " [...cut]"
+          }
+          if (hi > last) last = hi
+          any = 1
+        }
+      }
+      if (!any) print "cc-show: no message matches " pat > "/dev/stderr"
+    }'
+}
+
 if [[ "$MODE" == "tools" ]]; then
   jq -r '
     select(.type=="assistant")
@@ -80,7 +133,7 @@ if [[ "$MODE" == "tools" ]]; then
     | .message.content[]?
     | select(.type=="tool_use")
     | "[" + $ts + "] " + .name + " " + (.input | tostring | .[:200])
-  ' "$f"
+  ' "$f" | filter_records $'\n'
   exit 0
 fi
 
@@ -103,7 +156,7 @@ jq -r --argjson full "$( [[ "$MODE" == "full" ]] && echo true || echo false )" '
         | gsub("\\s+$"; "")
       ) as $clean
     | if ($clean | length) > 0
-      then "── USER " + fmt_ts + " ──\n" + $clean + "\n"
+      then "── USER " + fmt_ts + " ──\n" + $clean + "\n\u0001"
       else empty end
   elif .type == "assistant" then
     ( .message.content
@@ -116,7 +169,7 @@ jq -r --argjson full "$( [[ "$MODE" == "full" ]] && echo true || echo false )" '
         ] | join("\n")
     ) as $body
     | if ($body | length) > 0
-      then "── ASSISTANT " + fmt_ts + " ──\n" + $body + "\n"
+      then "── ASSISTANT " + fmt_ts + " ──\n" + $body + "\n\u0001"
       else empty end
   else empty end
-' "$f"
+' "$f" | filter_records $'\x01'

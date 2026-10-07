@@ -38,17 +38,22 @@ re-explaining context; the cost of a spurious search is one second.
 
 ## Tools
 
-Both scripts in `./scripts/`. Nix shebangs handle dependencies.
+Both scripts live in `scripts/` next to this SKILL.md; call them by that
+path (below written as `scripts/cc-find`, resolve it against this file's
+directory, not your cwd). Nix shebangs handle dependencies.
 
 ### `cc-find` — search
 
 ```
-./scripts/cc-find [OPTIONS] PATTERN
+scripts/cc-find [OPTIONS] PATTERN
 ```
 
-Pipeline: `find` candidate JSONLs → `rg` filter by PATTERN → enrich each match
-with `ai-title` + first substantive user prompt + timestamp → rank by relevance
-tier (PATTERN matches title/prompt > matches only in tool output) then recency.
+Pipeline: `find` candidate JSONLs → `rg -c` match counts → keep a bounded set
+(newest + most matches) → enrich with `ai-title` + first substantive user
+prompt + timestamp → rank by tier (PATTERN in title/first prompt > only deeper
+in the transcript), then newest first. The calling session
+(`$CLAUDE_CODE_SESSION_ID`) is excluded unless `--include-self`. `--help`
+documents all flags and tips.
 
 Output is TSV: `TIMESTAMP \t UUID \t CWD \t TITLE \t FIRST_USER_PROMPT`.
 Pipe through `column -t -s $'\t'` for aligned columns when showing to the user.
@@ -57,25 +62,26 @@ Common flags:
 
 | Flag | Purpose |
 |---|---|
-| `--cwd PATTERN` | Substring-match the project directory (e.g. `--cwd nixpkgs`). |
+| `--cwd PATH` | Substring of the session's working directory (`nixpkgs`, `repos/nixpkgs`, or an absolute path). |
 | `--since DATE` | Only sessions modified after DATE (any GNU date string: `2025-10-01`, `'2 weeks ago'`). |
 | `--until DATE` | Only sessions modified before DATE. |
-| `--limit N` | Default 10. Raise to see tier-B (content-only) matches. |
+| `--limit N` | Default 10. Raise to see tier-0 (content-only) matches. |
 | `-s` | Case-sensitive PATTERN. Default is case-insensitive. |
+| `--include-self` | Keep the calling session in the results. |
 
 Examples:
 
 ```bash
-./scripts/cc-find easyeffects
-./scripts/cc-find --cwd nixpkgs 'backport.*claude-code'
-./scripts/cc-find --since '2 weeks ago' kanata
-./scripts/cc-find -s 'export VISUAL|VISUAL='
+scripts/cc-find easyeffects
+scripts/cc-find --cwd nixpkgs 'backport.*claude-code'
+scripts/cc-find --since '2 weeks ago' kanata
+scripts/cc-find -s 'export VISUAL|VISUAL='
 ```
 
 ### `cc-show` — display
 
 ```
-./scripts/cc-show UUID_OR_PREFIX [--full|--tools|--raw]
+scripts/cc-show UUID_OR_PREFIX [--full|--tools|--raw] [--grep PATTERN [-C N]] [--tail N]
 ```
 
 Prints a session's content. UUID may be a unique prefix (≥4 chars).
@@ -86,36 +92,28 @@ Prints a session's content. UUID may be a unique prefix (≥4 chars).
 | `--full` | Adds thinking blocks and tool_use/tool_result content. |
 | `--tools` | Compact action log: tool_use calls only. |
 | `--raw` | Dump raw JSONL. |
+| `--grep PATTERN` | Only messages matching PATTERN (case-insensitive awk ERE) plus `-C N` messages of context (default 2). |
+| `--tail N` | Only the last N messages (lines with `--tools`). Applied before `--grep`. |
 
-Pipe through `less -R` for long sessions.
+Sessions can be huge: read part of one with `--grep` / `--tail` rather than
+dumping it whole.
 
 ## Search heuristics
 
-These are non-obvious; apply them when picking a PATTERN:
+1. **Skill names make poor queries.** They occur in every transcript via the
+   injected skill listing, so a skill-name PATTERN matches everything.
 
-1. **Distinctive nouns beat common terms.** Search `kanata`, `easyeffects`,
-   `OTel` — not `keyboard`, `audio`, `telemetry`. The corpus is large; rare
-   words are precise.
+2. **"claude" / "claude-code" are in every transcript too**; search the
+   discriminating word (`OTel`, `backport`) instead.
 
-2. **Anchor common English words used as identifiers.** `VISUAL` matches
-   "visual annotations" everywhere. Use `-s 'export VISUAL|VISUAL='` instead.
-   Same trick for `EDITOR`, `PATH`, `SHELL`, `DEBUG`.
-
-3. **For "claude" / "claude-code" itself**, search the *discriminating* word
-   (`OTel`, `backport`, `migration`, `skill`) rather than the ubiquitous one.
-   Every transcript mentions claude-code.
-
-4. **Pre-filter when you have a hint.** `--cwd nixos-config`, `--cwd nixpkgs`,
-   `--since '1 month ago'`. These often cut the search 10×.
-
-5. **The user's query vocabulary may differ from the auto-generated title.**
+3. **The user's query vocabulary may differ from the auto-generated title.**
    "backport" vs. title "Update claude-code package"; "migration" vs. title
    "Fix double escape conflict between kanata and Claude Code". The tier
-   system handles this: tier-A (title/prompt hits) is shown first, tier-B
+   system handles this: tier 1 (title/prompt hits) is shown first, tier 0
    (content-only hits) follows. If the obvious hit isn't in the top results,
    try a different word or `--limit 30`.
 
-6. **Subagent transcripts are excluded** (they live under
+4. **Subagent transcripts are excluded** (they live under
    `<session-uuid>/subagents/` and aren't standalone sessions).
 
 ## When the scripts aren't enough
@@ -140,11 +138,6 @@ of `text` / `thinking` / `tool_use` / `tool_result`), `ai-title`,
 
 ## Performance
 
-~5–6k sessions, ~2 GB. Most queries finish in 1–2 seconds with no index.
-Stage 1 (`find`) is filesystem-fast; stage 2 (`rg`) parallelises across files;
-stage 3 (`jq` enrichment) runs only on the match set, typically <100 files.
-
----
-
-**Script Execution:** Scripts should be executed from the skill directory.
-All scripts use Nix shebangs so no manual dependency installation is required.
+Measured 2026-10-07: 6,051 sessions, 9.3 GB (`du -sh ~/.claude/projects`).
+Typical queries take 2–3 s with no index, including broad ones (`nix`);
+the stage-3 enrichment is bounded to ~8×`--limit` files.
