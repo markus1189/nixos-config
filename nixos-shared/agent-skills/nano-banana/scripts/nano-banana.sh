@@ -10,13 +10,15 @@ Usage: $0 [opts] <prompt>
   -m, --model      flash (default, Gemini 3.1 Flash Image)
                    pro   (Gemini 3 Pro Image)
                    or any full OpenRouter model id
-  -o, --out        output filename (default: nano-banana-<timestamp>.png)
+  -o, --out        output path (default: nano-banana-<timestamp>.<ext> in
+                   \`stuff-today --default\`, else \${TMPDIR:-/tmp})
   -a, --aspect     1:1 2:3 3:2 3:4 4:3 4:5 5:4 9:16 16:9 21:9
                    flash also: 1:4 4:1 1:8 8:1
   -s, --size       1K (default), 2K, 4K   (flash also: 0.5K)
   -i, --image FILE input image, repeatable (max 5 for pro)
   --no-stream      disable SSE streaming
 
+Prompt must be a single (quoted) argument.
 API key is read from \`pass api/openrouter/image-editing\`.
 EOF
   exit 1
@@ -30,6 +32,10 @@ ASPECT=""
 SIZE=""
 STREAM=1
 IMAGES=()
+POSITIONAL=()
+API_URL="${NANO_BANANA_API_URL:-https://openrouter.ai/api/v1/chat/completions}"
+# Overridable for tests; the 300s default covers slow 4K pro generations.
+MAX_TIME="${NANO_BANANA_MAX_TIME:-300}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -40,12 +46,17 @@ while [ $# -gt 0 ]; do
     -i|--image) IMAGES+=("$2"); shift 2 ;;
     --no-stream) STREAM=0; shift ;;
     -h|--help) usage ;;
-    --) shift; PROMPT="${1:-}"; break ;;
+    --) shift; POSITIONAL+=("$@"); break ;;
     -*) echo "Unknown flag: $1" >&2; usage ;;
-    *) PROMPT="$1"; shift ;;
+    *) POSITIONAL+=("$1"); shift ;;
   esac
 done
 
+if [ "${#POSITIONAL[@]}" -gt 1 ]; then
+  echo "Expected one prompt argument, got ${#POSITIONAL[@]}: quote the prompt, e.g. \"${POSITIONAL[*]}\"" >&2
+  exit 1
+fi
+PROMPT="${POSITIONAL[0]:-}"
 [ -n "$PROMPT" ] || usage
 
 case "$MODEL" in
@@ -84,7 +95,17 @@ if [ "${#IMAGES[@]}" -gt 0 ]; then
   done
 fi
 
-OUTPUT="${OUTPUT:-nano-banana-$(date +%Y%m%d-%H%M%S).png}"
+if [ -z "$OUTPUT" ]; then
+  # Never default to the cwd: it may be a public git repo.
+  OUT_DIR=""
+  if command -v stuff-today >/dev/null 2>&1; then
+    OUT_DIR=$(stuff-today --default 2>/dev/null || true)
+  fi
+  if [ -z "$OUT_DIR" ] || ! mkdir -p "$OUT_DIR" 2>/dev/null; then
+    OUT_DIR="${TMPDIR:-/tmp}"
+  fi
+  OUTPUT="$OUT_DIR/nano-banana-$(date +%Y%m%d-%H%M%S).png"
+fi
 
 API_KEY=$(pass api/openrouter/image-editing)
 [ -n "$API_KEY" ] || { echo "pass api/openrouter/image-editing returned empty" >&2; exit 1; }
@@ -126,8 +147,15 @@ if [ "$STREAM" = 1 ]; then
   echo "[$(date +%H:%M:%S)] streaming from $MODEL ..." >&2
 
   DATA_URL=""
-  while IFS= read -r line; do
-    [[ "$line" == data:* ]] || continue
+  RAW=""
+  # `|| [ -n "$line" ]`: an error body usually has no trailing newline.
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [[ "$line" != data:* ]]; then
+      # Non-SSE lines: an HTTP error body (401/402/429) arrives this way.
+      # Blank lines and `:` keep-alive comments are SSE framing, not body.
+      [[ -z "${line//[[:space:]]/}" || "$line" == :* ]] || RAW+="$line"$'\n'
+      continue
+    fi
     payload="${line#data:}"
     payload="${payload# }"
     [[ "$payload" == "[DONE]" ]] && break
@@ -150,15 +178,21 @@ if [ "$STREAM" = 1 ]; then
         // .choices[0].message.images[0].image_url.url
         // empty)' <<<"$payload")
     [ -n "$url" ] && DATA_URL="$url" && echo "[$(date +%H:%M:%S)] image received" >&2
-  done < <(curl -N -sS https://openrouter.ai/api/v1/chat/completions \
+  done < <(curl -N -sS --connect-timeout 15 --max-time "$MAX_TIME" "$API_URL" \
     -H "Content-Type: application/json" \
     -H "Accept: text/event-stream" \
     -d @"$BODY_FILE" \
     --config <(printf 'header = "Authorization: Bearer %s"\n' "$API_KEY"))
 
   echo >&2
+  if [ -z "$DATA_URL" ] && [ -n "$RAW" ]; then
+    echo "No image returned. Response body:" >&2
+    { jq . <<<"$RAW" 2>/dev/null || printf '%s' "$RAW"; } >&2
+    echo >&2
+    exit 1
+  fi
 else
-  RESPONSE=$(curl -sS https://openrouter.ai/api/v1/chat/completions \
+  RESPONSE=$(curl -sS --connect-timeout 15 --max-time "$MAX_TIME" "$API_URL" \
     -H "Content-Type: application/json" \
     -d @"$BODY_FILE" \
     --config <(printf 'header = "Authorization: Bearer %s"\n' "$API_KEY"))
@@ -185,6 +219,12 @@ if [ "$USER_OUTPUT" = 0 ]; then
   case "$RESP_MIME" in
     image/jpeg) OUTPUT="${OUTPUT%.png}.jpg" ;;
     image/webp) OUTPUT="${OUTPUT%.png}.webp" ;;
+  esac
+else
+  case "$RESP_MIME:${OUTPUT,,}" in
+    image/png:*.png|image/jpeg:*.jpg|image/jpeg:*.jpeg|image/webp:*.webp) ;;
+    :*) ;;
+    *) echo "warning: response is ${RESP_MIME} but saving to pinned path $OUTPUT" >&2 ;;
   esac
 fi
 

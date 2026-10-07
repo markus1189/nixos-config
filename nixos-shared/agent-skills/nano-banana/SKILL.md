@@ -1,6 +1,6 @@
 ---
 name: nano-banana
-description: "Generates images from text prompts using Google's Nano Banana models (Gemini 3.1 Flash Image / Gemini 3 Pro Image) via OpenRouter. Use when the user asks to generate, create, or make an image/picture from a text description, or mentions Nano Banana."
+description: "Generates images from text prompts, and edits or combines existing images (input files via -i), using Google's Nano Banana models (Gemini 3.1 Flash Image / Gemini 3 Pro Image) via OpenRouter. Use when the user asks to generate, create, or make an image/picture from a text description, to edit or restyle a photo or image (\"edit this photo\"), to combine or blend several images, or mentions Nano Banana."
 ---
 
 # nano-banana
@@ -15,7 +15,7 @@ Invoke the wrapper script with the user's prompt:
 ./scripts/nano-banana.sh "<prompt>"
 ```
 
-The script handles the API key (`pass api/openrouter/image-editing`), SSE streaming, and saving. It writes the PNG to the current working directory unless `-o` is given. After it returns, the last stdout line is `Saved: <path> (model: <id>)` — read the path with the Read tool to display the image to the user.
+The script handles the API key (`pass api/openrouter/image-editing`), SSE streaming, and saving. It writes to `stuff-today --default` (else `$TMPDIR`) unless `-o` is given; never the cwd. After it returns, the last stdout line is `Saved: <path> (model: <id>)` — read the path with the Read tool to display the image to the user.
 
 ## Model selection
 
@@ -52,7 +52,3 @@ For non-trivial generations (text in images, multi-image composition, photoreali
 - `No image returned` — model produced text only (e.g. refused). Show the response if helpful.
 
 **Script Execution:** Scripts should be executed from the skill directory. All scripts use Nix shebangs so no manual dependency installation is required.
-
-## Fixes
-
-<!-- Add only for failures actually observed in use. -->
