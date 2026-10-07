@@ -3,57 +3,61 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-readonly BASE_URL="https://www.premiumize.me/api"
-readonly API_KEY="$(pass api/premiumize)"
+# Override is for tests only; the API key is sent to whatever this points at.
+readonly BASE_URL="${PREMIUMIZE_BASE_URL:-https://www.premiumize.me/api}"
 readonly DEFAULT_FOLDER_NAME="AgentSkill"
-
-if [ -z "$API_KEY" ]; then
-    echo "Error: API key not found at api/premiumize in pass store" >&2
-    exit 1
-fi
 
 # --- Helpers ---
 
-api_get() {
-    local endpoint="$1"
-    shift
-    local params=("apikey=${API_KEY}")
-    for p in "$@"; do params+=("$p"); done
-    local query
-    query=$(IFS='&'; echo "${params[*]}")
-    curl -s "${BASE_URL}/${endpoint}?${query}"
+# Lazy: usage/help must not trigger a gpg prompt.
+api_key() {
+    printf '%s' "${PREMIUMIZE_API_KEY:-$(pass api/premiumize)}"
 }
 
-api_post() {
-    local endpoint="$1"
-    shift
-    local args=(-s -X POST -d "apikey=${API_KEY}")
-    for p in "$@"; do args+=(-d "$p"); done
-    curl "${args[@]}" "${BASE_URL}/${endpoint}"
+# Escape a value for a double-quoted curl config string.
+cfg_escape() {
+    local s=$1
+    s=${s//\\/\\\\}
+    s=${s//\"/\\\"}
+    s=${s//$'\n'/\\n}
+    s=${s//$'\r'/\\r}
+    s=${s//$'\t'/\\t}
+    printf '%s' "$s"
 }
 
-api_post_multipart() {
-    local endpoint="$1"
-    shift
-    local args=(-s -X POST -F "apikey=${API_KEY}")
-    for p in "$@"; do args+=(-F "$p"); done
-    curl "${args[@]}" "${BASE_URL}/${endpoint}"
-}
-
-urlencode() {
-    local string="$1"
-    local strlen=${#string}
-    local encoded=""
-    local pos c o
-    for (( pos=0 ; pos<strlen ; pos++ )); do
-        c=${string:$pos:1}
-        case "$c" in
-            [-_.~a-zA-Z0-9] ) o="${c}" ;;
-            * ) printf -v o '%%%02x' "'$c" ;;
-        esac
-        encoded+="${o}"
-    done
-    echo "${encoded}"
+# api GET|POST|FORM <endpoint> [key=value...]
+# Everything, including the API key, goes to curl as a config on stdin: nothing
+# secret lands in argv (visible in `ps`), and curl does the UTF-8 percent
+# encoding. FORM is multipart; a value starting with "@" is a file upload.
+# Replies with {"status":"error"} exit non-zero with the message on stderr.
+api() {
+    local method=$1 endpoint=$2
+    shift 2
+    local key
+    key=$(api_key)
+    if [ -z "$key" ]; then
+        echo "Error: no API key (set PREMIUMIZE_API_KEY or store it at api/premiumize in pass)" >&2
+        exit 1
+    fi
+    {
+        printf 'url = "%s"\n' "$(cfg_escape "${BASE_URL}/${endpoint}")"
+        [ "$method" = GET ] && echo get
+        local kv path
+        for kv in "apikey=${key}" "$@"; do
+            if [ "$method" = FORM ] && [[ "${kv#*=}" == @* ]]; then
+                # Quote the path for curl's -F parser (it splits on ; and ,).
+                path=${kv#*=@}
+                path=${path//\\/\\\\}
+                path=${path//\"/\\\"}
+                printf 'form = "%s"\n' "$(cfg_escape "${kv%%=*}=@\"${path}\"")"
+            elif [ "$method" = FORM ]; then
+                printf 'form-string = "%s"\n' "$(cfg_escape "$kv")"
+            else
+                printf 'data-urlencode = "%s"\n' "$(cfg_escape "$kv")"
+            fi
+        done
+    } | curl -sS --fail-with-body --config - |
+        jq -e 'if .status == "error" then error(.message // "API error") else . end'
 }
 
 format_size() {
@@ -73,7 +77,7 @@ format_size() {
 # goes stale if the folder is recreated.
 default_folder_id() {
     local id
-    id=$(api_get "folder/list" | jq -r --arg n "$DEFAULT_FOLDER_NAME" \
+    id=$(api GET "folder/list" | jq -r --arg n "$DEFAULT_FOLDER_NAME" \
         'first(.content[]? | select(.type == "folder" and .name == $n) | .id) // empty')
     if [ -z "$id" ]; then
         echo "Error: no root folder named '$DEFAULT_FOLDER_NAME'; create it or pass a folder_id" >&2
@@ -94,11 +98,11 @@ format_timestamp() {
 # --- Transfer Commands ---
 
 cmd_transfers() {
-    api_get "transfer/list" | jq .
+    api GET "transfer/list" | jq .
 }
 
 cmd_transfers_pretty() {
-    api_get "transfer/list" | jq -r '
+    api GET "transfer/list" | jq -r '
         .transfers[]? |
         "\(.name)\n  ID: \(.id)\n  Status: \(.status)" +
         (if .progress then "  Progress: \(.progress * 100 | floor)%" else "" end) +
@@ -115,9 +119,7 @@ cmd_transfer_create() {
         exit 1
     fi
     [ -n "$folder_id" ] || folder_id=$(default_folder_id)
-    local args=("src=$(urlencode "$src")")
-    args+=("folder_id=$folder_id")
-    api_post "transfer/create" "${args[@]}" | jq .
+    api POST "transfer/create" "src=$src" "folder_id=$folder_id" | jq .
 }
 
 cmd_transfer_create_file() {
@@ -128,9 +130,7 @@ cmd_transfer_create_file() {
         exit 1
     fi
     [ -n "$folder_id" ] || folder_id=$(default_folder_id)
-    local args=("file=@$file")
-    args+=("folder_id=$folder_id")
-    api_post_multipart "transfer/create" "${args[@]}" | jq .
+    api FORM "transfer/create" "file=@$file" "folder_id=$folder_id" | jq .
 }
 
 cmd_transfer_delete() {
@@ -139,11 +139,11 @@ cmd_transfer_delete() {
         echo "Usage: transfer-delete <transfer_id>" >&2
         exit 1
     fi
-    api_post "transfer/delete" "id=$id" | jq .
+    api POST "transfer/delete" "id=$id" | jq .
 }
 
 cmd_transfer_clear() {
-    api_post "transfer/clearfinished" | jq .
+    api POST "transfer/clearfinished" | jq .
 }
 
 cmd_directdl() {
@@ -152,7 +152,7 @@ cmd_directdl() {
         echo "Usage: directdl <url|magnet>" >&2
         exit 1
     fi
-    api_post "transfer/directdl" "src=$(urlencode "$src")" | jq .
+    api POST "transfer/directdl" "src=$src" | jq .
 }
 
 cmd_directdl_pretty() {
@@ -161,7 +161,7 @@ cmd_directdl_pretty() {
         echo "Usage: directdl-pretty <url|magnet>" >&2
         exit 1
     fi
-    api_post "transfer/directdl" "src=$(urlencode "$src")" | jq -r '
+    api POST "transfer/directdl" "src=$src" | jq -r '
         if .status == "success" then
             "Direct Download Links:\n" +
             (.content[]? |
@@ -180,13 +180,11 @@ cmd_cache_check() {
         echo "Usage: cache-check <url1> [url2] [url3] ..." >&2
         exit 1
     fi
-    local params=("apikey=${API_KEY}")
+    local params=()
     for item in "$@"; do
-        params+=("items[]=$(urlencode "$item")")
+        params+=("items[]=$item")
     done
-    local query
-    query=$(IFS='&'; echo "${params[*]}")
-    curl -s "${BASE_URL}/cache/check?${query}" | jq .
+    api GET "cache/check" "${params[@]}" | jq .
 }
 
 cmd_cache_check_pretty() {
@@ -195,14 +193,12 @@ cmd_cache_check_pretty() {
         exit 1
     fi
     local items=("$@")
-    local params=("apikey=${API_KEY}")
+    local params=()
     for item in "${items[@]}"; do
-        params+=("items[]=$(urlencode "$item")")
+        params+=("items[]=$item")
     done
-    local query
-    query=$(IFS='&'; echo "${params[*]}")
     local result
-    result=$(curl -s "${BASE_URL}/cache/check?${query}")
+    result=$(api GET "cache/check" "${params[@]}")
     local i=0
     for item in "${items[@]}"; do
         local cached transcoded filename filesize
@@ -227,7 +223,7 @@ cmd_folder_list() {
     local params=()
     [ -n "$id" ] && params+=("id=$id")
     params+=("includebreadcrumbs=true")
-    api_get "folder/list" "${params[@]}" | jq .
+    api GET "folder/list" "${params[@]}" | jq .
 }
 
 cmd_folder_list_pretty() {
@@ -235,7 +231,7 @@ cmd_folder_list_pretty() {
     local params=()
     [ -n "$id" ] && params+=("id=$id")
     params+=("includebreadcrumbs=true")
-    api_get "folder/list" "${params[@]}" | jq -r '
+    api GET "folder/list" "${params[@]}" | jq -r '
         "Folder: \(.name // "Root")" +
         "\nID: \(.folder_id // "root")" +
         (if .breadcrumbs then "\nPath: " + ([.breadcrumbs[]?.name] | join(" / ")) else "" end) +
@@ -261,7 +257,7 @@ cmd_folder_create() {
     fi
     local args=("name=$name")
     [ -n "$parent_id" ] && args+=("parent_id=$parent_id")
-    api_post "folder/create" "${args[@]}" | jq .
+    api POST "folder/create" "${args[@]}" | jq .
 }
 
 cmd_folder_rename() {
@@ -271,7 +267,7 @@ cmd_folder_rename() {
         echo "Usage: folder-rename <folder_id> <new_name>" >&2
         exit 1
     fi
-    api_post "folder/rename" "id=$id" "name=$name" | jq .
+    api POST "folder/rename" "id=$id" "name=$name" | jq .
 }
 
 cmd_folder_delete() {
@@ -280,7 +276,7 @@ cmd_folder_delete() {
         echo "Usage: folder-delete <folder_id>" >&2
         exit 1
     fi
-    api_post "folder/delete" "id=$id" | jq .
+    api POST "folder/delete" "id=$id" | jq .
 }
 
 cmd_folder_paste() {
@@ -305,7 +301,7 @@ cmd_folder_paste() {
                 ;;
         esac
     done
-    api_post "folder/paste" "${args[@]}" | jq .
+    api POST "folder/paste" "${args[@]}" | jq .
 }
 
 cmd_folder_search() {
@@ -314,7 +310,7 @@ cmd_folder_search() {
         echo "Usage: folder-search <query>" >&2
         exit 1
     fi
-    api_get "folder/search" "q=$(urlencode "$query")" | jq .
+    api GET "folder/search" "q=$query" | jq .
 }
 
 cmd_folder_search_pretty() {
@@ -323,7 +319,7 @@ cmd_folder_search_pretty() {
         echo "Usage: folder-search-pretty <query>" >&2
         exit 1
     fi
-    api_get "folder/search" "q=$(urlencode "$query")" | jq -r '
+    api GET "folder/search" "q=$query" | jq -r '
         "Search results for: \(.name // "unknown")\n" +
         ([.content[]? |
             (if .type == "folder" then "\n📁 " else "\n📄 " end) +
@@ -339,13 +335,13 @@ cmd_folder_uploadinfo() {
     local id="${1:-}"
     local params=()
     [ -n "$id" ] && params+=("id=$id")
-    api_get "folder/uploadinfo" "${params[@]}" | jq .
+    api GET "folder/uploadinfo" "${params[@]}" | jq .
 }
 
 # --- Item Commands ---
 
 cmd_item_listall() {
-    api_get "item/listall" | jq .
+    api GET "item/listall" | jq .
 }
 
 cmd_item_details() {
@@ -354,7 +350,7 @@ cmd_item_details() {
         echo "Usage: item-details <item_id>" >&2
         exit 1
     fi
-    api_get "item/details" "id=$id" | jq .
+    api GET "item/details" "id=$id" | jq .
 }
 
 cmd_item_details_pretty() {
@@ -363,7 +359,7 @@ cmd_item_details_pretty() {
         echo "Usage: item-details-pretty <item_id>" >&2
         exit 1
     fi
-    api_get "item/details" "id=$id" | jq -r '
+    api GET "item/details" "id=$id" | jq -r '
         "\(.name)\n" +
         "  Type: \(.type // "unknown")\n" +
         "  Size: \(if .size then (.size / 1048576 | floor | tostring) + " MB" else "Unknown" end)\n" +
@@ -385,7 +381,7 @@ cmd_item_delete() {
         echo "Usage: item-delete <item_id>" >&2
         exit 1
     fi
-    api_post "item/delete" "id=$id" | jq .
+    api POST "item/delete" "id=$id" | jq .
 }
 
 cmd_item_rename() {
@@ -395,7 +391,7 @@ cmd_item_rename() {
         echo "Usage: item-rename <item_id> <new_name>" >&2
         exit 1
     fi
-    api_post "item/rename" "id=$id" "name=$name" | jq .
+    api POST "item/rename" "id=$id" "name=$name" | jq .
 }
 
 # --- Zip Commands ---
@@ -420,17 +416,17 @@ cmd_zip_generate() {
                 ;;
         esac
     done
-    api_post "zip/generate" "${args[@]}" | jq .
+    api POST "zip/generate" "${args[@]}" | jq .
 }
 
 # --- Account Commands ---
 
 cmd_account() {
-    api_get "account/info" | jq .
+    api GET "account/info" | jq .
 }
 
 cmd_account_pretty() {
-    api_get "account/info" | jq -r '
+    api GET "account/info" | jq -r '
         "Account Info\n" +
         "  Customer ID: \(.customer_id)\n" +
         "  Premium Until: \(if .premium_until then (.premium_until | localtime | strftime("%Y-%m-%d")) else "N/A" end)\n" +
@@ -443,7 +439,7 @@ cmd_account_pretty() {
 # --- Services ---
 
 cmd_services() {
-    api_get "services/list" | jq .
+    api GET "services/list" | jq .
 }
 
 # --- Download file to disk ---
@@ -457,7 +453,7 @@ cmd_download() {
     fi
     # Get item details to find the download link
     local details
-    details=$(api_get "item/details" "id=$item_id")
+    details=$(api GET "item/details" "id=$item_id")
     local link name
     link=$(echo "$details" | jq -r '.link // empty')
     name=$(echo "$details" | jq -r '.name // "download"')
@@ -469,7 +465,7 @@ cmd_download() {
     [ -z "$output" ] && output="$name"
     echo "Downloading: $name" >&2
     echo "To: $output" >&2
-    curl -L -o "$output" "$link"
+    curl -L --fail -C - -o "$output" "$link"
     echo "Done: $output"
 }
 

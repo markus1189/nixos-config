@@ -7,7 +7,7 @@ description: "Manage downloads and cloud storage on Premiumize.me. Add downloads
 
 Manage downloads, transfers, and cloud storage via the Premiumize.me API.
 
-**API key:** stored in `pass api/premiumize` (get from https://www.premiumize.me/account)
+**API key:** stored in `pass api/premiumize` (get from https://www.premiumize.me/account); `PREMIUMIZE_API_KEY` overrides it.
 
 **Default folder:** the root folder named `AgentSkill` (`DEFAULT_FOLDER_NAME` in the script) — all transfers land here unless a folder_id is explicitly provided.
 
@@ -147,34 +147,11 @@ The most common workflow — add something and get the download link:
 ./scripts/premiumize-api.sh item-details-pretty "ITEM_ID"
 ```
 
-## Command Reference
+## Commands
 
-All commands use `./scripts/premiumize-api.sh <command>`. Commands ending in `-pretty` produce human-readable output; without the suffix they return raw JSON for `jq` processing.
+Run `./scripts/premiumize-api.sh` without arguments for the full command list. Commands ending in `-pretty` produce human-readable output; without the suffix they return raw JSON for `jq` processing. API errors exit non-zero with the message on stderr.
 
-| Command | Description |
-|---------|-------------|
-| `transfers` / `transfers-pretty` | List all transfers |
-| `transfer-create <src> [folder_id]` | Add URL/magnet download |
-| `transfer-create-file <path> [folder_id]` | Add NZB/DLC download |
-| `transfer-delete <id>` | Delete transfer |
-| `transfer-clear` | Clear finished transfers |
-| `directdl` / `directdl-pretty <src>` | Get instant download links |
-| `cache-check` / `cache-check-pretty <urls...>` | Check cache availability |
-| `folder-list` / `folder-list-pretty [id]` | Browse folder |
-| `folder-search` / `folder-search-pretty <query>` | Search files |
-| `folder-create <name> [parent_id]` | Create folder |
-| `folder-rename <id> <name>` | Rename folder |
-| `folder-delete <id>` | Delete folder |
-| `folder-paste <target> --files/--folders ids...` | Move items |
-| `folder-uploadinfo [id]` | Get upload URL/token |
-| `item-listall` | List all files flat |
-| `item-details` / `item-details-pretty <id>` | File details + links |
-| `item-delete <id>` | Delete file |
-| `item-rename <id> <name>` | Rename file |
-| `zip-generate --files/--folders ids...` | Generate zip download |
-| `download <id> [path]` | Download file to disk |
-| `account` / `account-pretty` | Account info |
-| `services` | Supported hosters/services |
+Confirm with the user before any `*-delete` or `transfer-clear`.
 
 **Script Execution:** Scripts should be executed from the skill directory.
 All scripts use Nix shebangs so no manual dependency installation is required.
