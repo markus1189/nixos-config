@@ -34,8 +34,9 @@ in
       let
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
           # Headless: no chromium here, and the two marginal skills launch a
-          # TUI into a borrowed tty that does not exist on this box. All three
-          # would only drag their packages into the nightly autoUpgrade
+          # TUI into a borrowed tty that does not exist on this box.
+          # sourcegraph-search needs `src`, which only laptops install. The
+          # first three would only drag their packages into the nightly autoUpgrade
           # closure — marginal newly so, since the skills now come out of the
           # package's $out rather than its source tree. removeAttrs is lazy,
           # so none of them is ever realised on nuc.
@@ -43,6 +44,7 @@ in
             "agent-browser"
             "marginal-last"
             "marginal-diff"
+            "sourcegraph-search"
           ];
           enableSoundHooks = false;
           enableDenyRules = true;

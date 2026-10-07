@@ -1,231 +1,50 @@
 ---
 name: sourcegraph-search
-description: Searches public/open-source code across many repositories with the Sourcegraph CLI (src). Use when asking "how do others implement X", finding real-world usage examples of an API, library or function, locating code patterns or commits across repos, or researching code outside the local checkout.
+description: Searches public code across many repositories on sourcegraph.com with the `src` CLI. Use for "how do others implement X", real-world usage of an API or function across public repos, finding code patterns, or searching commits and diffs of public projects.
 ---
 
-# Sourcegraph Code Search Skill
+# Sourcegraph code search
 
-This skill enables autonomous code searching across repositories using the Sourcegraph CLI (`src` command).
+`src search '<query>'` queries sourcegraph.com (public code). Anonymous use
+works; `SRC_ACCESS_TOKEN` raises limits (anonymous rate limit: unverified).
 
-## When to Invoke This Skill
+## Query grammar
 
-Use this skill when you need to:
+- **Content patterns are literal.** `mkDeriv.*on` matches nothing; wrap in
+  slashes, `/mkDeriv.*on/`, or add `patterntype:regexp` for the whole query.
+- `repo:`, `file:`, `lang:` take regexes, unanchored: `repo:^github\.com/NixOS/nixpkgs$`,
+  `file:\.nix$`, `lang:go`. Repo names carry the host, and only repos that
+  sourcegraph.com indexes match: `repo:facebook/react` printed "No repositories
+  found".
+- `count:N` caps results; always set it (`count:3` to explore).
+- `-file:test` / `-repo:...` negate; put them after a positive term (a leading
+  `-` is parsed as a flag; use `src search -- '-file:x foo'`).
+- `type:diff` / `type:commit` search history (with `after:"1 week ago"`,
+  `author:`); `select:repo` lists matching repos only; `fork:no archived:no`
+  drop noise (slow on broad queries: one took 30s).
+- `type:symbol` printed only a file header (`0 matches`), so prefer content
+  search for definitions.
 
-- **Research how features are implemented** across codebases
-- **Find examples** of API usage, patterns, or libraries
-- **Locate specific code patterns** (functions, classes, imports)
-- **Analyze code across repositories** (not just local files)
-- **Search commit history** or diffs for changes
-- **Find security issues** or credential leaks
-- **Understand architecture** by searching for patterns
-- **Answer "where is X used?"** questions across projects
+## Output
 
-**Do NOT use** for local file searches - use Grep/Glob instead.
+- Reading: plain output (1.2 KB for the `count:3` regex query below).
+- Parsing: `src search -stream -json '...'` (2.1 KB for the same query).
+  Never bare `-json`: it embeds whole file contents (22.9 KB here; 106 KB vs
+  488 bytes plain for another `count:2` query).
 
-## Reference Navigation
+## Verified examples
 
-The reference files are comprehensive. To find specific topics quickly:
-
-```bash
-# Search reference.md sections
-grep -n "^##" reference.md
-
-# Find specific filter documentation
-grep -n "^### \`repo:" reference.md
-grep -n "^### \`file:" reference.md
-grep -n "^### \`lang:" reference.md
-
-# Find examples by use case
-grep -n "^##" examples.md
-```
-
-See **reference.md** for complete syntax documentation.
-See **examples.md** for practical search patterns organized by use case.
-
-## Quick Start
-
-### Basic Search Syntax
+Each returned 3 results (the regex example returned 3+; `select:repo` lists 3 repos).
 
 ```bash
-src search 'PATTERN'              # Simple text search
-src search -json 'PATTERN'        # JSON output for parsing
-src search 'repo:REGEX PATTERN'   # Search specific repos
-src search 'lang:go PATTERN'      # Search Go files only
+# literal word, restricted to one directory of a repo
+src search 'repo:^github\.com/NixOS/nixpkgs$ lib.mkIf file:nixos/modules/services/web-servers count:3'
+# regex content patterns
+src search 'lang:nix /mkDerivation.*rec/ count:3'
+src search 'lang:go -file:_test /func \(.*\) ServeHTTP/ count:3'
+# which repos use an API
+src search 'lang:nix writeShellApplication -file:test count:3 select:repo'
+# commits and recent diffs
+src search 'type:commit repo:^github\.com/NixOS/nixpkgs$ systemd count:3'
+src search 'type:diff repo:^github\.com/NixOS/nixpkgs$ after:"1 week ago" patterntype:regexp mkIf.*enable count:3'
 ```
-
-### Common Search Patterns
-
-**1. Find function/method implementations**
-```bash
-src search 'lang:go func handleRequest'
-src search 'lang:python def authenticate'
-```
-
-**2. Search in specific repository**
-```bash
-src search 'repo:github.com/org/repo$ TODO'
-src search 'repo:sourcegraph/sourcegraph auth'
-```
-
-**3. Search with multiple filters**
-```bash
-src search 'repo:kubernetes lang:go file:test fmt.Errorf'
-src search 'TODO -file:test -file:spec'
-```
-
-See **examples.md** for more patterns including file types, commit history, and boolean operators.
-
-## Workflow
-
-When searching code:
-
-1. **Understand the goal** - What pattern? Which repos/languages?
-2. **Construct the query** - Start with pattern, add filters (`repo:`, `lang:`, `file:`), use operators (`AND`, `OR`, `NOT`)
-3. **Execute** - Run `src search 'query'` or `src search -json 'query'` for programmatic parsing
-4. **Parse results** - Extract matches, identify patterns, note files for investigation
-5. **Refine** - Too many results? Add filters. Too few? Broaden search.
-
-## Key Filters
-
-Most common filters: `repo:`, `lang:`, `file:`, `type:`, `case:`, `-` prefix for exclusion.
-
-See **reference.md** for complete filter documentation and syntax.
-
-## Pattern Types
-
-Sourcegraph supports three pattern types:
-
-1. **Literal** (default): Exact text matching
-   ```bash
-   src search 'func main('
-   ```
-
-2. **Regexp**: Use `patternType:regexp` for regex (RE2 syntax)
-   ```bash
-   src search 'patternType:regexp func \w+Handler'
-   ```
-
-3. **Structural**: Use `patternType:structural` for syntax-aware matching
-   ```bash
-   src search 'patternType:structural fmt.Sprintf(:[format], :[...])'
-   ```
-
-See **reference.md** for complete pattern syntax, regex reference, and structural search details.
-
-## CLI Flags
-
-- `-json`: Output results as JSON (for parsing)
-- `-stream`: Stream results as they arrive
-- `-display N`: Limit displayed results (with `-stream`)
-- `--`: Separate flags from query (for queries starting with `-`)
-
-## Important Notes
-
-### Negation in Queries
-
-Queries starting with negation need `--` separator:
-```bash
-src search -- '-repo:foo/bar error'
-```
-
-Use `-json` for programmatic parsing. Set `NO_COLOR=t` to disable colors or `COLOR=t` to force colors when piping.
-
-Default search scope excludes forks and archived repos. Include with `fork:yes` or `archived:yes`.
-
-## Examples by Use Case
-
-### Finding Implementation Examples
-
-```bash
-# How do people handle authentication in Go?
-src search 'lang:go repo:.*auth.* middleware'
-
-# React hooks usage
-src search 'lang:typescript repo:facebook/react use.*Hook'
-```
-
-### Security Auditing
-
-```bash
-# Find hardcoded credentials
-src search 'patternType:regexp (password|secret|api_key)\s*=\s*["\x27][^"\x27]+["\x27]'
-
-# Exposed private keys
-src search 'type:diff BEGIN.*PRIVATE KEY'
-```
-
-### API Research
-
-```bash
-# How is this library used?
-src search 'lang:python import requests'
-
-# Find all GraphQL mutations
-src search 'file:\.graphql$ type Mutation'
-```
-
-### Refactoring Research
-
-```bash
-# Find deprecated API usage
-src search 'repo:myorg/ oldDeprecatedFunction'
-
-# Find TODO comments in non-test files
-src search 'TODO -file:test -file:spec'
-```
-
-## Advanced Features
-
-For comprehensive syntax reference, pattern types, and advanced operators, see **reference.md**.
-
-For more practical examples and complex query patterns, see **examples.md**.
-
-## Troubleshooting
-
-**No results?**
-- Check repository access/permissions
-- Verify repository is indexed by Sourcegraph
-- Try broader search terms
-- Remove restrictive filters
-
-**Too many results?**
-- Add more specific filters
-- Use `lang:` to narrow by language
-- Use `repo:` with regex for specific repositories
-- Combine with `file:` for specific paths
-
-**Syntax errors?**
-- Check regex syntax (RE2 format)
-- Quote the entire query
-- Use `--` before queries starting with `-`
-- Verify filter names are correct
-
-## Integration with Other Tools
-
-After finding results with Sourcegraph:
-- Use `Read` tool to examine specific files locally
-- Use `Grep` for more detailed local searching
-- Use `Bash` for git operations on repositories
-- Use `WebFetch` to access repository URLs
-
-## Best Practices
-
-1. **Start broad, then narrow**: Begin with simple patterns, add filters incrementally
-2. **Use appropriate pattern types**: Literal for exact matches, regexp for patterns
-3. **Combine filters effectively**: `repo:` + `lang:` + `file:` for precision
-4. **Parse JSON for programmatic analysis**: Use `-json` when processing results
-5. **Respect quotas and limits**: Sourcegraph may have rate limits or result limits
-6. **Cache insights**: Remember patterns that work for future searches
-
-## Performance Tips
-
-- Specific `repo:` filters are faster than broad searches
-- Language filters (`lang:`) significantly narrow scope
-- File filters (`file:`) reduce search surface
-- Use `count:` to limit results when you just need examples
-- Streaming (`-stream`) is better for large result sets
-
-## Reference Files
-
-- **reference.md**: Complete syntax documentation, all filters, operators, pattern types
-- **examples.md**: Practical search patterns organized by use case
