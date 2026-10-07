@@ -66,6 +66,7 @@
 
       claudeMods = import ./claude/mods {
         pkgs = final;
+        inherit (final) marginal;
         inherit (final.masterPkgs) claude-code;
       };
     })

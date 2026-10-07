@@ -6,17 +6,28 @@
 # run inside it, so a mod whose tests fail never reaches a host. Both run
 # offline with an empty HOME. `claude-code` is the one the hosts install,
 # so the tests run against the engine the mod will run under.
-{ pkgs, claude-code }:
+#
+# `marginal` is a package rather than a source tree, like its skills (see
+# agent-skills/default.nix): its build bakes the launcher library's store path
+# into the mod, so the mod and the binary it spawns are one version.
+{
+  pkgs,
+  claude-code,
+  marginal,
+}:
 
 let
   mkClaudeMod =
-    name:
+    name: src:
     pkgs.runCommand "claude-mod-${name}" { nativeBuildInputs = [ claude-code ]; } ''
-      cp -r ${./${name}} $out
+      cp -r ${src} $out
       chmod -R u+w $out
       export HOME=$TMPDIR
       claude plugin validate $out
       claude plugin test $out
     '';
 in
-pkgs.lib.genAttrs [ "tps-meter" ] mkClaudeMod
+builtins.mapAttrs mkClaudeMod {
+  tps-meter = ./tps-meter;
+  marginal = marginal + "/share/claude-code/mods/marginal";
+}

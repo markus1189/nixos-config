@@ -195,6 +195,7 @@
 
           claudeMods = import ./nixos-shared/claude/mods {
             inherit pkgs;
+            marginal = inputs.marginal.packages.x86_64-linux.marginal;
             inherit
               (import inputs.nixpkgs-master {
                 system = "x86_64-linux";

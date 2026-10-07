@@ -33,8 +33,9 @@ in
     file =
       let
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
-          # Headless: no chromium here, and the two marginal skills launch a
-          # TUI into a borrowed tty that does not exist on this box.
+          # Headless: no chromium here, and the two marginal skills (and the
+          # marginal mod, below) launch a TUI into a borrowed tty that does
+          # not exist on this box.
           # sourcegraph-search needs `src`, which only laptops install. The
           # first three would only drag their packages into the nightly autoUpgrade
           # closure — marginal newly so, since the skills now come out of the
@@ -46,6 +47,7 @@ in
             "marginal-diff"
             "sourcegraph-search"
           ];
+          claudeMods = builtins.removeAttrs pkgs.claudeMods [ "marginal" ];
           enableSoundHooks = false;
           enableDenyRules = true;
           additionalAllowedCommands = [
