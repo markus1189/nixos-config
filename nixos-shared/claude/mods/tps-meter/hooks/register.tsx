@@ -36,11 +36,43 @@ export function summarize(list: Sample[]) {
 }
 
 const SPARK = '▁▂▃▄▅▆▇█'
+const DEFAULT_BG = 0x01000000
+
 // Scaled min..max: from zero, one outlier flattens the rest to the bottom bar.
-function sparkline(values: number[]): string {
+function scaled(values: number[]): number[] {
   const min = Math.min(...values)
   const span = Math.max(...values) - min || 1
-  return values.map(v => SPARK[Math.round(((v - min) / span) * 7)]).join('')
+  return values.map(v => (v - min) / span)
+}
+
+const bar = (t: number) => SPARK[Math.round(t * 7)] ?? '▁'
+
+function sparkline(values: number[]): string {
+  return scaled(values).map(bar).join('')
+}
+
+// Slow blue, middle grey, fast orange within the window shown: no traffic-light
+// verdict (relative is not bad) and readable with red-green colour blindness.
+const STOPS = [0x4c78dd, 0xb0b0b0, 0xf0883e]
+
+export function speedColor(t: number): number {
+  const at = Math.min(Math.max(t, 0), 1) * (STOPS.length - 1)
+  const i = Math.min(Math.floor(at), STOPS.length - 2)
+  const from = STOPS[i] ?? 0
+  const to = STOPS[i + 1] ?? 0
+  const channel = (shift: number) => {
+    const a = (from >> shift) & 0xff
+    return Math.round(a + (((to >> shift) & 0xff) - a) * (at - i)) << shift
+  }
+  return channel(16) | channel(8) | channel(0)
+}
+
+export function sparkCells(values: number[]): string {
+  const words = new Uint32Array(values.length * 3)
+  scaled(values).forEach((t, i) => {
+    words.set([bar(t).codePointAt(0) ?? 0x2581, speedColor(t), DEFAULT_BG], i * 3)
+  })
+  return new Uint8Array(words.buffer).toBase64()
 }
 
 const fmt = (n: number) => n.toFixed(0)
@@ -128,11 +160,22 @@ export const register: Register = on => {
     const stats = `⚡ ${fmt(s.weightedTps)} tok/s · last ${lastRate}${visible} · p10 ${fmt(s.p10)} · TTFT ${secs(last.ttftMs)} (p50 ${secs(s.ttftP50)} p90 ${secs(s.ttftP90)})`
     const room = (e.props.bodyColumns ?? 80) - stats.length - 2
     const rates = list.filter(x => x.outputTokens >= MIN_TOKENS).map(x => x.tps)
+    const shown = room >= 4 && rates.length > 1 ? rates.slice(-Math.min(room, 40)) : []
 
+    // Raster, the per-cell colour, is the terminal's alone.
+    if (e.surface === 'terminal' && shown.length > 0) {
+      const { Raster } = $.ui.resolve(e)
+      return (
+        <Box>
+          <Text dimColor>{stats}  </Text>
+          <Raster key="band-spark" columns={shown.length} rows={1} cells={sparkCells(shown)} />
+        </Box>
+      )
+    }
     return (
       <Box>
         <Text dimColor>{stats}</Text>
-        {room >= 4 && rates.length > 1 && <Text color="cyan">  {sparkline(rates.slice(-Math.min(room, 40)))}</Text>}
+        {shown.length > 0 && <Text color="cyan">  {sparkline(shown)}</Text>}
       </Box>
     )
   })
@@ -143,6 +186,11 @@ export const register: Register = on => {
     const s = summarize(list)
     const counted = list.filter(x => x.outputTokens >= MIN_TOKENS)
     const width = Math.max(10, (e.props.bodyColumns ?? 60) - 2)
+    const spark = (values: number[]) => {
+      if (e.surface !== 'terminal') return <Text color="cyan">{sparkline(values)}</Text>
+      const { Raster } = $.ui.resolve(e)
+      return <Raster key="pane-spark" columns={values.length} rows={1} cells={sparkCells(values)} />
+    }
 
     const byModel = new Map<string, Sample[]>()
     for (const x of list) byModel.set(x.model, [...(byModel.get(x.model) ?? []), x])
@@ -157,7 +205,7 @@ export const register: Register = on => {
             <Text dimColor>
               {plural(s.requests, 'request')} ({s.counted} ≥{MIN_TOKENS} tok) · {s.totalOut} output tokens
             </Text>
-            {counted.length > 1 && <Text color="cyan">{sparkline(counted.slice(-width).map(x => x.tps))}</Text>}
+            {counted.length > 1 && spark(counted.slice(-width).map(x => x.tps))}
             {[...byModel].map(([model, xs]) => {
               const m = summarize(xs)
               return (

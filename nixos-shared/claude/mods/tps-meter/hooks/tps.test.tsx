@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { summarize } from './register'
+import { sparkCells, speedColor, summarize } from './register'
 
 const usage = { model: 'claude-test', input_tokens: 10, output_tokens: 200, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }
 
@@ -102,4 +102,37 @@ test('/tps toggles the pane', async ($, on) => {
   const closed = await $.command.run({ command: 'tps', args: '', origin: 'user' } as never)
   expect(isOpen).toBe(false)
   expect(closed.text).toMatch(/closed/)
+})
+
+test('sparkline cells run blue to grey to orange with the bar height', () => {
+  const words = new Uint32Array(Uint8Array.fromBase64(sparkCells([10, 20, 30])).buffer)
+  expect([...words]).toEqual([
+    0x2581, 0x4c78dd, 0x01000000,
+    0x2585, 0xb0b0b0, 0x01000000,
+    0x2588, 0xf0883e, 0x01000000,
+  ])
+  expect(speedColor(0)).toBe(0x4c78dd)
+  expect(speedColor(1)).toBe(0xf0883e)
+  expect(speedColor(0.25)).toBe(0x7e94c7)
+})
+
+test('band draws a coloured Raster on the terminal, plain text elsewhere', async ($, on) => {
+  on('turn.step', async function* (_$, e) {
+    yield { kind: 'text', index: 0, text: 'x' }
+    yield { kind: 'stop', stopReason: 'end_turn', usage }
+    return { turnId: e.turnId, index: e.index, answer: 'x', toolUses: [], stopReason: 'end_turn', usage }
+  })
+  for (const index of [0, 1]) {
+    const stream = $.turn.step({ turnId: 't1', index, model: 'claude-test', messageCount: 1 })
+    while (!(await stream.next()).done) {}
+  }
+
+  const props = { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 160, scroll: { offset: 0, bodyRows: 10 }, view: {} }
+  const terminal = await $.ui.mount({ plugin: 'tps-meter', surface: 'terminal', component: 'AbovePrompt', props })
+  const raster = await terminal.find({ type: 'Raster', key: 'band-spark' })
+  expect(raster?.props.columns).toBe(2)
+
+  const desktop = await $.ui.mount({ plugin: 'tps-meter', surface: 'desktop', component: 'AbovePrompt', props })
+  expect(await desktop.find({ type: 'Raster' })).toBeFalsy()
+  expect(await desktop.find({ type: 'Text', text: /[▁▂▃▄▅▆▇█]{2}/ })).toBeTruthy()
 })
