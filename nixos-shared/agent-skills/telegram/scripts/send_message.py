@@ -14,7 +14,7 @@ Usage:
     send_message.py <chat_id> --photo <filepath> --caption "text"  # Photo with caption
 
 Requirements: pyTelegramBotAPI (provided via Nix)
-Environment: TELEGRAM_BOT_TOKEN must be set
+Token: TELEGRAM_BOT_TOKEN env var, else /run/agenix/telegram.env
 """
 
 import os
@@ -28,6 +28,33 @@ except ImportError:
     print("Error: pyTelegramBotAPI not installed")
     print("This script uses Nix shebang to provide dependencies automatically")
     sys.exit(1)
+
+TOKEN_FILE = Path("/run/agenix/telegram.env")
+
+
+def load_token():
+    """TELEGRAM_BOT_TOKEN from the environment, else from the agenix env file."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    if not token:
+        try:
+            for line in TOKEN_FILE.read_text().splitlines():
+                line = line.strip()
+                if line.startswith("export "):
+                    line = line[len("export "):]
+                key, sep, value = line.partition("=")
+                if sep and key.strip() == "TELEGRAM_BOT_TOKEN":
+                    token = value.strip().strip("\"'").strip()
+        except OSError:
+            pass
+    if not token:
+        print(f"Error: no TELEGRAM_BOT_TOKEN in environment or {TOKEN_FILE}", file=sys.stderr)
+        sys.exit(1)
+    return token
+
+
+def redact(text, token):
+    """requests puts the token in the URL path, so connection errors contain it."""
+    return str(text).replace(token, "<token>")
 
 
 def print_usage():
@@ -53,12 +80,7 @@ def send_message(chat_id, message_type, content, caption=None):
         content: Message text or file path
         caption: Optional caption for photos/documents
     """
-    # Get bot token from environment
-    token = os.getenv('TELEGRAM_BOT_TOKEN')
-    if not token:
-        print("Error: TELEGRAM_BOT_TOKEN environment variable not set")
-        print("Set it with: export TELEGRAM_BOT_TOKEN='your-bot-token-here'")
-        sys.exit(1)
+    token = load_token()
 
     try:
         bot = telebot.TeleBot(token)
@@ -100,26 +122,26 @@ def send_message(chat_id, message_type, content, caption=None):
 
     except telebot.apihelper.ApiTelegramException as e:
         if e.error_code == 400:
-            print(f"Error: Bad request - {e.description}")
-            print("Common causes:")
-            print("  - Invalid chat_id")
-            print("  - Message is too long")
-            print("  - Invalid file format")
+            print(f"Error: Bad request - {redact(e.description, token)}", file=sys.stderr)
+            print("Common causes:", file=sys.stderr)
+            print("  - Invalid chat_id", file=sys.stderr)
+            print("  - Message is too long", file=sys.stderr)
+            print("  - Invalid file format", file=sys.stderr)
         elif e.error_code == 401:
-            print("Error: Authentication failed - Invalid bot token")
+            print("Error: Authentication failed - Invalid bot token", file=sys.stderr)
         elif e.error_code == 403:
-            print(f"Error: Cannot message chat {chat_id}")
-            print("User hasn't started conversation with bot or has blocked it")
+            print(f"Error: Cannot message chat {chat_id}", file=sys.stderr)
+            print("User hasn't started conversation with bot or has blocked it", file=sys.stderr)
         elif e.error_code == 429:
             retry_after = e.result_json.get('parameters', {}).get('retry_after', 'unknown')
-            print(f"Error: Telegram API rate limit reached")
-            print(f"Retry after {retry_after} seconds")
+            print(f"Error: Telegram API rate limit reached", file=sys.stderr)
+            print(f"Retry after {retry_after} seconds", file=sys.stderr)
         else:
-            print(f"Telegram API Error ({e.error_code}): {e.description}")
+            print(f"Telegram API Error ({e.error_code}): {redact(e.description, token)}", file=sys.stderr)
         sys.exit(1)
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {redact(e, token)}", file=sys.stderr)
         sys.exit(1)
 
 
