@@ -1,6 +1,19 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
+  # Fires on the first rebuild after nixpkgs ships tmux 3.8; delete it once acted on.
+  warnings = lib.optional (lib.versionAtLeast pkgs.tmux.version "3.8") ''
+    tmux ${pkgs.tmux.version} records OSC 133 D exit status: try #{pane_command_status},
+    #{pane_command_duration} and the pane-command-finished hook (per-pane failure
+    display, agent-pane sparkline in status-right), and retire the shell half of
+    nixos-shared/packages/tmux/semantic-prompt.nix in favour of Ghostty's integration.
+  '';
+
   services = {
     xserver = {
       displayManager = {
