@@ -5,6 +5,7 @@ export type Sample = {
   ttftMs: number
   genMs: number
   tps: number
+  visibleTps: number | null
 }
 
 declare module 'claude-code' {

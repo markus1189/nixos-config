@@ -32,9 +32,9 @@ test('records a sample per model request and passes the stream through', async (
 
 test('summary weights by tokens and ignores tiny tool-call responses', () => {
   const s = summarize([
-    { model: 'm', isSubagent: false, outputTokens: 100, ttftMs: 500, genMs: 1000, tps: 100 },
-    { model: 'm', isSubagent: false, outputTokens: 300, ttftMs: 700, genMs: 1000, tps: 300 },
-    { model: 'm', isSubagent: false, outputTokens: 5, ttftMs: 900, genMs: 1, tps: 5000 },
+    { model: 'm', isSubagent: false, outputTokens: 100, ttftMs: 500, genMs: 1000, tps: 100, visibleTps: null },
+    { model: 'm', isSubagent: false, outputTokens: 300, ttftMs: 700, genMs: 1000, tps: 300, visibleTps: null },
+    { model: 'm', isSubagent: false, outputTokens: 5, ttftMs: 900, genMs: 1, tps: 5000, visibleTps: null },
   ])
   expect(s.weightedTps).toBe(200)
   expect(s.counted).toBe(2)

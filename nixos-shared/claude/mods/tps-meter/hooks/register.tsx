@@ -6,6 +6,8 @@ import type { Sample } from '../types'
 const PANE = 'tps-meter'
 // Tool-call-only responses emit a handful of tokens in one burst; their rate is noise.
 const MIN_TOKENS = 20
+// Rough English/code average; the visible rate is an estimate, the API counts no subtotal.
+const CHARS_PER_TOKEN = 4
 
 const samples = atom({ plugin: 'tps-meter', key: 'samples' } as const, [])
 
@@ -68,17 +70,16 @@ export const register: Register = on => {
 
   on('turn.step', async function* ($, e, next) {
     const sentAt = performance.now()
-    // The response envelope arrives before any thinking; hidden thinking emits no
-    // chunks, so timing from the first visible chunk would count its tokens in no time.
-    let startAt: number | undefined
     let firstAt: number | undefined
     let stopAt: number | undefined
+    let visibleChars = 0
 
     const stream = next(e)
     for await (const chunk of stream) {
-      startAt ??= performance.now()
       if (chunk.kind !== 'engine') {
         firstAt ??= performance.now()
+        if (chunk.kind === 'text' || chunk.kind === 'thinking') visibleChars += chunk.text.length
+        if (chunk.kind === 'input') visibleChars += chunk.json.length
         if (chunk.kind === 'stop') stopAt = performance.now()
       }
       yield chunk
@@ -87,9 +88,14 @@ export const register: Register = on => {
 
     const result = await stream.result
     const usage = result.usage
-    if (!usage || startAt === undefined || firstAt === undefined) return result
+    if (!usage || firstAt === undefined) return result
 
-    const genMs = stopAt - startAt
+    // Measured 2026-10-07: hidden thinking reaches the hook as no chunk at all, envelope
+    // included, so any window opening at a chunk counts its tokens in near-zero time
+    // (9778 tok/s). From the send, the rate includes prefill and can only understate.
+    const genMs = stopAt - sentAt
+    const streamMs = stopAt - firstAt
+    const visibleTokens = visibleChars / CHARS_PER_TOKEN
     const sample: Sample = {
       model: usage.model,
       isSubagent: e.agentId !== undefined,
@@ -97,6 +103,7 @@ export const register: Register = on => {
       ttftMs: firstAt - sentAt,
       genMs,
       tps: genMs > 0 ? usage.output_tokens / (genMs / 1000) : 0,
+      visibleTps: visibleTokens >= MIN_TOKENS && streamMs > 0 ? visibleTokens / (streamMs / 1000) : null,
     }
     await update($, samples, list => [...list, sample].slice(-500))
     return result
@@ -111,7 +118,8 @@ export const register: Register = on => {
     const { Box, Text } = $.ui.resolve(e)
     const s = summarize(list)
     const lastRate = last.outputTokens >= MIN_TOKENS ? fmt(last.tps) : '–'
-    const stats = `⚡ ${fmt(s.weightedTps)} tok/s · last ${lastRate} · p50 ${fmt(s.p50)} p90 ${fmt(s.p90)} · TTFT ${secs(last.ttftMs)}`
+    const visible = last.visibleTps === null ? '' : ` · streamed ~${fmt(last.visibleTps)}`
+    const stats = `⚡ ${fmt(s.weightedTps)} tok/s · last ${lastRate}${visible} · p50 ${fmt(s.p50)} p90 ${fmt(s.p90)} · TTFT ${secs(last.ttftMs)}`
     const room = (e.props.bodyColumns ?? 80) - stats.length - 2
     const rates = list.filter(x => x.outputTokens >= MIN_TOKENS).map(x => x.tps)
 
