@@ -28,9 +28,10 @@ export function summarize(list: Sample[]) {
     totalOut: list.reduce((n, s) => n + s.outputTokens, 0),
     // Token-weighted: long responses dominate, as they do the waiting.
     weightedTps: genMs > 0 ? tokens / (genMs / 1000) : 0,
-    p50: percentile(rates, 50),
-    p90: percentile(rates, 90),
+    // Throughput's bad tail is the slow end, latency's the long end.
+    p10: percentile(rates, 10),
     ttftP50: percentile(ttfts, 50),
+    ttftP90: percentile(ttfts, 90),
   }
 }
 
@@ -69,7 +70,7 @@ export const register: Register = on => {
     await $.ui.open({ id: PANE, title: 'Tokens / s' })
     const s = summarize(await read($, samples))
     return {
-      text: `${plural(s.requests, 'request')}, ${s.totalOut} output tokens; ${fmt(s.weightedTps)} tok/s weighted, p50 ${fmt(s.p50)}, p90 ${fmt(s.p90)}, TTFT p50 ${secs(s.ttftP50)}`,
+      text: `${plural(s.requests, 'request')}, ${s.totalOut} output tokens; ${fmt(s.weightedTps)} tok/s weighted, p10 ${fmt(s.p10)} tok/s, TTFT p50 ${secs(s.ttftP50)} p90 ${secs(s.ttftP90)}`,
     }
   })
 
@@ -124,7 +125,7 @@ export const register: Register = on => {
     const s = summarize(list)
     const lastRate = last.outputTokens >= MIN_TOKENS ? fmt(last.tps) : '–'
     const visible = last.visibleTps === null ? '' : ` · streamed ~${fmt(last.visibleTps)}`
-    const stats = `⚡ ${fmt(s.weightedTps)} tok/s · last ${lastRate}${visible} · p50 ${fmt(s.p50)} p90 ${fmt(s.p90)} · TTFT ${secs(last.ttftMs)}`
+    const stats = `⚡ ${fmt(s.weightedTps)} tok/s · last ${lastRate}${visible} · p10 ${fmt(s.p10)} · TTFT ${secs(last.ttftMs)} (p50 ${secs(s.ttftP50)} p90 ${secs(s.ttftP90)})`
     const room = (e.props.bodyColumns ?? 80) - stats.length - 2
     const rates = list.filter(x => x.outputTokens >= MIN_TOKENS).map(x => x.tps)
 
@@ -152,7 +153,7 @@ export const register: Register = on => {
         {list.length > 0 && (
           <Box flexDirection="column">
             <Text bold>{fmt(s.weightedTps)} tok/s (token-weighted)</Text>
-            <Text>p50 {fmt(s.p50)} · p90 {fmt(s.p90)} · TTFT p50 {secs(s.ttftP50)}</Text>
+            <Text>p10 {fmt(s.p10)} tok/s · TTFT p50 {secs(s.ttftP50)} p90 {secs(s.ttftP90)}</Text>
             <Text dimColor>
               {plural(s.requests, 'request')} ({s.counted} ≥{MIN_TOKENS} tok) · {s.totalOut} output tokens
             </Text>

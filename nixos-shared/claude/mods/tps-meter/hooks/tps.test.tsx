@@ -37,6 +37,9 @@ test('summary weights by tokens and ignores tiny tool-call responses', () => {
     { model: 'm', isSubagent: false, outputTokens: 5, ttftMs: 900, genMs: 1, tps: 5000, visibleTps: null },
   ])
   expect(s.weightedTps).toBe(200)
+  expect(s.p10).toBe(100)
+  expect(s.ttftP50).toBe(700)
+  expect(s.ttftP90).toBe(900)
   expect(s.counted).toBe(2)
   expect(s.requests).toBe(3)
 })
