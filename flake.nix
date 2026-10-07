@@ -192,6 +192,17 @@
             mattpocockSkills = inputs.mattpocock-skills;
             agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };
+
+          claudeMods = import ./nixos-shared/claude/mods {
+            inherit pkgs;
+            inherit
+              (import inputs.nixpkgs-master {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              })
+              claude-code
+              ;
+          };
         };
 
       # The bats suites, gated by `nix flake check` instead of human whim.
@@ -263,6 +274,13 @@
               inherit name;
               path = drv;
             }) self.legacyPackages.x86_64-linux.agentSkills
+          );
+
+          claude-mods = pkgs.linkFarm "claude-mods" (
+            nixpkgs.lib.mapAttrsToList (name: drv: {
+              inherit name;
+              path = drv;
+            }) self.legacyPackages.x86_64-linux.claudeMods
           );
 
           claude-statusline-bats =

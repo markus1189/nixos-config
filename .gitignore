@@ -8,3 +8,5 @@ result
 __pycache__/
 *.pyc
 /.direnv/
+# Laid by the engine beside each mod it loads from a writable folder.
+nixos-shared/claude/mods/*/.claude-plugin/types/

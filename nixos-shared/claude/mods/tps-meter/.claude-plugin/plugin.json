@@ -1,0 +1,1 @@
+{ "name": "tps-meter", "version": "0.1.0", "description": "Measures output tokens per second and time-to-first-token for each model request", "types": "./types/index.d.ts" }

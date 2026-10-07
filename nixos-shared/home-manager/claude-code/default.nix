@@ -2,6 +2,7 @@
   pkgs,
   # Injected from the overlay (flake-base.nix) via callPackage.
   agentSkills,
+  claudeMods,
   enableSoundHooks ? false,
   enableDenyRules ? false,
   enableDangerousCommandCheck ? true,
@@ -478,6 +479,8 @@ in
         BASH_DEFAULT_TIMEOUT_MS = 1 * 60 * 1000; # default = 2 min, background them faster since 2.0.19
         BASH_MAX_TIMEOUT_MS = 30 * 60 * 1000;
         MAX_MCP_OUTPUT_TOKENS = 50 * 1000; # default = 25,000
+        # Tested store paths: a mod edit lands with a rebuild and a new session.
+        CLAUDE_CODE_PLUGIN_DIRS = pkgs.lib.concatStringsSep ":" (builtins.attrValues claudeMods);
       };
     };
   };

@@ -63,6 +63,11 @@
         mattpocockSkills = inputs.mattpocock-skills;
         agentBrowser = final.agent-browser;
       };
+
+      claudeMods = import ./claude/mods {
+        pkgs = final;
+        inherit (final.masterPkgs) claude-code;
+      };
     })
   ]
   ++ import ./shared-overlays.nix inputs;
