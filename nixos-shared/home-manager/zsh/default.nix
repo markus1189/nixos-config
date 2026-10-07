@@ -15,6 +15,12 @@ in
     # compinit runs once, from /etc/zshrc (nixos-shared/zsh.nix). HM's default
     # completionInit would run it a second time at mkOrder 570 (~30ms, no gain).
     enableCompletion = false;
+    # Per-shell directory stack: `cd -<TAB>` lists where this pane has been.
+    setOptions = [
+      "AUTO_PUSHD"
+      "PUSHD_IGNORE_DUPS"
+      "PUSHD_SILENT"
+    ];
     history = rec {
       expireDuplicatesFirst = true;
       extended = true;
