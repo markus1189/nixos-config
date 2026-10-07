@@ -1,6 +1,6 @@
 ---
 name: jev
-description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text and images with decision models, Jev (TypeSafe) and Clef (Cloudflare), alone or side by side, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef, Cloudflare's decision model, System One, noul, typesafe/jev-1.13 or sference/clef, wants to compare decision models or judge screenshots and images, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
+description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text and images with decision models, Jev (TypeSafe) and Clef (Cloudflare), alone or side by side, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef, Cloudflare's decision model, System One, noul, typesafe/jev-1.13 or sference/clef, wants to compare decision models or judge screenshots and images, find the relevant lines in a long file, pick a value among candidates, rerank, dedupe or check claims against a source, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
 ---
 
 # Jev and Clef (decision models)
@@ -49,6 +49,19 @@ Every question needs `instructions`. A string works; use an object or array when
           "criteria": {"billing": "charges, refunds", "tech": "bugs, outages, login", "none": "none of these"}}}
 ```
 
+## Shapes
+
+| task | run |
+|---|---|
+| where in one long text (log, doc, diff) is X | one request: state = the lines prefixed `L1:`…; a choice whose criteria map each line id to `null` (≤255 lines, else narrow to a window first), plus a noul "does any line answer X?", since a choice ranks some line first even when none fits |
+| pull a value (date, URL, amount, name) | over-find candidates with `rg`/regex, then a choice over them plus `none`; copy the pick verbatim. It can't pick a value you didn't list |
+| best matches for a query | shortlist with `rg`, then `--each` over the candidates with the query in `--context` and a noul "Does `item` answer `context`?"; sort on it |
+| dedupe | candidate pairs from code, one `{"a": …, "b": …}` line each; a score whose middle level is "related, possibly not the same" (read those), a noul per field, numbers compared in code. A wrong merge usually costs more than a miss, so cut high |
+| pick one of many (skills, files, categories) | request 1: a choice over all names with short descriptions plus a noul "is any needed?"; request 2: the top 3 with full text, a noul each, drop all if every one is low. Deep taxonomies: one choice per level, or report the parent when `confidence` is low |
+| check claims against a source | match quotes exactly in code first; per claim, the cited section as state and a choice `supported`/`unsupported`/`contradicted`; read the low-confidence ones |
+
+Options in one choice compete and Jev leans towards the first, so a single-request ranking says where to look, not the verdict.
+
 ## Clef
 
 - More decisive than Jev: on 8 items whose title contradicted the body, Clef's urgent-yes answers were 0.94–0.98 where Jev's were 0.69–0.96, with the same verdicts, so Jev's cutoffs don't carry over.
@@ -64,13 +77,17 @@ Every question needs `instructions`. A string works; use an object or array when
 ## Writing questions
 
 - Ask one narrow judgment per question. Split "is this good" into the properties you actually care about.
-- Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once. Questions are answered independently, so one can't use another's answer; chain a second request for that.
+- Ask each disqualifier ("any serious violation fails") as its own noul and combine conditions with and/or in code: a weighted score lets strengths offset a violation.
+- For tags that can apply together, ask one noul per tag: a choice's probabilities sum to 1, so true tags compete and only one wins.
+- Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once. Write the premise into such a question ("If `item` reports a bug, how severe…") and use its answer, and its uncertainty, only where the premise holds. Questions are answered independently, so one can't use another's answer; chain a second request for that.
 - Question IDs are never sent to the model. Put the full meaning in `instructions`, including whether world knowledge may be used, and point into state with backticked paths such as `` `item.title` ``.
 - For a choice, list every legal option plus `none`. Jev leans towards the first option, so for a choice that matters, reorder the options and check the answer holds. For a score, describe a concrete situation at each level, with no numbers and no "more than the previous level". Phrase a noul so that "yes" is the thing you're looking for, consider writing its `false` criterion as the near miss rather than the plain opposite, and avoid double negatives and multi-hop logic.
+- If a score or choice keeps splitting between neighbouring options on items you think are clear, make each `criteria` entry an object with the same keys on every entry (what it covers, `not_for`, a few examples like your real items). Judge the change on labelled items, not on `confidence`.
 
 ## Reading answers
 
-- For a noul, ≥0.7 is yes and ≤0.3 is no. In between means *uncertain*, so read those items yourself. 0.5 means "can't tell", not "medium". P(X) and P(not X) asked separately don't sum to 1 (0.80–0.95 measured), so ask the side you act on.
+- For a noul, ≥0.7 is yes and ≤0.3 is no. In between means *uncertain*, so read those items yourself. 0.5 means "can't tell", not "medium". P(X) and P(not X) asked separately don't sum to 1 (0.80–0.95 measured), so ask the side you act on. Shift the band by what errors cost: when a missed yes is expensive, read lower values too; when acting on a false yes is, demand more.
+- A low-`confidence` choice has no clear winner: read the item, or also act on the runner-up in `probabilities` (e.g. copy the second team).
 - A low-`confidence` score is a flat distribution: a precise-looking 1.53 can mean nothing. A score between levels is a position, not a magnitude; to combine scores, divide each by its top level index first. High confidence isn't accuracy on contested items or numeric state.
 - Jev rounds values to 0.01, so break ties in code.
 - Thresholds are uncalibrated. When the outcome matters, label 20–50 items yourself and compare.
@@ -80,8 +97,8 @@ Every question needs `instructions`. A string works; use an object or array when
 
 - Don't use it to count, do arithmetic or compare dates.
 - Don't gate untrusted input with it: injected instructions in `state` move the answers, and planted false facts move them far more.
-- Don't pad state. Context rot is documented, and state plus the longest question are capped (Jev 32k tokens, Clef 64k): for Jev keep item plus `--context` under ~100k characters and truncate longer ones in code.
-- Don't pack several items into one `state`: Jev's scores shift by position, in either direction, by up to ~0.37. Use `--each`. TypeSafe's own pattern for comparing one state against many candidates (dedupe, rerank) puts each candidate in its own question's `instructions` object instead; that pays for a large shared state once, but its position effects are unmeasured here.
+- Don't pad state. Context rot is documented, and state plus the longest question are capped (Jev 32k tokens, Clef 64k; Jev also caps state plus all questions at 64k): for Jev keep item plus `--context` under ~100k characters and truncate longer ones in code.
+- Don't pack several items into one `state` (a pair you judge together, as in dedupe, is one item): Jev's scores shift by position, in either direction, by up to ~0.37. Use `--each`. TypeSafe's own pattern for comparing one state against many candidates (dedupe, rerank) puts each candidate in its own question's `instructions` object instead; that pays for a large shared state once, but its position effects are unmeasured here.
 - Don't trust answers for non-English or specialist domains (e.g. German accounting) without a labelled check. Write the instructions in English even when the state isn't.
 
 ## Deeper
