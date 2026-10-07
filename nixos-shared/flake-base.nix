@@ -53,7 +53,7 @@
 
       # Harness-neutral agent skills as validated per-skill derivations,
       # consumed by the claude-code and pi home-manager modules. The
-      # marginal-last / marginal-diff skills come out of the marginal package
+      # marginal-diff skill comes out of the marginal package
       # itself and hocket-rpc out of the hocket input, so skill text and the
       # binary it drives are version-locked together either way.
       agentSkills = import ./agent-skills {

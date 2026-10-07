@@ -33,17 +33,16 @@ in
     file =
       let
         claudeConfig = pkgs.callPackage ../nixos-shared/home-manager/claude-code {
-          # Headless: no chromium here, and the two marginal skills (and the
-          # marginal mod, below) launch a TUI into a borrowed tty that does
-          # not exist on this box.
+          # Headless: no chromium here, and marginal-diff (like the marginal
+          # mod, below) launches a TUI into a borrowed tty that does not exist
+          # on this box.
           # sourcegraph-search needs `src`, which only laptops install. The
-          # first three would only drag their packages into the nightly autoUpgrade
-          # closure — marginal newly so, since the skills now come out of the
+          # first two would only drag their packages into the nightly autoUpgrade
+          # closure — marginal newly so, since its skill comes out of the
           # package's $out rather than its source tree. removeAttrs is lazy,
           # so none of them is ever realised on nuc.
           agentSkills = builtins.removeAttrs pkgs.agentSkills [
             "agent-browser"
-            "marginal-last"
             "marginal-diff"
             "sourcegraph-search"
           ];

@@ -78,7 +78,7 @@ let
             *.py) python3 -m py_compile "$f" ;;
             *.sh) run_shellcheck "$f" ;;
             *)
-              # extensionless executables (launchers like marginal-last)
+              # extensionless executables (launchers like marginal-diff)
               if [ -x "$f" ] && head -n1 "$f" | grep -Eq '^#!.*(bash|/sh|/env nix)'; then
                 run_shellcheck "$f"
               fi
@@ -121,20 +121,12 @@ let
       );
 
   # Skills sourced from other repos via flake inputs, optionally patched.
-  # marginal-last is our own upstream: "patching" it means committing there.
-  #
-  # Both marginal skills are claude-only: pi gets `/marginal` from the
-  # extension the pi-agent module links out of this same package, so a copy in
-  # ~/.agents/skills would be a second and worse route to the same command.
-  # marginal-diff has no pi counterpart at all — a diff extension is the fix
-  # there, not a skill.
+  # marginal-diff is our own upstream: "patching" it means committing there.
+  # It is claude-only, having no pi counterpart — a diff extension is the fix
+  # there, not a skill. The package's marginal-last skill is not installed:
+  # Claude Code gets `/marginal` from the mod (claude/mods), pi from the
+  # extension the pi-agent module links.
   webSkills = {
-    marginal-last = mkAgentSkill {
-      name = "marginal-last";
-      src = marginal + "/share/claude-code/skills/marginal-last";
-      harnesses = [ "claude" ];
-    };
-
     marginal-diff = mkAgentSkill {
       name = "marginal-diff";
       src = marginal + "/share/claude-code/skills/marginal-diff";

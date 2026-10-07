@@ -141,8 +141,7 @@ let
     # the terminal pi already owns. The only extension here sourced from a
     # package instead of ./extensions — postInstall rewrites its @marginalBin@
     # sentinel to $out/bin/marginal, so it spawns the binary it was built with
-    # rather than whatever PATH happens to hold. This is also why the
-    # marginal-last skill is claude-only: pi is served here.
+    # rather than whatever PATH happens to hold.
     "pi-agent-extension-marginal-annotate" = {
       target = ".pi/agent/extensions/marginal-annotate.ts";
       source = "${pkgs.marginal}/share/pi/extensions/marginal-annotate.ts";
