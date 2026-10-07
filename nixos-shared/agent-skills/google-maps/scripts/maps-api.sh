@@ -347,11 +347,26 @@ places_search_pretty() {
 }
 
 places_nearby() {
-    local location="$1" radius="${2:-1000}" type="${3:-}" body response
+    local rank="" args=() body response
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --rank) rank="${2:-}"; shift 2 || { echo "--rank needs distance|popularity" >&2; return 2; } ;;
+            --rank=*) rank="${1#--rank=}"; shift ;;
+            *) args+=("$1"); shift ;;
+        esac
+    done
+    case "$rank" in
+        "") ;;
+        distance) rank=DISTANCE ;;
+        popularity) rank=POPULARITY ;;
+        *) echo "Invalid --rank '$rank' (use distance or popularity)" >&2; return 2 ;;
+    esac
+    local location="${args[0]:?location required}" radius="${args[1]:-1000}" type="${args[2]:-}"
     body=$(jq -nc \
         --arg loc "$location" \
         --argjson r "$radius" \
         --arg t "$type" \
+        --arg rank "$rank" \
         '($loc | split(",")) as $ll |
          {
             locationRestriction: {
@@ -361,7 +376,8 @@ places_nearby() {
                 }
             }
          } +
-         (if $t != "" then {includedTypes: [$t]} else {} end)')
+         (if $t != "" then {includedTypes: [$t]} else {} end) +
+         (if $rank != "" then {rankPreference: $rank} else {} end)')
     response=$(_curl_json "${PLACES_BASE}/places:searchNearby" -X POST \
         -H "Content-Type: application/json" \
         -H "X-Goog-FieldMask: ${PLACES_SEARCH_MASK}" \
@@ -409,9 +425,17 @@ place_details_pretty() {
 
 weather_current() {
     local lat="$1" lng="$2" units="${3:-METRIC}" response
+    _check_units "$units"
     response=$(api_get "${WEATHER_BASE}/currentConditions:lookup?key=@KEY@&location.latitude=${lat}&location.longitude=${lng}&unitsSystem=${units}")
     check_places_status "$response"
     printf '%s\n' "$response"
+}
+
+_check_units() {
+    case "$1" in
+        METRIC|IMPERIAL) ;;
+        *) echo "Invalid units '$1' (use METRIC or IMPERIAL)" >&2; exit 2 ;;
+    esac
 }
 
 # Shared jq helpers for weather pretty output.
@@ -448,6 +472,7 @@ weather_current_pretty() {
 _weather_forecast() {
     local endpoint="$1" array_field="$2" count_param="$3" count="$4" page_size="$5"
     local lat="$6" lng="$7" units="${8:-METRIC}"
+    _check_units "$units"
     local pages_needed=$(( (count + page_size - 1) / page_size ))
     local accumulated="{\"${array_field}\": []}"
     local token='' pages=0 response url
@@ -582,8 +607,10 @@ Distance Matrix:
 Places (Places API New):
   places-search <query> [lat,lng] [radius]           Text search
   places-search-pretty <query> [lat,lng] [radius]    Text search (formatted)
-  places-nearby <lat,lng> [radius] [type]            Nearby search
-  places-nearby-pretty <lat,lng> [radius] [type]     Nearby search (formatted)
+  places-nearby [--rank distance|popularity] <lat,lng> [radius] [type]
+  places-nearby-pretty [--rank distance|popularity] <lat,lng> [radius] [type]
+                                                     Nearby search (raw / formatted); without --rank
+                                                     the API default ranking applies
   place-details <place_id>                           Place details (raw JSON)
   place-details-pretty <place_id>                    Place details (formatted)
 

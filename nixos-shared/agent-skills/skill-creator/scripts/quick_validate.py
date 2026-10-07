@@ -5,11 +5,11 @@
 #! nix ``
 #! nix --command python3
 """
-Quick validation script for skills - checks structure and best practices
+Quick validation script for skills - checks structure and best practices.
+Prints ERROR/WARNING lines; exits 1 if there are errors, 0 otherwise.
 """
 
 import sys
-import os
 import re
 import yaml
 from pathlib import Path
@@ -17,149 +17,120 @@ from pathlib import Path
 # Reserved words that cannot appear in skill names
 RESERVED_WORDS = {'anthropic', 'claude'}
 
+
 def validate_skill(skill_path):
-    """Validate a skill against best practices"""
+    """Return (errors, warnings) for a skill directory."""
     skill_path = Path(skill_path)
     errors = []
     warnings = []
 
-    # Check SKILL.md exists
     skill_md = skill_path / 'SKILL.md'
     if not skill_md.exists():
-        return False, "SKILL.md not found"
+        return ["SKILL.md not found"], warnings
 
     content = skill_md.read_text()
-
-    # Check frontmatter exists
-    if not content.startswith('---'):
-        return False, "No YAML frontmatter found"
-
-    # Extract frontmatter
     match = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
     if not match:
-        return False, "Invalid frontmatter format"
-
-    frontmatter_text = match.group(1)
+        return ["No valid YAML frontmatter found"], warnings
     body = content[match.end():]
 
-    # Parse YAML frontmatter
     try:
-        frontmatter = yaml.safe_load(frontmatter_text)
-        if not isinstance(frontmatter, dict):
-            return False, "Frontmatter must be a YAML dictionary"
+        frontmatter = yaml.safe_load(match.group(1))
     except yaml.YAMLError as e:
-        return False, f"Invalid YAML in frontmatter: {e}"
+        return [f"Invalid YAML in frontmatter: {e}"], warnings
+    if not isinstance(frontmatter, dict):
+        return ["Frontmatter must be a YAML dictionary"], warnings
 
-    # Define allowed properties
-    ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility'}
-
-    # Check for unexpected properties
-    unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES
-    if unexpected_keys:
-        return False, (
-            f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(unexpected_keys))}. "
-            f"Allowed properties are: {', '.join(sorted(ALLOWED_PROPERTIES))}"
+    allowed = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility',
+               # Claude Code extensions; pi ignores keys it does not know.
+               'context', 'agent', 'model', 'argument-hint', 'user-invocable',
+               'disable-model-invocation', 'hooks'}
+    unexpected = set(frontmatter) - allowed
+    if unexpected:
+        errors.append(
+            f"Unexpected frontmatter key(s): {', '.join(sorted(unexpected))}. "
+            f"Allowed: {', '.join(sorted(allowed))}"
         )
 
-    # Validate name
-    if 'name' not in frontmatter:
-        return False, "Missing 'name' in frontmatter"
+    # name
+    name = frontmatter.get('name')
+    if name is None:
+        errors.append("Missing 'name' in frontmatter")
+    elif not isinstance(name, str):
+        errors.append(f"Name must be a string, got {type(name).__name__}")
+    else:
+        name = name.strip()
+        if not name:
+            errors.append("Name cannot be empty")
+        else:
+            if not re.match(r'^[a-z0-9-]+$', name):
+                errors.append(f"Name '{name}' should be hyphen-case (lowercase letters, digits, hyphens)")
+            if name.startswith('-') or name.endswith('-') or '--' in name:
+                errors.append(f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens")
+            if len(name) > 64:
+                errors.append(f"Name is too long ({len(name)} characters). Maximum is 64.")
+            for reserved in sorted(RESERVED_WORDS):
+                if reserved in name.lower():
+                    errors.append(f"Name '{name}' contains reserved word '{reserved}'")
 
-    name = frontmatter.get('name', '')
-    if not isinstance(name, str):
-        return False, f"Name must be a string, got {type(name).__name__}"
-    name = name.strip()
-
-    if name:
-        # Check naming convention (hyphen-case)
-        if not re.match(r'^[a-z0-9-]+$', name):
-            return False, f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)"
-        if name.startswith('-') or name.endswith('-') or '--' in name:
-            return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
-        # Check name length (max 64 characters per spec)
-        if len(name) > 64:
-            return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
-        # Check for reserved words
-        for reserved in RESERVED_WORDS:
-            if reserved in name.lower():
-                return False, f"Name '{name}' contains reserved word '{reserved}'"
-
-    # Validate description
-    if 'description' not in frontmatter:
-        return False, "Missing 'description' in frontmatter"
-
-    description = frontmatter.get('description', '')
-    if not isinstance(description, str):
-        return False, f"Description must be a string, got {type(description).__name__}"
-    description = description.strip()
-
-    if not description:
-        return False, "Description cannot be empty"
-
-    if description:
-        # Check for angle brackets (XML tags)
+    # description
+    description = frontmatter.get('description')
+    if description is None:
+        errors.append("Missing 'description' in frontmatter")
+    elif not isinstance(description, str):
+        errors.append(f"Description must be a string, got {type(description).__name__}")
+    elif not description.strip():
+        errors.append("Description cannot be empty")
+    else:
+        description = description.strip()
         if '<' in description or '>' in description:
-            return False, "Description cannot contain angle brackets (< or >)"
-        # Check description length (max 1024 characters per spec)
+            errors.append("Description cannot contain angle brackets (< or >)")
         if len(description) > 1024:
-            return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
+            errors.append(f"Description is too long ({len(description)} characters). Maximum is 1024.")
 
-        # Check for first/second person (warnings)
-        first_person = re.search(r'\b(I can|I will|I help|I\'m|I am)\b', description, re.IGNORECASE)
-        if first_person:
-            warnings.append(f"Description uses first person ('{first_person.group()}'). Use third person instead.")
+        # Third person is the rule for the description only; the body may address the reader.
+        person = re.search(r"\b(I can|I will|I help|I'm|I am|You can|You will)\b", description, re.IGNORECASE)
+        if person:
+            warnings.append(f"Description uses first/second person ('{person.group()}'). Use third person.")
 
-        second_person = re.search(r'\b(You can|You will|your)\b', description, re.IGNORECASE)
-        if second_person:
-            warnings.append(f"Description uses second person ('{second_person.group()}'). Use third person instead.")
-
-        # Check for vague descriptions
         vague_patterns = [
             r'^helps?\s+(with|you)',
             r'^processes?\s+data$',
             r'^does\s+stuff',
             r'^useful\s+for',
         ]
-        for pattern in vague_patterns:
-            if re.search(pattern, description, re.IGNORECASE):
-                warnings.append("Description appears vague. Include specific triggers and use cases.")
-                break
+        if any(re.search(p, description, re.IGNORECASE) for p in vague_patterns):
+            warnings.append("Description appears vague. Include specific triggers and use cases.")
 
-    # Validate compatibility (optional)
-    compatibility = frontmatter.get('compatibility', '')
+    compatibility = frontmatter.get('compatibility')
     if compatibility:
         if not isinstance(compatibility, str):
-            return False, f"Compatibility must be a string, got {type(compatibility).__name__}"
-        if len(compatibility) > 500:
-            return False, f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500 characters."
+            errors.append(f"Compatibility must be a string, got {type(compatibility).__name__}")
+        elif len(compatibility) > 500:
+            errors.append(f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500.")
 
-    # Validate body
+    # body
     body_lines = body.strip().split('\n')
     if len(body_lines) > 500:
-        warnings.append(f"SKILL.md body has {len(body_lines)} lines. Recommended maximum is 500 lines.")
-
-    # Check for TODO placeholders
+        warnings.append(f"SKILL.md body has {len(body_lines)} lines. Recommended maximum is 500.")
     if '[TODO' in content or 'TODO:' in content:
         warnings.append("SKILL.md contains TODO placeholders that should be completed.")
-
-    # Check for Windows-style paths
     if re.search(r'\\[a-zA-Z]', content):
-        warnings.append("Possible Windows-style paths detected. Use forward slashes for cross-platform compatibility.")
+        warnings.append("Possible Windows-style paths detected. Use forward slashes.")
 
-    # Build result message
-    if errors:
-        return False, "; ".join(errors)
+    return errors, warnings
 
-    if warnings:
-        return True, "Skill is valid with warnings:\n  - " + "\n  - ".join(warnings)
-
-    return True, "Skill is valid!"
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python quick_validate.py <skill_directory>")
-        sys.exit(1)
+        print("Usage: quick_validate.py <skill_directory>")
+        sys.exit(2)
 
-    valid, message = validate_skill(sys.argv[1])
-    print(message)
-    sys.exit(0 if valid else 1)
+    errs, warns = validate_skill(sys.argv[1])
+    for e in errs:
+        print(f"ERROR: {e}")
+    for w in warns:
+        print(f"WARNING: {w}")
+    if not errs and not warns:
+        print("Skill is valid!")
+    sys.exit(1 if errs else 0)

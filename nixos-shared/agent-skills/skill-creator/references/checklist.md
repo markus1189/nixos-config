@@ -5,27 +5,19 @@ Before sharing a skill, verify against this checklist.
 ## Pre-Creation
 
 - [ ] Domain experimented with before writing (not speculative — tried CLIs, libraries, workflows)
-- [ ] Skill archetype identified (Toolbox, Knowledge Injection, or mix)
 
 ## Core Quality
 
-- [ ] Every line passes the three-part test: (1) outside training data, (2) context-specific, or (3) behavioral alignment guidance
 - [ ] No derived data (don't spell out what Claude can figure out from info already provided)
 - [ ] Description is specific and includes key terms
-- [ ] Description includes both what the skill does AND when to use it
-- [ ] Description uses third person only (no "I can" or "You can")
-- [ ] Description errs on the side of broad triggers (loading cost ≪ missing the skill)
-- [ ] SKILL.md body is under 500 lines
 - [ ] Additional details are in separate reference files (if needed)
 - [ ] No time-sensitive information (or moved to "old patterns" section)
 - [ ] Consistent terminology throughout
 - [ ] Examples are concrete, not abstract
-- [ ] File references are one level deep from SKILL.md
 - [ ] File references use markdown link syntax: `[path](path)`
 - [ ] If skill wraps a library/API: Are official docs linked (when publicly accessible)?
 - [ ] Progressive disclosure used appropriately
 - [ ] Workflows have clear steps
-- [ ] Reference files >100 lines have table of contents
 - [ ] Fixes section contains only empirically observed failures (no speculative troubleshooting)
 
 ## Code and Scripts
@@ -36,10 +28,7 @@ Before sharing a skill, verify against this checklist.
 - [ ] Scripts are single-touch where possible (fold setup + teardown into one command)
 - [ ] Scripts expose clean, composable primitives (not monolithic with complex interdependencies)
 - [ ] Scripts target repo-specific workflows (generic tools already exist)
-- [ ] Scripts documented as `./scripts/x` relative to SKILL.md, no `cd` tricks
-- [ ] Standard note included: invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory
 - [ ] No "voodoo constants" (all magic numbers justified and documented)
-- [ ] Required packages listed in instructions and verified as available
 - [ ] No Windows-style paths (all forward slashes)
 - [ ] Validation/verification steps for critical operations
 - [ ] Feedback loops included for quality-critical tasks
@@ -54,20 +43,10 @@ Before sharing a skill, verify against this checklist.
 - [ ] Team feedback incorporated (if applicable)
 - [ ] Observed how Claude navigates the skill (file access patterns)
 
-## Naming
-
-- [ ] Name is hyphen-case (lowercase letters, digits, hyphens)
-- [ ] Name is max 64 characters
-- [ ] Name doesn't contain reserved words ("anthropic", "claude")
-- [ ] Name doesn't start/end with hyphen or have consecutive hyphens
-- [ ] Gerund form preferred (e.g., "processing-pdfs", "analyzing-data")
 
 ## Description
 
-- [ ] Non-empty
-- [ ] Max 1024 characters
-- [ ] No XML tags (angle brackets)
-- [ ] Third person only
+- [ ] Non-empty; name and description limits per SKILL.md frontmatter rules (`quick_validate.py` checks them)
 - [ ] Includes specific triggers/contexts for when to use
 - [ ] Not vague ("helps with documents" → bad)
 

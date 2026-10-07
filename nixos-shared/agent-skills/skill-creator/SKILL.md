@@ -1,25 +1,17 @@
 ---
 name: skill-creator
-description: Guides creation of effective skills that extend Claude's capabilities with specialized knowledge, workflows, or tool integrations. Use when users want to create a new skill, update an existing skill, review a skill, or ask about skill best practices and structure.
+description: "Creates, edits and reviews skills in this nixos-config (nixos-shared/agent-skills/), following its packaging, Nix-shebang and validation conventions. Use for any skill that lives in or will be added to this repo, or for skill best-practice questions. For running trigger evals, benchmarking or description-optimisation loops, use anthropic-skills:skill-creator instead."
 license: Complete terms in LICENSE.txt
 ---
 
 # Skill Creator (local)
 
 Local conventions for writing and installing skills on this machine. The eval
-pipeline lives upstream and is not duplicated here.
-
-## Which skill for what
-
-| Task | Use |
-|---|---|
-| Write, review or restructure a skill; install it via nixos-config | this skill |
-| Run test cases with-skill vs baseline, grade, benchmark (pass rate, time, tokens), eval viewer, blind comparison | `anthropic-skills:skill-creator` |
-| Optimise the `description` for triggering accuracy (`run_loop.py`) | `anthropic-skills:skill-creator` |
-
-The upstream scripts call `claude -p` with the session's auth, so no
-`ANTHROPIC_API_KEY` is needed. Its "package a .skill file" step does not apply
-here: install as below instead.
+pipeline (with-skill vs baseline runs, grading, benchmarks,
+`run_loop.py` description optimisation) lives in `anthropic-skills:skill-creator`.
+Its scripts call `claude -p` with the session's auth, so no `ANTHROPIC_API_KEY`
+is needed. Its "package a .skill file" step does not apply here: install as
+below instead.
 
 ## Install path (nixos-config)
 
@@ -163,8 +155,6 @@ Overtriggering: add negative triggers ("Do NOT use for ...") and narrow scope.
 - [references/anti-patterns.md](references/anti-patterns.md): description,
   structure, content and script anti-patterns, with bad/good examples. Read when
   reviewing a skill.
-- [references/workflows.md](references/workflows.md): sequential, conditional,
-  feedback-loop, plan-validate-execute and multi-MCP patterns.
 - [references/output-patterns.md](references/output-patterns.md): templates and
   examples for consistent output.
 - [references/progressive-disclosure.md](references/progressive-disclosure.md):

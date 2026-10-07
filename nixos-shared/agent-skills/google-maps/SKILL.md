@@ -1,6 +1,6 @@
 ---
 name: google-maps
-description: "Queries Google Maps Platform and Google Weather APIs for geocoding, reverse-geocoding, directions with travel times, distance matrix, places search, place details, static map images, and current/hourly/daily weather forecasts. Use when the user mentions an address or lat/lng coordinates; asks how to get somewhere, travel time, ETA, or a route (driving, walking, bicycling, transit); asks for nearby places, restaurants, cafes, bars, or points of interest (including \"near me\" or \"closest\"); wants a map image; or asks about weather, forecast, temperature, rain, or conditions at a location."
+description: "Queries Google Maps Platform and Google Weather APIs for geocoding, reverse-geocoding, directions with travel times, distance matrix, places search, place details, static map images, and current/hourly/daily weather forecasts. Use when the user asks about a location: where it is, what is there or nearby (restaurants, cafes, bars, points of interest, the closest X), how far it is, or how to get there (travel time, ETA, route by driving, walking, bicycling, transit); wants a map image; or asks about weather, forecast, temperature, rain, or conditions at a place. Needs a named place or coordinates: cannot resolve the user's own location."
 ---
 
 # Google Maps
@@ -16,11 +16,13 @@ Places endpoints use the **Places API (New)** at `places.googleapis.com/v1` — 
 ```bash
 ./scripts/maps-api.sh geocode-pretty "Reeperbahn, Hamburg"
 ./scripts/maps-api.sh directions-pretty "Hamburg" "Berlin" driving
-./scripts/maps-api.sh places-nearby-pretty "53.5488,9.9872" 500 restaurant
+./scripts/maps-api.sh places-nearby-pretty --rank distance "53.5488,9.9872" 500 restaurant
 ./scripts/maps-api.sh place-details-pretty "PLACE_ID"
 ./scripts/maps-api.sh weather-hourly-pretty 53.5495 9.9626 24
 ./scripts/maps-api.sh static-map "Hamburg, Germany" 13 600x400 "" /tmp/map.png
 ```
+
+`places-nearby --rank distance|popularity` sets the API `rankPreference`; use `distance` for "closest".
 
 ## Error handling
 
@@ -48,8 +50,8 @@ MAPS_DEPARTURE_TIME="tomorrow 08:00" \
 - `reverse-geocode-pretty`: 3 results
 - `places-search-pretty` / `places-nearby-pretty`: 10 results
 - `place-details-pretty`: 3 reviews × 150 chars each
-- `weather-hourly`: ≤ 240h (paginated internally)
-- `weather-daily`: ≤ 10d (paginated internally)
+- `weather-hourly`: ≤ 240h; `weather-daily`: ≤ 10d (paginated internally, truncated to the requested count)
+- Weather takes coordinates only: geocode an address first.
 
 Raw (non-`-pretty`) variants return the full response.
 
@@ -57,10 +59,8 @@ Raw (non-`-pretty`) variants return the full response.
 
 - Key must be server-side (no HTTP-referrer restriction) with Geocoding + Routes (directions and distance matrix) + Maps Static + Places (New) + Weather enabled — opaque `REQUEST_DENIED` otherwise. The legacy Directions and Distance Matrix APIs are not used.
 - `alternatives` is a magic 4th arg to `directions`; only the literal string `alternatives` enables it.
-- `units` accepts only `METRIC` or `IMPERIAL`; other values return 400.
 - `429` / `RESOURCE_EXHAUSTED` → back off; don't retry immediately.
 
 ## References
 
 - `references/static-maps.md` — marker syntax, URL-length caveats
-- `references/weather.md` — timezone handling, units, pagination
