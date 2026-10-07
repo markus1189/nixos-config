@@ -330,6 +330,22 @@
                 HOME=$TMPDIR bats tests/nzb-search.bats
                 touch $out
               '';
+
+          # --dry-run only: no network, no keys.
+          jev-bats =
+            pkgs.runCommand "jev-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.jq
+                  pkgs.python3
+                ];
+              }
+              ''
+                cd ${./nixos-shared/agent-skills}
+                HOME=$TMPDIR bats tests/jev.bats
+                touch $out
+              '';
         };
 
       devShells.x86_64-linux =

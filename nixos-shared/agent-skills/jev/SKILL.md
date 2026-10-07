@@ -1,13 +1,18 @@
 ---
 name: jev
-description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text with Jev, TypeSafe's decision model, via the OpenRouter Decisions API, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, System One, noul or typesafe/jev-1.13, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
+description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text with decision models: Jev (TypeSafe, via OpenRouter) and Clef (Cloudflare, via Requesty), alone or side by side, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef, Cloudflare's decision model, System One, noul, typesafe/jev-1.13 or sference/clef, wants to compare decision models or judge screenshots and images, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
 ---
 
 # Jev
 
-Jev answers typed questions about a `state` you send it. It never writes prose. Cost is ~USD 0.042 per 1M input tokens, output is free, and a call takes ~0.3–0.8 s, so a judgment costs less than reading the item yourself.
+Decision models answer typed questions about a `state` you send them. They never write prose. Output is free and a call takes ~0.3–1.2 s, so a judgment costs less than reading the item yourself. Jev is the default; everything below was measured on Jev unless it says Clef.
 
-**State leaves the machine** (OpenRouter → TypeSafe, which neither trains on nor retains it; `jev.py` requests zero data retention). If the user hasn't named Jev in this session, ask once before sending their private data. Never send secrets, tokens or credentials.
+| `--model` | backend (inferred; `--via` overrides) | USD / 1M input | context |
+|---|---|---|---|
+| `jev` = `typesafe/jev-1.13` | OpenRouter `/systemone`, zero data retention enforced | 0.042 | 32k |
+| `clef` = `sference/clef` | Requesty EU router (the org enforces EU residency) | 0.24 | 64k |
+
+**State leaves the machine.** Jev: OpenRouter → TypeSafe, neither trains on nor retains it. Clef: Requesty → sference, with no per-request retention guarantee (OpenRouter has no zero-retention endpoint for Clef). If the user hasn't named the model in this session, ask once before sending their private data. Never send secrets, tokens or credentials.
 
 ## Run it
 
@@ -15,13 +20,15 @@ Jev answers typed questions about a `state` you send it. It never writes prose. 
 ./scripts/jev.py < request.json                                    # one request {state, questions}
 ./scripts/jev.py --each items.jsonl --questions q.json > out.jsonl # same questions per line; state = {"item": <line>}
 ./scripts/jev.py --each items.jsonl --questions q.json --context rubric.md   # shared text → state.context
-./scripts/jev.py --dry-run ...                                     # print bodies; no key, no network
+./scripts/jev.py --each items.jsonl --questions q.json --model jev,clef      # compare: same items to both
+./scripts/jev.py --dry-run ...                                     # print {url, body}; no key, no network
 ```
 
 - Exit codes: 0 means ok, 1 means some requests failed or came back missing an asked question (those output lines carry `error`), 2 means a usage, input, key or billing problem, which stops the batch.
 - The cost and the resolved model are printed on stderr. `--help` shows the defaults.
 - Shrink the input with `rg` or code first; Jev judges whatever is left. Read only the shortlist from `out.jsonl`.
 - `--each` output lines are `{"i": N, "answers"|"error": ...}`, where `i` is the 0-based index among the non-blank input lines; join back on it.
+- Compare mode keys `answers` (and `error`) by model and adds `disagree`: the question ids where a noul falls on opposite sides of 0.5, the choices differ, or scores divided by their top level index differ by ≥ 0.25. stderr reports the rate per question. `jq 'select(.disagree|length>0)'` gives the items worth reading.
 
 | type | asks | `criteria` | answer |
 |---|---|---|---|
@@ -36,6 +43,15 @@ Every question needs `instructions`. A string works; use an object or array when
  "team": {"type": "choice", "instructions": "Which team should handle `item.text`?",
           "criteria": {"billing": "charges, refunds", "tech": "bugs, outages, login", "none": "none of these"}}}
 ```
+
+## Clef
+
+- More decisive than Jev: on 8 items whose title contradicted the body, Clef's urgent-yes answers were 0.94–0.98 where Jev's were 0.69–0.96, with the same verdicts. Jev's thresholds below are not validated for Clef; label items before trusting a cutoff.
+- ~5× Jev's cost per item (8 items: USD 0.00078 vs 0.00016).
+- State is sent as JSON text, not an object; Clef still followed `` `item.body` `` paths on all 8 decoy items.
+- `sference/clef` takes at most 16 questions per request; 17 fail with a bare `Validation failed` 400. Split larger question sets.
+- Only `sference/clef` is approved for the `api/requesty/systemone` key; `cloudflare/clef` and `cloudflare/clef-flash` answer 403 until approved in the Requesty Model Library.
+- Images (≤4, PNG/JPEG/WebP) work only on `cloudflare/clef` via OpenRouter, which has no zero-retention endpoint for it: `--model cloudflare/clef --via openrouter --no-zdr --image shot.png`, or per item `"_images": ["a.png"]` in the JSONL (paths relative to the cwd). sference declares no image input, whatever Requesty's `supports_vision` says. `--no-zdr` still enforces no training on the data; ask before sending private images.
 
 ## Writing questions
 
