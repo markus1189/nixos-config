@@ -1,40 +1,45 @@
 ---
 name: jev
-description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text with decision models: Jev (TypeSafe, via OpenRouter) and Clef (Cloudflare, via Requesty), alone or side by side, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef, Cloudflare's decision model, System One, noul, typesafe/jev-1.13 or sference/clef, wants to compare decision models or judge screenshots and images, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
+description: "Runs cheap, fast typed judgments (yes/no, pick-one, rubric score) over text and images with decision models, Jev (TypeSafe) and Clef (Cloudflare), alone or side by side, so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef, Cloudflare's decision model, System One, noul, typesafe/jev-1.13 or sference/clef, wants to compare decision models or judge screenshots and images, or wants many items triaged, filtered, classified, routed, ranked, deduplicated or checked against criteria (feeds, logs, tickets, search results, comments, file lists). Not for generating text, reasoning, counting or arithmetic, and not for building TypeSafe into an application."
 ---
 
-# Jev
+# Jev and Clef (decision models)
 
-Decision models answer typed questions about a `state` you send them. They never write prose. Output is free and a call takes ~0.3–1.2 s, so a judgment costs less than reading the item yourself. Jev is the default; everything below was measured on Jev unless it says Clef.
+Decision models answer typed questions about a `state` you send them. They never write prose. Output is free, so a judgment costs less than reading the item yourself. Facts below were measured on Jev unless marked Clef.
 
-| `--model` | backend (inferred; `--via` overrides) | USD / 1M input | context |
-|---|---|---|---|
-| `jev` = `typesafe/jev-1.13` | OpenRouter `/systemone`, zero data retention enforced | 0.042 | 32k |
-| `clef` = `sference/clef` | Requesty EU router (the org enforces EU residency) | 0.24 | 64k |
+| `--model` | route (inferred from the id; `--via` overrides) | USD / 1M input | context | images |
+|---|---|---|---|---|
+| `jev` = `typesafe/jev-1.13` | OpenRouter, zero data retention, no training | 0.042 | 32k | no |
+| `clef` = `sference/clef` | Requesty EU router, no retention guarantee | 0.24 | 64k | no |
+| `cloudflare/clef`, `cloudflare/clef-flash` | `--via openrouter --no-zdr`: OpenRouter, no training, retention possible | 0.24 / 0.09 | 64k | ≤4 |
 
-**State leaves the machine.** Jev: OpenRouter → TypeSafe, neither trains on nor retains it. Clef: Requesty → sference, with no per-request retention guarantee (OpenRouter has no zero-retention endpoint for Clef). If the user hasn't named the model in this session, ask once before sending their private data. Never send secrets, tokens or credentials.
+**Pick:** Jev by default: cheapest, ~0.3–0.8 s a call, and the only route with zero retention. Clef when the user asks for it or an item won't fit 32k tokens. `cloudflare/clef --via openrouter --no-zdr` for anything with images; no alias takes images, and images can't go to Jev, so they can't be compared against it. `--model jev,clef` when you have no labels and want the contested items.
+
+**State leaves the machine.** Only Jev on its default OpenRouter route has zero retention; Jev via Requesty is refused unless `--no-zdr` accepts that. Before sending the user's private data anywhere else, get their OK once per session unless they named that route, and say that retention isn't guaranteed. Images lose their metadata (EXIF, GPS) before sending unless `--no-downscale`. Never send secrets, tokens or credentials.
 
 ## Run it
 
 ```bash
-./scripts/jev.py < request.json                                    # one request {state, questions}
-./scripts/jev.py --each items.jsonl --questions q.json > out.jsonl # same questions per line; state = {"item": <line>}
-./scripts/jev.py --each items.jsonl --questions q.json --context rubric.md   # shared text → state.context
+./scripts/jev.py < request.json                                    # one request {state, questions[, model]}; a model there must match any --model
+./scripts/jev.py --each items.jsonl --questions q.json > out.jsonl # one JSON value per line (quote plain text: "…"); state = {"item": <value>}
+./scripts/jev.py --each items.jsonl --questions q.json --context rubric.md   # shared JSON or text → state.context
 ./scripts/jev.py --each items.jsonl --questions q.json --model jev,clef      # compare: same items to both
-./scripts/jev.py --dry-run ...                                     # print {url, body}; no key, no network
+./scripts/jev.py --each shots.jsonl --questions q.json --model cloudflare/clef --via openrouter --no-zdr --image legend.png
+./scripts/jev.py --dry-run ...                                     # one {url, body} line per item × model, in input order; no key, no network
 ```
 
-- Exit codes: 0 means ok, 1 means some requests failed or came back missing an asked question (those output lines carry `error`), 2 means a usage, input, key or billing problem, which stops the batch.
-- The cost and the resolved model are printed on stderr. `--help` shows the defaults.
-- Shrink the input with `rg` or code first; Jev judges whatever is left. Read only the shortlist from `out.jsonl`.
-- `--each` output lines are `{"i": N, "answers"|"error": ...}`, where `i` is the 0-based index among the non-blank input lines; join back on it.
-- Compare mode keys `answers` (and `error`) by model and adds `disagree`: the question ids where a noul falls on opposite sides of 0.5, the choices differ, or scores divided by their top level index differ by ≥ 0.25. stderr reports the rate per question. `jq 'select(.disagree|length>0)'` gives the items worth reading.
+- Output: a single request prints one indented object, `{model, answers, usage}` or `{error}` (with `--model a,b`, the compare shape below without `i`). `--each` prints JSONL `{"i": N, "answers"|"error": ...}`, where `i` is the 0-based index among the non-blank input lines; join back on it.
+- Compare mode keys `answers` and `error` by full model id and adds `disagree`: the question ids where a noul falls on opposite sides of 0.5, the choices differ, or scores divided by their top level index differ by ≥ 0.25. The noul rule is deliberately loose, to surface candidates. Lines where a model failed carry `error` and no `disagree`, so select `.error` too or you lose them. stderr gives the counts per question.
+- Exit 0: all answered. Exit 1: some lines carry `error`. Codes `0` (transport), 408, 429, 500, 502–504, 520, 524, 529 and OpenRouter's in-flight 402 were already retried, so rerun those `i` later. The rest fail again until you change the item, the questions or the model: other HTTP statuses (400, 413; 404 usually means a wrong model or route), `waf_403` or a 403 with metadata (that item's content was blocked), `missing_answers`, `bad_answer`, `no_answers`, `bad_response`, `error`, `image` (bad `_images` entry).
+- Exit 2: nothing was sent (usage, input, missing key, or a refusal ending in "retry with --do-it-anyway"), or a 401/402/403 stopped the batch (bad key, no credits, model not approved). Requests already in flight still finish, so after fixing the cause rerun every line that carries `error`, not only `"code": "skipped"`.
+- `--dry-run` shows what would be sent; it can't catch server-side rejections such as a 403 for an unapproved model.
+- Shrink the input with `rg` or code first; the model judges whatever is left. Read the shortlist, then the samples Reading answers asks for.
 
 | type | asks | `criteria` | answer |
 |---|---|---|---|
 | `noul` | is this true? | optional `{"true": "...", "false": "..."}` | `noul` = P(yes), no confidence |
-| `choice` | which one? (≤255 options) | `{"option": "description", ...}` | `choice`, `probabilities`, `confidence` |
-| `score` | where on a rubric? | ordered array low→high, 2–10 levels | `score` (expected 0-based index), `probabilities`, `confidence` |
+| `choice` | which one? (Jev: ≤255 options) | `{"option": "description", ...}` | `choice`, `probabilities`, `confidence` |
+| `score` | where on a rubric? | ordered array low→high (Jev: 2–10 levels; OpenRouter accepts 1 and returns a meaningless `confidence: 1`) | `score` (expected 0-based index), `probabilities`, `confidence` |
 
 Every question needs `instructions`. A string works; use an object or array when the question needs definitions or contrasts. Example `q.json`:
 
@@ -46,43 +51,42 @@ Every question needs `instructions`. A string works; use an object or array when
 
 ## Clef
 
-- More decisive than Jev: on 8 items whose title contradicted the body, Clef's urgent-yes answers were 0.94–0.98 where Jev's were 0.69–0.96, with the same verdicts. Jev's thresholds below are not validated for Clef; label items before trusting a cutoff.
-- ~5× Jev's cost per item (8 items: USD 0.00078 vs 0.00016).
-- State is sent as JSON text, not an object; Clef still followed `` `item.body` `` paths on all 8 decoy items.
-- `sference/clef` takes at most 16 questions per request; 17 fail with a bare `Validation failed` 400. Split larger question sets.
-- Only `sference/clef` is approved for the `api/requesty/systemone` key; `cloudflare/clef` and `cloudflare/clef-flash` answer 403 until approved in the Requesty Model Library.
-- Images (≤4, PNG/JPEG/WebP) work only on `cloudflare/clef` via OpenRouter, which has no zero-retention endpoint for it: `--model cloudflare/clef --via openrouter --no-zdr --image shot.png`, or per item `"_images": ["a.png"]` in the JSONL (paths relative to the cwd). sference declares no image input, whatever Requesty's `supports_vision` says. `--no-zdr` still enforces no training on the data; ask before sending private images.
-- Images are shrunk before sending (to 1024 px, then JPEG until the request's images fit 384 KiB), and every change is reported: stderr for `--image`, a `downscaled` list in the item's output line for `_images`. Cost stops growing at 1024 px, and from ~384 KiB of image bytes the server refuses with 413 before inference, far below the documented 4 MiB. `--no-downscale` sends files unchanged, e.g. when fine detail matters more than the 413 risk.
-- Refusals based on provider capabilities or limits (images per model, the `--no-zdr` requirement, image count and bytes) end in "retry with --do-it-anyway". Retry only when you have reason to think the provider changed; the flag never drops ZDR, and a forced request that succeeds prints which check is stale, so fix it in `jev.py` instead of forcing again.
+- More decisive than Jev: on 8 items whose title contradicted the body, Clef's urgent-yes answers were 0.94–0.98 where Jev's were 0.69–0.96, with the same verdicts, so Jev's cutoffs don't carry over.
+- Requesty gets state as JSON text, not an object; Clef still followed `` `item.body` `` paths on all 8 decoy items.
+- `sference/clef` takes at most 16 questions; more are refused before sending. Split them.
+- On Requesty only `sference/clef` is approved for the `api/requesty/systemone` key; `cloudflare/clef[-flash]` there get a 403 that stops the batch.
+- Images: `--image shot.png` for every request, plus, per item, `"_images": ["a.png"]` in an object line (paths relative to the cwd; the key is removed from `item`, and `null` is an item error). sference declares no image input, whatever Requesty's `supports_vision` says.
+- Images are shrunk before sending: to 1024 px, then to JPEG (transparency flattened onto white) until the request fits 360 KiB, state text included (for `--image`, the longest item's). Each change is reported: stderr for `--image`, a `downscaled` list in the item's line for `_images`. Cost stops growing at 1024 px, and the server refuses with 413 before inference somewhere between 376 and 402 KB of image, far below the documented 4 MiB. `--no-downscale` sends files unchanged.
+- `--image` sets over 4 images, or whose images alone exceed the byte budget, are refused; anything that goes over only with an item's text or `_images` is sent with a stderr warning, as are per-item `_images` over the limits, so one item can't sink the batch.
+
+**Refusals** that rest on provider facts (images per model, `--no-zdr` for Clef via OpenRouter, image count and bytes, sference's question cap) end in "retry with --do-it-anyway". Force only when you think the provider changed. The flag never drops ZDR. A forced request that succeeds names the stale check to fix in `~/repos/nixos-config/nixos-shared/agent-skills/jev/scripts/jev.py`; for image refusals it asks for a control question first, since Requesty answers while silently dropping images.
 
 ## Writing questions
 
 - Ask one narrow judgment per question. Split "is this good" into the properties you actually care about.
-- Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once, and answers don't change with what else is asked.
+- Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once. Questions are answered independently, so one can't use another's answer; chain a second request for that.
 - Question IDs are never sent to the model. Put the full meaning in `instructions`, including whether world knowledge may be used, and point into state with backticked paths such as `` `item.title` ``.
 - For a choice, list every legal option plus `none`. Jev leans towards the first option, so for a choice that matters, reorder the options and check the answer holds. For a score, describe a concrete situation at each level, with no numbers and no "more than the previous level". Phrase a noul so that "yes" is the thing you're looking for, consider writing its `false` criterion as the near miss rather than the plain opposite, and avoid double negatives and multi-hop logic.
-- Questions in one request are answered independently. If one depends on another's answer, send a second request.
 
 ## Reading answers
 
 - For a noul, ≥0.7 is yes and ≤0.3 is no. In between means *uncertain*, so read those items yourself. 0.5 means "can't tell", not "medium". P(X) and P(not X) asked separately don't sum to 1 (0.80–0.95 measured), so ask the side you act on.
 - A low-`confidence` score is a flat distribution: a precise-looking 1.53 can mean nothing. A score between levels is a position, not a magnitude; to combine scores, divide each by its top level index first. High confidence isn't accuracy on contested items or numeric state.
-- Values are rounded to 0.01, so break ties in code.
+- Jev rounds values to 0.01, so break ties in code.
 - Thresholds are uncalibrated. When the outcome matters, label 20–50 items yourself and compare.
 - Before concluding, read the selected originals **and** a sample of the rejected and uncertain items.
 
 ## Don't
 
-- Don't use it to count, do arithmetic, compare dates or produce text.
+- Don't use it to count, do arithmetic or compare dates.
 - Don't gate untrusted input with it: injected instructions in `state` move the answers, and planted false facts move them far more.
-- Don't pad state. Context rot is documented, and state plus the longest question are capped at 32k tokens: keep an item under ~100k characters and truncate longer ones in code.
-- Don't pack several items into one `state`: scores shift by position, in either direction, by up to ~0.37. Use `--each`. TypeSafe's own pattern for comparing one state against many candidates (dedupe, rerank) puts each candidate in its own question's `instructions` object instead; that pays for a large shared state once, but its position effects are unmeasured here.
+- Don't pad state. Context rot is documented, and state plus the longest question are capped (Jev 32k tokens, Clef 64k): for Jev keep item plus `--context` under ~100k characters and truncate longer ones in code.
+- Don't pack several items into one `state`: Jev's scores shift by position, in either direction, by up to ~0.37. Use `--each`. TypeSafe's own pattern for comparing one state against many candidates (dedupe, rerank) puts each candidate in its own question's `instructions` object instead; that pays for a large shared state once, but its position effects are unmeasured here.
 - Don't trust answers for non-English or specialist domains (e.g. German accounting) without a labelled check. Write the instructions in English even when the state isn't.
-- OpenRouter doesn't enforce every documented limit: a 1-level score is accepted and returns `confidence: 1`.
 
 ## Deeper
 
-- [Docs index](https://docs.typesafe.ai/llms.txt); append `.md` to any page. Failure modes are listed on [model-jaggedness/jev-1.13](https://docs.typesafe.ai/model-jaggedness/jev-1.13.md).
-- For building TypeSafe into an application, use the official skill [typesafe-ai/skills](https://github.com/typesafe-ai/skills/blob/main/skills/typesafe-ai/SKILL.md).
+- Jev: [docs index](https://docs.typesafe.ai/llms.txt), append `.md` to any page; failure modes on [model-jaggedness/jev-1.13](https://docs.typesafe.ai/model-jaggedness/jev-1.13.md). For building TypeSafe into an application, use the official skill [typesafe-ai/skills](https://github.com/typesafe-ai/skills/blob/main/skills/typesafe-ai/SKILL.md).
+- Clef: [Cloudflare model page](https://developers.cloudflare.com/workers-ai/models/clef/), [Requesty decisions](https://docs.requesty.ai/features/decisions.md).
 
 **Script Execution:** Always invoke scripts by absolute path: resolve `./scripts/` against this SKILL.md's directory. All scripts use Nix shebangs, so no dependency installation is needed.

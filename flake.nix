@@ -331,7 +331,7 @@
                 touch $out
               '';
 
-          # --dry-run only: no network, no keys.
+          # Offline: --dry-run, fake responses and a loopback stub; no real keys.
           jev-bats =
             pkgs.runCommand "jev-bats"
               {
