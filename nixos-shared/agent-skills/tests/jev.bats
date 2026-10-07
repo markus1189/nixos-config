@@ -12,8 +12,7 @@ setup() {
     cd "$BATS_TEST_TMPDIR"
     printf '%s\n' '{"text":"a"}' '{"text":"b"}' > items.jsonl
     echo '{"u":{"type":"noul","instructions":"`item.text` is urgent."}}' > q.json
-    # 1x1 PNG
-    printf '\x89PNG\r\n\x1a\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01\x08\x02\0\0\0\x90wS\xde\0\0\0\x0cIDAT\x08\xd7c\xf8\xcf\xc0\0\0\x03\x01\x01\0\xc9\xfe\x92\xef\0\0\0\0IEND\xaeB`\x82' > red.png
+    magick -size 8x8 xc:red red.png
     echo 'not an image' > x.txt
     IMG="--model cloudflare/clef --via openrouter --no-zdr"
 }
@@ -134,4 +133,54 @@ b = {"n": {"noul": 0.6}, "n2": {"noul": 0.9}, "c": {"choice": "y"}, "s": {"score
 print(jev.disagree(qs, {"m1": a, "m2": b}))' "$(dirname "$SCRIPT")"
     assert_success
     assert_output "['n', 'c', 's']"
+}
+
+@test "an oversized --image is shrunk to 1024 px JPEG within the byte budget and reported on stderr" {
+    magick -size 1500x1500 xc: +noise Random big.png
+    run --separate-stderr jev --dry-run $IMG --image big.png --each items.jsonl --questions q.json
+    assert_success
+    [[ "$stderr" == *"downscaled big.png: 1500x1500 png "*" -> "*" jpeg "* ]]
+    url=$(head -1 <<<"$output" | jq -r '.body.state[1].image_url.url')
+    [[ "$url" =~ ^data:image/jpeg\;base64,\<([0-9]+)\ bytes\>$ ]]
+    (( BASH_REMATCH[1] <= 384 * 1024 ))
+}
+
+@test "per-item downscaling is reported in the item's line, small images pass untouched" {
+    magick -size 1500x1500 xc: +noise Random big.png
+    printf '%s\n' '{"t":"a","_images":["big.png"]}' '{"t":"b","_images":["red.png"]}' > img.jsonl
+    run --separate-stderr jev --dry-run $IMG --each img.jsonl --questions q.json
+    assert_success
+    [[ "$(head -1 <<<"$output" | jq -r '.downscaled[0]')" == "big.png: 1500x1500 png "*" -> "*" jpeg "* ]]
+    assert_equal "$(sed -n 2p <<<"$output" | jq -r '.downscaled')" "null"
+    [[ "$(sed -n 2p <<<"$output" | jq -r '.body.state[1].image_url.url')" == data:image/png\;base64,* ]]
+}
+
+@test "--no-downscale refuses an --image over the byte budget" {
+    magick -size 1500x1500 xc: +noise Random big.png
+    run jev --dry-run $IMG --no-downscale --image big.png --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "> 384 KiB (every request would fail)"
+}
+
+@test "capability refusals suggest --do-it-anyway, which sends with a warning and keeps the images" {
+    run jev --dry-run --model clef --no-zdr --image red.png --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "retry with --do-it-anyway"
+    run --separate-stderr jev --dry-run --model clef --do-it-anyway --image red.png --each items.jsonl --questions q.json
+    assert_success
+    [[ "$stderr" == *"--do-it-anyway: sending although images need"*"sference/clef"* ]]
+    [[ "$stderr" != *"images need --no-zdr"* ]]
+    assert_equal "$(head -1 <<<"$output" | jq -r '.body.messages[0].content[1].type')" "image_url"
+}
+
+@test "--do-it-anyway keeps zero data retention when --no-zdr is missing" {
+    run --separate-stderr jev --dry-run --model cloudflare/clef --via openrouter --do-it-anyway --image red.png \
+        --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(head -1 <<<"$output" | jq -c .body.provider)" '{"zdr":true,"data_collection":"deny"}'
+}
+
+@test "--do-it-anyway does not bypass usage errors" {
+    run jev --dry-run --do-it-anyway --model jev,typesafe/jev-1.13 --each items.jsonl --questions q.json
+    assert_failure 2
 }

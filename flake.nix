@@ -339,6 +339,7 @@
                   batsWith
                   pkgs.jq
                   pkgs.python3
+                  pkgs.imagemagick
                 ];
               }
               ''

@@ -52,6 +52,8 @@ Every question needs `instructions`. A string works; use an object or array when
 - `sference/clef` takes at most 16 questions per request; 17 fail with a bare `Validation failed` 400. Split larger question sets.
 - Only `sference/clef` is approved for the `api/requesty/systemone` key; `cloudflare/clef` and `cloudflare/clef-flash` answer 403 until approved in the Requesty Model Library.
 - Images (≤4, PNG/JPEG/WebP) work only on `cloudflare/clef` via OpenRouter, which has no zero-retention endpoint for it: `--model cloudflare/clef --via openrouter --no-zdr --image shot.png`, or per item `"_images": ["a.png"]` in the JSONL (paths relative to the cwd). sference declares no image input, whatever Requesty's `supports_vision` says. `--no-zdr` still enforces no training on the data; ask before sending private images.
+- Images are shrunk before sending (to 1024 px, then JPEG until the request's images fit 384 KiB), and every change is reported: stderr for `--image`, a `downscaled` list in the item's output line for `_images`. Cost stops growing at 1024 px, and from ~384 KiB of image bytes the server refuses with 413 before inference, far below the documented 4 MiB. `--no-downscale` sends files unchanged, e.g. when fine detail matters more than the 413 risk.
+- Refusals based on provider capabilities or limits (images per model, the `--no-zdr` requirement, image count and bytes) end in "retry with --do-it-anyway". Retry only when you have reason to think the provider changed; the flag never drops ZDR, and a forced request that succeeds prints which check is stale, so fix it in `jev.py` instead of forcing again.
 
 ## Writing questions
 
