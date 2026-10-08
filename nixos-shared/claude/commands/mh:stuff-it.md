@@ -6,16 +6,19 @@ Distill this conversation into one self-contained, high-signal note in
 my `~/Stuff` KB. Distill, don't paste — keep decisions, facts,
 numbers, commands, code, paths, gotchas, verdicts; drop the chat,
 narration, and tool sludge (a dead end stays only as a one-liner if
-instructive). Don't invent; don't fake verification.
+instructive). Don't invent; don't fake verification. Record what
+happened, not what was drafted: sent text, posted comments, actual
+runs; anything unconfirmed is marked so.
 
 Focus / slug hint (optional, never block on it):
 <focus>$ARGUMENTS</focus>
 
 **Write to** `~/Stuff/Today/<slug>.md` (slug = short, lowercase,
-hyphenated, specific). First look for related notes: `fd -e md .
-~/Stuff/Today`, then `rg -l -i '<term>' ~/Stuff --glob '*.md'` for
-2–3 distinctive key terms of the topic (KB-wide, not just today).
-Extend a related note instead of duplicating. If a new note supersedes or
+hyphenated, specific). First look for related notes: `rg -l -i
+'<term>' ~/Stuff --glob '*.md'` for 2–3 distinctive key terms.
+Extend a related note instead of duplicating; when extending, re-check
+its existing claims against this conversation and fix superseded ones
+rather than appending. If a new note supersedes or
 complements an existing one, cross-link both ways with relative
 markdown links (a bare name in backticks is not a link). Don't
 create dated dirs; don't edit `llms.txt`/`INDEX.md`.
@@ -23,7 +26,8 @@ create dated dirs; don't edit `llms.txt`/`INDEX.md`.
 **House style:** `# Title` → _italic provenance line_ (date, source,
 method, caveats) → `## TL;DR` → dense body (`##`, bullets,
 language-tagged code, tables for anything comparative) →
-bottom-line/verdict → `---` footer (what was left behind). `✓` marks
+bottom-line/verdict → `---` footer (what was left behind; scratchpad/tmp
+files die with the session, so inline what matters). `✓` marks
 re-verified claims; quotes keep original language. These are personal
 notes — em dashes and emoji markers are fine (de-AI rule is for
 outbound prose only).
