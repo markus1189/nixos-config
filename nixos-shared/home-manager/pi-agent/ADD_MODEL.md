@@ -214,6 +214,7 @@ word "CAKE":
 | `tensorx/deepseek-v4-pro` | false | HTTP 200, answered "Elephant" — **silently blind** |
 | `tensorx/deepseek-v4-flash` | false | HTTP 200, answered "horizon" — **silently blind** |
 | `tensorx/qwen3.8` | true | HTTP 400 — honest rejection (checked 2026-09) |
+| `mistral/mistral-large-4` | true | read "CAKE" — real vision (checked 2026-10) |
 | `tensorx/qwen3.8-flash-next` | true | read "CAKE" — real vision (checked 2026-09) |
 | `sference/deepseek-v4.1-flash` | true | read "CAKE" — real vision (checked 2026-09) |
 

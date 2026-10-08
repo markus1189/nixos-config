@@ -87,6 +87,12 @@ GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
 
 **gptel/Emacs (OpenRouter):** `deepseek/deepseek-v4-pro`, `deepseek/deepseek-v4-flash`, `mistralai/codestral-2508`, `meta-llama/llama-3.3-70b-instruct` — `emacs-config.el:1563-1568`.
 
+### Mistral via Requesty EU
+
+| Model | Consumers |
+|-------|-----------|
+| `mistral/mistral-large-4` | `pi-agent/models.json` (requesty-completions, vision), `laptop/home.nix` (opencode) — vision, tools, streaming tool calls + `reasoning_effort` verified 2026-10; router reports `max_output_tokens: 0`, capped at 128000 |
+
 ---
 
 ## 3. Quick "what to update when X releases"
