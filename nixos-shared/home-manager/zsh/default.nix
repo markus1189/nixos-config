@@ -96,15 +96,46 @@ in
 
       # cdp/cdn [N]: previous/next existing day dir, from the one you're in
       # (else Today's target); each DD-* dir is one step. Leaves Today alone.
+      # Lists the landing dir: stepping through days is usually a search.
       function cdp() {
         local target
         target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today --prev "$@") || return
-        cd "$target" || return
+        cd "$target" && _stuff_ls
       }
       function cdn() {
         local target
         target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today --next "$@") || return
-        cd "$target" || return
+        cd "$target" && _stuff_ls
+      }
+
+      # Grid of $PWD with dated screenshots (YYYY-MM-DD_HH-MM[_N].png, as
+      # the screenshot tool names them) folded into one summary line
+      function _stuff_ls() {
+        emulate -L zsh
+        setopt extended_glob null_glob
+        local -a dirs shots files
+        dirs=( *(/) )
+        shots=( <->-<->-<->_<->-<->(_<->|).png(.) )
+        files=( *(^/) )
+        files=( ''${files:|shots} )
+        (( $#dirs )) && ${pkgs.eza}/bin/eza -d --classify=always $dirs
+        (( $#dirs && $#files )) && print
+        (( $#files )) && ${pkgs.eza}/bin/eza $files
+        if (( $#shots )); then
+          local from=''${shots[1]#*_} to=''${shots[-1]#*_}
+          print "\n+ $#shots screenshots ''${''${from[1,5]}/-/:}–''${''${to[1,5]}/-/:} ($(du -ch $shots | tail -1 | cut -f1))"
+        fi
+      }
+
+      # cdff [query]: fuzzy-pick a file from any day dir, newest first, cd to
+      # it and leave its name on the command line. Depth 4 = one subdir level;
+      # deeper trees (project checkouts) would bury notes ~15:1.
+      function cdff() {
+        local pick
+        pick=$(cd ~/Stuff && ${pkgs.fd}/bin/fd -t f --max-depth 4 . 20* | sort -r \
+          | fzf --height 60% --layout=reverse --border --scheme=path --query="$*" \
+                --preview '${pkgs.bat}/bin/bat --color=always --style=plain --line-range=:80 {}') || return
+        cd ~/Stuff/''${pick:h} && _stuff_ls && print -z -- ''${(q)pick:t}
       }
 
       # Fuzzy find a directory in Stuff and jump to it
