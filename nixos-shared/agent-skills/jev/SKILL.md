@@ -55,10 +55,10 @@ Every question needs `instructions`. A string works; use an object or array when
 | task | run |
 |---|---|
 | where in one long text (log, doc, diff) is X ([recipe](https://docs.typesafe.ai/cookbooks/semantic_find.md)) | one request: state = the lines prefixed `L1:`…; a choice whose criteria map each line id to `null` (≤255 lines, else narrow to a window first), plus a noul "does any line answer X?", since a choice ranks some line first even when none fits |
-| pull a value (date, URL, amount, name) ([recipe](https://docs.typesafe.ai/cookbooks/pre_parsed_value_extraction_cookbook.md), [dates](https://docs.typesafe.ai/cookbooks/date_extraction_cookbook.md)) | over-find candidates with `rg`/regex, then a choice over them plus `none`; copy the pick verbatim. It can't pick a value you didn't list |
+| pull a value (date, URL, amount, name) ([recipe](https://docs.typesafe.ai/cookbooks/pre_parsed_value_extraction_cookbook.md)) | over-find candidates with `rg`/regex, then a choice over them plus `none`; copy the pick verbatim. It can't pick a value you didn't list. Dates ([recipe](https://docs.typesafe.ai/cookbooks/date_extraction_cookbook.md)): a choice for how it's written (absolute, relative, absent), then one per part (month, day, year, relative anchor), assembled in code |
 | best matches for a query ([recipe](https://docs.typesafe.ai/cookbooks/rerank_typesafe.md)) | shortlist with `rg`, then `--each` over the candidates with the query in `--context` and a noul "Does `item` answer `context`?"; sort on it |
 | dedupe ([recipe](https://docs.typesafe.ai/cookbooks/entity_alignment.md)) | candidate pairs from code, one `{"a": …, "b": …}` line each; a score whose middle level is "related, possibly not the same" (read those), a noul per field, numbers compared in code. A wrong merge usually costs more than a miss, so cut high |
-| pick one of many (skills, files, categories) ([recipe](https://docs.typesafe.ai/cookbooks/skill_suggestion.md), [taxonomy](https://docs.typesafe.ai/cookbooks/hierarchical_classification.md), [parent fallback](https://docs.typesafe.ai/cookbooks/classification_using_confidence.md)) | request 1: a choice over all names with short descriptions plus a noul "is any needed?"; request 2: the top 3 with full text, a noul each, drop all if every one is low. Deep taxonomies: one choice per level, or report the parent when `confidence` is low |
+| pick one of many (skills, files, categories) ([recipe](https://docs.typesafe.ai/cookbooks/skill_suggestion.md), [taxonomy](https://docs.typesafe.ai/cookbooks/hierarchical_classification.md), [parent fallback](https://docs.typesafe.ai/cookbooks/classification_using_confidence.md)) | request 1: a choice over all names with short descriptions plus a noul "is any needed?"; request 2: the top 3 with full text, a noul each, drop all if every one is low. Deep taxonomies: keep the 3 best paths at each depth, ranked by the geometric mean of their probabilities; report the parent when `confidence` is low |
 | check claims against a source ([recipe](https://docs.typesafe.ai/cookbooks/citation_check.md)) | match quotes exactly in code first; per claim, the cited section as state and a choice `supported`/`unsupported`/`contradicted`; read the low-confidence ones |
 
 Options in one choice compete and Jev leans towards the first, so a single-request ranking says where to look, not the verdict. The recipes are Python SDK code: their question wording carries over to `q.json`, their thresholds were measured on their data. More in the [cookbook index](https://docs.typesafe.ai/cookbooks.md).
@@ -77,7 +77,7 @@ Options in one choice compete and Jev leans towards the first, so a single-reque
 
 ## Writing questions
 
-- Ask one narrow judgment per question. Split "is this good" into the properties you actually care about.
+- Ask one narrow judgment per question: the observable fact that decides it, not the conclusion. To rejoin wrapped lines, "Does L_i pick up mid-sentence?" kept list items apart where "same paragraph?" left them uncertain; to route, ask whether `item` asks to act on files, accounts, devices or services rather than only explain. Split "is this good" into the properties you actually care about.
 - Ask each disqualifier ("any serious violation fails") as its own noul and combine conditions with and/or in code: a weighted score lets strengths offset a violation.
 - For tags that can apply together, ask one noul per tag: a choice's probabilities sum to 1, so true tags compete and only one wins.
 - Put every question about an item in one `q.json`, including ones that only matter for some items: the item is paid for once. Write the premise into such a question ("If `item` reports a bug, how severe…") and use its answer, and its uncertainty, only where the premise holds. Questions are answered independently, so one can't use another's answer; chain a second request for that.
@@ -88,9 +88,9 @@ Options in one choice compete and Jev leans towards the first, so a single-reque
 ## Reading answers
 
 - For a noul, ≥0.7 is yes and ≤0.3 is no. In between means *uncertain*, so read those items yourself. 0.5 means "can't tell", not "medium". P(X) and P(not X) asked separately don't sum to 1 (0.80–0.95 measured), so ask the side you act on. Shift the band by what errors cost: when a missed yes is expensive, read lower values too; when acting on a false yes is, demand more.
-- A low-`confidence` choice has no clear winner: read the item, or also act on the runner-up in `probabilities` (e.g. copy the second team).
+- A choice's `confidence` is `(p_max − 1/n)/(1 − 1/n)` (measured). Low means no clear winner: read the item, or also act on the runner-up in `probabilities` (e.g. copy the second team).
 - A low-`confidence` score is a flat distribution: a precise-looking 1.53 can mean nothing. A score between levels is a position, not a magnitude; to combine scores, divide each by its top level index first. High confidence isn't accuracy on contested items or numeric state.
-- Jev rounds values to 0.01, so break ties in code.
+- Jev rounds values to 0.01, and repeated calls jitter (one borderline noul spanned 0.43–0.53 over 15 calls), so break ties in code.
 - Thresholds are uncalibrated. When the outcome matters, label 20–50 items yourself and compare.
 - Before concluding, read the selected originals **and** a sample of the rejected and uncertain items.
 
