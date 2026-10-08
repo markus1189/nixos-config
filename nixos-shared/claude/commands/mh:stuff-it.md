@@ -36,3 +36,7 @@ filler. Interview me before assuming anything about the content
 that the conversation hasn't already settled (scope, emphasis, what
 to keep, slug): as many rounds as it takes, each question with a
 recommended default. Don't ask about what the chat already decided.
+
+Only I decide. Your recommendations, and my follow-up questions on
+one, are not decisions: record them as options or recommendations
+unless I explicitly chose. Unsure whether I did? Ask.
