@@ -122,10 +122,6 @@ in
                     name = "GPT 5.4 Chat";
                   };
 
-                  "mistral/mistral-large-4" = {
-                    name = "Mistral Large 4";
-                  };
-
                   "bedrock/claude-opus-5-5@eu-central-1" = {
                     name = "Claude Opus 5.5";
                     # No thinking block, same reason as Opus 5 below.

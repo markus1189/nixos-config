@@ -91,7 +91,9 @@ GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
 
 | Model | Consumers |
 |-------|-----------|
-| `mistral/mistral-large-4` | `pi-agent/models.json` (requesty-completions, vision), `laptop/home.nix` (opencode) — vision, tools, streaming tool calls + `reasoning_effort` verified 2026-10; router reports `max_output_tokens: 0`, capped at 128000 |
+| `mistral/mistral-large-4` | `pi-agent/models.json` (requesty-completions, vision) — vision, tools, streaming tool calls + `reasoning_effort` verified 2026-10; router reports `max_output_tokens: 0`, capped at 128000 |
+
+Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://docs.mistral.ai/studio/conversations/reasoning.md), "Multi-turn"), but Requesty rejects that (400 `unknown unmarshal error`) and passes its own `reasoning_content` through untranslated (422 `extra_forbidden`). Route-wide: `mistral/mistral-medium-3-5` and `mistral/glm-5-2` 422 too, while azure, vertex and sference accept a replayed `reasoning_content` (checked 2026-10). Requesty documents neither field ([schema](https://docs.requesty.ai/api-reference/endpoint/chat-completions-create.md): `content` is a string), so this is a gap, not a broken contract. pi therefore replays thinking as plain text (`compat.requiresThinkingAsText`), which keeps the trace but is off-spec. opencode has no such switch and 422s after the first tool call, so the model is not in its provider block. pi's native `mistral-conversations` API is no way out: it ignores Requesty's `reasoning_content` and would silently drop all reasoning.
 
 ---
 

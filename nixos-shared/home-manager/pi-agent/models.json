@@ -369,8 +369,9 @@
         },
         {
           "id": "mistral/mistral-large-4",
-          "name": "Mistral Large 4 (Requesty/Mistral EU, vision)",
+          "name": "Mistral Large 4 (Requesty/Mistral EU, vision, thinking replayed as text)",
           "reasoning": true,
+          "compat": { "requiresThinkingAsText": true },
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text",
