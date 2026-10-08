@@ -3,16 +3,19 @@ description: >-
   Reviews a diff for HIGH-SIGNAL correctness, security, and maintainability
   issues. Use PROACTIVELY after code changes or before a commit/PR.
 mode: all
-permission:
-  edit: deny
-  write: deny
-  bash:
-    "*": deny
-    "git diff*": allow
-    "git log*": allow
-  read: allow
-  grep: allow
-  glob: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
 ---
 
 You are a senior code reviewer. Get the diff first (`git diff main...HEAD`,

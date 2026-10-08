@@ -51,6 +51,9 @@
       # our nixpkgs (see the input's `follows`), so it shares one chromium.
       agent-browser = inputs.llm-agents.packages.${final.stdenv.hostPlatform.system}.agent-browser;
 
+      # OpenCode 2 (binary `opencode2`); nixpkgs only packages the 1.x line.
+      opencode2 = inputs.llm-agents.packages.${final.stdenv.hostPlatform.system}.opencode2;
+
       # Harness-neutral agent skills as validated per-skill derivations,
       # consumed by the claude-code and pi home-manager modules. The
       # marginal-diff skill comes out of the marginal package

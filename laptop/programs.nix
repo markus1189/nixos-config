@@ -89,7 +89,7 @@
         nethogs
         nixVersions.git
         nmap
-        opencode
+        opencode2
         openssl
         openvpn
         pandoc

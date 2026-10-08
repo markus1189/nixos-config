@@ -76,23 +76,35 @@ in
           target = ".config/opencode/opencode.json";
           text = pkgs.lib.strings.toJSON {
             "$schema" = "https://opencode.ai/config.json";
-            tui = {
-              scroll_speed = 5;
-            };
 
-            permission = {
-              bash = {
-                "git commit" = "ask";
-                "rm -f" = "ask";
-                "rm -rf" = "deny";
-              };
-            };
+            # Nix owns the binary; the self-updater would only nag.
+            update = "disable";
 
-            provider = {
+            # Shell patterns match the whole command, so a rule without the
+            # trailing " *" only ever matches the bare command.
+            permissions = [
+              {
+                action = "shell";
+                resource = "git commit *";
+                effect = "ask";
+              }
+              {
+                action = "shell";
+                resource = "rm -f *";
+                effect = "ask";
+              }
+              {
+                action = "shell";
+                resource = "rm -rf *";
+                effect = "deny";
+              }
+            ];
+
+            providers = {
               requesty = {
                 name = "Requesty Codecentric";
-                npm = "@ai-sdk/openai-compatible";
-                options = {
+                package = "aisdk:@ai-sdk/openai-compatible";
+                settings = {
                   baseURL = "https://router.eu.requesty.ai/v1";
                   apiKey = "{env:REQUESTY_API_KEY_CC}";
                 };
@@ -113,7 +125,7 @@ in
                   "bedrock/claude-opus-5-5@eu-central-1" = {
                     name = "Claude Opus 5.5";
                     # No thinking block, same reason as Opus 5 below.
-                    modalities = {
+                    capabilities = {
                       input = [
                         "text"
                         "image"
@@ -130,7 +142,7 @@ in
                     # config schema only accepts type enum ["enabled","disabled"], so
                     # adaptive can't be expressed here for a custom-provider model.
                     # Opus 5 thinks adaptively by default when no thinking is sent.
-                    modalities = {
+                    capabilities = {
                       input = [
                         "text"
                         "image"
@@ -147,7 +159,7 @@ in
                     # config schema only accepts type enum ["enabled","disabled"], so
                     # adaptive can't be expressed here for a custom-provider model.
                     # Run non-thinking until opencode exposes adaptive as a config type.
-                    modalities = {
+                    capabilities = {
                       input = [
                         "text"
                         "image"
@@ -158,11 +170,11 @@ in
 
                   "vertex/claude-haiku-4-5@europe-west1" = {
                     name = "Claude Haiku 4.5";
-                    thinking = {
+                    settings.thinking = {
                       type = "enabled";
                       budgetTokens = 16000;
                     };
-                    modalities = {
+                    capabilities = {
                       input = [
                         "text"
                         "image"
@@ -176,10 +188,11 @@ in
           };
         };
 
-        "opencode-tui-config" = {
-          target = ".config/opencode/tui.json";
+        "opencode-cli-config" = {
+          target = ".config/opencode/cli.json";
           text = pkgs.lib.strings.toJSON {
-            "$schema" = "https://opencode.ai/tui.json";
+            "$schema" = "https://opencode.ai/v2/cli.json";
+            scroll.speed = 5;
             attention = {
               enabled = true;
               notifications = true;
@@ -188,10 +201,10 @@ in
           };
         };
 
-        # opencode documents ~/.config/opencode/plugins/ (plural); the
-        # singular form still loads in 1.18.29 but is undocumented.
+        # The BEL has to come from the TUI process: server plugins run in
+        # the background service, whose stdout is not the terminal.
         "opencode-plugin-terminal-bell" = {
-          target = ".config/opencode/plugins/terminal-bell.ts";
+          target = ".config/opencode/plugins/terminal-bell/tui.ts";
           text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
         };
 

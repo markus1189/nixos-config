@@ -3,15 +3,15 @@
 let
   inherit (pkgs) lib;
 
-  # opencode's command frontmatter schema only knows description/agent/model/
-  # subtask. A single unknown key (Claude's argument-hint) fails the whole
-  # parse, and opencode then keeps the raw `---` block as part of the prompt
-  # and shows no description. So instead of skipping every command that has
-  # frontmatter, strip it down to the keys opencode understands.
+  # OpenCode 1 failed the whole frontmatter parse on one unknown key
+  # (Claude's argument-hint) and leaked the raw `---` block into the prompt.
+  # OpenCode 2.0.24 still lists such a command with its description; the strip
+  # stays so Claude-only keys never reach the template.
   opencodeCommandKeys = [
     "description"
     "agent"
     "model"
+    "subagent"
     "subtask"
   ];
 
@@ -56,14 +56,14 @@ let
 
   # Auto-configure command files (Claude-only frontmatter keys stripped)
   commandEntries =
-    autoConfigMarkdownFiles ../../claude/commands "command" "opencode-cmd"
+    autoConfigMarkdownFiles ../../claude/commands "commands" "opencode-cmd"
       stripUnknownFrontmatter;
 
   # Auto-configure output-styles as agents
-  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agent" "opencode-agent" lib.id;
+  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agents" "opencode-agent" lib.id;
 
   # Auto-configure opencode-native agents (opencode-specific frontmatter:
-  # mode/model/permission/temperature) kept separate from Claude output-styles
+  # mode/model/permissions) kept separate from Claude output-styles
   opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" lib.id;
 
 in
