@@ -10,12 +10,13 @@ Decision models answer typed questions about a `state` you send them. They never
 | `--model` | route (inferred from the id; `--via` overrides) | USD / 1M input | context | images |
 |---|---|---|---|---|
 | `jev` = `typesafe/jev-1.13` | OpenRouter, zero data retention, no training | 0.042 | 32k | no |
+| `~typesafe/jev-preview`, or `jev --via typesafe` | `--no-zdr`: TypeSafe's own API, no training, retention possible (ZDR is enterprise-only) | 0.042 | 32k | no |
 | `clef` = `sference/clef` | Requesty EU router, no retention guarantee | 0.24 | 64k | no |
 | `cloudflare/clef`, `cloudflare/clef-flash` | `--via openrouter --no-zdr`: OpenRouter, no training, retention possible | 0.24 / 0.09 | 64k | ≤4 |
 
-**Pick:** Jev by default: cheapest, ~0.3–0.8 s a call, and the only route with zero retention. Clef when the user asks for it or an item won't fit 32k tokens. `cloudflare/clef --via openrouter --no-zdr` for anything with images; no alias takes images, and images can't go to Jev, so they can't be compared against it. `--model jev,clef` when you have no labels and want the contested items.
+**Pick:** Jev by default: cheapest, ~0.3–0.8 s a call, and the only route with zero retention. Clef when the user asks for it or an item won't fit 32k tokens. `cloudflare/clef --via openrouter --no-zdr` for anything with images; no alias takes images, and images can't go to Jev, so they can't be compared against it. `--model jev,clef` when you have no labels and want the contested items. `--via typesafe` only when OpenRouter itself fails (gateway errors, credits). To test a preview build against your thresholds, first send one request with `--model '~typesafe/jev-preview' --no-zdr` alone and read its `model` (still `jev-1.13.0` on 2026-10-08; a compare run's summary merges both models' ids); only if it differs, run `--model jev,~typesafe/jev-preview --no-zdr`.
 
-**State leaves the machine.** Only Jev on its default OpenRouter route has zero retention; Jev via Requesty is refused unless `--no-zdr` accepts that. Before sending the user's private data anywhere else, get their OK once per session unless they named that route, and say that retention isn't guaranteed. Images lose their metadata (EXIF, GPS) before sending unless `--no-downscale`. Never send secrets, tokens or credentials.
+**State leaves the machine.** Only Jev on its default OpenRouter route has zero retention; Jev via Requesty or TypeSafe's own API is refused unless `--no-zdr` accepts that. Before sending the user's private data anywhere else, get their OK once per session unless they named that route, and say that retention isn't guaranteed. Images lose their metadata (EXIF, GPS) before sending unless `--no-downscale`. Never send secrets, tokens or credentials.
 
 ## Run it
 

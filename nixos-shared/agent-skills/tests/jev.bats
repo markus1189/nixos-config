@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 # jev.py request shapes via --dry-run, its helpers and call() imported as a module against
 # scripted fake responses (fixtures/jev/fake.py), and main() end to end against a local stub of
-# both APIs (fixtures/jev/stub.py). Nothing touches the real providers.
+# all three APIs (fixtures/jev/stub.py). Nothing touches the real providers.
 
 bats_require_minimum_version 1.5.0
 
@@ -16,7 +16,7 @@ setup() {
     FIX="$BATS_TEST_DIRNAME/fixtures/jev"
     # Nothing may reach the real APIs: no keys, a pass that always fails, and every non-loopback
     # request sent to a dead proxy. stub() points the script at 127.0.0.1 with dummy keys.
-    unset REQUESTY_BASE_URL OPENROUTER_BASE_URL OPENROUTER_API_KEY REQUESTY_API_KEY
+    unset REQUESTY_BASE_URL OPENROUTER_BASE_URL TYPESAFE_BASE_URL OPENROUTER_API_KEY REQUESTY_API_KEY TYPESAFE_API_KEY
     mkdir -p "$BATS_TEST_TMPDIR/nopass"
     printf '#!%s\nexit 1\n' "$(command -v bash)" > "$BATS_TEST_TMPDIR/nopass/pass"
     chmod +x "$BATS_TEST_TMPDIR/nopass/pass"
@@ -43,7 +43,9 @@ stub() {
     for _ in $(seq 50); do [[ -s port ]] && break; sleep 0.1; done
     [[ -s port ]] || { echo "stub failed to start" >&2; return 1; }
     export OPENROUTER_BASE_URL="http://127.0.0.1:$(cat port)/v1" REQUESTY_BASE_URL="http://127.0.0.1:$(cat port)/v1"
-    export OPENROUTER_API_KEY=or-key REQUESTY_API_KEY=rq-key
+    # Its own root, so a key or body sent to the wrong backend shows up in the log's path.
+    export TYPESAFE_BASE_URL="http://127.0.0.1:$(cat port)/ts"
+    export OPENROUTER_API_KEY=or-key REQUESTY_API_KEY=rq-key TYPESAFE_API_KEY=ts-key
 }
 
 teardown() { [[ -n "${STUB_PID:-}" ]] && kill "$STUB_PID" 2>/dev/null || true; }
@@ -585,6 +587,9 @@ ANS_CLEF='{"model": "clef-x", "usage": {"prompt_tokens": 10, "cost": 0.000002}, 
     run jev --each items.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "no key"
+    run jev --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "no key: set TYPESAFE_API_KEY"
 }
 
 @test "call: backoff doubles and the last attempt does not sleep" {
@@ -926,4 +931,123 @@ ans_clef() { echo "{\"model\": \"c\", \"usage\": {\"prompt_tokens\": 10, \"cost\
     assert_equal "$(jq -r '.body.messages[0].content' <<<"$output")" '{"item": {"text": "Größe"}}'
     run jev --dry-run $IMG --image red.png --each de.jsonl --questions q.json
     assert_equal "$(jq -r '.body.state[0].text' <<<"$output")" '{"item": {"text": "Größe"}}'
+}
+
+# --- typesafe direct ---
+
+@test "--via typesafe needs --no-zdr, maps model ids and sends no provider field" {
+    run jev --dry-run --via typesafe --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "loses zero data retention"
+    run jev --dry-run --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(head -1 <<<"$output" | jq -c '[.url, .body.model, (.body | has("provider"))]')" \
+        '["https://api.typesafe.ai/v1/systemone","jev-1.13.0",false]'
+    run jev --dry-run --model '~TypeSafe/jev-preview' --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(head -1 <<<"$output" | jq -r .body.model)" "jev-preview"
+}
+
+@test "jev-preview goes to TypeSafe's own API without --via, still behind --no-zdr" {
+    run jev --dry-run --model jev,'~typesafe/jev-preview' --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "~typesafe/jev-preview via typesafe loses zero data retention"
+    run jev --dry-run --model jev,'~typesafe/jev-preview' --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(head -2 <<<"$output" | jq -c '[.url, .body.provider.zdr]' | tr '\n' ' ')" \
+        '["https://openrouter.ai/api/v1/systemone",true] ["https://api.typesafe.ai/v1/systemone",null] '
+}
+
+@test "--model rejects case-variant duplicates and empty names; TypeSafe's API refuses images" {
+    run jev --dry-run --model jev,TYPESAFE/jev-1.13 --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "twice"
+    run jev --dry-run --model typesafe/ --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "empty model name"
+    run jev --dry-run --via typesafe --no-zdr --do-it-anyway --image red.png --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "takes no images"
+}
+
+@test "price: every Jev spelling is priced, so TypeSafe's cost-less answers are estimated" {
+    run python3 -c '
+import jev
+print(all(jev.price(m) == jev.PRICE[jev.MODEL] for m in ["~typesafe/jev-1.13", "TypeSafe/jev-1.13", "typesafe/jev-preview"]), jev.price("x/y"))'
+    assert_output "True None"
+}
+
+@test "call: TypeSafe's detail-shaped 429 is retried; a detail without message keeps its JSON" {
+    run fake '[{"status": 429, "body": {"detail": {"error_type": "rate_limit_error", "message": "slow"}}, "headers": {"Retry-After": "0"}}]' typesafe
+    assert_equal "$(jq -c '[.calls, .result.error.message, .result.error.provider_code]' <<<"$output")" '[5,"slow","rate_limit_error"]'
+    run fake '[{"status": 400, "body": {"detail": {"error_type": "api_usage_error"}}}]' typesafe
+    assert_equal "$(jq -c '.result.error | [.code, .provider_code, (.message | contains("api_usage_error"))]' <<<"$output")" \
+        '[400,"api_usage_error",true]'
+}
+
+@test "--via typesafe refuses non-TypeSafe models" {
+    run jev --dry-run --model jev,clef --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "serves only typesafe/*"
+}
+
+@test "e2e: TypeSafe's detail-shaped 401 stops the batch with its message" {
+    stub '{"/ts/systemone": [{"status": 401, "body": {"detail": {"error_type": "authentication_error", "message": "bad key"}}}]}'
+    run --separate-stderr jev --via typesafe --no-zdr -j 1 --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_equal "$(head -1 <<<"$output" | jq -c '.error | [.code, .provider_code, .message]')" '[401,"authentication_error","bad key"]'
+    assert_equal "$(jq -r .auth stub.json.log | sort -u)" "Bearer ts-key"
+}
+
+@test "e2e: a live TypeSafe answer: own URL and key, mapped model, no provider, estimated cost" {
+    stub '{"/ts/systemone": [{"body": {"model": "jev-1.13.0", "answers": {"u": {"type": "noul", "noul": 0.9}}, "usage": {"input_tokens": 1000}}}]}'
+    run --separate-stderr jev --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(jq -c '[.path, .auth, .body.model, (.body | has("provider"))]' stub.json.log | sort -u)" \
+        '["/ts/systemone","Bearer ts-key","jev-1.13.0",false]'
+    [[ "$stderr" == *'$0.000084 (est.)'* ]]
+}
+
+@test "e2e: a live compare of jev and jev-preview splits by backend and keeps ZDR for Jev" {
+    stub "{\"/v1/systemone\": [{\"body\": $ANS_JEV}], \"/ts/systemone\": [{\"body\": $ANS_JEV}]}"
+    run --separate-stderr jev --model jev,'~typesafe/jev-preview' --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(jq -c '[.path, .auth, .body.model, (.body.provider // "none")]' stub.json.log | sort -u | tr '\n' ' ')" \
+        "[\"/ts/systemone\",\"Bearer ts-key\",\"jev-preview\",\"none\"] [\"/v1/systemone\",\"Bearer or-key\",\"$JM\",{\"zdr\":true,\"data_collection\":\"deny\"}] "
+}
+
+@test "jev-preview is refused off TypeSafe's API, for any spelling, unless --do-it-anyway" {
+    run jev --dry-run --model 'TypeSafe/Jev-Preview' --no-zdr --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(head -1 <<<"$output" | jq -c '[.url, .body.model]')" '["https://api.typesafe.ai/v1/systemone","jev-preview"]'
+    run jev --dry-run --model '~typesafe/jev-preview' --via openrouter --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "exists only on TypeSafe's own API"
+    run jev --dry-run --model '~typesafe/jev-preview' --via openrouter --do-it-anyway --each items.jsonl --questions q.json
+    assert_success
+}
+
+@test "duplicates are judged by what each backend is sent; bare tildes are empty names" {
+    run jev --dry-run --model 'typesafe/jev-latest,~typesafe/jev-latest' --each items.jsonl --questions q.json
+    assert_success
+    run jev --dry-run --model 'typesafe/jev-latest,~typesafe/jev-latest' --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "twice"
+    run jev --dry-run --model jev,typesafe/jev-1.13.0 --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "twice"
+    run jev --dry-run --model '~' --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "empty model name"
+}
+
+@test "--via typesafe names a non-TypeSafe model before any image or question-cap refusal" {
+    run jev --dry-run --model clef --via typesafe --no-zdr --image red.png --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "serves only typesafe/*"
+}
+
+@test "call: a string detail on 403 is an auth stop, not a WAF block" {
+    run fake '[{"status": 403, "body": {"detail": "Not authenticated"}}]' typesafe
+    assert_equal "$(jq -c '[.calls, .stop, .result.error.code, .result.error.message]' <<<"$output")" '[1,true,403,"Not authenticated"]'
 }

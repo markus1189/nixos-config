@@ -1,4 +1,4 @@
-# Local stand-in for OpenRouter and Requesty: replays scripted responses per URL path.
+# Local stand-in for OpenRouter, Requesty and TypeSafe: replays scripted responses per URL path.
 # usage: python3 stub.py SCRIPT.json PORTFILE
 #   SCRIPT.json: {"/v1/systemone": [{"status": 200, "body": {...}, "headers": {...}}, ...], ...}
 #   Each path's responses are served in order; the last one repeats. Requests are appended

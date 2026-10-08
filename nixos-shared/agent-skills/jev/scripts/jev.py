@@ -12,8 +12,11 @@
 
 Backends: typesafe/* (also ~typesafe/*) -> OpenRouter /systemone with zero data retention; anything
 else -> Requesty EU chat completions with a "questions" response_format. --via overrides.
+TypeSafe's own API (--via typesafe, typesafe/* only; the default for ~typesafe/jev-preview, which no
+other backend serves) needs --no-zdr, as does Jev via Requesty.
 Keys: $OPENROUTER_API_KEY or `pass api/openrouter/jev-skill`; $REQUESTY_API_KEY or
-`pass api/requesty/systemone`. $OPENROUTER_BASE_URL and $REQUESTY_BASE_URL replace the API roots.
+`pass api/requesty/systemone`; $TYPESAFE_API_KEY or `pass api/typesafe-ai/playground`.
+$OPENROUTER_BASE_URL, $REQUESTY_BASE_URL and $TYPESAFE_BASE_URL replace the API roots.
 Summary (requests, failures, cost, models) on stderr.
 Exit: 0 ok, 1 some requests failed, 2 usage/input/auth/billing or a refusal.
 """
@@ -29,15 +32,24 @@ ALIASES = {"jev": MODEL, "clef": "sference/clef"}
 OPENROUTER_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/") + "/systemone"
 # The org enforces EU data residency: router.requesty.ai answers 403 for every request.
 REQUESTY_URL = os.environ.get("REQUESTY_BASE_URL", "https://router.eu.requesty.ai/v1").rstrip("/") + "/chat/completions"
+# ZDR on TypeSafe's own API is enterprise-only; the standard account's DPA retains data "as long as
+# necessary". It rejects an OpenRouter `provider` field with a bare 400.
+TYPESAFE_URL = os.environ.get("TYPESAFE_BASE_URL", "https://api.typesafe.ai/v1").rstrip("/") + "/systemone"
+# OpenRouter's pinned id; TypeSafe answers "Unknown model" to the unsuffixed `jev-1.13`.
+TYPESAFE_IDS = {MODEL: "jev-1.13.0"}
+# OpenRouter answers 400 "does not exist" for these (checked 2026-10-08).
+TYPESAFE_ONLY = {"typesafe/jev-preview"}
 KEYS = {"openrouter": ("OPENROUTER_API_KEY", "api/openrouter/jev-skill"),
-        "requesty": ("REQUESTY_API_KEY", "api/requesty/systemone")}
-# Zero data retention, no data collection: TypeSafe's endpoint qualifies, so the promise is enforced
+        "requesty": ("REQUESTY_API_KEY", "api/requesty/systemone"),
+        "typesafe": ("TYPESAFE_API_KEY", "api/typesafe-ai/playground")}
+# Zero data retention, no data collection: OpenRouter's TypeSafe endpoint qualifies, so the promise is enforced
 # per request rather than assumed from the provider listing. OpenRouter has no ZDR endpoint for
 # Clef (404 with zdr), and Requesty takes no per-request equivalent.
 PROVIDER = {"zdr": True, "data_collection": "deny"}
 PROVIDER_NO_ZDR = {"data_collection": "deny"}
-# USD per input token (output is free); only for estimating when usage.cost is absent,
-# which the response schema allows.
+# USD per input token (output is free); only for estimating when usage.cost is absent, which the
+# response schema allows and TypeSafe's own API always does. Keyed by family(); every Jev id
+# costs the same (docs.typesafe.ai/models.md, 2026-10-08).
 PRICE = {MODEL: 0.042e-6, "sference/clef": 0.24e-6, "cloudflare/clef": 0.24e-6, "cloudflare/clef-flash": 0.09e-6}
 # Transient: rate limits, upstream/gateway errors, overload (529). OpenRouter also returns 520
 # with HTTP 200 and the code in the body, so the body's error.code is checked too.
@@ -81,11 +93,24 @@ def is_typesafe(model):
 
 
 def backend_for(model, via):
-    return via or ("openrouter" if is_typesafe(model) else "requesty")
+    if via:
+        return via
+    if family(model) in TYPESAFE_ONLY:
+        return "typesafe"
+    return "openrouter" if is_typesafe(model) else "requesty"
+
+
+def typesafe_id(model):
+    m = family(model)
+    return TYPESAFE_IDS.get(m, m.removeprefix("typesafe/"))
+
+
+def price(model):
+    return PRICE.get(family(model)) or (PRICE[MODEL] if is_typesafe(model) else None)
 
 
 def provider_for(model, no_zdr):
-    # --no-zdr exists for Clef; Jev keeps its zero-retention endpoint even in a compare run.
+    # Only OpenRouter takes a provider field; there Jev keeps ZDR even when --no-zdr admits Clef.
     return PROVIDER_NO_ZDR if no_zdr and not is_typesafe(model) else PROVIDER
 
 
@@ -196,6 +221,8 @@ def wire(backend, model, state, questions, images, provider):
             # OpenRouter rejects Cloudflare's top-level `images`; it wants them as parts of a state array.
             state = [{"type": "text", "text": text}] + [{"type": "image_url", "image_url": {"url": u}} for u in images]
         return OPENROUTER_URL, {"model": model, "provider": provider, "state": state, "questions": questions}
+    if backend == "typesafe":
+        return TYPESAFE_URL, {"model": typesafe_id(model), "state": state, "questions": questions}
     # Only reached with images under --do-it-anyway: Requesty documents image_url parts for cloudflare/clef.
     content = [{"type": "text", "text": text}] + [{"type": "image_url", "image_url": {"url": u}} for u in images] \
         if images else text
@@ -251,6 +278,12 @@ def call(backend, url, body, questions, k, stop):
             retry_after = e.headers.get("Retry-After")
             try: d = json.load(e)
             except (ValueError, OSError, http.client.HTTPException): d = None
+            if isinstance(d, dict) and "error" not in d and isinstance(det := d.get("detail"), (dict, str)):
+                # TypeSafe's error shape: {"detail": {"error_type", "message"}}; a string detail is
+                # FastAPI's default (e.g. a 403 "Not authenticated"), which must not pass as a WAF block.
+                det = det if isinstance(det, dict) else {"message": det}
+                d = {"error": {"code": e.code, "message": str(det.get("message") or json.dumps(det))[:300],
+                               **({"provider_code": det["error_type"]} if det.get("error_type") else {})}}
             if not isinstance(d, dict) or not isinstance(d.get("error"), dict):
                 # A non-JSON 403 comes from Cloudflare, which users saw trigger on one item's content;
                 # a bad key gets a JSON error. Fail the item, not the batch.
@@ -377,30 +410,33 @@ def main():
     ap.add_argument("--context", metavar="FILE", help="JSON or text added to every item's state as state.context (--each only)")
     ap.add_argument("--model", help="model id, alias (%s) or a comma list to compare; default: %s"
                     % (", ".join(f"{a}={m}" for a, m in ALIASES.items()), MODEL))
-    ap.add_argument("--via", choices=sorted(KEYS), help="force a backend (default: typesafe/* openrouter, else requesty)")
+    ap.add_argument("--via", choices=sorted(KEYS),
+                    help="force a backend (default: typesafe/jev-preview typesafe, other typesafe/* openrouter, "
+                         "else requesty); typesafe takes only typesafe/* and needs --no-zdr")
     ap.add_argument("--image", action="append", default=[], metavar="FILE",
                     help="PNG/JPEG/WebP sent with every request (repeatable; cloudflare/clef* via openrouter with --no-zdr)")
     ap.add_argument("--no-downscale", action="store_true",
                     help=f"send images unchanged instead of shrinking them to {MAX_SIDE} px and {REQUEST_BYTES >> 10} KiB per request")
     ap.add_argument("--do-it-anyway", action="store_true",
                     help="send despite refusals based on provider capabilities or limits that may have gone stale "
-                         "(images per model, the --no-zdr requirement, image count and bytes, sference's question cap); "
-                         "never drops ZDR")
+                         "(images per model, the --no-zdr requirement, image count and bytes, sference's question cap, "
+                         "jev-preview off TypeSafe's API); never drops ZDR, never sends images to TypeSafe's API, which has "
+                         "no image input")
     ap.add_argument("--no-zdr", action="store_true",
-                    help="OpenRouter without zero data retention for non-Jev models (no-training still enforced); "
-                         "needed for Clef there")
+                    help="accept losing zero data retention: Clef via OpenRouter (no-training still enforced there), "
+                         "Jev via requesty or typesafe")
     ap.add_argument("-j", "--jobs", type=int, default=JOBS, help="concurrent items (default: %(default)s)")
     ap.add_argument("--dry-run", action="store_true", help="print {url, body} per request as JSONL and exit; no key, no network")
     a = ap.parse_args()
     if a.jobs < 1:
         ap.error("--jobs must be at least 1")
 
-    def resolve(spec):
+    def resolve(spec, what="--model"):
         ms = [ALIASES.get(m.strip(), m.strip()) for m in spec.split(",") if m.strip()]
         if not ms:
-            ap.error("--model is empty")
-        if len(set(ms)) != len(ms):
-            ap.error("--model lists a model twice")
+            die(f"{what} is empty")
+        if bad := [m for m in ms if not family(m) or m.endswith("/")]:
+            die(f"{what} has an empty model name: {', '.join(bad)}")
         return ms
 
     models = resolve(MODEL if a.model is None else a.model)
@@ -437,14 +473,21 @@ def main():
         if "model" in b:
             if not isinstance(b["model"], str):
                 die("stdin: model must be a string")
-            if a.model is not None and resolve(a.model) != resolve(b["model"]):
+            mb = resolve(b["model"], "stdin model")
+            if a.model is not None and [m.lower() for m in models] != [m.lower() for m in mb]:
                 die(f"model given twice: --model {a.model} and the request's {b['model']!r}")
-            models = resolve(b["model"])
+            models = mb
         jobs = [(b["state"], None)]
     if not isinstance(qs, dict) or not qs or not all(isinstance(q, dict) and isinstance(q.get("type"), str) for q in qs.values()):
         die("questions must be a non-empty map {id: {type: noul|choice|score, instructions, ...}}")
 
     backends = {m: backend_for(m, a.via) for m in models}
+    if a.via == "typesafe" and (nt := [m for m in models if not is_typesafe(m)]):
+        die(f"--via typesafe serves only typesafe/* models, not: {', '.join(nt)}")
+    # By what is sent: OpenRouter may tell `~` aliases from pinned ids, TypeSafe maps both to one name.
+    sent = [(backends[m], typesafe_id(m) if backends[m] == "typesafe" else m.lower()) for m in models]
+    if len(set(sent)) != len(sent):
+        die("--model lists a model twice (after mapping to what each backend is sent)")
     forced = []  # (message, models it concerns, images possibly ignored)
 
     def refuse(msg, concerned, images_ignored=False):
@@ -454,10 +497,14 @@ def main():
         print(f"jev.py: --do-it-anyway: sending although {msg}", file=sys.stderr)
         forced.append((msg, set(concerned), images_ignored))
 
+    if off := [m for m in models if family(m) in TYPESAFE_ONLY and backends[m] != "typesafe"]:
+        refuse(f"{', '.join(off)} exists only on TypeSafe's own API; drop --via or use --via typesafe", off)
     sref = [m for m in models if family(m).startswith("sference/")]
     if sref and len(qs) > SFERENCE_MAX_QUESTIONS:
         refuse(f"{len(qs)} questions > {SFERENCE_MAX_QUESTIONS}, sference's cap; split them into several runs", sref)
     if a.image or any(p is not None for _, p in jobs):
+        if ti := [m for m in models if backends[m] == "typesafe"]:
+            die(f"TypeSafe's own API takes no images: {', '.join(ti)}")
         # Jev rejects images, and sference declares image_input unsupported for its Clef (Requesty
         # answers 400 or silently drops them). Refuse before paying for a comparison where only
         # one side saw the picture.
@@ -467,7 +514,7 @@ def main():
 
     if not a.no_zdr and (jr := [m for m in models if is_typesafe(m) and backends[m] != "openrouter"]):
         # A privacy guard, not a provider fact: --do-it-anyway does not lift it.
-        die(f"{', '.join(jr)} via {a.via} loses zero data retention, which only OpenRouter enforces; "
+        die(f"{', '.join(f'{m} via {backends[m]}' for m in jr)} loses zero data retention, which only OpenRouter enforces; "
             "pass --no-zdr to accept that")
     if not a.no_zdr and (orc := [m for m in models if backends[m] == "openrouter" and not is_typesafe(m)]):
         refuse(f"{', '.join(orc)} via OpenRouter needs --no-zdr: it has no zero-data-retention endpoint for Clef", orc)
@@ -574,8 +621,8 @@ def main():
         u = r.get("usage") if isinstance(r.get("usage"), dict) else {}
         if is_number(u.get("cost")):
             cost += u["cost"]
-        elif is_number(u.get("input_tokens")) and m in PRICE:
-            cost += u["input_tokens"] * PRICE[m]
+        elif is_number(u.get("input_tokens")) and price(m):
+            cost += u["input_tokens"] * price(m)
             estimated = True
         elif "answers" in r:
             unknown = True
