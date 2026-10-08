@@ -78,6 +78,9 @@ Comment Options:
 Thread Options:
   -d, --depth N     Maximum comment depth (default: ${DEFAULT_THREAD_DEPTH})
   -n, --max-comments N  Maximum comments to print (default: ${DEFAULT_THREAD_COMMENTS})
+  --since WHEN      Only comments posted at/after WHEN, plus their ancestors as one-line
+                    context. WHEN is anything 'date -d' parses, local time unless zoned:
+                    "2026-10-08 07:40", "8 hours ago", @1791396092
 
 General Options:
   -h, --help        Show this help message
@@ -92,6 +95,7 @@ Examples:
   ${0##*/} -c 46691835 -n 100              # Fetch up to 100 comments
   ${0##*/} -t 46691835                     # Full thread, one request, up to ${DEFAULT_THREAD_COMMENTS} comments
   ${0##*/} --thread 46691835 -n 800        # Monster threads
+  ${0##*/} -t 46691835 --since "8 hours ago"  # Only what is new, with context
   ${0##*/} -s "rust programming"           # Search for Rust stories (recent first)
   ${0##*/} --search "AI" --sort popular    # Search for AI stories (by popularity)
   ${0##*/} -s "nix" 50                     # Search Nix stories, show 50 results
@@ -370,11 +374,14 @@ show_comments() {
 
 # Fetch the FULL comment tree in one request via Algolia and print it as an
 # indented plain-text thread. No colors — this output is meant for agents.
-# Args: story_id, max_depth, max_comments
+# Args: story_id, max_depth, max_comments, since (epoch; 0 = everything)
+# With since > 0, old comments are kept only as one-line context for the
+# ancestors of newer ones: a reply without its parent is unreadable.
 show_thread() {
     local story_id=$1
     local max_depth=$2
     local max_comments=$3
+    local since=${4:-0}
 
     local json
     if ! json=$(curl --fail -s --max-time 30 "${ALGOLIA_API}/items/${story_id}"); then
@@ -387,7 +394,7 @@ show_thread() {
         exit 1
     fi
 
-    echo "$json" | jq -r --argjson maxd "$max_depth" --argjson maxn "$max_comments" '
+    echo "$json" | jq -r --argjson maxd "$max_depth" --argjson maxn "$max_comments" --argjson since "$since" '
         def clean:
             gsub("<a href=\"(?<u>[^\"]+)\"[^>]*>[^<]*</a>"; "\(.u)")
             | gsub("<p>"; "\n")
@@ -395,25 +402,40 @@ show_thread() {
             | gsub("&gt;"; ">") | gsub("&lt;"; "<") | gsub("&quot;"; "\"")
             | gsub("&#x27;"; "\u0027") | gsub("&#39;"; "\u0027")
             | gsub("&#x2F;"; "/") | gsub("&nbsp;"; " ") | gsub("&amp;"; "&");
+        def isnew: (.created_at_i // 0) >= $since;
+        def hasnew: isnew or any(.children[]?; hasnew);
         def flat(d):
-            (if .author != null and .text != null then {d: d, author, id, text} else empty end),
-            (if d < $maxd then (.children[]? | flat(d+1)) else empty end);
+            select(hasnew)
+            | (if .author != null and .text != null
+               then {d: d, author, id, text, t: .created_at_i, old: (isnew | not)}
+               else empty end),
+              (if d < $maxd then (.children[]? | flat(d+1)) else empty end);
         def indent(n): if n == 0 then "" else "  " * n end;
+        def stamp: if . == null then "?" else strftime("%Y-%m-%d %H:%MZ") end;
 
         . as $root
-        | ([.. | objects | select(.type == "comment" and .author != null)] | length) as $total
+        | [.. | objects | select(.type == "comment" and .author != null)] as $all
+        | [$root.children[]? | flat(0)] as $rows
         | "# \($root.title // "untitled") [\($root.id)]",
-          "\($root.points // 0) points · \($root.author // "?") · \($root.created_at // "" | .[0:10]) · \($total) comments in tree (showing up to \($maxn), depth <= \($maxd))",
+          "\($root.points // 0) points · \($root.author // "?") · \($root.created_at // "" | .[0:10]) · \($all | length) comments in tree"
+            + (if $since > 0 then " · \([$all[] | select(isnew)] | length) new since \($since | stamp) (older ancestors shown as context)" else "" end)
+            + " (showing up to \($maxn), depth <= \($maxd))",
           (if ($root.url // "") != "" then $root.url else empty end),
           (if ($root.text // "") != "" then "", ($root.text | clean) else empty end),
           "",
-          ( [limit($maxn; $root.children[]? | flat(0))][]
+          ( $rows[0:$maxn][]
             | indent(.d) as $i
-            | "\($i)▸ \(.author) [\(.id)]",
-              ($i + "  " + (.text | clean | split("\n") | map(select(length > 0)) | join("\n\($i)  "))),
-              ""
+            | if .old then
+                "\($i)▸ \(.author) [\(.id)] · \(.t | stamp) · (context)",
+                ($i + "  " + (.text | clean | gsub("\n+"; " ") | if length > 120 then .[0:120] + " …" else . end)),
+                ""
+              else
+                "\($i)▸ \(.author) [\(.id)] · \(.t | stamp)",
+                ($i + "  " + (.text | clean | split("\n") | map(select(length > 0)) | join("\n\($i)  "))),
+                ""
+              end
           ),
-          (if $total > $maxn then "[truncated: \($total) comments in tree — re-run with -n N for more]" else empty end)
+          (if ($rows | length) > $maxn then "[truncated: \($rows | length) rows to print — re-run with -n N for more]" else empty end)
     '
 }
 
@@ -693,6 +715,7 @@ STORY_COUNT=$DEFAULT_STORY_COUNT
 HOT_FILTER=false
 DEPTH_SET=false
 MAXN_SET=false
+SINCE=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -761,6 +784,14 @@ while [[ $# -gt 0 ]]; do
             HOT_FILTER=true
             shift
             ;;
+        --since)
+            if [[ -z "${2:-}" ]]; then
+                echo "Error: --since requires a time (e.g. \"2026-10-08 07:40\")" >&2
+                exit 1
+            fi
+            SINCE="$2"
+            shift 2
+            ;;
         -*)
             echo "Error: Unknown option: $1" >&2
             echo "Try '${0##*/} --help' for more information." >&2
@@ -806,7 +837,12 @@ elif [[ "$MODE" == "thread" ]]; then
         echo "Error: Max comments must be a positive number" >&2
         exit 1
     fi
-    show_thread "$STORY_ID" "$THREAD_DEPTH" "$THREAD_MAX"
+    SINCE_EPOCH=0
+    if [[ -n "$SINCE" ]] && ! SINCE_EPOCH=$(date -d "$SINCE" +%s 2>/dev/null); then
+        echo "Error: --since: cannot parse time '$SINCE'" >&2
+        exit 1
+    fi
+    show_thread "$STORY_ID" "$THREAD_DEPTH" "$THREAD_MAX" "$SINCE_EPOCH"
 elif [[ "$MODE" == "search" ]]; then
     if [[ -z "$SEARCH_QUERY" ]]; then
         echo "Error: Search query cannot be empty" >&2

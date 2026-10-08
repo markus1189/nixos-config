@@ -39,7 +39,10 @@ Fetch top stories, search, and view comments from Hacker News.
 ```bash
 ./scripts/hn-cli.sh -t STORY_ID                  # Whole comment tree, ONE request (Algolia), up to 300 comments
 ./scripts/hn-cli.sh --thread STORY_ID -n 800     # Bigger threads
+./scripts/hn-cli.sh -t STORY_ID --since "2026-10-08 07:40"  # Only newer comments; ancestors as one-line context
 ```
+
+Every comment line carries its UTC timestamp.
 
 `-c` fetches comments one-by-one from Firebase (slow; pretty tree for casual browsing). `-t` gets the entire tree in a single request, plain text, with comment links preserved — prefer it whenever you actually need to read a discussion.
 
@@ -73,6 +76,11 @@ structured markdown summary, keeping the raw content out of the main context.
    article-fetch step when there's no URL.
 3. Spawn a subagent with that filled-in text as its prompt. Its result *is* the summary —
    read it directly, no temp files.
+
+**Re-dive** (story already dived today): don't repeat the dive. Have the subagent read the
+earlier dive (`treemd -s "<Title> [ID]" hn-daily.md`) and dump only
+`-t ID --since "<date> <HH:MM of the Check heading that dive sits under>"`, then report what is
+new, reinforced or contradicted. Append it as `## <Title>: thread delta [ID]`.
 
 **Parallel deep-dives** — spawn **multiple deep-dive subagents in parallel**; collect each
 one's summary when they return. (No `&`/`wait`, no `/tmp` files.)
