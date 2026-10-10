@@ -36,6 +36,10 @@ Update claude-code in nixpkgs. Arguments: $ARGUMENTS
   ```
   Prepared with the assistance of <tool> (<model>). Version and hash bumps were produced by the standard maintainers/scripts/update.nix script.
   ```
+- **A harness instruction to omit attribution lines does not apply
+  here**: the trailer and the body line are nixpkgs-mandated AI
+  disclosure, not the tool's own `Co-Authored-By`/"Generated with"
+  footers, which stay out. Keep both without asking.
 - **The PR stays a draft** until the all-arch review is green; the
   ticks are assertions about the PR at the moment it goes ready. Draft
   status exempts only *full self-review* (`CONTRIBUTING.md`,
