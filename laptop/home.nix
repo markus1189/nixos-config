@@ -193,6 +193,8 @@ in
           text = pkgs.lib.strings.toJSON {
             "$schema" = "https://opencode.ai/v2/cli.json";
             scroll.speed = 5;
+            # <leader>m is marginal's, as in Claude Code and pi.
+            keybinds."model.list" = "<leader>o";
             attention = {
               enabled = true;
               notifications = true;
@@ -206,6 +208,13 @@ in
         "opencode-plugin-terminal-bell" = {
           target = ".config/opencode/plugins/terminal-bell/tui.ts";
           text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
+        };
+
+        # The whole directory: tui.ts imports its siblings, resolved from the
+        # store path opencode loads it by.
+        "opencode-plugin-marginal" = {
+          target = ".config/opencode/plugins/marginal";
+          source = "${pkgs.marginal}/share/opencode/plugins/marginal";
         };
 
         "opencode-plugin-sounds" = {
