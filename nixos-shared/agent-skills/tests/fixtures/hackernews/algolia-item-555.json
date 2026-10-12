@@ -1,0 +1,18 @@
+{
+  "id": 555,
+  "type": "comment",
+  "author": "speedbird",
+  "text": "Use a template like <i>ARC42</i>.",
+  "created_at_i": 1781431572,
+  "story_id": 48524084,
+  "children": [
+    {
+      "id": 556,
+      "type": "comment",
+      "author": "reply",
+      "text": "agreed",
+      "created_at_i": 1781431600,
+      "children": []
+    }
+  ]
+}

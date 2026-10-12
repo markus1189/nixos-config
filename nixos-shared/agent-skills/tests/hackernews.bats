@@ -53,7 +53,7 @@ hn() {
 }
 
 answer() { # answer ROUTE FIXTURE
-    cp "$FIX/$2" "$FAKE_CURL_DIR/$1"
+    install -m 0644 "$FIX/$2" "$FAKE_CURL_DIR/$1"  # store copies are read-only; tests re-answer a route
 }
 
 thread_fixture() {
@@ -171,5 +171,35 @@ thread_fixture() {
     answer algolia-search search-empty.json
     run hn -s nothing-matches
     assert_success
-    assert_output --partial "Matching is exact"
+    assert_output --partial "Matching is exact. To widen: drop words or filters, or add --fuzzy"
+}
+
+@test "thread: a comment id is headed by its story, its own text first" {
+    answer algolia-item-555 algolia-item-555.json
+    answer firebase-item-48524084 firebase-item-48524084.json
+    run hn -t 555
+    assert_success
+    assert_line --index 0 "# Software Architecture Guide (2019) [48524084] › comment by speedbird [555]"
+    assert_output --partial "story: 95 points · laxmena · 38 comments · subthread: 2026-06-14 10:06Z · 1 replies"
+    assert_output --partial "Use a template like ARC42."
+    assert_output --partial "▸ reply [556]"
+}
+
+@test "thread: a comment id still works when its story can't be fetched" {
+    answer algolia-item-555 algolia-item-555.json
+    run hn -t 555
+    assert_success
+    assert_line --index 0 "# ? [48524084] › comment by speedbird [555]"
+}
+
+@test "search: --compact prints one line per hit, without Firebase" {
+    answer algolia-search search-comments.json
+    run hn -s arc42 --in comments --compact
+    assert_success
+    assert_output --partial "  1 speedbird [555] · 2026-06-14 · on: Software Architecture Guide (2019) [48524084] · Use a template like ARC42."
+    answer algolia-search search-stories.json
+    run hn -s arc42 --compact
+    assert_success
+    assert_output --partial "  1 Documenting software architecture with arc42 [200] · 146 pts · 32 comments · 2022-08-05"
+    refute grep -q firebaseio "$FAKE_CURL_LOG"
 }

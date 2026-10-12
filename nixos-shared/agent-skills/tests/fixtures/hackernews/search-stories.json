@@ -2,7 +2,11 @@
   "nbHits": 1,
   "hits": [
     {
-      "objectID": "200"
+      "objectID": "200",
+      "title": "Documenting software architecture with arc42",
+      "points": 146,
+      "num_comments": 32,
+      "created_at_i": 1659690000
     }
   ]
 }
