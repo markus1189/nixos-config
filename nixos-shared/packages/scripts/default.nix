@@ -225,6 +225,20 @@ rec {
     '';
   };
 
+  # Ensures and prints this ISO week's dir, ~/Stuff/weeks/YYYY-Www; run daily by
+  # the stuff-today user service.
+  stuffWeek = writeShellApplication {
+    name = "stuff-week";
+    runtimeInputs = [ coreutils ];
+    inheritPath = false;
+    text = ''
+      # %G, not %Y: the ISO week's year. With %Y, 2027-01-01 would be 2027-W53.
+      week="$HOME/Stuff/weeks/$(date +%G-W%V)"
+      mkdir -p "$week"
+      printf '%s\n' "$week"
+    '';
+  };
+
   # ~/Stuff knowledgebase index: llms.txt, YYYY-MM/INDEX.md, .kb/series/.
   # Was ~/Stuff/.kb/kb-index, bootstrapping fd/treemd from ~/Stuff/.flake.
   kbIndex = writeShellApplication {

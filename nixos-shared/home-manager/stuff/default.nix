@@ -9,6 +9,7 @@
   home.packages = [
     # On PATH for agents: `stuff-today --default` names today's DD-<host> dir.
     pkgs.myScripts.stuffToday
+    pkgs.myScripts.stuffWeek
     pkgs.myScripts.kbIndex
     pkgs.myScripts.kbRetroScan
     pkgs.myScripts.backupStuff
@@ -32,10 +33,13 @@
   # Roll ~/Stuff/Today over to the new day before anything reads it
   # (flameshot savePath, rofi-today, /stuff-it), not only when a shell runs cdt.
   systemd.user.services.stuff-today = {
-    Unit.Description = "Create today's ~/Stuff dir and repoint ~/Stuff/Today";
+    Unit.Description = "Create today's ~/Stuff dirs and repoint ~/Stuff/Today";
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.myScripts.stuffToday}/bin/stuff-today";
+      ExecStart = [
+        "${pkgs.myScripts.stuffToday}/bin/stuff-today"
+        "${pkgs.myScripts.stuffWeek}/bin/stuff-week"
+      ];
     };
   };
 

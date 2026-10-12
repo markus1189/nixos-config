@@ -14,12 +14,14 @@ Change it there and rebuild; an edit here cannot stick.
     DD-name/         ← daily working dirs (e.g. 17-some-project-or-topic/)
     DD-<host>/       ← default dir per machine (27-p1g8/, 27-p1/, 27-nuc/), created automatically
     DD-scratch/      ← the same, before 2026-09-27 (one machine, no host in the name)
+  weeks/
+    YYYY-Www/        ← ISO week dirs (2026-W42/), created automatically; `stuff-week` prints this week's
   Today             ← symlink to today's working dir
 ```
 
 ## Guidelines for Agents
 
-- **Don't create or rename `YYYY-MM/`, `DD-<host>/` or `DD-scratch/` dirs** — these are managed automatically
+- **Don't create or rename `YYYY-MM/`, `DD-<host>/`, `DD-scratch/` or `weeks/YYYY-Www/` dirs** — these are managed automatically
 - **Don't write `Today` yourself.** `stuff-today` is its only writer (run by `cdt`, Emacs
   and a daily timer); `stuff-today NAME` creates `DD-NAME` and repoints `Today` at it
 - **Fixed per-day files go in `$(stuff-today --default)`**, today's `DD-<host>/`, not `Today`:
