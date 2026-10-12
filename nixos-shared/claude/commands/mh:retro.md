@@ -49,6 +49,10 @@ Repetitive patterns that could become prompt templates, skills, or AGENTS.md rul
 - Repeated task patterns across sessions
 - Common sequences that could be a `/mh:` command
 
+### Earlier Friction Lists
+Fold every item from this session's **Friction** lists into the category it fits; an item matching
+an existing ledger slug counts as a recurrence.
+
 ## Slugs — Name Every Finding
 
 Give every finding a short **slug**: lowercase, kebab-case, 2-4 words, `category-topic` shaped
