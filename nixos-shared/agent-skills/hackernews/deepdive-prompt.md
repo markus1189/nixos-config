@@ -7,10 +7,10 @@ Substitute before launching:
 - `{{STORY_TITLE}}` — story title
 - `{{CHECK_N}}` — which check of the day this dive belongs to
 - `{{HN_CLI}}` — absolute path to this skill's `scripts/hn-cli.sh`
-- `{{READER_PROFILE}}` — the body of SKILL.md's `## User Interests` section, pasted verbatim
-- `{{TAG_VOCAB}}` — the bullet list under SKILL.md's `### Tag vocabulary`, pasted verbatim
+- `{{READER_PROFILE}}` — the body of `references/interests.md` (everything below its title), pasted verbatim
+- `{{TAG_VOCAB}}` — the bullet list under `### Tag vocabulary` in `references/deep-dives.md`, pasted verbatim
 
-SKILL.md is the single source for both; don't keep a copy here.
+Those files are the single source for both; don't keep a copy here.
 
 If `{{ARTICLE_URL}}` is empty, drop task 1 and renumber.
 
@@ -34,7 +34,8 @@ Weight themes, quotes and links toward these interests:
 2. Fetch the full thread (one request, whole tree) **into a file**: `{{HN_CLI}} --thread {{STORY_ID}} > $W/thread.txt`
    Big threads overflow inline output, and `cat` on the overflow file overflows again. Read `$W/thread.txt`
    with the Read tool in chunks (`offset`/`limit`); `wc -l` first to plan them.
-   Shows up to 300 comments. If the header reports many more and the discussion is rich, re-run with `-n 800`.
+   Shows 300 comments: every top-level comment in HN rank order first, then replies level by level.
+   The header's `showing N of M` says what was left out; if the deeper replies matter, re-run with `-n 800`.
 3. **Keep the `--thread` header line** — `NNN points · submitter · YYYY-MM-DD · NNN comments in tree`. It supplies the metadata line below. Do not re-derive or estimate these.
 4. Collect every outbound link commenters drop — repos, gists, dotfiles, blogs, papers, tools. When in doubt include it; the caller filters better than you can.
 
