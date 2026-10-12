@@ -2505,6 +2505,8 @@ Provides more detailed messages on failure."
            ("https://crawshaw.io/atom.xml" programming programming-general)
            ("https://sunilpai.dev/rss.xml" programming ai)
            ("https://claude.dev/rss.xml" programming ai)
+           ("https://www.thariq.io/rss.xml" programming ai)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorBridge&home_page=https%3A%2F%2Fclaude.com%2Fresources%2Farticles&url_selector=a%5Bhref%2A%3D%22%2Fresources%2Farticles%2F%22%5D&url_pattern=&content_selector=div%5Bclass%2A%3DArticleLayout-module%5D%5Bclass%2A%3D__content%5D&content_cleanup=&title_cleanup=&limit=20&format=Atom" programming ai)
            ("https://discourse.nixos.org/latest.rss" programming programming-general)
            ("https://discourse.haskell.org/latest.rss" programming haskell-discourse)
            ("https://carlillustration.wordpress.com/tag/dungeon-world/feed")
