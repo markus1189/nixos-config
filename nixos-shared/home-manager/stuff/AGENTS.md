@@ -15,7 +15,7 @@ Change it there and rebuild; an edit here cannot stick.
     DD-<host>/       ← default dir per machine (27-p1g8/, 27-p1/, 27-nuc/), created automatically
     DD-scratch/      ← the same, before 2026-09-27 (one machine, no host in the name)
   weeks/
-    YYYY-Www/        ← ISO week dirs (2026-W42/), created automatically; `stuff-week` prints this week's
+    YYYY-Www/        ← ISO week dirs (2026-W41/), created automatically once the week is over; `stuff-week` prints the latest
   Today             ← symlink to today's working dir
 ```
 

@@ -225,15 +225,17 @@ rec {
     '';
   };
 
-  # Ensures and prints this ISO week's dir, ~/Stuff/weeks/YYYY-Www; run daily by
-  # the stuff-today user service.
+  # Ensures and prints the last complete ISO week's dir, ~/Stuff/weeks/YYYY-Www;
+  # run daily by the stuff-today user service, so it appears Monday 00:00.
   stuffWeek = writeShellApplication {
     name = "stuff-week";
     runtimeInputs = [ coreutils ];
     inheritPath = false;
     text = ''
+      # 7 days ago always lies in the previous ISO week. Not `-7 days`: after
+      # a time of day, date parses `-7` as a UTC offset.
       # %G, not %Y: the ISO week's year. With %Y, 2027-01-01 would be 2027-W53.
-      week="$HOME/Stuff/weeks/$(date +%G-W%V)"
+      week="$HOME/Stuff/weeks/$(date -d '7 days ago' +%G-W%V)"
       mkdir -p "$week"
       printf '%s\n' "$week"
     '';
