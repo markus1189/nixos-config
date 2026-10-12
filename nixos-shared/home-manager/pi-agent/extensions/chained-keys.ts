@@ -13,6 +13,7 @@ import { Text } from "@earendil-works/pi-tui";
  *           u   undo            (chains the /undo extension command)
  *           r   reload          (chains /chained-reload -> ctx.reload())
  *           p   popout          (chains the /popout extension command)
+ *           m   marginal        (chains the /marginal extension command)
  *           ?   reshow hints  (re-renders; stays open)
  *           esc cancel        (return to editor)
  *
@@ -36,7 +37,7 @@ import { Text } from "@earendil-works/pi-tui";
  *   Then /reload.
  */
 
-const HINTS = "y copy  ·  u undo  ·  r reload  ·  p popout  ·  esc cancel";
+const HINTS = "y copy  ·  u undo  ·  r reload  ·  p popout  ·  m marginal  ·  esc cancel";
 const ESC = "\x1b";
 
 /** Text of the newest assistant message that has text, or undefined if none. */
@@ -100,6 +101,10 @@ class ChainedMenu {
       this.callbacks.onPopout();
       return;
     }
+    if (k === "m") {
+      this.callbacks.onMarginal();
+      return;
+    }
     if (k === "?") {
       // Re-render / refresh hints (already visible; just ensure a fresh render).
       this.text.invalidate();
@@ -122,6 +127,7 @@ type Callbacks = {
   onUndo: () => void;
   onReload: () => void;
   onPopout: () => void;
+  onMarginal: () => void;
   onCancel: () => void;
   onHelp: () => void;
 };
@@ -166,6 +172,10 @@ async function openCommandMenu(
         // /undo: expandPromptTemplates must be true or the slash text goes to the LLM.
         done(); // close hint bar first
         pi.sendUserMessage("/popout", { expandPromptTemplates: true });
+      },
+      onMarginal: () => {
+        done();
+        pi.sendUserMessage("/marginal", { expandPromptTemplates: true });
       },
       onUndo: () => {
         // Chain the EXISTING /undo extension command — no reimplementation.
