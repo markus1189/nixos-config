@@ -1,0 +1,87 @@
+{
+  "id": 100,
+  "type": "story",
+  "title": "Fixture story",
+  "points": 42,
+  "author": "op",
+  "created_at": "2026-01-01T00:00:00Z",
+  "url": "https://example.com/post",
+  "children": [
+    {
+      "id": 101,
+      "type": "comment",
+      "author": "u101",
+      "text": "text 101",
+      "created_at_i": 1000,
+      "children": [
+        {
+          "id": 111,
+          "type": "comment",
+          "author": "u111",
+          "text": "text 111",
+          "created_at_i": 1100,
+          "children": []
+        },
+        {
+          "id": 112,
+          "type": "comment",
+          "author": "u112",
+          "text": "text 112",
+          "created_at_i": 1200,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "type": "comment",
+      "author": null,
+      "text": null,
+      "created_at_i": 2000,
+      "children": [
+        {
+          "id": 121,
+          "type": "comment",
+          "author": "u121",
+          "text": "text 121",
+          "created_at_i": 2100,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "type": "comment",
+      "author": "u103",
+      "text": "text 103",
+      "created_at_i": 3000,
+      "children": [
+        {
+          "id": 131,
+          "type": "comment",
+          "author": "u131",
+          "text": "text 131",
+          "created_at_i": 3100,
+          "children": [
+            {
+              "id": 1311,
+              "type": "comment",
+              "author": "u1311",
+              "text": "text 1311",
+              "created_at_i": 1900000000,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "type": "comment",
+      "author": "u104",
+      "text": "text 104",
+      "created_at_i": 4000,
+      "children": []
+    }
+  ]
+}

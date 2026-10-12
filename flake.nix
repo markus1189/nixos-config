@@ -332,6 +332,23 @@
                 touch $out
               '';
 
+          # curl is stubbed inside the suite: no network.
+          hackernews-bats =
+            pkgs.runCommand "hackernews-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.jq
+                  pkgs.gawk
+                  pkgs.parallel
+                ];
+              }
+              ''
+                cd ${./nixos-shared/agent-skills}
+                HOME=$TMPDIR bats tests/hackernews.bats
+                touch $out
+              '';
+
           # Offline: --dry-run, fake responses and a loopback stub; no real keys.
           jev-bats =
             pkgs.runCommand "jev-bats"

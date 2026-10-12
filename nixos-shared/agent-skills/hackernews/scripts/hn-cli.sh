@@ -60,15 +60,20 @@ Modes:
   (default)         List top stories
   -c, --comments ID View comments for a story by ID (per-comment fetch, pretty tree)
   -t, --thread ID   Dump the full comment tree in ONE request via Algolia (plain text)
-  -s, --search QUERY  Search stories via Algolia
+  -s, --search QUERY  Search stories or comments via Algolia
 
 Story Options:
   COUNT             Number of stories to display (default: ${DEFAULT_STORY_COUNT}, max: 500)
   --hot             Only show 'hot' stories (${FLAME} score >= ${SCORE_HOT_THRESHOLD} or comments >= ${COMMENT_HOT_THRESHOLD})
 
 Search Options:
-  -s, --search QUERY  Search for stories matching QUERY
+  -s, --search QUERY  Search for QUERY; exact words, every word required
+  --in WHAT           'stories' (default) or 'comments' (hit, its story, link)
   --sort MODE         Sort search results: 'date' (default) or 'popular'
+  --since WHEN        Only items created at/after WHEN ('date -d' syntax: "1 year ago")
+  --min-points N      Stories with at least N points
+  --title-only        Match the story title only, not URL or text
+  --fuzzy             Allow typos (Algolia default; "arc42" then also hits "abc42")
   COUNT               Number of results to display (default: ${DEFAULT_STORY_COUNT}, max: 100)
 
 Comment Options:
@@ -77,7 +82,8 @@ Comment Options:
 
 Thread Options:
   -d, --depth N     Maximum comment depth (default: ${DEFAULT_THREAD_DEPTH})
-  -n, --max-comments N  Maximum comments to print (default: ${DEFAULT_THREAD_COMMENTS})
+  -n, --max-comments N  Maximum comments to print (default: ${DEFAULT_THREAD_COMMENTS}); filled with
+                    every top-level comment (HN rank order) first, then replies level by level
   --since WHEN      Only comments posted at/after WHEN, plus their ancestors as one-line
                     context. WHEN is anything 'date -d' parses, local time unless zoned:
                     "2026-10-08 07:40", "8 hours ago", @1791396092
@@ -99,6 +105,8 @@ Examples:
   ${0##*/} -s "rust programming"           # Search for Rust stories (recent first)
   ${0##*/} --search "AI" --sort popular    # Search for AI stories (by popularity)
   ${0##*/} -s "nix" 50                     # Search Nix stories, show 50 results
+  ${0##*/} -s arc42 --in comments          # Comments mentioning arc42
+  ${0##*/} -s architecture --title-only --since "1 year ago" --min-points 50
 EOF
 }
 
@@ -372,11 +380,30 @@ show_comments() {
     done
 }
 
+# HN item HTML → plain text. Links become their href: HN truncates anchor text.
+readonly JQ_DEFS='
+    def clean:
+        gsub("<a href=\"(?<u>[^\"]+)\"[^>]*>[^<]*</a>"; "\(.u)")
+        | gsub("<p>"; "\n")
+        | gsub("<[^>]*>"; "")
+        | gsub("&gt;"; ">") | gsub("&lt;"; "<") | gsub("&quot;"; "\"")
+        | gsub("&#x27;"; "\u0027") | gsub("&#39;"; "\u0027")
+        | gsub("&#x2F;"; "/") | gsub("&nbsp;"; " ") | gsub("&amp;"; "&");
+    def stamp: if . == null then "?" else strftime("%Y-%m-%d %H:%MZ") end;
+'
+
 # Fetch the FULL comment tree in one request via Algolia and print it as an
 # indented plain-text thread. No colors — this output is meant for agents.
 # Args: story_id, max_depth, max_comments, since (epoch; 0 = everything)
 # With since > 0, old comments are kept only as one-line context for the
 # ancestors of newer ones: a reply without its parent is unreadable.
+#
+# Algolia lists children oldest first, so a plain cut at -n keeps the first
+# minutes of a big thread (on a 1164-comment thread: 2 of HN's top-10
+# top-level comments). So top-level comments are sorted by HN rank (Firebase
+# `kids`, one extra request) and the -n budget is filled breadth-first: all
+# top-level comments, then their replies, then replies to those. Replies stay
+# oldest first; ranking them would cost one request per parent.
 show_thread() {
     local story_id=$1
     local max_depth=$2
@@ -394,36 +421,46 @@ show_thread() {
         exit 1
     fi
 
-    echo "$json" | jq -r --argjson maxd "$max_depth" --argjson maxn "$max_comments" --argjson since "$since" '
-        def clean:
-            gsub("<a href=\"(?<u>[^\"]+)\"[^>]*>[^<]*</a>"; "\(.u)")
-            | gsub("<p>"; "\n")
-            | gsub("<[^>]*>"; "")
-            | gsub("&gt;"; ">") | gsub("&lt;"; "<") | gsub("&quot;"; "\"")
-            | gsub("&#x27;"; "\u0027") | gsub("&#39;"; "\u0027")
-            | gsub("&#x2F;"; "/") | gsub("&nbsp;"; " ") | gsub("&amp;"; "&");
+    local rank
+    rank=$(curl --fail -s --max-time 10 "${API_BASE}/item/${story_id}.json" | jq -c '.kids // []' 2>/dev/null) || true
+    [[ -n "$rank" ]] || rank=null
+
+    echo "$json" | jq -r --argjson maxd "$max_depth" --argjson maxn "$max_comments" \
+        --argjson since "$since" --argjson rank "$rank" "$JQ_DEFS"'
         def isnew: (.created_at_i // 0) >= $since;
         def hasnew: isnew or any(.children[]?; hasnew);
-        def flat(d):
-            select(hasnew)
-            | (if .author != null and .text != null
-               then {d: d, author, id, text, t: .created_at_i, old: (isnew | not)}
-               else empty end),
-              (if d < $maxd then (.children[]? | flat(d+1)) else empty end);
+        def printable: .author != null and .text != null;
         def indent(n): if n == 0 then "" else "  " * n end;
-        def stamp: if . == null then "?" else strftime("%Y-%m-%d %H:%MZ") end;
+        def idset: map({(tostring): true}) | add // {};
 
         . as $root
+        | (if $rank == null then {}
+           else $rank | to_entries | map({(.value | tostring): .key}) | add // {} end) as $pos
+        | ($root.children // [] | map(select(hasnew))
+           | sort_by($pos[.id | tostring] // 1e9)) as $top
+        | [ limit($maxd + 1; $top | recurse(map(.children[]? | select(hasnew)); length > 0)) ] as $layers
+        | [ $layers[][] | select(printable) ] as $candidates
+        | ([ $candidates[0:$maxn][] | .id ] | idset) as $keep
+        # deleted comments print nothing but must stay walkable: their replies hang below them
+        | ($keep + ([ $layers[][] | select(printable | not) | .id ] | idset)) as $walkable
+        | def rows(d):
+            select($walkable[.id | tostring])
+            | (if $keep[.id | tostring]
+               then {d: d, author, id, text, t: .created_at_i, old: (isnew | not)}
+               else empty end),
+              (if d < $maxd then (.children[]? | rows(d + 1)) else empty end);
+          [ $top[] | rows(0) ] as $rows
         | [.. | objects | select(.type == "comment" and .author != null)] as $all
-        | [$root.children[]? | flat(0)] as $rows
         | "# \($root.title // "untitled") [\($root.id)]",
           "\($root.points // 0) points · \($root.author // "?") · \($root.created_at // "" | .[0:10]) · \($all | length) comments in tree"
             + (if $since > 0 then " · \([$all[] | select(isnew)] | length) new since \($since | stamp) (older ancestors shown as context)" else "" end)
-            + " (showing up to \($maxn), depth <= \($maxd))",
+            + " · showing \($rows | length) of \($candidates | length), depth <= \($maxd)"
+            + (if $rank == null then " · oldest first (HN rank unavailable)"
+               else " · top-level by HN rank, filled breadth-first" end),
           (if ($root.url // "") != "" then $root.url else empty end),
           (if ($root.text // "") != "" then "", ($root.text | clean) else empty end),
           "",
-          ( $rows[0:$maxn][]
+          ( $rows[]
             | indent(.d) as $i
             | if .old then
                 "\($i)▸ \(.author) [\(.id)] · \(.t | stamp) · (context)",
@@ -435,7 +472,7 @@ show_thread() {
                 ""
               end
           ),
-          (if ($rows | length) > $maxn then "[truncated: \($rows | length) rows to print — re-run with -n N for more]" else empty end)
+          (if ($candidates | length) > $maxn then "[truncated: \($candidates | length - $maxn) deeper comments left out — re-run with -n N for more]" else empty end)
     '
 }
 
@@ -551,72 +588,90 @@ fetch_and_format_story() {
     printf "%03d\t%s\x1f%s\x1f%s\x1f%s\n" "$rank" "$line1" "$line2" "$line3" "$line4"
 }
 
-# Search stories via Algolia API
-# Args: query, limit, sort_mode (date|popular)
+# Search stories or comments via Algolia
+# Args: query, limit, sort_mode (date|popular), scope (stories|comments),
+#       since (epoch; 0 = any time), min_points (0 = any), title_only, fuzzy (true|false)
+#
+# Exact by default: Algolia's typo tolerance turned "arc42" into hits for the
+# user "abc42" — 7 of 58 story hits and 2 of 100 comment hits were on topic.
 search_stories() {
-    local query=$1
-    local limit=$2
-    local sort_mode=$3
+    local query=$1 limit=$2 sort_mode=$3 scope=$4 since=$5 min_points=$6 title_only=$7 fuzzy=$8
 
-    # URL-encode the query
-    local encoded_query
-    encoded_query=$(printf '%s' "$query" | jq -sRr @uri)
-
-    # Choose endpoint based on sort mode
-    local endpoint
+    local endpoint="search_by_date" order="by date"
     if [[ "$sort_mode" == "popular" ]]; then
-        endpoint="search"
-        echo -e "${BOLD}Hacker News Search: ${CYAN}\"${query}\"${RESET} ${DIM}(by popularity)${RESET}"
-    else
-        endpoint="search_by_date"
-        echo -e "${BOLD}Hacker News Search: ${CYAN}\"${query}\"${RESET} ${DIM}(by date)${RESET}"
+        endpoint="search" order="by popularity"
     fi
-    echo -e "${DIM}Searching for up to ${limit} stories...${RESET}"
+
+    local tag="story"
+    [[ "$scope" == "comments" ]] && tag="comment"
+
+    local -a params=(
+        --data-urlencode "query=${query}"
+        --data-urlencode "tags=${tag}"
+        --data-urlencode "hitsPerPage=${limit}"
+    )
+    local match="exact"
+    if [[ "$fuzzy" == "true" ]]; then
+        match="fuzzy"
+    else
+        params+=(--data-urlencode "typoTolerance=false")
+    fi
+    local -a filters=() notes=()
+    if ((since > 0)); then
+        filters+=("created_at_i>=${since}")
+        notes+=("since $(date -u -d "@${since}" +%Y-%m-%d)")
+    fi
+    if ((min_points > 0)); then
+        filters+=("points>=${min_points}")
+        notes+=("points >= ${min_points}")
+    fi
+    if ((${#filters[@]})); then
+        params+=(--data-urlencode "numericFilters=$(IFS=,; echo "${filters[*]}")")
+    fi
+    if [[ "$title_only" == "true" ]]; then
+        params+=(--data-urlencode "restrictSearchableAttributes=title")
+        notes+=("title only")
+    fi
+
+    local desc="${order} · ${match}"
+    ((${#notes[@]})) && desc+=" · $(IFS=,; echo "${notes[*]}" | sed 's/,/ · /g')"
+    echo -e "${BOLD}Hacker News Search (${scope}): ${CYAN}\"${query}\"${RESET} ${DIM}(${desc})${RESET}"
     echo ""
 
-    # Algolia returns max 100 results per page
-    local hits_per_page=$limit
-    if ((hits_per_page > 100)); then
-        hits_per_page=100
-    fi
-
-    # Fetch search results from Algolia
-    local search_url="${ALGOLIA_API}/${endpoint}?query=${encoded_query}&tags=story&hitsPerPage=${hits_per_page}"
     local response
-    if ! response=$(curl --fail -s --max-time 15 "$search_url"); then
+    if ! response=$(curl --fail -sG --max-time 15 "${ALGOLIA_API}/${endpoint}" "${params[@]}"); then
         echo -e "${ORANGE}Error: Failed to search. Algolia API may be down or unreachable.${RESET}" >&2
         exit 1
     fi
 
-    # Extract story IDs from search results (filter out empty/null IDs)
-    local ids
-    ids=$(echo "$response" | jq -r '.hits[].objectID // empty' 2>/dev/null | grep -v '^$')
+    local total_hits shown
+    total_hits=$(echo "$response" | jq -r '.nbHits // 0')
+    shown=$(echo "$response" | jq -r '.hits | length')
 
-    if [[ -z "$ids" ]]; then
-        echo -e "${GRAY}No stories found matching \"${query}\".${RESET}"
-        echo ""
-        echo -e "${DIM}Tips:${RESET}"
-        echo -e "${DIM}  - Try different keywords${RESET}"
-        echo -e "${DIM}  - Use --sort popular for relevance-based results${RESET}"
+    if ((shown == 0)); then
+        echo -e "${GRAY}No ${scope} found matching \"${query}\".${RESET}"
+        if [[ "$fuzzy" != "true" ]]; then
+            echo -e "${DIM}Matching is exact; --fuzzy allows typos, fewer words or filters widen it.${RESET}"
+        fi
         return
     fi
 
-    local total_hits
-    total_hits=$(echo "$response" | jq -r '.nbHits // 0')
-    echo -e "${DIM}Found ${total_hits} total matches, showing top ${limit}${RESET}"
+    echo -e "${DIM}Found ${total_hits} matches, showing ${shown}${RESET}"
     echo ""
 
-    # Create numbered list for parallel processing
+    if [[ "$scope" == "comments" ]]; then
+        show_comment_hits "$response"
+        return
+    fi
+
+    # Story hits are re-fetched from Firebase for live score and comment count
     local rank=0
     local numbered_ids=""
     while IFS= read -r id; do
         [[ -z "$id" ]] && continue
         ((rank++))
         numbered_ids+="${rank} ${id}"$'\n'
-        if ((rank >= limit)); then
-            break
-        fi
-    done <<< "$ids"
+    done < <(echo "$response" | jq -r '.hits[].objectID // empty')
 
     # Export functions and variables for parallel
     export -f fetch_and_format_story relative_time get_domain
@@ -635,7 +690,22 @@ search_stories() {
             echo ""
         done
 
-    echo -e "${DIM}Tip: Use '${0##*/} --comments ID' to view comments for a story${RESET}"
+    echo -e "${DIM}Tip: Use '${0##*/} --thread ID' to read a discussion${RESET}"
+}
+
+# Print comment hits straight from the Algolia response: author, date, the
+# story they belong to, the text (capped), and a link to the comment itself.
+show_comment_hits() {
+    echo "$1" | jq -r "$JQ_DEFS"'
+        .hits | to_entries[] | .key as $i | .value
+        | (.comment_text // "" | clean | gsub("\\s+"; " ")) as $t
+        | "\($i + 1 | tostring | if length < 3 then (" " * (3 - length)) + . else . end) \(.author) [\(.objectID)] · \(.created_at_i | stamp)",
+          "    on: \(.story_title // "?") [\(.story_id)]",
+          "    \(if ($t | length) > 600 then $t[0:600] + " … [-t \(.objectID) for the rest]" else $t end)",
+          "    https://news.ycombinator.com/item?id=\(.objectID)",
+          ""
+    '
+    echo -e "${DIM}Tip: '${0##*/} --thread STORY_ID' reads the whole discussion around a hit${RESET}"
 }
 
 # Show top stories list
@@ -716,6 +786,10 @@ HOT_FILTER=false
 DEPTH_SET=false
 MAXN_SET=false
 SINCE=""
+SEARCH_IN="stories"
+MIN_POINTS=0
+TITLE_ONLY=false
+FUZZY=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -792,6 +866,30 @@ while [[ $# -gt 0 ]]; do
             SINCE="$2"
             shift 2
             ;;
+        --in)
+            if [[ "${2:-}" != "stories" && "${2:-}" != "comments" ]]; then
+                echo "Error: --in must be 'stories' or 'comments'" >&2
+                exit 1
+            fi
+            SEARCH_IN="$2"
+            shift 2
+            ;;
+        --min-points)
+            if ! [[ "${2:-}" =~ ^[0-9]+$ ]]; then
+                echo "Error: --min-points requires a number" >&2
+                exit 1
+            fi
+            MIN_POINTS="$2"
+            shift 2
+            ;;
+        --title-only)
+            TITLE_ONLY=true
+            shift
+            ;;
+        --fuzzy)
+            FUZZY=true
+            shift
+            ;;
         -*)
             echo "Error: Unknown option: $1" >&2
             echo "Try '${0##*/} --help' for more information." >&2
@@ -804,6 +902,12 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+SINCE_EPOCH=0
+if [[ -n "$SINCE" ]] && ! SINCE_EPOCH=$(date -d "$SINCE" +%s 2>/dev/null); then
+    echo "Error: --since: cannot parse time '$SINCE'" >&2
+    exit 1
+fi
 
 # Validate arguments based on mode
 if [[ "$MODE" == "comments" ]]; then
@@ -837,11 +941,6 @@ elif [[ "$MODE" == "thread" ]]; then
         echo "Error: Max comments must be a positive number" >&2
         exit 1
     fi
-    SINCE_EPOCH=0
-    if [[ -n "$SINCE" ]] && ! SINCE_EPOCH=$(date -d "$SINCE" +%s 2>/dev/null); then
-        echo "Error: --since: cannot parse time '$SINCE'" >&2
-        exit 1
-    fi
     show_thread "$STORY_ID" "$THREAD_DEPTH" "$THREAD_MAX" "$SINCE_EPOCH"
 elif [[ "$MODE" == "search" ]]; then
     if [[ -z "$SEARCH_QUERY" ]]; then
@@ -852,7 +951,16 @@ elif [[ "$MODE" == "search" ]]; then
         echo "Error: COUNT for search must be a number between 1 and 100" >&2
         exit 1
     fi
-    search_stories "$SEARCH_QUERY" "$STORY_COUNT" "$SEARCH_SORT"
+    if [[ "$SEARCH_IN" == "comments" ]] && ((MIN_POINTS > 0)); then
+        echo "Error: --min-points works only on stories: Algolia has no points for comments" >&2
+        exit 1
+    fi
+    if [[ "$SEARCH_IN" == "comments" && "$TITLE_ONLY" == "true" ]]; then
+        echo "Error: --title-only works only on stories: comments have no title" >&2
+        exit 1
+    fi
+    search_stories "$SEARCH_QUERY" "$STORY_COUNT" "$SEARCH_SORT" "$SEARCH_IN" \
+        "$SINCE_EPOCH" "$MIN_POINTS" "$TITLE_ONLY" "$FUZZY"
 else
     if ! [[ "$STORY_COUNT" =~ ^[0-9]+$ ]] || ((STORY_COUNT < 1 || STORY_COUNT > 500)); then
         echo "Error: COUNT must be a number between 1 and 500" >&2

@@ -1,0 +1,13 @@
+{
+  "nbHits": 1,
+  "hits": [
+    {
+      "objectID": "555",
+      "author": "speedbird",
+      "created_at_i": 1781431572,
+      "story_id": 48524084,
+      "story_title": "Software Architecture Guide (2019)",
+      "comment_text": "Use a template like <i>ARC42</i>.<p>Agents can review &amp; index it: <a href=\"https://example.com/x\" rel=\"nofollow\">example.com/x</a>"
+    }
+  ]
+}
