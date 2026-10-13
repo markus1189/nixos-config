@@ -245,22 +245,72 @@ EOF
     assert_output "62.0kt/1M 6%[○○○○○○○○○○]"
 }
 
-# Tests for get_model_name effort and thinking extensions
+# Tests for the effort bar and the get_model_name indicators
 
-@test "get_model_name: effort level appended as text" {
+@test "get_model_name: effort level not in model name" {
     input='{"model": {"display_name": "opus"}, "effort": {"level": "high"}}'
     unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
     run get_model_name
     assert_success
-    assert_output "opus (high)"
+    assert_output "opus"
 }
 
-@test "get_model_name: effort level absent when field missing" {
-    input='{"model": {"display_name": "opus"}}'
-    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
-    run get_model_name
+@test "get_effort_bar: one dot per level" {
+    local level expected
+    for level in low:"[●○○○○]" medium:"[●●○○○]" high:"[●●●○○]" xhigh:"[●●●●○]" max:"[●●●●●]"; do
+        input="{\"effort\": {\"level\": \"${level%%:*}\"}}"
+        expected="${level#*:}"
+        run get_effort_bar
+        assert_success
+        assert_output "$expected"
+    done
+}
+
+@test "get_effort_bar: empty when field missing" {
+    input='{}'
+    run get_effort_bar
     assert_success
-    assert_output "opus"
+    assert_output ""
+}
+
+@test "get_effort_bar: unknown level falls back to its name" {
+    input='{"effort": {"level": "ludicrous"}}'
+    run get_effort_bar
+    assert_success
+    assert_output "ludicrous"
+}
+
+@test "get_effort_color: max is magenta, unknown purple" {
+    input='{"effort": {"level": "max"}}'
+    run get_effort_color
+    assert_output "$MAGENTA"
+    input='{"effort": {"level": "ludicrous"}}'
+    run get_effort_color
+    assert_output "$PURPLE"
+}
+
+# Row 1 with the colours stripped, so a test can see the text the bar renders.
+row1_text() {
+    main <<<"$1" | head -n 1 | sed 's/\x1b\[[0-9;]*m//g'
+}
+
+@test "main: effort bar segment between model and version" {
+    run row1_text '{"model": {"display_name": "opus"}, "effort": {"level": "high"}, "version": "2.1"}'
+    assert_success
+    assert_output --regexp "opus .* \[●●●○○\] .* 2\.1 "
+}
+
+@test "main: unknown effort level shows its name once" {
+    run row1_text '{"model": {"display_name": "opus"}, "effort": {"level": "ludicrous"}}'
+    assert_success
+    assert_output --partial " ludicrous "
+    refute_output --partial "ludicrousludicrous"
+}
+
+@test "main: no effort level, no dark segment" {
+    run main <<<'{"model": {"display_name": "opus"}}'
+    assert_success
+    refute_line --index 0 --partial "48;2;$DARK"
 }
 
 @test "get_model_name: thinking enabled appends brain emoji" {
@@ -284,7 +334,7 @@ EOF
     unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
     run get_model_name
     assert_success
-    assert_output "opus (concise) (medium)🧠"
+    assert_output "opus (concise)🧠"
 }
 
 @test "get_model_name: OTEL indicator when CLAUDE_CODE_ENABLE_TELEMETRY is set" {

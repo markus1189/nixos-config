@@ -9,6 +9,9 @@ readonly GREEN="120;220;120"
 readonly BLUE="100;180;255"
 readonly PURPLE="180;140;255"
 readonly PINK="255;140;180"
+readonly MAGENTA="255;80;200"
+readonly DARK="45;45;45"
+readonly DIM="110;110;110"
 
 # ANSI escape sequences
 readonly RESET='\033[0m'
@@ -161,7 +164,7 @@ shorten_bedrock_model() {
 get_model_name() {
     parse_input
 
-    local model_name style_suffix effort_suffix indicator_suffix
+    local model_name style_suffix indicator_suffix
     model_name=$(shorten_bedrock_model "$J_MODEL")
 
     # Add output style if not default
@@ -169,13 +172,6 @@ get_model_name() {
         style_suffix=" ($J_STYLE)"
     else
         style_suffix=""
-    fi
-
-    # Add effort level (text) if present
-    if [ -n "$J_EFFORT" ]; then
-        effort_suffix=" (${J_EFFORT})"
-    else
-        effort_suffix=""
     fi
 
     # Add indicator emojis
@@ -193,7 +189,66 @@ get_model_name() {
         indicator_suffix+="📡"
     fi
 
-    echo "${model_name}${style_suffix}${effort_suffix}${indicator_suffix}"
+    echo "${model_name}${style_suffix}${indicator_suffix}"
+}
+
+# Empty for a level this script does not know yet.
+effort_rank() {
+    case "$1" in
+        low) echo 1 ;;
+        medium) echo 2 ;;
+        high) echo 3 ;;
+        xhigh) echo 4 ;;
+        max) echo 5 ;;
+    esac
+}
+
+get_effort_color() {
+    parse_input
+    case "$(effort_rank "$J_EFFORT")" in
+        1) echo "$BLUE" ;;
+        2) echo "$GREEN" ;;
+        3) echo "$ORANGE" ;;
+        4) echo "$RED" ;;
+        5) echo "$MAGENTA" ;;
+        *) echo "$PURPLE" ;;
+    esac
+}
+
+# A level without a rank falls back to its name rather than vanishing.
+get_effort_bar() {
+    parse_input
+
+    if [ -z "$J_EFFORT" ]; then
+        echo ""
+        return
+    fi
+    local rank
+    rank=$(effort_rank "$J_EFFORT")
+    if [ -z "$rank" ]; then
+        echo "$J_EFFORT"
+        return
+    fi
+
+    local bar="" i
+    for ((i = 1; i <= 5; i++)); do
+        if [ "$i" -le "$rank" ]; then bar+="●"; else bar+="○"; fi
+    done
+    echo "[$bar]"
+}
+
+# Dark background, because the level colours vanish on the coloured segments.
+effort_segment() {
+    local color="$1" bar="$2"
+    # Only the filled dots take the colour. An unranked level's name has no
+    # brackets and no empty dots, so all of it does.
+    local dots="${bar#[}" open="" close=""
+    dots="${dots%]}"
+    if [ "$dots" != "$bar" ]; then
+        open="[" close="]"
+    fi
+    local filled="${dots%%○*}"
+    echo -n "$(bg_color "$DARK")$(fg_color "$DIM") ${open}$(fg_color "$color")${filled}$(fg_color "$DIM")${dots#"$filled"}${close} ${RESET}"
 }
 
 # current_dir rather than project_dir, so a cd into a subdirectory shows.
@@ -641,7 +696,15 @@ main() {
 
     # Row 1: Session identity
     echo -en "$(segment "$RED" "$(get_model_name)")"
-    echo -en "$(separator "$RED" "$ORANGE")"
+    local effort
+    effort=$(get_effort_bar)
+    if [ -n "$effort" ]; then
+        echo -en "$(separator "$RED" "$DARK")"
+        echo -en "$(effort_segment "$(get_effort_color)" "$effort")"
+        echo -en "$(separator "$DARK" "$ORANGE")"
+    else
+        echo -en "$(separator "$RED" "$ORANGE")"
+    fi
     echo -en "$(segment "$ORANGE" "$(get_version)")"
     echo -en "$(separator "$ORANGE" "$PINK")"
     echo -en "$(segment "$PINK" "$(get_transcript_id)")"
