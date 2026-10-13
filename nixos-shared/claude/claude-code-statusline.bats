@@ -313,28 +313,12 @@ row1_text() {
     refute_line --index 0 --partial "48;2;$DARK"
 }
 
-@test "get_model_name: thinking enabled appends brain emoji" {
-    input='{"model": {"display_name": "opus"}, "thinking": {"enabled": true}}'
-    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
-    run get_model_name
-    assert_success
-    assert_output "opus🧠"
-}
-
-@test "get_model_name: thinking disabled omits brain emoji" {
-    input='{"model": {"display_name": "opus"}, "thinking": {"enabled": false}}'
-    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
-    run get_model_name
-    assert_success
-    assert_output "opus"
-}
-
-@test "get_model_name: style, effort, and thinking combined" {
+@test "get_model_name: style shown, effort and thinking not" {
     input='{"model": {"display_name": "opus"}, "output_style": {"name": "concise"}, "effort": {"level": "medium"}, "thinking": {"enabled": true}}'
     unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
     run get_model_name
     assert_success
-    assert_output "opus (concise)🧠"
+    assert_output "opus (concise)"
 }
 
 @test "get_model_name: OTEL indicator when CLAUDE_CODE_ENABLE_TELEMETRY is set" {

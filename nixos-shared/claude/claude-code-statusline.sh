@@ -49,7 +49,6 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   ($r.model.display_name // ""),
   (($r.output_style.name // "default") | if . == "default" then "" else . end),
   ($r.effort.level // ""),
-  (($r.thinking.enabled // false) | tostring),
   ($r.version // ""),
   ($r.transcript_path // ""),
   ($r.workspace.current_dir // $r.workspace.project_dir // ""),
@@ -112,35 +111,34 @@ parse_input() {
     J_MODEL="${f[0]-}"
     J_STYLE="${f[1]-}"
     J_EFFORT="${f[2]-}"
-    J_THINKING="${f[3]-}"
-    J_VERSION="${f[4]-}"
-    J_TRANSCRIPT="${f[5]-}"
-    J_DIR="${f[6]-}"
-    J_COST="${f[7]-}"
-    J_CONTEXT="${f[8]-}"
-    J_PCT="${f[9]-}"
-    J_FILLED="${f[10]-}"
-    J_WINDOW_SIZE="${f[11]-}"
-    J_CONTEXT_FMT="${f[12]-}"
-    J_EXCEEDS="${f[13]-}"
-    J_RL5H="${f[14]-}"
-    J_RL5H_RESET="${f[15]-}"
-    J_CACHE="${f[16]-}"
-    J_CACHE_TTL="${f[17]-}"
-    J_CACHE_HIT="${f[18]-}"
-    J_RL5H_CENTI="${f[19]-}"
-    J_CACHE_WARM="${f[20]-}"
-    J_CACHE_OBSERVED="${f[21]-}"
-    J_CACHE_EXPIRES="${f[22]-}"
-    J_SESSION_NAME="${f[23]-}"
-    J_CACHE_RECACHE="${f[24]-}"
-    J_RL7D="${f[25]-}"
-    J_RL7D_RESET="${f[26]-}"
-    J_RL7D_CENTI="${f[27]-}"
-    J_RL5H_RAW="${f[28]-}"
-    J_RL5H_RAW_RESET="${f[29]-}"
-    J_RL7D_RAW="${f[30]-}"
-    J_RL7D_RAW_RESET="${f[31]-}"
+    J_VERSION="${f[3]-}"
+    J_TRANSCRIPT="${f[4]-}"
+    J_DIR="${f[5]-}"
+    J_COST="${f[6]-}"
+    J_CONTEXT="${f[7]-}"
+    J_PCT="${f[8]-}"
+    J_FILLED="${f[9]-}"
+    J_WINDOW_SIZE="${f[10]-}"
+    J_CONTEXT_FMT="${f[11]-}"
+    J_EXCEEDS="${f[12]-}"
+    J_RL5H="${f[13]-}"
+    J_RL5H_RESET="${f[14]-}"
+    J_CACHE="${f[15]-}"
+    J_CACHE_TTL="${f[16]-}"
+    J_CACHE_HIT="${f[17]-}"
+    J_RL5H_CENTI="${f[18]-}"
+    J_CACHE_WARM="${f[19]-}"
+    J_CACHE_OBSERVED="${f[20]-}"
+    J_CACHE_EXPIRES="${f[21]-}"
+    J_SESSION_NAME="${f[22]-}"
+    J_CACHE_RECACHE="${f[23]-}"
+    J_RL7D="${f[24]-}"
+    J_RL7D_RESET="${f[25]-}"
+    J_RL7D_CENTI="${f[26]-}"
+    J_RL5H_RAW="${f[27]-}"
+    J_RL5H_RAW_RESET="${f[28]-}"
+    J_RL7D_RAW="${f[29]-}"
+    J_RL7D_RAW_RESET="${f[30]-}"
 
     J_PARSED=1
 }
@@ -181,9 +179,6 @@ get_model_name() {
     fi
     if [ "${ANTHROPIC_BASE_URL:-}" = "https://router.eu.requesty.ai" ]; then
         indicator_suffix+="🔑"
-    fi
-    if [ "$J_THINKING" = "true" ]; then
-        indicator_suffix+="🧠"
     fi
     if [ -n "${CLAUDE_CODE_ENABLE_TELEMETRY:-}" ]; then
         indicator_suffix+="📡"
