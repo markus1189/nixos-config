@@ -55,7 +55,6 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
   (($r.cost.total_cost_usd // 0) * 100 | round / 100 | tostring),
   (if $ctx > 0 then ($ctx | tostring) else "" end),
   (if $pct == null then "" else ($pct | round | tostring) end),
-  (if $pct == null then "" else ([($pct / 10 | floor), 10] | min | tostring) end),
   (($cw.context_window_size // 0)
    | if . >= 1000000 then ((. / 100000 | round) as $t
                            | if $t % 10 == 0 then "\($t / 10)M"
@@ -63,7 +62,6 @@ read -r -d '' JQ_PROGRAM <<'EOF' || true
      elif . > 0 then "\(. / 1000 | round)k"
      else "" end),
   (if $label > 0 then ($label | kt) else "" end),
-  (($r.exceeds_200k_tokens // false) | tostring),
   (($r.rate_limits.five_hour.used_percentage // null)
    | if . == null then "" else (round | tostring) end),
   (($r.rate_limits.five_hour.resets_at // null)
@@ -117,28 +115,26 @@ parse_input() {
     J_COST="${f[6]-}"
     J_CONTEXT="${f[7]-}"
     J_PCT="${f[8]-}"
-    J_FILLED="${f[9]-}"
-    J_WINDOW_SIZE="${f[10]-}"
-    J_CONTEXT_FMT="${f[11]-}"
-    J_EXCEEDS="${f[12]-}"
-    J_RL5H="${f[13]-}"
-    J_RL5H_RESET="${f[14]-}"
-    J_CACHE="${f[15]-}"
-    J_CACHE_TTL="${f[16]-}"
-    J_CACHE_HIT="${f[17]-}"
-    J_RL5H_CENTI="${f[18]-}"
-    J_CACHE_WARM="${f[19]-}"
-    J_CACHE_OBSERVED="${f[20]-}"
-    J_CACHE_EXPIRES="${f[21]-}"
-    J_SESSION_NAME="${f[22]-}"
-    J_CACHE_RECACHE="${f[23]-}"
-    J_RL7D="${f[24]-}"
-    J_RL7D_RESET="${f[25]-}"
-    J_RL7D_CENTI="${f[26]-}"
-    J_RL5H_RAW="${f[27]-}"
-    J_RL5H_RAW_RESET="${f[28]-}"
-    J_RL7D_RAW="${f[29]-}"
-    J_RL7D_RAW_RESET="${f[30]-}"
+    J_WINDOW_SIZE="${f[9]-}"
+    J_CONTEXT_FMT="${f[10]-}"
+    J_RL5H="${f[11]-}"
+    J_RL5H_RESET="${f[12]-}"
+    J_CACHE="${f[13]-}"
+    J_CACHE_TTL="${f[14]-}"
+    J_CACHE_HIT="${f[15]-}"
+    J_RL5H_CENTI="${f[16]-}"
+    J_CACHE_WARM="${f[17]-}"
+    J_CACHE_OBSERVED="${f[18]-}"
+    J_CACHE_EXPIRES="${f[19]-}"
+    J_SESSION_NAME="${f[20]-}"
+    J_CACHE_RECACHE="${f[21]-}"
+    J_RL7D="${f[22]-}"
+    J_RL7D_RESET="${f[23]-}"
+    J_RL7D_CENTI="${f[24]-}"
+    J_RL5H_RAW="${f[25]-}"
+    J_RL5H_RAW_RESET="${f[26]-}"
+    J_RL7D_RAW="${f[27]-}"
+    J_RL7D_RAW_RESET="${f[28]-}"
 
     J_PARSED=1
 }
@@ -346,9 +342,7 @@ parse_git() {
 get_git_branch() { parse_git; echo "$G_BRANCH"; }
 get_git_status() { parse_git; echo "$G_STATUS"; }
 
-# One segment for the context: tokens, window size, percentage and a bar. The
-# bar tracks the percentage (which survives /compact) rather than the tokens.
-get_context_with_bar() {
+get_context_label() {
     parse_input
 
     local label="$J_CONTEXT_FMT"
@@ -361,30 +355,39 @@ get_context_with_bar() {
     if [ -n "$J_PCT" ]; then
         label+=" ${J_PCT}%"
     fi
-
-    local filled="${J_FILLED:-0}"
-    local bar=""
-    for ((i = 1; i <= filled; i++)); do bar+="●"; done
-    for ((i = filled + 1; i <= 10; i++)); do bar+="○"; done
-
-    echo "${label}[${bar}]"
+    echo "$label"
 }
 
 percentage_color() {
-    local pct="$1" orange_above="$2" red_above="$3"
+    local value="$1" orange_above="$2" red_above="$3"
 
-    if [ -z "$pct" ]; then
+    if [ -z "$value" ]; then
         echo "$PURPLE"
-    elif [ "$pct" -gt "$red_above" ]; then
+    elif [ "$value" -gt "$red_above" ]; then
         echo "$RED"
-    elif [ "$pct" -gt "$orange_above" ]; then
+    elif [ "$value" -gt "$orange_above" ]; then
         echo "$ORANGE"
     else
         echo "$GREEN"
     fi
 }
 
-get_context_color() { parse_input; percentage_color "$J_PCT" 40 60; }
+# The worse of two scales: the share of the window, and the size itself, which
+# turns orange where exceeds_200k_tokens trips. On a 1M window the share alone
+# stays green up to 400k.
+get_context_color() {
+    parse_input
+    local share size color
+    share=$(percentage_color "$J_PCT" 40 60)
+    size=$(percentage_color "$J_CONTEXT" 200000 400000)
+    for color in "$RED" "$ORANGE" "$GREEN"; do
+        if [ "$share" = "$color" ] || [ "$size" = "$color" ]; then
+            echo "$color"
+            return
+        fi
+    done
+    echo "$PURPLE"
+}
 
 readonly RL5H_WINDOW=18000
 # Below this the projection is little more than the prior.
@@ -670,16 +673,6 @@ get_cache_color() {
     fi
 }
 
-get_exceeds_200k_indicator() {
-    parse_input
-
-    if [ "$J_EXCEEDS" = "true" ]; then
-        echo "🔥"
-    else
-        echo ""
-    fi
-}
-
 # The rendering helpers append to OUT instead of printing, so no colour code
 # costs a subshell, and nothing user-written passes through echo -e, which
 # turned a "\n" in a /rename title into an extra row.
@@ -784,7 +777,7 @@ main() {
     done
 
     separator "$previous_color" "$context_color"
-    segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)"
+    segment "$context_color" "$(get_context_label)"
     row_end "$context_color"
 
     printf '%s' "$OUT"

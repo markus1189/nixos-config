@@ -139,20 +139,20 @@ EOF
     assert_output "⌀"
 }
 
-# Tests for get_context_with_bar function
+# Tests for get_context_label function
 
-@test "get_context_with_bar: 50k tokens shows 2 filled dots" {
+@test "get_context_label: percentage derived from current_usage when used_percentage is absent" {
     input=$(mock_input_basic)
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "50.0kt/200k 25%[●●○○○○○○○○]"
+    assert_output "50.0kt/200k 25%"
 }
 
-@test "get_context_with_bar: Missing data shows empty bar" {
+@test "get_context_label: missing data shows the placeholder" {
     input='{"context_window": {}}'
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "⌀[○○○○○○○○○○]"
+    assert_output "⌀"
 }
 
 # Tests for get_context_color function
@@ -169,6 +169,36 @@ EOF
     run get_context_color
     assert_success
     assert_output "255;120;120"
+}
+
+# The size scale, which the share alone misses on a 1M window.
+
+@test "get_context_color: 150k of a 1M window is green" {
+    input='{"context_window": {"current_usage": {"input_tokens": 150000}, "context_window_size": 1000000, "used_percentage": 15}}'
+    run get_context_color
+    assert_success
+    assert_output "$GREEN"
+}
+
+@test "get_context_color: 250k of a 1M window is orange despite 25 %" {
+    input='{"context_window": {"current_usage": {"input_tokens": 250000}, "context_window_size": 1000000, "used_percentage": 25}}'
+    run get_context_color
+    assert_success
+    assert_output "$ORANGE"
+}
+
+@test "get_context_color: 450k of a 1M window is red despite 45 %" {
+    input='{"context_window": {"current_usage": {"input_tokens": 450000}, "context_window_size": 1000000, "used_percentage": 45}}'
+    run get_context_color
+    assert_success
+    assert_output "$RED"
+}
+
+@test "get_context_color: no context data is purple" {
+    input='{}'
+    run get_context_color
+    assert_success
+    assert_output "$PURPLE"
 }
 
 # Tests for get_cost function
@@ -224,25 +254,25 @@ EOF
 
 # Tests for the percentage inside the context segment
 
-@test "get_context_with_bar: native percentage rounded" {
+@test "get_context_label: native percentage rounded" {
     input='{"context_window": {"used_percentage": 42.6}}'
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "⌀ 43%[●●●●○○○○○○]"
+    assert_output "⌀ 43%"
 }
 
-@test "get_context_with_bar: null percentage and no tokens show placeholder only" {
+@test "get_context_label: null percentage and no tokens show placeholder only" {
     input='{"context_window": {"used_percentage": null}}'
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "⌀[○○○○○○○○○○]"
+    assert_output "⌀"
 }
 
-@test "get_context_with_bar: 1M window" {
+@test "get_context_label: 1M window" {
     input='{"context_window": {"current_usage": {"input_tokens": 62036}, "context_window_size": 1000000, "used_percentage": 6}}'
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "62.0kt/1M 6%[○○○○○○○○○○]"
+    assert_output "62.0kt/1M 6%"
 }
 
 # Tests for the effort bar and the get_model_name indicators
@@ -398,29 +428,6 @@ row1_text() {
     assert_output "180;140;255"
 }
 
-# Tests for get_exceeds_200k_indicator function
-
-@test "get_exceeds_200k_indicator: true returns fire emoji" {
-    input='{"exceeds_200k_tokens": true}'
-    run get_exceeds_200k_indicator
-    assert_success
-    assert_output "🔥"
-}
-
-@test "get_exceeds_200k_indicator: false returns empty string" {
-    input='{"exceeds_200k_tokens": false}'
-    run get_exceeds_200k_indicator
-    assert_success
-    assert_output ""
-}
-
-@test "get_exceeds_200k_indicator: missing field returns empty string" {
-    input='{}'
-    run get_exceeds_200k_indicator
-    assert_success
-    assert_output ""
-}
-
 # Tests for get_cost null handling
 #
 # Regression: total_cost_usd is null before the first API response and right
@@ -443,14 +450,13 @@ row1_text() {
 
 # Tests for post-/compact behaviour
 #
-# current_usage goes null after a compaction while used_percentage survives, so
-# the bar and the percentage segment must not disagree.
+# current_usage goes null after a compaction while used_percentage survives.
 
-@test "get_context_with_bar: bar follows used_percentage when current_usage is null" {
+@test "get_context_label: total_input_tokens stands in when current_usage is null" {
     input='{"context_window": {"current_usage": null, "used_percentage": 35, "total_input_tokens": 70000, "context_window_size": 200000}}'
-    run get_context_with_bar
+    run get_context_label
     assert_success
-    assert_output "70.0kt/200k 35%[●●●○○○○○○○]"
+    assert_output "70.0kt/200k 35%"
 }
 
 @test "get_context_color: uses used_percentage when current_usage is null" {
@@ -458,13 +464,6 @@ row1_text() {
     run get_context_color
     assert_success
     assert_output "255;120;120"
-}
-
-@test "get_context_with_bar: percentage derived from current_usage when field absent" {
-    input=$(mock_input_basic)  # 50k/200k
-    run get_context_with_bar
-    assert_success
-    assert_output --partial " 25%["
 }
 
 # Tests for format_duration
@@ -970,7 +969,7 @@ JSON
     assert_success
     assert_equal "${#lines[@]}" 3
     refute_output --partial "jq: error"
-    assert_output --partial "62.0kt/1M 6%["
+    assert_output --partial "62.0kt/1M 6% "
 }
 
 # Regression: the same context size used to render three times (token label,
@@ -978,7 +977,7 @@ JSON
 @test "main: context size and percentage appear once" {
     run bash -c "$(declare -f mock_input_full); mock_input_full | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
     assert_success
-    assert_output --partial "95.5kt/200k 48%["
+    assert_output --partial "95.5kt/200k 48% "
     refute_output --partial "96kt"
     assert_equal "$(grep -o '48%' <<<"$output" | wc -l)" 1
 }
