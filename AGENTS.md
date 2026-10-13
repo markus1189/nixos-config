@@ -183,6 +183,12 @@ man home-configuration.nix
 - **Shared services**: `nixos-shared/common-services.nix`
 - **Host-specific**: Respective host directory (e.g., `nuc/kodi.nix`)
 
+### AI Models
+`docs/model-inventory.md` maps every model slug to the files that use it. Read it before
+touching a slug anywhere (pi `models.json`, opencode in `laptop/home.nix`, shortcuts, gptel,
+scripts) and update it in the same commit. New Requesty models: vet per
+`nixos-shared/home-manager/pi-agent/ADD_MODEL.md`.
+
 ### Home Manager Integration
 Shared invariants (`useUserPackages`/`useGlobalPkgs`) live in
 `nixos-shared/home-manager/module.nix`, imported once via `flake-base.nix`.
