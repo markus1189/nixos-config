@@ -101,7 +101,10 @@ in
             ];
 
             providers = {
-              requesty = {
+              # Not "requesty": that id merges in models.dev's built-in Requesty
+              # catalog (171 models, mostly off our access list), and v2 dropped the
+              # per-provider whitelist that could hide them.
+              "requesty-cc" = {
                 name = "Requesty Codecentric";
                 package = "aisdk:@ai-sdk/openai-compatible";
                 settings = {
@@ -110,21 +113,52 @@ in
                 };
 
                 models = {
-                  "vertex/gemini-3.5-flash@eu" = {
-                    name = "Gemini 3.5 Flash";
-                  };
-
                   "vertex/gemini-3.8-flash@eu" = {
                     name = "Gemini 3.8 Flash";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
                   };
 
-                  "azure/gpt-5.4@swedencentral" = {
-                    name = "GPT 5.4 Chat";
+                  "azure/gpt-6.1-sol@swedencentral" = {
+                    name = "GPT 6.1 Sol";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
                   };
 
+                  "azure/gpt-6-luna@swedencentral" = {
+                    name = "GPT 6 Luna";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  # No vision on this route.
+                  "sference/glm-5.3" = {
+                    name = "GLM 5.3";
+                  };
+
+                  # No thinking block on Opus/Sonnet 5.5: they think adaptively when none
+                  # is sent, and opencode's schema (type enum ["enabled","disabled"])
+                  # can't express adaptive+effort. Requesty answered a legacy
+                  # thinking.type="enabled" request with 200 for both on 2026-10-13
+                  # (Sonnet 5 used to 400), but whether it maps that onto adaptive is
+                  # unverified.
                   "bedrock/claude-opus-5-5@eu-central-1" = {
                     name = "Claude Opus 5.5";
-                    # No thinking block, same reason as Opus 5 below.
                     capabilities = {
                       input = [
                         "text"
@@ -134,14 +168,8 @@ in
                     };
                   };
 
-                  "vertex/claude-opus-5@eu" = {
-                    name = "Claude Opus 5";
-                    # No thinking block: like Sonnet 5, Opus 5 rejects the legacy
-                    # thinking.type="enabled"/budgetTokens API (HTTP 400) and requires
-                    # thinking.type="adaptive"+output_config.effort. opencode's model
-                    # config schema only accepts type enum ["enabled","disabled"], so
-                    # adaptive can't be expressed here for a custom-provider model.
-                    # Opus 5 thinks adaptively by default when no thinking is sent.
+                  "vertex/claude-sonnet-5-5@eu" = {
+                    name = "Claude Sonnet 5.5";
                     capabilities = {
                       input = [
                         "text"
@@ -151,25 +179,8 @@ in
                     };
                   };
 
-                  "vertex/claude-sonnet-5@eu" = {
-                    name = "Claude Sonnet 5";
-                    # No thinking block: Sonnet 5 dropped the legacy
-                    # thinking.type="enabled" API (returns HTTP 400) and requires
-                    # thinking.type="adaptive"+output_config.effort. opencode's model
-                    # config schema only accepts type enum ["enabled","disabled"], so
-                    # adaptive can't be expressed here for a custom-provider model.
-                    # Run non-thinking until opencode exposes adaptive as a config type.
-                    capabilities = {
-                      input = [
-                        "text"
-                        "image"
-                      ];
-                      output = [ "text" ];
-                    };
-                  };
-
-                  "vertex/claude-haiku-4-5@europe-west1" = {
-                    name = "Claude Haiku 4.5";
+                  "vertex/claude-haiku-5-5@eu" = {
+                    name = "Claude Haiku 5.5";
                     settings.thinking = {
                       type = "enabled";
                       budgetTokens = 16000;
