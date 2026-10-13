@@ -744,19 +744,10 @@ main() {
     segment "$GREEN" "$G_BRANCH$G_STATUS"
     row_end "$GREEN"
 
-    # Row 3: Cost and context metrics
-    segment "$PURPLE" "${J_COST}$"
-    local previous_color="$PURPLE"
-
-    # Optional prompt cache segment (only once the cache stats exist)
-    local cache cache_color
-    cache=$(get_cache)
-    if [ -n "$cache" ]; then
-        cache_color=$(get_cache_color)
-        separator "$previous_color" "$cache_color"
-        segment "$cache_color" "$cache"
-        previous_color="$cache_color"
-    fi
+    # Row 3: context and budget, most important first, since Claude Code cuts an
+    # overlong row from the right.
+    segment "$context_color" "$(get_context_label)"
+    local previous_color="$context_color"
 
     # Optional rate limit segments (only when the window is reported)
     local window rate_limit rate_limit_color part
@@ -776,9 +767,19 @@ main() {
         previous_color="$rate_limit_color"
     done
 
-    separator "$previous_color" "$context_color"
-    segment "$context_color" "$(get_context_label)"
-    row_end "$context_color"
+    # Optional prompt cache segment (only once the cache stats exist)
+    local cache cache_color
+    cache=$(get_cache)
+    if [ -n "$cache" ]; then
+        cache_color=$(get_cache_color)
+        separator "$previous_color" "$cache_color"
+        segment "$cache_color" "$cache"
+        previous_color="$cache_color"
+    fi
+
+    separator "$previous_color" "$PURPLE"
+    segment "$PURPLE" "${J_COST}$"
+    row_end "$PURPLE"
 
     printf '%s' "$OUT"
 }

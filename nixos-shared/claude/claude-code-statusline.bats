@@ -319,22 +319,28 @@ EOF
     assert_output "$PURPLE"
 }
 
-# Row 1 with the colours stripped, so a test can see the text the bar renders.
-row1_text() {
-    main <<<"$1" | head -n 1 | sed 's/\x1b\[[0-9;]*m//g'
+# One row with the colours stripped, so a test can see the text it renders.
+row_text() {
+    main <<<"$2" | sed -n "${1}p" | sed 's/\x1b\[[0-9;]*m//g'
 }
 
 @test "main: effort bar segment between model and version" {
-    run row1_text '{"model": {"display_name": "opus"}, "effort": {"level": "high"}, "version": "2.1"}'
+    run row_text 1 '{"model": {"display_name": "opus"}, "effort": {"level": "high"}, "version": "2.1"}'
     assert_success
     assert_output --regexp "opus .* \[●●●○○\] .* 2\.1 "
 }
 
 @test "main: unknown effort level shows its name once" {
-    run row1_text '{"model": {"display_name": "opus"}, "effort": {"level": "ludicrous"}}'
+    run row_text 1 '{"model": {"display_name": "opus"}, "effort": {"level": "ludicrous"}}'
     assert_success
     assert_output --partial " ludicrous "
     refute_output --partial "ludicrousludicrous"
+}
+
+@test "main: row 3 runs context, rate limits, cache, cost" {
+    run row_text 3 "$(mock_input_full)"
+    assert_success
+    assert_output --regexp '^ 95\.5kt/200k 48% .* 5h 24% .*1h 91% .* 1\.23\$ '
 }
 
 @test "main: no effort level, no dark segment" {
