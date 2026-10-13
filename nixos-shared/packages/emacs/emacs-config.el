@@ -2144,6 +2144,9 @@ Provides more detailed messages on failure."
   (defface mh/elfeed-hackaday-tag-face
     '((t :foreground "#888"))
     "Marks Hackaday tags.")
+  (defface mh/elfeed-claude-tag-face
+    '((t :foreground "#D97757"))
+    "Marks claude.com tags.")
   (defface mh/elfeed-quarks-tag-face
     '((t :foreground "#ADF"))
     "Marks quarks.de tags.")
@@ -2207,6 +2210,7 @@ Provides more detailed messages on failure."
                                    (qtl mh/elfeed-special-tag-face)
                                    (outsideonline mh/elfeed-outsideonline-tag-face)
                                    (hackaday mh/elfeed-hackaday-tag-face)
+                                   (claude mh/elfeed-claude-tag-face)
                                    (quarks mh/elfeed-quarks-tag-face)
                                    (haskell-discourse mh/elfeed-haskell-discourse-tag-face)
                                    (haskell-fp mh/elfeed-haskell-fp-tag-face)
@@ -2506,7 +2510,7 @@ Provides more detailed messages on failure."
            ("https://sunilpai.dev/rss.xml" programming ai)
            ("https://claude.dev/rss.xml" programming ai)
            ("https://www.thariq.io/rss.xml" programming ai)
-           ("http://localhost:9998/?action=display&bridge=CssSelectorBridge&home_page=https%3A%2F%2Fclaude.com%2Fresources%2Farticles&url_selector=a%5Bhref%2A%3D%22%2Fresources%2Farticles%2F%22%5D&url_pattern=&content_selector=div%5Bclass%2A%3DArticleLayout-module%5D%5Bclass%2A%3D__content%5D&content_cleanup=&title_cleanup=&limit=20&format=Atom" programming ai)
+           ("http://localhost:9998/?action=display&bridge=CssSelectorBridge&home_page=https%3A%2F%2Fclaude.com%2Fresources%2Farticles&url_selector=a%5Bhref%2A%3D%22%2Fresources%2Farticles%2F%22%5D&url_pattern=&content_selector=div%5Bclass%2A%3DArticleLayout-module%5D%5Bclass%2A%3D__content%5D&content_cleanup=&title_cleanup=&limit=20&format=Atom" programming ai claude)
            ("https://discourse.nixos.org/latest.rss" programming programming-general)
            ("https://discourse.haskell.org/latest.rss" programming haskell-discourse)
            ("https://carlillustration.wordpress.com/tag/dungeon-world/feed")
@@ -2642,7 +2646,7 @@ Provides more detailed messages on failure."
            ("https://harper.blog/index.xml" programming programming-general)
            ("https://lucumr.pocoo.org/feed.atom" llm programming programming-general)
            ("https://claudelog.com/rss.xml" llm programming programming-general)
-           ("https://code.claude.com/docs/en/whats-new/rss.xml" llm programming programming-general)
+           ("https://code.claude.com/docs/en/whats-new/rss.xml" llm programming programming-general claude)
            ("https://taoofmac.com/atom.xml" programming programming-general)
            ("https://work.njae.me.uk/rss/" programming haskell-fp))))
   ;; ^^^^ feeds
