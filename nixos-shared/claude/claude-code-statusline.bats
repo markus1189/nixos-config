@@ -725,14 +725,16 @@ rl5h_input() {
 # Tests for separator glyph selection
 
 @test "separator: differing colors use the solid arrow" {
-    run separator "$RED" "$ORANGE"
-    assert_success
+    OUT=""
+    separator "$RED" "$ORANGE"
+    run printf '%s' "$OUT"
     assert_output --partial "$SEP_THICK"
 }
 
 @test "separator: matching colors use the hairline arrow" {
-    run separator "$GREEN" "$GREEN"
-    assert_success
+    OUT=""
+    separator "$GREEN" "$GREEN"
+    run printf '%s' "$OUT"
     assert_output --partial "$SEP_THIN"
     refute_output --partial "$SEP_THICK"
 }
@@ -1076,6 +1078,23 @@ JSON
     assert_equal "${#lines[@]}" 3
     assert_output --partial "abc123"
     assert_output --partial "twolines"
+}
+
+# Regression: main printed segments with echo -en, so a backslash sequence in
+# user text was expanded: "\n" in a /rename title added a row, and "\c" cut
+# off the rest of the segment.
+mock_input_backslashes() {
+    cat <<'EOF'
+{"session_name": "fix\\nbug\\cTAIL", "workspace": {"current_dir": "/srv/a\\nb"}}
+EOF
+}
+
+@test "main: backslash sequences in user text stay text" {
+    run bash -c "$(declare -f mock_input_backslashes); mock_input_backslashes | bash '$BATS_TEST_DIRNAME/claude-code-statusline.sh' 2>&1"
+    assert_success
+    assert_equal "${#lines[@]}" 3
+    assert_output --partial 'fix\nbug\cTAIL'
+    assert_output --partial '/srv/a\nb'
 }
 
 # Tests for the rate limit log. rl_input PCT5 RESET5 [PCT7 RESET7] builds a

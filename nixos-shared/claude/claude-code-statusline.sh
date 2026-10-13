@@ -14,8 +14,8 @@ readonly DARK="45;45;45"
 readonly DIM="110;110;110"
 
 # ANSI escape sequences
-readonly RESET='\033[0m'
-readonly BLACK_FG='\033[30m'
+readonly RESET=$'\033[0m'
+readonly BLACK_FG=$'\033[30m'
 
 # Powerline separators (Nerd Font private use area, see laptop/laptop.nix)
 readonly SEP_THICK=$''  # solid arrow, between differently colored segments
@@ -242,8 +242,14 @@ effort_segment() {
     if [ "$dots" != "$bar" ]; then
         open="[" close="]"
     fi
-    local filled="${dots%%○*}"
-    echo -n "$(bg_color "$DARK")$(fg_color "$DIM") ${open}$(fg_color "$color")${filled}$(fg_color "$DIM")${dots#"$filled"}${close} ${RESET}"
+    local filled="${dots%%○*}" dark dim lit
+    bg_color "$DARK"
+    dark="$REPLY"
+    fg_color "$DIM"
+    dim="$REPLY"
+    fg_color "$color"
+    lit="$REPLY"
+    OUT+="$dark$dim ${open}$lit${filled}$dim${dots#"$filled"}${close} $RESET"
 }
 
 # current_dir rather than project_dir, so a cd into a subdirectory shows.
@@ -267,7 +273,9 @@ get_transcript_id() {
         echo "$PLACEHOLDER"
         return
     fi
-    basename "$J_TRANSCRIPT" ".jsonl" | cut -d'-' -f1
+    local id="${J_TRANSCRIPT##*/}"
+    id="${id%.jsonl}"
+    echo "${id%%-*}"
 }
 
 get_session_name() { parse_input; echo "$J_SESSION_NAME"; }
@@ -659,23 +667,37 @@ get_exceeds_200k_indicator() {
     fi
 }
 
-# Color functions
-bg_color() { printf "\033[48;2;%sm" "$1"; }
-fg_color() { printf "\033[38;2;%sm" "$1"; }
-segment() { echo -n "$(bg_color "$1")${BLACK_FG} $2 ${RESET}"; }
+# The rendering helpers append to OUT instead of printing, so no colour code
+# costs a subshell, and nothing user-written passes through echo -e, which
+# turned a "\n" in a /rename title into an extra row.
+bg_color() { REPLY=$'\033[48;2;'"${1}m"; }
+fg_color() { REPLY=$'\033[38;2;'"${1}m"; }
+
+segment() {
+    bg_color "$1"
+    OUT+="$REPLY$BLACK_FG $2 $RESET"
+}
 
 # A solid arrow needs two different colors to be visible at all; where adjacent
 # segments happen to share a background (two green ones, say) fall back to the
 # hairline arrow so the boundary does not disappear.
 separator() {
     if [ "$1" = "$2" ]; then
-        echo -n "$(bg_color "$2")${BLACK_FG}${SEP_THIN}${RESET}"
+        bg_color "$2"
+        OUT+="$REPLY$BLACK_FG$SEP_THIN$RESET"
     else
-        echo -n "$(fg_color "$1")$(bg_color "$2")${SEP_THICK}${RESET}"
+        local from
+        fg_color "$1"
+        from="$REPLY"
+        bg_color "$2"
+        OUT+="$from$REPLY$SEP_THICK$RESET"
     fi
 }
 
-row_end() { echo -en "$(fg_color "$1")${SEP_THICK}${RESET}"; echo; }
+row_end() {
+    fg_color "$1"
+    OUT+="$REPLY$SEP_THICK$RESET"$'\n'
+}
 
 # Main execution function
 main() {
@@ -685,40 +707,38 @@ main() {
     parse_input
     log_rate_limits || true
 
-    # Cache expensive calculations
     local context_color
     context_color=$(get_context_color)
+    OUT=""
 
     # Row 1: Session identity
-    echo -en "$(segment "$RED" "$(get_model_name)")"
+    segment "$RED" "$(get_model_name)"
     local effort
     effort=$(get_effort_bar)
     if [ -n "$effort" ]; then
-        echo -en "$(separator "$RED" "$DARK")"
-        echo -en "$(effort_segment "$(get_effort_color)" "$effort")"
-        echo -en "$(separator "$DARK" "$ORANGE")"
+        separator "$RED" "$DARK"
+        effort_segment "$(get_effort_color)" "$effort"
+        separator "$DARK" "$ORANGE"
     else
-        echo -en "$(separator "$RED" "$ORANGE")"
+        separator "$RED" "$ORANGE"
     fi
-    echo -en "$(segment "$ORANGE" "$(get_version)")"
-    echo -en "$(separator "$ORANGE" "$PINK")"
-    echo -en "$(segment "$PINK" "$(get_transcript_id)")"
-    local session_name
-    session_name=$(get_session_name)
-    if [ -n "$session_name" ]; then
-        echo -en "$(separator "$PINK" "$PINK")"
-        echo -en "$(segment "$PINK" "$session_name")"
+    segment "$ORANGE" "$J_VERSION"
+    separator "$ORANGE" "$PINK"
+    segment "$PINK" "$(get_transcript_id)"
+    if [ -n "$J_SESSION_NAME" ]; then
+        separator "$PINK" "$PINK"
+        segment "$PINK" "$J_SESSION_NAME"
     fi
     row_end "$PINK"
 
     # Row 2: Location
-    echo -en "$(segment "$BLUE" "$(get_working_dir)")"
-    echo -en "$(separator "$BLUE" "$GREEN")"
-    echo -en "$(segment "$GREEN" "$(get_git_branch)$(get_git_status)")"
+    segment "$BLUE" "$(get_working_dir)"
+    separator "$BLUE" "$GREEN"
+    segment "$GREEN" "$(get_git_branch)$(get_git_status)"
     row_end "$GREEN"
 
     # Row 3: Cost and context metrics
-    echo -en "$(segment "$PURPLE" "$(get_cost)$")"
+    segment "$PURPLE" "${J_COST}$"
     local previous_color="$PURPLE"
 
     # Optional prompt cache segment (only once the cache stats exist)
@@ -726,8 +746,8 @@ main() {
     cache=$(get_cache)
     if [ -n "$cache" ]; then
         cache_color=$(get_cache_color)
-        echo -en "$(separator "$previous_color" "$cache_color")"
-        echo -en "$(segment "$cache_color" "$cache")"
+        separator "$previous_color" "$cache_color"
+        segment "$cache_color" "$cache"
         previous_color="$cache_color"
     fi
 
@@ -744,14 +764,16 @@ main() {
             fi
         done
         rate_limit_color=$("get_rate_limit_${window}_color")
-        echo -en "$(separator "$previous_color" "$rate_limit_color")"
-        echo -en "$(segment "$rate_limit_color" "$rate_limit")"
+        separator "$previous_color" "$rate_limit_color"
+        segment "$rate_limit_color" "$rate_limit"
         previous_color="$rate_limit_color"
     done
 
-    echo -en "$(separator "$previous_color" "$context_color")"
-    echo -en "$(segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)")"
+    separator "$previous_color" "$context_color"
+    segment "$context_color" "$(get_context_with_bar)$(get_exceeds_200k_indicator)"
     row_end "$context_color"
+
+    printf '%s' "$OUT"
 }
 
 # Only run main if script is executed directly (not sourced for testing)
