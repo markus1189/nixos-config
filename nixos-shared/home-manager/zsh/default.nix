@@ -128,14 +128,15 @@ in
       }
 
       # cdff [query]: fuzzy-pick a file from any day dir, newest first, cd to
-      # it and leave its name on the command line. Depth 4 = one subdir level;
-      # deeper trees (project checkouts) would bury notes ~15:1.
+      # it and leave its absolute path on the command line. Depth 4 = one
+      # subdir level; deeper trees (project checkouts) would bury notes ~15:1.
       function cdff() {
         local pick
         pick=$(cd ~/Stuff && ${pkgs.fd}/bin/fd -t f --max-depth 4 . 20* | sort -r \
           | fzf --height 60% --layout=reverse --border --scheme=path --query="$*" \
                 --preview '${pkgs.bat}/bin/bat --color=always --style=plain --line-range=:80 {}') || return
-        cd ~/Stuff/''${pick:h} && _stuff_ls && print -z -- ''${(q)pick:t}
+        local abs=~/Stuff/$pick
+        cd ''${abs:h} && _stuff_ls && print -z -- ''${(q)abs}
       }
 
       # Fuzzy find a directory in Stuff and jump to it
