@@ -14,7 +14,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |------|---------------|
 | `nixos-shared/home-manager/pi-agent/models.json` | **The canonical model catalog** — pi agent's full provider+model+pricelist. Symlinked to `~/.pi/agent/models.json`. |
 | `nixos-shared/home-manager/pi-agent/extensions/model-shortcuts.ts` | F1–F9 keybindings → provider/modelId pairs (Requesty + fallback openrouter). |
-| `laptop/home.nix` (~line 78) | **opencode** provider block (`@ai-sdk/openai-compatible`, Requesty EU) with its own model list. |
+| `laptop/home.nix` (~line 103) | **opencode** provider `requesty-cc` (`@ai-sdk/openai-compatible`, Requesty EU; the id must not be `requesty`, see comment there): a hand-picked subset of `models.json`. Vet new entries with `pi-agent/ADD_MODEL.md` (access list, tools, CAKE test). |
 | `nixos-shared/home-manager/zsh/default.nix` (~line 45) | `oc` / `pi` / `pi-glados` aliases — inject `REQUESTY_API_KEY_CC` from `pass api/requesty/agent`. No model slugs. |
 | `nixos-shared/packages/emacs/emacs-config.el` (~line 1550) | **gptel** model list (OpenRouter). |
 | `nixos-shared/packages/scripts/gemini-vision.sh:20` | `MODEL` const for the vision script. |
@@ -35,9 +35,11 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | Model slug used | Consumers (files) |
 |-----------------|-------------------|
 | `bedrock/claude-opus-5-5@eu-central-1` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2 primary), `laptop/home.nix` (opencode) — Bedrock only, no Vertex slug on Requesty EU (checked 2026-09) |
-| `vertex/claude-opus-5@eu` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2 cycle), `laptop/home.nix` (opencode) |
-| `vertex/claude-sonnet-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3), `laptop/home.nix` |
-| `vertex/claude-haiku-4-5@europe-west1` | `pi-agent/models.json`, `laptop/home.nix` |
+| `vertex/claude-opus-5@eu` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2 cycle) |
+| `vertex/claude-sonnet-5-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3 primary), `laptop/home.nix` (opencode) — Vertex only, no Bedrock slug (checked 2026-10) |
+| `vertex/claude-sonnet-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3 cycle) |
+| `vertex/claude-haiku-5-5@eu` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — adaptive thinking verified 2026-10 |
+| `vertex/claude-haiku-4-5@europe-west1` | `pi-agent/models.json` |
 | `bedrock/claude-haiku-4-5@eu-central-1` | `pi-agent/models.json` |
 
 **gptel/Emacs (OpenRouter slug style, separate):**
@@ -48,10 +50,10 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
-| `vertex/gemini-3.5-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode) |
+| `vertex/gemini-3.5-flash@eu` | `pi-agent/models.json` (requesty-google) |
 | `vertex/gemini-3.1-flash-lite@eu` | `pi-agent/models.json` |
 | `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json` |
-| `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
+| `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
@@ -61,10 +63,11 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
+| `azure/gpt-6.1-sol@swedencentral` | `pi-agent/models.json` (requesty-openai), `laptop/home.nix` (opencode) — streaming tools + `reasoning_effort` verified 2026-10 |
 | `azure/gpt-6-sol@swedencentral` | `pi-agent/models.json` (requesty-openai) |
 | `azure/gpt-5.6-terra@swedencentral` | `pi-agent/models.json` |
-| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json` |
-| `azure/gpt-5.4@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `azure/gpt-5.4@swedencentral` | `pi-agent/models.json` |
 | `azure/gpt-5.5@swedencentral` | `pi-agent/models.json` |
 
 GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
@@ -76,7 +79,7 @@ GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
 | Model | Consumers |
 |-------|-----------|
 | `tensorx/glm-5.2`, `inceptron/glm-5.2`, `sference/glm-5.2` | `pi-agent/models.json` (requesty-completions) |
-| `tensorx/glm-5.3`, `sference/glm-5.3` | `pi-agent/models.json` (requesty-completions); F4 key → `sference/glm-5.3` in `model-shortcuts.ts` |
+| `tensorx/glm-5.3`, `sference/glm-5.3` | `pi-agent/models.json` (requesty-completions); F4 key → `sference/glm-5.3` in `model-shortcuts.ts`; `sference/glm-5.3` also `laptop/home.nix` (opencode, text-only) |
 | `sference/glm-5.3-flash` | `pi-agent/models.json` (requesty-completions, vision); F4 key cycle → `model-shortcuts.ts` |
 | `tensorx/glm-5.3-flash` | `pi-agent/models.json` (requesty-completions, **text-only**) — tools + reasoning work, but images are silently dropped (verified 2026-09; Requesty's capability flags claim no tools/reasoning, which is wrong) |
 | `sference/kimi-k3`, `tensorx/kimi-k3` (vision) | `pi-agent/models.json` |
@@ -128,6 +131,6 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 |-----|------------------|---------------------|
 | F1 | `sference/deepseek-v4.1-flash` | — |
 | F2 | `bedrock/claude-opus-5-5@eu-central-1` → `vertex/claude-opus-5@eu` | `anthropic/claude-opus-5.5` |
-| F3 | `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5` |
+| F3 | `vertex/claude-sonnet-5-5@eu` → `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5.5` |
 | F4 | `sference/glm-5.3` → `sference/glm-5.3-flash` | — |
 | F5–F9 | (empty) | (empty) |

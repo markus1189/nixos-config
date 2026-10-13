@@ -21,8 +21,17 @@ Examples:
 - `azure/gpt-5.4@swedencentral`
 - `nebius/kimi-k3`
 
-Only models on the organization's **Approved Models / Access List** are routable. Check the
-Requesty dashboard (or the `cc Playground` group's access list) for the current set.
+Only models on the organization's **Approved Models / Access List** are routable. `/v1/models`
+returns exactly that list when called with a key (110 slugs; 785 without one, checked 2026-10-13),
+the same for the `agent` and `playground` keys. Newest first, key kept out of argv:
+
+```zsh
+curl -sS -H @<(printf 'Authorization: Bearer %s\n' "$(pass api/requesty/agent)") \
+  https://router.eu.requesty.ai/v1/models \
+  | jq -r '.data | sort_by(-.created)[] | "\(.created|strftime("%F"))  \(.id)"'
+```
+
+`created` is when Requesty listed the slug, not the vendor release date.
 
 ### Step 1: Find Model Specifications
 
@@ -191,13 +200,6 @@ The `api` field determines the protocol:
 | Mistral | `mistral/` | `mistral/mistral-medium-latest` |
 | OpenWeight (Nebius/Inceptron) | `nebius/`, `inceptron/` | `nebius/kimi-k3` |
 
-Enumerate the current access list rather than guessing at slugs:
-
-```bash
-curl -s https://router.eu.requesty.ai/v1/models \
-  -H "Authorization: Bearer $(pass api/requesty/agent)" | jq -r '.data[].id' | sort
-```
-
 ### `supports_vision` from `/v1/models` is not trustworthy
 
 The router's `supports_vision` flag is metadata, not behaviour. A text-only model behind a
@@ -234,10 +236,9 @@ Also beware `max_output_tokens` from the router: inceptron/tensorx report it equ
 context window (e.g. 1048576), which is nonsense. Cap `maxTokens` at 128000, matching the other
 entries.
 
-**Gemini on the EU list is thin** (checked 2026-07): only `vertex/gemini-2.5-flash@europe-west1`,
-`vertex/gemini-2.5-pro@europe-west1` and `vertex/gemini-3.1-flash-lite@eu`. There is no Gemini 3.x
-pro or non-lite flash, so `gemini-2.5-pro` stays the Gemini entry here despite its age —
-3.1-flash-lite has `supports_reasoning: false` and is not an agent-tier replacement.
+**Gemini on the EU list has no 3.x Pro** (checked 2026-10): Gemini 3 is Flash-only
+(`3.1-flash-lite`, `3.5-flash`, `3.5-flash-lite`, `3.7-flash`, `3.8-flash`, all `@eu`), next to the
+legacy `2.5-flash`/`2.5-pro@europe-west1`. `vertex/gemini-3.8-flash@eu` is the Gemini agent entry.
 
 ### Verification
 
