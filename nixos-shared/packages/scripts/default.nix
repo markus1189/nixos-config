@@ -1768,7 +1768,7 @@ rec {
       # -multi-select: Shift+Enter marks rows; rofi returns one per line.
       choice=$(find "$downloads" -type f -printf '%T@\t%P\n' 2>/dev/null \
         | sort -rn | cut -f2- \
-        | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "downloads" \
+        | rofi -dmenu -i -matching fuzzy -sort -sorting-method fzf -multi-select -p "downloads" \
             -kb-custom-1 "Alt+d" \
             -kb-custom-2 "Alt+o" \
             -mesg "Enter: copy  |  Alt+d: drag  |  Alt+o: open  |  Shift+Enter: mark") || ret=$?
@@ -1843,7 +1843,7 @@ rec {
                -o -name node_modules -o -path "$root/Today" \) -prune \
             -o -type f -printf '%T@\t%P\n' 2>/dev/null \
         | sort -rn | cut -f2- \
-        | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "$prompt" \
+        | rofi -dmenu -i -matching fuzzy -sort -sorting-method fzf -multi-select -p "$prompt" \
             -kb-custom-1 "Alt+d" \
             -kb-custom-2 "Alt+o" \
             -mesg "Enter: copy  |  Alt+d: drag  |  Alt+o: open  |  Shift+Enter: mark") || ret=$?

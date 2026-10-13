@@ -401,7 +401,6 @@ myKeys =
     ((myModKey, xK_F12), spawn "@flameshot@/bin/flameshot gui"), -- NOTE: requires flameshot service to be active (nixos or home-manager)
     ((myModShift, xK_F12), spawn "@flameshotOcr@/bin/flameshotOcr"),
     ((myModKey, xK_F2), spawn "@autorandr@/bin/autorandr --change"),
-    ((myModKey, xK_s), spawn "@rofiStuffPicker@/bin/rofiStuffPicker"),
     ((myModKey, xK_Return), sendMessage $ Toggle FULL),
     -- Tabbing
     --- Next like this
@@ -411,11 +410,12 @@ myKeys =
     ((myModShiftCtrl, xK_Tab), cycleWindowSets (recentNonVisibleWS isWindowSpaceInteresting) [xK_Super_L] xK_Tab xK_grave),
     ((myModKey, xK_Tab), toggleWS' ["NSP"]),
     --
-    -- dmenu-style leader: super+d then r/s/c/t/d/b
+    -- dmenu-style leader: super+d then r/s/S/c/t/d/b
     ( (myModKey, xK_d),
       submap . M.fromList $
-        [ ((0, xK_r), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -show run"),
+        [ ((0, xK_r), spawn "@rofi@/bin/rofi -modi run -i -monitor -4 -matching fuzzy -sort -sorting-method fzf -show run"),
           ((0, xK_s), gotoMenuArgs' "@rofi@/bin/rofi" rofiWindowArgs),
+          ((shiftMask, xK_s), spawn "@rofiStuffPicker@/bin/rofiStuffPicker"),
           ((0, xK_c), spawn "@clipcat@/bin/clipcat-menu insert"),
           ((0, xK_t), spawn "@rofiStuffTodayPicker@/bin/rofiStuffTodayPicker"),
           ((0, xK_d), spawn "@rofiDownloadsPicker@/bin/rofiDownloadsPicker"),
@@ -527,11 +527,11 @@ relativeTo (Rectangle sx sy sw sh) (Rectangle x y w h) =
 -- turns into an urgency flag rather than focus. WindowBringer feeds the
 -- window list in on stdin and focuses with W.focusWindow instead.
 rofiWindowArgs :: [String]
-rofiWindowArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-p", "window"]
+rofiWindowArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-sorting-method", "fzf", "-p", "window"]
 
 -- Dynamic workspaces via rofi
 rofiArgs :: [String]
-rofiArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-p", "workspace"]
+rofiArgs = ["-dmenu", "-i", "-monitor", "-4", "-matching", "fuzzy", "-sort", "-sorting-method", "fzf", "-p", "workspace"]
 
 numberedWorkspaces :: [WorkspaceId]
 numberedWorkspaces = map show ([(0 :: Int) .. 9])
