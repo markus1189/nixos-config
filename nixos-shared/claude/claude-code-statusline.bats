@@ -780,6 +780,35 @@ git_tmp_repo() {
     assert_output ""
 }
 
+@test "get_git_branch: outside a repo yields the placeholder" {
+    cd "$BATS_TEST_TMPDIR" || return 1
+    GIT_CEILING_DIRECTORIES="$BATS_TEST_TMPDIR" run get_git_branch
+    assert_success
+    assert_output "⌀"
+}
+
+@test "get_git_branch: detached HEAD shows the commit" {
+    git_tmp_repo
+    git checkout -q --detach
+    run get_git_branch
+    assert_success
+    assert_output "@$(git rev-parse HEAD | cut -c1-7)"
+}
+
+@test "get_git_status: commits on both sides of the upstream" {
+    cd "$BATS_TEST_TMPDIR" || return 1
+    git init -q --bare remote.git
+    git clone -q remote.git clone 2>/dev/null && cd clone || return 1
+    git -c user.name=t -c user.email=t@t commit -q --allow-empty -m one
+    git -c user.name=t -c user.email=t@t commit -q --allow-empty -m two
+    git push -q -u origin HEAD 2>/dev/null
+    git reset -q --hard HEAD~1
+    git -c user.name=t -c user.email=t@t commit -q --allow-empty -m three
+    run get_git_status
+    assert_success
+    assert_output "✓1↑1↓"
+}
+
 # Tests for get_working_dir
 
 @test "get_working_dir: prefers current_dir over project_dir" {

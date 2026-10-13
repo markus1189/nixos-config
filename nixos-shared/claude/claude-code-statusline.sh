@@ -292,46 +292,59 @@ get_context_size() {
 
 get_context_window_size() { parse_input; echo "$J_WINDOW_SIZE"; }
 
-get_git_branch() {
-    git branch --quiet --show-current 2>/dev/null || echo "$PLACEHOLDER"
-}
-
-get_git_status() {
-    local status="" porcelain
-
-    # Porcelain lists untracked files too, which git diff does not. No optional
-    # locks: a status refresh must never collide with the user's own git.
-    if ! porcelain=$(git --no-optional-locks status --porcelain 2>/dev/null); then
-        echo ""
-        return
+# Branch, changes and distance to the upstream from one porcelain v2 call, which
+# main makes once. Porcelain lists untracked files too, which git diff does not.
+# No optional locks: a status refresh must never collide with the user's own
+# git. A detached HEAD shows its commit, as @abc1234.
+parse_git() {
+    if [ -n "${G_PARSED:-}" ]; then
+        return 0
     fi
-    if [ -z "$porcelain" ]; then
-        status+="✓"
+    G_PARSED=1
+    G_BRANCH="$PLACEHOLDER"
+    G_STATUS=""
+
+    local porcelain
+    if ! porcelain=$(git --no-optional-locks status --porcelain=v2 --branch 2>/dev/null); then
+        return 0
+    fi
+
+    local line head="" oid="" ab="" dirty=""
+    while IFS= read -r line; do
+        case "$line" in
+            "# branch.oid "*) oid="${line#"# branch.oid "}" ;;
+            "# branch.head "*) head="${line#"# branch.head "}" ;;
+            "# branch.ab "*) ab="${line#"# branch.ab "}" ;;
+            "#"* | "") ;;
+            *) dirty=1 ;;
+        esac
+    done <<<"$porcelain"
+
+    if [ "$head" = "(detached)" ]; then
+        G_BRANCH="@${oid:0:7}"
     else
-        status+="±"
+        G_BRANCH="$head"
+    fi
+    if [ -n "$dirty" ]; then
+        G_STATUS="±"
+    else
+        G_STATUS="✓"
     fi
 
-    # Get ahead/behind counts
-    local upstream
-    upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)
-    if [ -n "$upstream" ]; then
-        local counts
-        counts=$(git rev-list --left-right --count HEAD..."$upstream" 2>/dev/null)
-        if [ -n "$counts" ]; then
-            local ahead behind
-            ahead=$(echo "$counts" | cut -f1)
-            behind=$(echo "$counts" | cut -f2)
-            if [ "$ahead" -gt 0 ]; then
-                status+="${ahead}↑"
-            fi
-            if [ "$behind" -gt 0 ]; then
-                status+="${behind}↓"
-            fi
-        fi
+    # branch.ab reads "+<ahead> -<behind>" and is absent without an upstream.
+    local ahead="${ab%% *}" behind="${ab##* }"
+    ahead="${ahead#+}"
+    behind="${behind#-}"
+    if [ "${ahead:-0}" -gt 0 ]; then
+        G_STATUS+="${ahead}↑"
     fi
-
-    echo "$status"
+    if [ "${behind:-0}" -gt 0 ]; then
+        G_STATUS+="${behind}↓"
+    fi
 }
+
+get_git_branch() { parse_git; echo "$G_BRANCH"; }
+get_git_status() { parse_git; echo "$G_STATUS"; }
 
 # One segment for the context: tokens, window size, percentage and a bar. The
 # bar tracks the percentage (which survives /compact) rather than the tokens.
@@ -705,6 +718,7 @@ main() {
 
     # Parse once here so every command substitution below inherits the values.
     parse_input
+    parse_git
     log_rate_limits || true
 
     local context_color
@@ -734,7 +748,7 @@ main() {
     # Row 2: Location
     segment "$BLUE" "$(get_working_dir)"
     separator "$BLUE" "$GREEN"
-    segment "$GREEN" "$(get_git_branch)$(get_git_status)"
+    segment "$GREEN" "$G_BRANCH$G_STATUS"
     row_end "$GREEN"
 
     # Row 3: Cost and context metrics
