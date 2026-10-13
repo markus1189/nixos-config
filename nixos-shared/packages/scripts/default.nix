@@ -1799,8 +1799,9 @@ rec {
     '';
   };
 
-  rofiStuffTodayPicker = writeShellApplication {
-    name = "rofiStuffTodayPicker";
+  # usage: rofiFilePicker [-L] [-d MAXDEPTH] ROOT PROMPT
+  rofiFilePicker = writeShellApplication {
+    name = "rofiFilePicker";
     runtimeInputs = [
       coreutils
       findutils
@@ -1815,32 +1816,43 @@ rec {
     inheritPath = true;
     bashOptions = [ "errexit" ];
     text = ''
-      # ~/Stuff/Today is a symlink kept pointing at today's dated
-      # dir by stuff-today (timer, cdt, Emacs). -d follows it, so a
-      # dangling/missing link fails this guard.
-      today="$HOME/Stuff/Today"
-      if [ ! -d "$today" ]; then
-        notify-send "rofi-today" "no ~/Stuff/Today"
+      opts=()
+      depth=()
+      while [ $# -gt 2 ]; do
+        case "$1" in
+          -L) opts=(-L); shift ;;
+          -d) depth=(-maxdepth "$2"); shift 2 ;;
+          *) echo "unknown option: $1" >&2; exit 2 ;;
+        esac
+      done
+      root="$1"
+      prompt="$2"
+      if [ ! -d "$root" ]; then
+        notify-send "rofi-$prompt" "no $root"
         exit 1
       fi
 
       ret=0
-      # -L follows the Today symlink, then recurse; %P yields paths
-      # relative to $today (mtime-sorted) so "$today/$rel" holds.
+      # Pruned: dot-entries (undo-tree files, caches, .git, .stversions),
+      # result symlinks into /nix/store (470k of ~/Stuff's 617k files under
+      # -L), node_modules, and $root/Today (Stuff's link duplicating today's dir).
+      # -printf reads mtime during the walk: 0.3s vs 8.5s for stat per file.
       # -multi-select: Shift+Enter marks rows; rofi returns one per line.
-      choice=$(find -L "$today" -type f -printf '%T@\t%P\n' 2>/dev/null \
+      choice=$(find "''${opts[@]}" "$root" "''${depth[@]}" \
+            \( -name '.*' -o \( -name result -type l \) \
+               -o -name node_modules -o -path "$root/Today" \) -prune \
+            -o -type f -printf '%T@\t%P\n' 2>/dev/null \
         | sort -rn | cut -f2- \
-        | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "today" \
+        | rofi -dmenu -i -matching fuzzy -sort -multi-select -p "$prompt" \
             -kb-custom-1 "Alt+d" \
             -kb-custom-2 "Alt+o" \
             -mesg "Enter: copy  |  Alt+d: drag  |  Alt+o: open  |  Shift+Enter: mark") || ret=$?
       [ -z "$choice" ] && exit 0
 
-      # One absolute path per selected line.
       mapfile -t rels <<< "$choice"
       full=()
       for rel in "''${rels[@]}"; do
-        full+=("$today/$rel")
+        full+=("$root/$rel")
       done
 
       case "$ret" in
@@ -1854,10 +1866,24 @@ rec {
           # Command substitution strips the trailing newline, so a single
           # selection copies clean and many copy newline-joined.
           clip=$(printf '%s\n' "''${full[@]}")
-          printf '%s' "$clip" | xclip -i -selection clipboard
+          printf '%s' "$clip" | xclip -i -selection clipboard >/dev/null 2>&1
           notify-send "Copied path(s)" "$choice"
           ;;
       esac
     '';
+  };
+
+  # ~/Stuff/Today is a symlink kept pointing at today's dated dir by
+  # stuff-today (timer, cdt, Emacs); -L follows it and its contents.
+  rofiStuffTodayPicker = writeShellApplication {
+    name = "rofiStuffTodayPicker";
+    text = ''exec ${rofiFilePicker}/bin/rofiFilePicker -L "$HOME/Stuff/Today" today'';
+  };
+
+  # Depth 4 = yyyy-mm/dd-host/topic/file: 5.2k rows vs 147k unlimited,
+  # most of which are decompiled-APK trees below that.
+  rofiStuffPicker = writeShellApplication {
+    name = "rofiStuffPicker";
+    text = ''exec ${rofiFilePicker}/bin/rofiFilePicker -d 4 "$HOME/Stuff" stuff'';
   };
 }

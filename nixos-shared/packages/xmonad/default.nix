@@ -14,6 +14,7 @@ args@{
   playerctl,
   rofi,
   rofiDownloadsPicker,
+  rofiStuffPicker,
   rofiStuffTodayPicker,
   systemd,
   tmx,

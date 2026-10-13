@@ -53,6 +53,7 @@
               flameshotOcr
               lockScreen
               rofiDownloadsPicker
+              rofiStuffPicker
               rofiStuffTodayPicker
               tmx
               xmonadReset
