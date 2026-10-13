@@ -146,9 +146,80 @@ in
                     };
                   };
 
-                  # No vision on this route.
+                  "vertex/gemini-3.5-flash-lite@eu" = {
+                    name = "Gemini 3.5 Flash Lite";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  # Open weight. Routes match pi's models.json; text-only ones have no
+                  # vision on that route (sference/glm-5.3, tensorx/qwen3.8).
                   "sference/glm-5.3" = {
                     name = "GLM 5.3";
+                  };
+
+                  "sference/glm-5.3-flash" = {
+                    name = "GLM 5.3 Flash";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "sference/deepseek-v4.1-flash" = {
+                    name = "DeepSeek V4.1 Flash";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "tensorx/kimi-k3" = {
+                    name = "Kimi K3";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "tensorx/minimax-m3" = {
+                    name = "MiniMax M3";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "tensorx/qwen3.8" = {
+                    name = "Qwen 3.8";
+                  };
+
+                  "tensorx/qwen3.8-flash-next" = {
+                    name = "Qwen 3.8 Flash Next";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
                   };
 
                   # No thinking block on Opus/Sonnet 5.5: they think adaptively when none

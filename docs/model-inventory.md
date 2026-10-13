@@ -34,13 +34,9 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model slug used | Consumers (files) |
 |-----------------|-------------------|
-| `bedrock/claude-opus-5-5@eu-central-1` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2 primary), `laptop/home.nix` (opencode) — Bedrock only, no Vertex slug on Requesty EU (checked 2026-09) |
-| `vertex/claude-opus-5@eu` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2 cycle) |
-| `vertex/claude-sonnet-5-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3 primary), `laptop/home.nix` (opencode) — Vertex only, no Bedrock slug (checked 2026-10) |
-| `vertex/claude-sonnet-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3 cycle) |
+| `bedrock/claude-opus-5-5@eu-central-1` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2), `laptop/home.nix` (opencode) — Bedrock only, no Vertex slug on Requesty EU (checked 2026-09) |
+| `vertex/claude-sonnet-5-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3), `laptop/home.nix` (opencode) — Vertex only, no Bedrock slug (checked 2026-10) |
 | `vertex/claude-haiku-5-5@eu` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — adaptive thinking verified 2026-10 |
-| `vertex/claude-haiku-4-5@europe-west1` | `pi-agent/models.json` |
-| `bedrock/claude-haiku-4-5@eu-central-1` | `pi-agent/models.json` |
 
 **gptel/Emacs (OpenRouter slug style, separate):**
 - `anthropic/claude-sonnet-5`, `anthropic/claude-opus-5.5`, `anthropic/claude-opus-5` + `openai/gpt-5.2`, `openai/gpt-5.1`, `openai/gpt-5-mini` → `emacs-config.el:1555-1561`.
@@ -50,10 +46,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
-| `vertex/gemini-3.5-flash@eu` | `pi-agent/models.json` (requesty-google) |
-| `vertex/gemini-3.1-flash-lite@eu` | `pi-agent/models.json` |
-| `vertex/gemini-3.7-flash@eu` | `pi-agent/models.json` |
 | `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
+| `vertex/gemini-3.5-flash-lite@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — vision + opencode tool run verified 2026-10 |
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
@@ -64,13 +58,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | Model | Consumers |
 |-------|-----------|
 | `azure/gpt-6.1-sol@swedencentral` | `pi-agent/models.json` (requesty-openai), `laptop/home.nix` (opencode) — streaming tools + `reasoning_effort` verified 2026-10 |
-| `azure/gpt-6-sol@swedencentral` | `pi-agent/models.json` (requesty-openai) |
-| `azure/gpt-5.6-terra@swedencentral` | `pi-agent/models.json` |
 | `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
-| `azure/gpt-5.4@swedencentral` | `pi-agent/models.json` |
-| `azure/gpt-5.5@swedencentral` | `pi-agent/models.json` |
-
-GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
 
 **gptel/Emacs (OpenRouter):** `openai/gpt-5.2`, `gpt-5.1`, `gpt-5-mini` — `emacs-config.el:1555-1557`.
 
@@ -78,15 +66,16 @@ GPT-6 has no Terra tier, so `gpt-5.6-terra` stays as the middle option.
 
 | Model | Consumers |
 |-------|-----------|
-| `tensorx/glm-5.2`, `inceptron/glm-5.2`, `sference/glm-5.2` | `pi-agent/models.json` (requesty-completions) |
-| `tensorx/glm-5.3`, `sference/glm-5.3` | `pi-agent/models.json` (requesty-completions); F4 key → `sference/glm-5.3` in `model-shortcuts.ts`; `sference/glm-5.3` also `laptop/home.nix` (opencode, text-only) |
-| `sference/glm-5.3-flash` | `pi-agent/models.json` (requesty-completions, vision); F4 key cycle → `model-shortcuts.ts` |
-| `tensorx/glm-5.3-flash` | `pi-agent/models.json` (requesty-completions, **text-only**) — tools + reasoning work, but images are silently dropped (verified 2026-09; Requesty's capability flags claim no tools/reasoning, which is wrong) |
-| `sference/kimi-k3`, `tensorx/kimi-k3` (vision) | `pi-agent/models.json` |
-| `tensorx/kimi-k2.7-code`, `inceptron/kimi-k2.7-Code` | `pi-agent/models.json` |
-| `sference/deepseek-v4.1-flash` (vision) | `pi-agent/models.json` (requesty-completions); F1 default in `model-shortcuts.ts` — vision + tools verified 2026-09 |
-| `tensorx/minimax-m3` | `pi-agent/models.json` |
-| `tensorx/qwen3.8`, `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json` |
+| `sference/deepseek-v4.1-flash` (vision) | `pi-agent/models.json` (requesty-completions), `laptop/home.nix` (opencode); F1 default in `model-shortcuts.ts` |
+| `sference/glm-5.3` | `pi-agent/models.json`, `laptop/home.nix` (opencode, text-only); F4 primary |
+| `sference/glm-5.3-flash` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode); F4 cycle |
+| `tensorx/kimi-k3` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `tensorx/minimax-m3` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `tensorx/qwen3.8` (text-only), `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `tensorx/glm-5.3`, `sference/kimi-k3` (text-only) | `pi-agent/models.json` — alternate routes, pi only |
+| `tensorx/glm-5.3-flash` | `pi-agent/models.json` (**text-only**) — tools + reasoning work, but images are silently dropped (verified 2026-09; Requesty's capability flags claim no tools/reasoning, which is wrong) |
+
+Every opencode entry above passed a two-tool-call `opencode2 run` (read + shell, reasoning replayed) and, where marked vision, the CAKE test (2026-10).
 
 **gptel/Emacs (OpenRouter):** `deepseek/deepseek-v4-pro`, `deepseek/deepseek-v4-flash`, `mistralai/codestral-2508`, `meta-llama/llama-3.3-70b-instruct` — `emacs-config.el:1563-1568`.
 
@@ -104,6 +93,10 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 
 > **Rule of thumb:** a model lives in **1–4 places**. Catalog + keybindings + (maybe) opencode or gptel.
 > `models.json` is always the anchor.
+>
+> **Policy:** keep only the newest generation of every family (Claude, GPT, Gemini, open-weight), in both pi and opencode.
+> opencode mirrors pi's newest-generation entries (one route per model); Mistral stays pi-only.
+> Prices in `models.json` come from the keyed `/v1/models` (see `ADD_MODEL.md`).
 
 - **Claude sonnet/opus/haiku bump** → `models.json` (requesty-anthropic) + `model-shortcuts.ts` (if pinned) + `laptop/home.nix` (opencode) + `emacs-config.el` (gptel, OpenRouter slug). Watch the **rd git** `@eu`/`@europe-west1` region slug and the thinking/adaptive caveats in `laptop/home.nix` comments.
 - **New Gemini tier** → `models.json` (requesty-google); if it becomes the vision/transcribe/banana workhorse, also `gemini-vision.sh`, `transcribe.sh`, `nano-banana.sh`.
@@ -130,7 +123,7 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 | Key | Requesty primary | OpenRouter fallback |
 |-----|------------------|---------------------|
 | F1 | `sference/deepseek-v4.1-flash` | — |
-| F2 | `bedrock/claude-opus-5-5@eu-central-1` → `vertex/claude-opus-5@eu` | `anthropic/claude-opus-5.5` |
-| F3 | `vertex/claude-sonnet-5-5@eu` → `vertex/claude-sonnet-5@eu` | `anthropic/claude-sonnet-5.5` |
+| F2 | `bedrock/claude-opus-5-5@eu-central-1` | `anthropic/claude-opus-5.5` |
+| F3 | `vertex/claude-sonnet-5-5@eu` | `anthropic/claude-sonnet-5.5` |
 | F4 | `sference/glm-5.3` → `sference/glm-5.3-flash` | — |
 | F5–F9 | (empty) | (empty) |

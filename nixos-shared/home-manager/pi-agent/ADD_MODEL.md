@@ -228,9 +228,9 @@ send it as a base64 `image_url` data URL.
 
 The same model is often listed under several providers at different prices. Cheaper is not always
 better: `inceptron/kimi-k2.7-Code` ($0.75/$3.50) returned **429 Too Many Requests** on 2 of 4 calls
-during testing, while `tensorx/kimi-k2.7-code` ($1.25/$4.50) was reliable. Both are configured;
-prefer the tensorx route for long agent runs. Note the inceptron slug capitalises `Code` and the
-tensorx one does not — the IDs are case-sensitive.
+during testing, while `tensorx/kimi-k2.7-code` ($1.25/$4.50) was reliable (both since retired
+with K2.7). Load-test a cheap route before relying on it for long agent runs. The inceptron slug
+capitalised `Code` and the tensorx one did not — the IDs are case-sensitive.
 
 Also beware `max_output_tokens` from the router: inceptron/tensorx report it equal to the full
 context window (e.g. 1048576), which is nonsense. Cap `maxTokens` at 128000, matching the other
