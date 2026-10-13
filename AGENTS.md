@@ -185,8 +185,7 @@ man home-configuration.nix
 
 ### AI Models
 `docs/model-inventory.md` maps every model slug to the files that use it. Read it before
-touching a slug anywhere (pi `models.json`, opencode in `laptop/home.nix`, shortcuts, gptel,
-scripts) and update it in the same commit. New Requesty models: vet per
+touching a slug anywhere and update it in the same commit. New Requesty models: vet per
 `nixos-shared/home-manager/pi-agent/ADD_MODEL.md`.
 
 ### Home Manager Integration

@@ -236,10 +236,6 @@ Also beware `max_output_tokens` from the router: inceptron/tensorx report it equ
 context window (e.g. 1048576), which is nonsense. Cap `maxTokens` at 128000, matching the other
 entries.
 
-**Gemini on the EU list has no 3.x Pro** (checked 2026-10): Gemini 3 is Flash-only
-(`3.1-flash-lite`, `3.5-flash`, `3.5-flash-lite`, `3.7-flash`, `3.8-flash`, all `@eu`), next to the
-legacy `2.5-flash`/`2.5-pro@europe-west1`. `vertex/gemini-3.8-flash@eu` is the Gemini agent entry.
-
 ### Verification
 
 Test your configuration:

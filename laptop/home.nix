@@ -157,8 +157,7 @@ in
                     };
                   };
 
-                  # Open weight. Routes match pi's models.json; text-only ones have no
-                  # vision on that route (sference/glm-5.3, tensorx/qwen3.8).
+                  # Routes and image input match pi's models.json.
                   "sference/glm-5.3" = {
                     name = "GLM 5.3";
                   };
@@ -225,9 +224,8 @@ in
                   # No thinking block on Opus/Sonnet 5.5: they think adaptively when none
                   # is sent, and opencode's schema (type enum ["enabled","disabled"])
                   # can't express adaptive+effort. Requesty answered a legacy
-                  # thinking.type="enabled" request with 200 for both on 2026-10-13
-                  # (Sonnet 5 used to 400), but whether it maps that onto adaptive is
-                  # unverified.
+                  # thinking.type="enabled" request with 200 for both on 2026-10-13, but
+                  # whether it maps that onto adaptive is unverified.
                   "bedrock/claude-opus-5-5@eu-central-1" = {
                     name = "Claude Opus 5.5";
                     capabilities = {

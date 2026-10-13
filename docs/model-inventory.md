@@ -14,7 +14,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |------|---------------|
 | `nixos-shared/home-manager/pi-agent/models.json` | **The canonical model catalog** — pi agent's full provider+model+pricelist. Symlinked to `~/.pi/agent/models.json`. |
 | `nixos-shared/home-manager/pi-agent/extensions/model-shortcuts.ts` | F1–F9 keybindings → provider/modelId pairs (Requesty + fallback openrouter). |
-| `laptop/home.nix` (~line 103) | **opencode** provider `requesty-cc` (`@ai-sdk/openai-compatible`, Requesty EU; the id must not be `requesty`, see comment there): a hand-picked subset of `models.json`. Vet new entries with `pi-agent/ADD_MODEL.md` (access list, tools, CAKE test). |
+| `laptop/home.nix` (~line 103) | **opencode** provider `requesty-cc` (`@ai-sdk/openai-compatible`, Requesty EU): a hand-picked subset of `models.json`. Vet new entries with `pi-agent/ADD_MODEL.md` (access list, tools, CAKE test). |
 | `nixos-shared/home-manager/zsh/default.nix` (~line 45) | `oc` / `pi` / `pi-glados` aliases — inject `REQUESTY_API_KEY_CC` from `pass api/requesty/agent`. No model slugs. |
 | `nixos-shared/packages/emacs/emacs-config.el` (~line 1550) | **gptel** model list (OpenRouter). |
 | `nixos-shared/packages/scripts/gemini-vision.sh:20` | `MODEL` const for the vision script. |
@@ -95,7 +95,7 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 > `models.json` is always the anchor.
 >
 > **Policy:** keep only the newest generation of every family (Claude, GPT, Gemini, open-weight), in both pi and opencode.
-> opencode mirrors pi's newest-generation entries (one route per model); Mistral stays pi-only.
+> opencode mirrors pi's newest-generation entries (one route per model).
 > Prices in `models.json` come from the keyed `/v1/models` (see `ADD_MODEL.md`).
 
 - **Claude sonnet/opus/haiku bump** → `models.json` (requesty-anthropic) + `model-shortcuts.ts` (if pinned) + `laptop/home.nix` (opencode) + `emacs-config.el` (gptel, OpenRouter slug). Watch the **rd git** `@eu`/`@europe-west1` region slug and the thinking/adaptive caveats in `laptop/home.nix` comments.
