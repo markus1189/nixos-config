@@ -7,6 +7,44 @@
       "authHeader": true,
       "models": [
         {
+          "id": "vertex/claude-sonnet-5-5@eu",
+          "name": "Claude Sonnet 5.5 (Requesty/Vertex EU, adaptive thinking)",
+          "reasoning": true,
+          "compat": { "forceAdaptiveThinking": true },
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 2.2,
+            "output": 11,
+            "cacheRead": 0.22,
+            "cacheWrite": 2.75
+          },
+          "contextWindow": 1000000,
+          "maxTokens": 128000
+        },
+        {
+          "id": "vertex/claude-haiku-5-5@eu",
+          "name": "Claude Haiku 5.5 (Requesty/Vertex EU, adaptive thinking)",
+          "reasoning": true,
+          "compat": { "forceAdaptiveThinking": true },
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0.11,
+            "output": 0.55,
+            "cacheRead": 0.02,
+            "cacheWrite": 0.14
+          },
+          "contextWindow": 1000000,
+          "maxTokens": 128000
+        },
+        {
           "id": "vertex/claude-sonnet-5@eu",
           "name": "Claude Sonnet 5 (Requesty/Vertex EU, adaptive thinking)",
           "reasoning": true,
@@ -394,6 +432,24 @@
       "api": "openai-completions",
       "authHeader": true,
       "models": [
+        {
+          "id": "azure/gpt-6.1-sol@swedencentral",
+          "name": "GPT-6.1 Sol (Requesty/Azure EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 2.4,
+            "output": 12,
+            "cacheRead": 0.12,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1050000,
+          "maxTokens": 128000
+        },
         {
           "id": "azure/gpt-6-sol@swedencentral",
           "name": "GPT-6 Sol (Requesty/Azure EU)",
