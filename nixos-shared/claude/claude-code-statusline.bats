@@ -12,8 +12,9 @@ setup() {
     source "$BATS_TEST_DIRNAME/claude-code-statusline.sh"
 
     # Ensure deterministic state: bats inherits the parent shell env, and
-    # this var is set in the user's normal shell.
-    unset CLAUDE_CODE_ENABLE_TELEMETRY
+    # this var is set in the user's normal shell. COLUMNS would make main shed
+    # segments; the tests for that set it themselves.
+    unset CLAUDE_CODE_ENABLE_TELEMETRY COLUMNS
 
     # main() logs rate limits; keep that out of the real ~/.local/state.
     export XDG_STATE_HOME="$BATS_TEST_TMPDIR/state"
@@ -1248,4 +1249,111 @@ rl_log() { cat "$XDG_STATE_HOME/claude-code/rate-limits.tsv"; }
     assert_success
     run rl_log
     assert_output --partial $'5h\t'
+}
+
+# Tests for fitting rows to COLUMNS
+#
+# Claude Code cuts rows longer than COLUMNS - 4. This payload puts row 3 at its
+# longest, 94 columns: both windows burning, a warm cache, every countdown. $1
+# is the cache's warm flag.
+mock_input_burning() {
+    local now="$EPOCHSECONDS"
+    cat <<EOF
+{"transcript_path": "/p/7f3a9c21-x.jsonl", "session_name": "statusline review",
+ "model": {"display_name": "Opus 5.5"}, "effort": {"level": "high"}, "version": "2.1.296",
+ "workspace": {"current_dir": "/srv/repos/nixos-config/nixos-shared/home-manager/claude-code"},
+ "cost": {"total_cost_usd": 23.4567},
+ "context_window": {"current_usage": {"input_tokens": 183000}, "context_window_size": 1000000, "used_percentage": 18},
+ "prompt_cache": {"warm": ${1:-true}, "caching_observed": true, "ttl": "1h", "expires_at": $((now + 2550)), "hit_ratio": 0.94, "recache_tokens_if_cold": 183000},
+ "rate_limits": {"five_hour": {"used_percentage": 62, "resets_at": $((now + 10830))},
+                 "seven_day": {"used_percentage": 81, "resets_at": $((now + 259230))}}}
+EOF
+}
+
+# The burning payload at COLUMNS=$1, outside any git repo, colours stripped.
+render_at() {
+    cd "$BATS_TEST_TMPDIR" || return 1
+    mock_input_burning "${2:-true}" | GIT_CEILING_DIRECTORIES="$BATS_TEST_TMPDIR" COLUMNS="$1" main |
+        sed 's/\x1b\[[0-9;]*m//g'
+}
+
+@test "fit: a wide pane sheds nothing" {
+    run render_at 120
+    assert_success
+    assert_line --index 0 --partial " 2.1.296 "
+    assert_line --index 2 --partial "↻3h0m"
+    assert_line --index 2 --partial "⧗42m"
+    assert_line --index 2 --partial " 23.46$ "
+}
+
+@test "fit: row 3 sheds countdowns, cost, a warm cache, then projections" {
+    run render_at 90
+    refute_line --index 2 --partial "↻"
+    refute_line --index 2 --partial "⧗"
+    assert_line --index 2 --partial " 23.46$ "
+
+    run render_at 80
+    refute_line --index 2 --partial "23.46$"
+    assert_line --index 2 --partial "1h 94% "
+
+    run render_at 70
+    refute_line --index 2 --partial "94%"
+    assert_line --index 2 --partial "62%→"
+
+    run render_at 60
+    refute_line --index 2 --partial "→"
+    assert_line --index 2 --regexp "5h 62% ⚠.* 7d 81% ⚠"
+}
+
+@test "fit: a cold cache stays, the projections go instead" {
+    run render_at 70
+    refute_line --index 2 --partial "94%"
+    assert_line --index 2 --partial "→"
+
+    run render_at 70 false
+    assert_line --index 2 --partial "cold"
+    refute_line --index 2 --partial "→"
+}
+
+@test "fit: row 1 sheds the version, then the transcript id, then shortens the name" {
+    run render_at 60
+    refute_line --index 0 --partial "2.1.296"
+    assert_line --index 0 --partial " 7f3a9c21 "
+
+    run render_at 50
+    refute_line --index 0 --partial "7f3a9c21"
+    assert_line --index 0 --partial " statusline review "
+
+    run render_at 40
+    assert_line --index 0 --partial " statusline… "
+}
+
+@test "fit: row 2 shortens a long directory to its last two parts" {
+    run render_at 80
+    assert_line --index 1 --partial " /srv/repos/nixos-config/nixos-shared/home-manager/claude-code "
+
+    run render_at 70
+    assert_line --index 1 --partial " …/home-manager/claude-code "
+}
+
+@test "fit: every row fits COLUMNS - 4 from 52 columns up" {
+    local columns line
+    export LC_ALL=C.UTF-8
+    for ((columns = 52; columns <= 130; columns += 2)); do
+        run render_at "$columns"
+        assert_success
+        assert_equal "${#lines[@]}" 3
+        for line in "${lines[@]}"; do
+            if [ "${#line}" -gt $((columns - 4)) ]; then
+                fail "COLUMNS=$columns: ${#line} columns: $line"
+            fi
+        done
+    done
+}
+
+@test "fit: a C locale sheds the same as UTF-8" {
+    local c utf8
+    c=$(LC_ALL=C render_at 80)
+    utf8=$(LC_ALL=C.UTF-8 render_at 80)
+    assert_equal "$c" "$utf8"
 }

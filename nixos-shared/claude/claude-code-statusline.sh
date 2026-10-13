@@ -705,8 +705,175 @@ row_end() {
     OUT+="$REPLY$SEP_THICK$RESET"$'\n'
 }
 
+# Claude Code indents the status line and cuts rows longer than COLUMNS - 4
+# with "…" (2.1.296 at 70 columns: 66 fit, 67 got cut). Zero while COLUMNS is
+# unknown, and then no row sheds anything.
+row_budget() {
+    if [[ "${COLUMNS:-}" =~ ^[0-9]+$ ]] && [ "$COLUMNS" -gt 4 ]; then
+        ROW_BUDGET=$((COLUMNS - 4))
+    else
+        ROW_BUDGET=0
+    fi
+}
+
+# Widths count characters, which takes a UTF-8 locale: under C, ● counts as 3.
+use_utf8_locale() {
+    local probe="●"
+    if [ "${#probe}" -ne 1 ]; then
+        export LC_ALL=C.UTF-8
+    fi
+}
+
+# Columns of plain text as Claude Code measures it: one per character, two for
+# the indicator emoji.
+text_width() {
+    local wide="${1//[^🪨🔑📡]/}"
+    REPLY=$((${#1} + ${#wide}))
+}
+
+# The row being built, as parallel arrays: background, text, and for the effort
+# segment the colour of its filled dots.
+reset_row() {
+    SEG_COLOR=()
+    SEG_TEXT=()
+    SEG_DOTS=()
+}
+
+add_segment() {
+    SEG_COLOR+=("$1")
+    SEG_TEXT+=("$2")
+    SEG_DOTS+=("${3-}")
+}
+
+# A segment pads its text with a space on each side and is followed by an
+# arrow: a separator, or the row's end.
+row_width() {
+    local text width=0
+    for text in "${SEG_TEXT[@]}"; do
+        text_width "$text"
+        width=$((width + REPLY + 3))
+    done
+    REPLY="$width"
+}
+
+render_row() {
+    local i previous=""
+    for i in "${!SEG_TEXT[@]}"; do
+        if [ -n "$previous" ]; then
+            separator "$previous" "${SEG_COLOR[i]}"
+        fi
+        if [ -n "${SEG_DOTS[i]}" ]; then
+            effort_segment "${SEG_DOTS[i]}" "${SEG_TEXT[i]}"
+        else
+            segment "${SEG_COLOR[i]}" "${SEG_TEXT[i]}"
+        fi
+        previous="${SEG_COLOR[i]}"
+    done
+    row_end "$previous"
+}
+
+# Builds a row at shed level 0, 1, ... until it fits ROW_BUDGET, then renders
+# it. A row still too wide at its last level is left for Claude Code to cut.
+fit_row() {
+    local build="$1" levels="$2" level
+    for ((level = 0; level < levels; level++)); do
+        "$build" "$level"
+        row_width
+        if [ "$ROW_BUDGET" -eq 0 ] || [ "$REPLY" -le "$ROW_BUDGET" ]; then
+            break
+        fi
+    done
+    render_row
+}
+
+# Row 1, session identity. Sheds the version, then the transcript id, then
+# shortens the session name to the room left.
+build_row1() {
+    local level="$1"
+    reset_row
+    add_segment "$RED" "$S_MODEL"
+    if [ -n "$S_EFFORT" ]; then
+        add_segment "$DARK" "$S_EFFORT" "$S_EFFORT_COLOR"
+    fi
+    if [ "$level" -lt 1 ]; then
+        add_segment "$ORANGE" "$J_VERSION"
+    fi
+    if [ "$level" -lt 2 ]; then
+        add_segment "$PINK" "$S_TRANSCRIPT_ID"
+    fi
+    if [ -z "$J_SESSION_NAME" ]; then
+        return 0
+    fi
+    local name="$J_SESSION_NAME"
+    if [ "$level" -ge 3 ]; then
+        row_width
+        local room=$((ROW_BUDGET - REPLY - 3))
+        text_width "$name"
+        if [ "$REPLY" -gt "$room" ]; then
+            if [ "$room" -lt 2 ]; then
+                return 0
+            fi
+            name="${name:0:room-1}"
+            name="${name% }…"
+        fi
+    fi
+    add_segment "$PINK" "$name"
+}
+
+# Row 2, location. Shortens a long directory to its last two parts.
+build_row2() {
+    local level="$1" dir="$S_WORKING_DIR"
+    reset_row
+    if [ "$level" -ge 1 ]; then
+        local parent="${dir%/*}" short
+        short="…/${parent##*/}/${dir##*/}"
+        if [ "${#short}" -lt "${#dir}" ]; then
+            dir="$short"
+        fi
+    fi
+    add_segment "$BLUE" "$dir"
+    add_segment "$GREEN" "$G_BRANCH$G_STATUS"
+}
+
+# Row 3, context and budget, most important first, since Claude Code cuts an
+# overlong row from the right. Sheds the countdowns, then the cost, then a
+# cache that is not cold, then the projections. The context, the usage and the
+# ⚠ warnings always stay.
+build_row3() {
+    local level="$1" window text
+    reset_row
+    add_segment "$S_CONTEXT_COLOR" "$S_CONTEXT"
+    for window in 5h 7d; do
+        text="${S_RL_LABEL[$window]}"
+        if [ -z "$text" ]; then
+            continue
+        fi
+        if [ "$level" -ge 4 ]; then
+            text="${text%%→*}"
+        fi
+        if [ -n "${S_RL_WARNING[$window]}" ]; then
+            text+=" ${S_RL_WARNING[$window]}"
+        fi
+        if [ -n "${S_RL_RESET[$window]}" ] && [ "$level" -lt 1 ]; then
+            text+=" ${S_RL_RESET[$window]}"
+        fi
+        add_segment "${S_RL_COLOR[$window]}" "$text"
+    done
+    if [ -n "$S_CACHE" ] && { [ "$level" -lt 3 ] || cache_is_cold; }; then
+        text="$S_CACHE"
+        if [ "$level" -ge 1 ]; then
+            text="${text% ⧗*}"
+        fi
+        add_segment "$S_CACHE_COLOR" "$text"
+    fi
+    if [ "$level" -lt 2 ]; then
+        add_segment "$PURPLE" "${J_COST}$"
+    fi
+}
+
 # Main execution function
 main() {
+    use_utf8_locale
     input=$(cat)
 
     # Parse once here so every command substitution below inherits the values.
@@ -714,73 +881,40 @@ main() {
     parse_git
     log_rate_limits || true
 
-    local context_color
-    context_color=$(get_context_color)
-    OUT=""
-
-    # Row 1: Session identity
-    segment "$RED" "$(get_model_name)"
-    local effort
-    effort=$(get_effort_bar)
-    if [ -n "$effort" ]; then
-        separator "$RED" "$DARK"
-        effort_segment "$(get_effort_color)" "$effort"
-        separator "$DARK" "$ORANGE"
-    else
-        separator "$RED" "$ORANGE"
+    # What the rows can show, computed once; fit_row then picks what fits.
+    S_MODEL=$(get_model_name)
+    S_EFFORT=$(get_effort_bar)
+    S_EFFORT_COLOR=""
+    if [ -n "$S_EFFORT" ]; then
+        S_EFFORT_COLOR=$(get_effort_color)
     fi
-    segment "$ORANGE" "$J_VERSION"
-    separator "$ORANGE" "$PINK"
-    segment "$PINK" "$(get_transcript_id)"
-    if [ -n "$J_SESSION_NAME" ]; then
-        separator "$PINK" "$PINK"
-        segment "$PINK" "$J_SESSION_NAME"
+    S_TRANSCRIPT_ID=$(get_transcript_id)
+    S_WORKING_DIR=$(get_working_dir)
+    S_CONTEXT=$(get_context_label)
+    S_CONTEXT_COLOR=$(get_context_color)
+    S_CACHE=$(get_cache)
+    S_CACHE_COLOR=""
+    if [ -n "$S_CACHE" ]; then
+        S_CACHE_COLOR=$(get_cache_color)
     fi
-    row_end "$PINK"
-
-    # Row 2: Location
-    segment "$BLUE" "$(get_working_dir)"
-    separator "$BLUE" "$GREEN"
-    segment "$GREEN" "$G_BRANCH$G_STATUS"
-    row_end "$GREEN"
-
-    # Row 3: context and budget, most important first, since Claude Code cuts an
-    # overlong row from the right.
-    segment "$context_color" "$(get_context_label)"
-    local previous_color="$context_color"
-
-    # Optional rate limit segments (only when the window is reported)
-    local window rate_limit rate_limit_color part
+    # The label stays empty while a window is not reported.
+    declare -gA S_RL_LABEL=() S_RL_WARNING=() S_RL_RESET=() S_RL_COLOR=()
+    local window
     for window in 5h 7d; do
-        rate_limit=$("get_rate_limit_$window")
-        if [ -z "$rate_limit" ]; then
-            continue
+        S_RL_LABEL[$window]=$("get_rate_limit_$window")
+        S_RL_WARNING[$window]="" S_RL_RESET[$window]="" S_RL_COLOR[$window]=""
+        if [ -n "${S_RL_LABEL[$window]}" ]; then
+            S_RL_WARNING[$window]=$("get_rate_limit_${window}_warning")
+            S_RL_RESET[$window]=$("get_rate_limit_${window}_reset")
+            S_RL_COLOR[$window]=$("get_rate_limit_${window}_color")
         fi
-        for part in "$("get_rate_limit_${window}_warning")" "$("get_rate_limit_${window}_reset")"; do
-            if [ -n "$part" ]; then
-                rate_limit+=" $part"
-            fi
-        done
-        rate_limit_color=$("get_rate_limit_${window}_color")
-        separator "$previous_color" "$rate_limit_color"
-        segment "$rate_limit_color" "$rate_limit"
-        previous_color="$rate_limit_color"
     done
 
-    # Optional prompt cache segment (only once the cache stats exist)
-    local cache cache_color
-    cache=$(get_cache)
-    if [ -n "$cache" ]; then
-        cache_color=$(get_cache_color)
-        separator "$previous_color" "$cache_color"
-        segment "$cache_color" "$cache"
-        previous_color="$cache_color"
-    fi
-
-    separator "$previous_color" "$PURPLE"
-    segment "$PURPLE" "${J_COST}$"
-    row_end "$PURPLE"
-
+    row_budget
+    OUT=""
+    fit_row build_row1 4
+    fit_row build_row2 2
+    fit_row build_row3 5
     printf '%s' "$OUT"
 }
 
