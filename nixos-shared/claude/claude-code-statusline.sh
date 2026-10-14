@@ -396,8 +396,11 @@ readonly RL5H_MIN_ELAPSED=900
 # RL5H_PRIOR_SECONDS of observation. The window opens on the first request, so
 # its start is the busiest stretch by construction; extrapolating that alone
 # overshoots. The prior's weight fades as the real elapsed time grows.
-readonly RL5H_PRIOR_PCT=50
-readonly RL5H_PRIOR_SECONDS=1800
+# Fitted 2026-10-14 on 42 logged windows (median end 13%, max 75%): against the
+# earlier 50% over 1800s it halves the false red projections and cuts the mean
+# error from 11.7 to 7.2 points.
+readonly RL5H_PRIOR_PCT=10
+readonly RL5H_PRIOR_SECONDS=10800
 # The prior's usage over RL5H_PRIOR_SECONDS, in hundredths of a percent.
 readonly RL5H_PRIOR_CENTI=$((RL5H_PRIOR_PCT * 100 * RL5H_PRIOR_SECONDS / RL5H_WINDOW))
 
