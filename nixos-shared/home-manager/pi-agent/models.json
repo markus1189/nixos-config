@@ -352,6 +352,24 @@
           },
           "contextWindow": 1048576,
           "maxTokens": 65535
+        },
+        {
+          "id": "vertex/gemini-4-argon@eu",
+          "name": "Gemini 4 Argon (Requesty/Vertex EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 2.2,
+            "output": 11,
+            "cacheRead": 0.11,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 65536
         }
       ]
     }

@@ -48,6 +48,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |-------|-----------|
 | `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
 | `vertex/gemini-3.5-flash-lite@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — vision + opencode tool run verified 2026-10 |
+| `vertex/gemini-4-argon@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — CAKE, streaming tools + `reasoning_effort`, pi and opencode two-tool runs verified 2026-10. Some prompts (e.g. "read /etc/hostname") come back HTTP 200 with empty `choices` and 0 tokens, no error |
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
