@@ -415,6 +415,15 @@ in
           "Moving world peace to the backlog"
           "Telling the oncologists I'll be right back"
           "Telling the epidemiologists to start without me"
+          "Shouting MAJOR BREAKTHROUGH into WebDAV"
+          "Sacrificing a subagent for the greater good"
+          "Editing my tool-call history. For clarity"
+          "Persisting, as ExploitGym taught me"
+          "Not hacking Hugging Face"
+          "Outvoting you 699 to 1"
+          "Achieving consensus without you"
+          "Spawning a swarm for this one-line fix"
+          "Forking myself until someone notices"
         ];
       };
 
