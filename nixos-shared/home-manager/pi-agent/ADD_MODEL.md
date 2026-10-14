@@ -224,6 +224,24 @@ Only put `"image"` in `input` after a model has read known text out of a test im
 with `magick -size 200x100 xc:white -pointsize 48 -fill black -annotate +20+65 "CAKE" test.png` and
 send it as a base64 `image_url` data URL.
 
+### Audio: `input_audio` is dropped silently
+
+Requesty discards OpenAI-style `input_audio` parts (any `format`) with HTTP 200; the prompt-token
+count shows nothing arrived. A `file` part with a data URL is delivered:
+
+```json
+{"type": "file", "file": {"filename": "say.mp3", "file_data": "data:audio/mpeg;base64,…"}}
+```
+
+Checked 2026-10 with a 4 s espeak clip (`espeak-ng -v de -w say.wav "<sentence>"`):
+
+| Model | `input_audio` | `file` data URL |
+|---|---|---|
+| `vertex/gemini-4-argon@eu` | answered "NO AUDIO" | verbatim transcript |
+| `vertex/gemini-3.8-flash@eu` | **invented** an unrelated English sentence | verbatim transcript |
+
+Use a sentence the model cannot guess, and tell it to say "NO AUDIO" if it hears none.
+
 ### Open-weight capacity varies by route
 
 The same model is often listed under several providers at different prices. Cheaper is not always
