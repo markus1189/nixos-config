@@ -365,6 +365,24 @@
                 HOME=$TMPDIR bats tests/jev.bats
                 touch $out
               '';
+
+          # The real odiff, magick and poppler on images and PDFs the suite draws.
+          diffing-images-bats =
+            pkgs.runCommand "diffing-images-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  pkgs.gawk
+                  pkgs.imagemagick
+                  pkgs.odiff
+                  pkgs.poppler-utils
+                ];
+              }
+              ''
+                cd ${./nixos-shared/agent-skills}
+                HOME=$TMPDIR bats tests/diffing-images.bats
+                touch $out
+              '';
         };
 
       devShells.x86_64-linux =
