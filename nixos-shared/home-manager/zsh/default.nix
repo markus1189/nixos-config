@@ -41,10 +41,9 @@ in
         );
         gladosFlag = ''--append-system-prompt "$(cat ${gladosPromptFile})"'';
         yolo = "--dangerously-skip-permissions";
-        otelEnv = "CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=grpc OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 OTEL_SERVICE_NAME=claude-code OTEL_METRIC_EXPORT_INTERVAL=10000 OTEL_LOGS_EXPORT_INTERVAL=5000 OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1";
         editorEnv = ''EDITOR="emacsclient -c -a vim"'';
         # Every claude entrypoint shares this; -plain differs only in persona.
-        claudeEnv = "env ${editorEnv} ${otelEnv}";
+        claudeEnv = "env ${editorEnv}";
         # only shell out to pass when the key isn't already in the environment
         requestyAgentKey = ''REQUESTY_API_KEY_CC="''${REQUESTY_API_KEY_CC:-$(pass api/requesty/agent)}"'';
       in

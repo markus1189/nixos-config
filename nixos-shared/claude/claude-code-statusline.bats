@@ -14,7 +14,7 @@ setup() {
     # Ensure deterministic state: bats inherits the parent shell env, and
     # this var is set in the user's normal shell. COLUMNS would make main shed
     # segments; the tests for that set it themselves.
-    unset CLAUDE_CODE_ENABLE_TELEMETRY COLUMNS
+    unset COLUMNS
 
     # main() logs rate limits; keep that out of the real ~/.local/state.
     export XDG_STATE_HOME="$BATS_TEST_TMPDIR/state"
@@ -356,23 +356,6 @@ row_text() {
     run get_model_name
     assert_success
     assert_output "opus (concise)"
-}
-
-@test "get_model_name: OTEL indicator when CLAUDE_CODE_ENABLE_TELEMETRY is set" {
-    input='{"model": {"display_name": "opus"}}'
-    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL
-    export CLAUDE_CODE_ENABLE_TELEMETRY=1
-    run get_model_name
-    assert_success
-    assert_output "opus📡"
-}
-
-@test "get_model_name: OTEL indicator omitted when CLAUDE_CODE_ENABLE_TELEMETRY is unset" {
-    input='{"model": {"display_name": "opus"}}'
-    unset CLAUDE_CODE_USE_BEDROCK ANTHROPIC_BASE_URL CLAUDE_CODE_ENABLE_TELEMETRY
-    run get_model_name
-    assert_success
-    assert_output "opus"
 }
 
 # Tests for get_rate_limit_5h function

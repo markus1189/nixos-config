@@ -176,9 +176,6 @@ get_model_name() {
     if [ "${ANTHROPIC_BASE_URL:-}" = "https://router.eu.requesty.ai" ]; then
         indicator_suffix+="🔑"
     fi
-    if [ -n "${CLAUDE_CODE_ENABLE_TELEMETRY:-}" ]; then
-        indicator_suffix+="📡"
-    fi
 
     echo "${model_name}${style_suffix}${indicator_suffix}"
 }

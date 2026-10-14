@@ -6,12 +6,6 @@
   ...
 }:
 
-let
-  otelCollector = pkgs.callPackage (import ../nixos-shared/home-manager/otel-collector {
-    dataDir = "${config.home.homeDirectory}/.local/share/claude-otel";
-  }) { };
-
-in
 {
   imports = [
     ./atuin-sync.nix
@@ -1054,8 +1048,6 @@ in
           Restart = "always";
         };
       };
-
-    otel-collector = otelCollector.service;
   };
 
   # Replaces the three hand-written files (.gtk-bookmarks, .gtkrc-2.0,
