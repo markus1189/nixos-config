@@ -2,7 +2,7 @@
 # usage: python3 stub.py SCRIPT.json PORTFILE
 #   SCRIPT.json: {"/v1/systemone": [{"status": 200, "body": {...}, "headers": {...}}, ...], ...}
 #   Each path's responses are served in order; the last one repeats. Requests are appended
-#   to SCRIPT.json.log as JSON lines {path, auth, body}.
+#   to SCRIPT.json.log as JSON lines {path, auth, danger (the images header), body}.
 import json, sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -15,6 +15,7 @@ class H(BaseHTTPRequestHandler):
         body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
         with open(sys.argv[1] + ".log", "a") as f:
             f.write(json.dumps({"path": self.path, "auth": self.headers.get("Authorization"),
+                                "danger": self.headers.get("TypeSafe-Danger-Zone-Images"),
                                 "body": json.loads(body)}) + "\n")
         seq = script.get(self.path) or [{"status": 404, "body": {"error": {"message": "no script"}}}]
         r = seq[min(served.get(self.path, 0), len(seq) - 1)]

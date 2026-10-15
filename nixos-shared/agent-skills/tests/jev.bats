@@ -94,10 +94,14 @@ teardown() { [[ -n "${STUB_PID:-}" ]] && kill "$STUB_PID" 2>/dev/null || true; }
     assert_equal "$(jq -r .body.model <<<"$output")" "sference/clef"
 }
 
-@test "images with Jev are refused before any call" {
-    run jev --dry-run --model jev,cloudflare/clef --via openrouter --no-zdr --image red.png --each items.jsonl --questions q.json
-    assert_failure 2
-    assert_output --partial "not supported by: $JM"
+@test "Jev images go to OpenRouter as image_url parts with the images header, upscaled to Jev's minimum" {
+    run --separate-stderr jev --dry-run --image red.png --each items.jsonl --questions q.json
+    assert_success
+    first=$(head -1 <<<"$output")
+    assert_equal "$(jq -c '[.url, .headers, .body.provider.zdr, (.body | has("assets"))]' <<<"$first")" \
+        '["https://openrouter.ai/api/v1/systemone",{"TypeSafe-Danger-Zone-Images":"true"},true,false]'
+    [[ "$(jq -r '.body.state[1].image_url.url' <<<"$first")" =~ ^data:image/png\;base64, ]]
+    [[ "$stderr" == *"red.png: 8x8 png "*" -> 512x512 png "* ]]
 }
 
 @test "images with sference/clef are refused (sference declares no image input)" {
@@ -173,7 +177,7 @@ print(jev.disagree(qs, {"m1": a, "m2": b}))' "$(dirname "$SCRIPT")"
     magick -size 1500x1500 -seed 1 xc: +noise Random big.png
     run --separate-stderr jev --dry-run $IMG --image big.png --each items.jsonl --questions q.json
     assert_success
-    [[ "$stderr" == *"downscaled big.png: 1500x1500 png "*" -> "*" jpeg "* ]]
+    [[ "$stderr" == *"resized big.png: 1500x1500 png "*" -> "*" jpeg "* ]]
     url=$(head -1 <<<"$output" | jq -r '.body.state[1].image_url.url')
     [[ "$url" =~ ^data:image/jpeg\;base64,\<([0-9]+)\ bytes\>$ ]]
     (( BASH_REMATCH[1] <= 360 * 1024 ))
@@ -287,11 +291,14 @@ print(jev.disagree(qs, {"m1": a, "m2": b}))' "$(dirname "$SCRIPT")"
     assert_success
 }
 
-@test "per-item _images with Jev are refused" {
+@test "images with Jev via Requesty are refused; image-free Jev requests carry no header" {
     echo '{"a":1,"_images":["red.png"]}' > e.jsonl
-    run jev --dry-run --each e.jsonl --questions q.json
+    run jev --dry-run --via requesty --no-zdr --each e.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "not supported by: $JM"
+    run jev --dry-run --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(jq -c 'has("headers")' <<<"$output" | sort -u)" "false"
 }
 
 @test "cloudflare/clef images without --via openrouter are refused" {
@@ -479,7 +486,7 @@ ANS_CLEF='{"model": "clef-x", "usage": {"prompt_tokens": 10, "cost": 0.000002}, 
     python3 -c 'import json; print(json.dumps({"text": "x" * 30000}))' > long.jsonl
     run --separate-stderr jev --dry-run $IMG --image n345.png --each long.jsonl --questions q.json
     assert_success
-    [[ "$stderr" == *"downscaled n345.png"* ]]
+    [[ "$stderr" == *"resized n345.png"* ]]
     n=$(jq '.body.state[1].image_url.url | capture("<(?<n>[0-9]+) bytes>").n | tonumber' <<<"$output")
     text=$(jq '.body.state[0].text | length' <<<"$output")
     (( n + text * 3 / 4 <= 360 * 1024 ))
@@ -942,7 +949,9 @@ ans_clef() { echo "{\"model\": \"c\", \"usage\": {\"prompt_tokens\": 10, \"cost\
     run jev --dry-run --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_success
     assert_equal "$(head -1 <<<"$output" | jq -c '[.url, .body.model, (.body | has("provider"))]')" \
-        '["https://api.typesafe.ai/v1/systemone","jev-1.13.0",false]'
+        '["https://api.typesafe.ai/v1/systemone","jev-1.14.0",false]'
+    run jev --dry-run --model jev-1.13 --via typesafe --no-zdr --each items.jsonl --questions q.json
+    assert_equal "$(head -1 <<<"$output" | jq -r .body.model)" "jev-1.13.0"
     run jev --dry-run --model '~TypeSafe/jev-preview' --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_success
     assert_equal "$(head -1 <<<"$output" | jq -r .body.model)" "jev-preview"
@@ -958,16 +967,13 @@ ans_clef() { echo "{\"model\": \"c\", \"usage\": {\"prompt_tokens\": 10, \"cost\
         '["https://openrouter.ai/api/v1/systemone",true] ["https://api.typesafe.ai/v1/systemone",null] '
 }
 
-@test "--model rejects case-variant duplicates and empty names; TypeSafe's API refuses images" {
-    run jev --dry-run --model jev,TYPESAFE/jev-1.13 --each items.jsonl --questions q.json
+@test "--model rejects case-variant duplicates and empty names" {
+    run jev --dry-run --model jev,TYPESAFE/jev-1.14 --each items.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "twice"
     run jev --dry-run --model typesafe/ --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "empty model name"
-    run jev --dry-run --via typesafe --no-zdr --do-it-anyway --image red.png --each items.jsonl --questions q.json
-    assert_failure 2
-    assert_output --partial "takes no images"
 }
 
 @test "price: every Jev spelling is priced, so TypeSafe's cost-less answers are estimated" {
@@ -1004,7 +1010,7 @@ print(all(jev.price(m) == jev.PRICE[jev.MODEL] for m in ["~typesafe/jev-1.13", "
     run --separate-stderr jev --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_success
     assert_equal "$(jq -c '[.path, .auth, .body.model, (.body | has("provider"))]' stub.json.log | sort -u)" \
-        '["/ts/systemone","Bearer ts-key","jev-1.13.0",false]'
+        '["/ts/systemone","Bearer ts-key","jev-1.14.0",false]'
     [[ "$stderr" == *'$0.000084 (est.)'* ]]
 }
 
@@ -1033,7 +1039,7 @@ print(all(jev.price(m) == jev.PRICE[jev.MODEL] for m in ["~typesafe/jev-1.13", "
     run jev --dry-run --model 'typesafe/jev-latest,~typesafe/jev-latest' --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "twice"
-    run jev --dry-run --model jev,typesafe/jev-1.13.0 --via typesafe --no-zdr --each items.jsonl --questions q.json
+    run jev --dry-run --model jev,typesafe/jev-1.14.0 --via typesafe --no-zdr --each items.jsonl --questions q.json
     assert_failure 2
     assert_output --partial "twice"
     run jev --dry-run --model '~' --each items.jsonl --questions q.json
@@ -1050,4 +1056,126 @@ print(all(jev.price(m) == jev.PRICE[jev.MODEL] for m in ["~typesafe/jev-1.13", "
 @test "call: a string detail on 403 is an auth stop, not a WAF block" {
     run fake '[{"status": 403, "body": {"detail": "Not authenticated"}}]' typesafe
     assert_equal "$(jq -c '[.calls, .stop, .result.error.code, .result.error.message]' <<<"$output")" '[1,true,403,"Not authenticated"]'
+}
+
+# --- jev images and box ---
+
+@test "--via typesafe sends images as referenced assets in state._images, with the header" {
+    run --separate-stderr jev --dry-run --via typesafe --no-zdr --image red.png --each items.jsonl --questions q.json
+    assert_success
+    first=$(head -1 <<<"$output")
+    ref=$(jq -r '.body.state._images[0]' <<<"$first")
+    [[ "$ref" =~ ^image-[0-9a-f]{32}$ ]]
+    assert_equal "$(jq -c '.body.state.item' <<<"$first")" '{"text":"a"}'
+    assert_equal "$(jq -c --arg r "$ref" '[.headers, (.body.assets[$r] | .type, .format, (.data_base64 | test("^<[0-9]+ bytes>$")))]' <<<"$first")" \
+        '[{"TypeSafe-Danger-Zone-Images":"true"},"image","png",true]'
+    # Unique per request: references are matched as plain text anywhere in the body.
+    assert_equal "$(jq -r '.body.state._images[0]' <<<"$output" | sort -u | wc -l)" "2"
+    run --separate-stderr jev --dry-run --via typesafe --no-zdr --image red.png <<<'{"state":"s","questions":{"u":{"type":"noul","instructions":"i"}}}'
+    assert_equal "$(jq -r '.body.state.state' <<<"$output")" "s"
+}
+
+@test "Jev image sizing: small images grow to 512 px, WebP becomes PNG, narrow ones keep a 256 px short side" {
+    magick -size 1000x200 xc:red wide.png
+    magick -size 8x8 xc:blue small.webp
+    magick -size 2000x100 xc:red strip.png
+    run python3 -c '
+import base64, jev, subprocess
+for p in ("wide.png", "small.webp"):
+    u, n, note = jev.load_image(p, 10**7, True, jev=True)
+    out = subprocess.run(["magick", "-", "-format", "%w %h %m", "info:"], input=base64.b64decode(u.split(",", 1)[1]), capture_output=True).stdout.decode()
+    print(u[:14], out)
+try: jev.load_image("strip.png", 10**7, True, jev=True)
+except ValueError as e: print("strip:", e)'
+    assert_success
+    assert_line "data:image/png 1281 256 PNG"
+    assert_line "data:image/png 512 512 PNG"
+    assert_line --partial "strip: image strip.png: 2000x100 can't fit Jev's 256-1568 px per side"
+}
+
+@test "Jev images never shrink below its minimum to meet a byte budget" {
+    magick -size 600x600 -seed 4 xc: +noise Random noisy.png
+    run python3 -c '
+import base64, jev, subprocess
+u, n, note = jev.load_image("noisy.png", 1000, True, jev=True)
+print(subprocess.run(["magick", "-", "-format", "%w %h", "info:"], input=base64.b64decode(u.split(",", 1)[1]), capture_output=True).stdout.decode())'
+    assert_success
+    assert_output "512 512"
+}
+
+@test "--no-downscale refuses WebP for Jev and sends other images unchanged" {
+    magick -size 8x8 xc:blue small.webp
+    echo '{"a":1,"_images":["small.webp"]}' > e.jsonl
+    run --separate-stderr jev --dry-run --no-downscale --each e.jsonl --questions q.json
+    assert_failure 1
+    assert_equal "$(jq -r .error.message <<<"$output")" "image small.webp: Jev takes only PNG or JPEG; drop --no-downscale to convert it"
+    run --separate-stderr jev --dry-run --no-downscale --image red.png --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$stderr" ""
+}
+
+@test "Jev-only runs drop Clef's image count and byte limits; a compare with Clef keeps them" {
+    run jev --dry-run --image red.png --image red.png --image red.png --image red.png --image red.png --each items.jsonl --questions q.json
+    assert_success
+    run jev --dry-run --model jev,cloudflare/clef --via openrouter --no-zdr \
+        --image red.png --image red.png --image red.png --image red.png --image red.png --each items.jsonl --questions q.json
+    assert_failure 2
+    assert_output --partial "5 images > 4"
+}
+
+@test "box questions: need an image, and Jev 1.14 or later off Requesty" {
+    echo '{"b":{"type":"box","instructions":"the red square"}}' > box.json
+    run jev --dry-run --each items.jsonl --questions box.json
+    assert_failure 2
+    assert_output --partial "box questions need an image"
+    run jev --dry-run --model jev-1.13 --image red.png --each items.jsonl --questions box.json
+    assert_failure 2
+    assert_output --partial "need Jev 1.14 or later; not supported by: typesafe/jev-1.13"
+    run jev --dry-run --model typesafe/jev-latest --image red.png --each items.jsonl --questions box.json
+    assert_failure 2
+    run jev --dry-run --model cloudflare/clef --via openrouter --no-zdr --image red.png --each items.jsonl --questions box.json
+    assert_failure 2
+    assert_output --partial "not supported by: cloudflare/clef"
+    run jev --dry-run --image red.png --each items.jsonl --questions box.json
+    assert_success
+    run --separate-stderr jev --dry-run --model '~typesafe/jev-preview' --no-zdr --image red.png --each items.jsonl --questions box.json
+    assert_success
+    assert_equal "$(head -1 <<<"$output" | jq -c .headers)" '{"TypeSafe-Danger-Zone-Images":"true"}'
+}
+
+@test "call: box answers need four edges in [0, 1], ordered" {
+    Q='{"b": {"type": "box", "instructions": "x"}}'
+    ok='{"model": "m", "answers": {"b": {"type": "box", "box": {"top": 0.1, "bottom": 0.5, "left": 0, "right": 1}, "confidence": 0.9}}}'
+    run fake "[{\"body\": $ok}]" openrouter "$Q"
+    assert_equal "$(jq -c '.result.answers.b.box.right' <<<"$output")" "1"
+    for box in '{"top": 0.6, "bottom": 0.5, "left": 0, "right": 1}' '{"top": 0.1, "bottom": 1.2, "left": 0, "right": 1}' \
+               '{"top": 0.1, "bottom": 0.5, "left": 0}' '{"top": true, "bottom": 0.5, "left": 0, "right": 1}' '[0, 1, 0, 1]'; do
+        run fake "[{\"body\": {\"answers\": {\"b\": {\"box\": $box}}}}]" openrouter "$Q"
+        assert_equal "$(jq -r '.result.error.code' <<<"$output")" "bad_answer"
+    done
+}
+
+@test "disagree: boxes count below an intersection over union of 0.5" {
+    run python3 -c '
+import jev
+qs = {"b": {"type": "box"}}
+box = lambda l, r: {"b": {"box": {"top": 0, "bottom": 1, "left": l, "right": r}}}
+print(jev.disagree(qs, {"m1": box(0, 0.5), "m2": box(0, 0.5)}),   # iou 1
+      jev.disagree(qs, {"m1": box(0, 0.5), "m2": box(0, 0.25)}),  # iou 0.5
+      jev.disagree(qs, {"m1": box(0, 0.5), "m2": box(0, 0.24)}),  # iou 0.48
+      jev.disagree(qs, {"m1": box(0, 0.5), "m2": box(0.6, 1)}))'
+    assert_output "[] [] ['b'] ['b']"
+}
+
+@test "e2e: the images header reaches the wire for Jev images and box questions only" {
+    stub '{"/v1/systemone": [{"body": {"model": "m", "answers": {"u": {"type": "noul", "noul": 0.9}, "b": {"type": "box", "box": {"top": 0, "bottom": 1, "left": 0, "right": 1}, "confidence": 0.5}}}}]}'
+    echo '{"u":{"type":"noul","instructions":"i"},"b":{"type":"box","instructions":"x"}}' > ub.json
+    run --separate-stderr jev --image red.png --each items.jsonl --questions ub.json
+    assert_success
+    run --separate-stderr jev --each items.jsonl --questions q.json
+    assert_success
+    run --separate-stderr jev $IMG --image red.png --each items.jsonl --questions q.json
+    assert_success
+    assert_equal "$(jq -c '[.body.model, .danger]' stub.json.log | sort | uniq -c | awk '{print $1, $2}' | tr '\n' ' ')" \
+        "2 [\"cloudflare/clef\",null] 2 [\"$JM\",\"true\"] 2 [\"$JM\",null] "
 }

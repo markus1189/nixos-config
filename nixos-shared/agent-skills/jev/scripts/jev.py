@@ -5,39 +5,44 @@
   jev.py < request.json                         one request {state, questions[, model]}; pretty JSON out
   jev.py --each items.jsonl --questions q.json  same questions per item; state = {"item": <line>}; JSONL out
   jev.py --model jev,clef ...                   compare mode: every item to every model, `disagree` per line
-  jev.py --image a.png --model cloudflare/clef --via openrouter --no-zdr ...
-                                                attach images; per item: "_images": [paths] in the item.
-                                                Images are shrunk to fit (reported per image); --no-downscale sends them as is
+  jev.py --image a.png ...                      attach images (Jev, or cloudflare/clef* via openrouter with --no-zdr);
+                                                per item: "_images": [paths] in the item. Images are resized to fit
+                                                (reported per image); --no-downscale sends them as is
   jev.py --dry-run ...                          print {url, body} per request (base64 elided); no key, no network
 
 Backends: typesafe/* (also ~typesafe/*) -> OpenRouter /systemone with zero data retention; anything
 else -> Requesty EU chat completions with a "questions" response_format. --via overrides.
 TypeSafe's own API (--via typesafe, typesafe/* only; the default for ~typesafe/jev-preview, which no
-other backend serves) needs --no-zdr, as does Jev via Requesty.
+other backend serves) needs --no-zdr, as does Jev via Requesty. There, images go into state._images.
 Keys: $OPENROUTER_API_KEY or `pass api/openrouter/jev-skill`; $REQUESTY_API_KEY or
 `pass api/requesty/systemone`; $TYPESAFE_API_KEY or `pass api/typesafe-ai/playground`.
 $OPENROUTER_BASE_URL, $REQUESTY_BASE_URL and $TYPESAFE_BASE_URL replace the API roots.
 Summary (requests, failures, cost, models) on stderr.
 Exit: 0 ok, 1 some requests failed, 2 usage/input/auth/billing or a refusal.
 """
-import argparse, base64, http.client, json, math, os, random, subprocess, sys, threading, time
+import argparse, base64, http.client, itertools, json, math, os, random, subprocess, sys, threading, time, uuid
 import urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 # Pinned: thresholds tuned on one version don't carry over. `~typesafe/jev-latest` tracks releases.
-MODEL = "typesafe/jev-1.13"
+MODEL = "typesafe/jev-1.14"
 # sference/clef is the only Clef endpoint approved for the systemone key; cloudflare/* needs a
 # Model Library approval in the Requesty console first.
-ALIASES = {"jev": MODEL, "clef": "sference/clef"}
+ALIASES = {"jev": MODEL, "jev-1.13": "typesafe/jev-1.13", "clef": "sference/clef"}
 OPENROUTER_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/") + "/systemone"
 # The org enforces EU data residency: router.requesty.ai answers 403 for every request.
 REQUESTY_URL = os.environ.get("REQUESTY_BASE_URL", "https://router.eu.requesty.ai/v1").rstrip("/") + "/chat/completions"
 # ZDR on TypeSafe's own API is enterprise-only; the standard account's DPA retains data "as long as
 # necessary". It rejects an OpenRouter `provider` field with a bare 400.
 TYPESAFE_URL = os.environ.get("TYPESAFE_BASE_URL", "https://api.typesafe.ai/v1").rstrip("/") + "/systemone"
-# OpenRouter's pinned id; TypeSafe answers "Unknown model" to the unsuffixed `jev-1.13`.
-TYPESAFE_IDS = {MODEL: "jev-1.13.0"}
-# OpenRouter answers 400 "does not exist" for these (checked 2026-10-08).
+# OpenRouter's pinned ids; TypeSafe answers "Unknown model" to the unsuffixed `jev-1.13`.
+TYPESAFE_IDS = {"typesafe/jev-1.13": "jev-1.13.0", "typesafe/jev-1.14": "jev-1.14.0"}
+# Box questions need Jev 1.14 (docs.typesafe.ai/primitives/box.md); `jev-latest` stays 1.13 until ~2026-10-21.
+NO_BOX = {"jev-1.13.0", "jev-latest"}
+# Required by TypeSafe's own API for images and box questions; OpenRouter answered with and without it
+# (2026-10-15), so it goes with every such Jev request.
+IMAGES_HEADER = {"TypeSafe-Danger-Zone-Images": "true"}
+# OpenRouter answers 400 "does not exist" for these (checked 2026-10-15).
 TYPESAFE_ONLY = {"typesafe/jev-preview"}
 KEYS = {"openrouter": ("OPENROUTER_API_KEY", "api/openrouter/jev-skill"),
         "requesty": ("REQUESTY_API_KEY", "api/requesty/systemone"),
@@ -73,9 +78,15 @@ MAX_IMAGES = 4  # Clef's documented limit
 # The documented 4 MiB per image does not apply on this route.
 MAX_SIDE, REQUEST_BYTES = 1024, 360 << 10
 SHRINK, MIN_SIDE, JPEG_QUALITY = 0.75, 256, 85
+# Jev, measured via OpenRouter on 2026-10-15: a side under 256 or over 1568 px is a 400 "Invalid image
+# dimensions", WebP a 400, while 6 images and a 3 MB request passed; the docs cap the body at 32 MiB with
+# base64 counted. Box edges on a 400x300 image came back 0.15-0.2 off via OpenRouter, every time, and
+# matched from a 512 px long side up; billed tokens grow with pixels (658 at 400x300, 2401 at 1024x768).
+JEV_MIN_SIDE, JEV_MAX_SIDE, JEV_MIN_LONG, JEV_REQUEST_BYTES = 256, 1568, 512, 24 << 20
 # Compare mode: scores are divided by their top level index first, as SKILL.md says to combine them.
-SCORE_GAP = 0.25
-ANSWER_FIELD = {"noul": (int, float), "choice": str, "score": (int, float)}
+# Boxes disagree below this intersection over union.
+SCORE_GAP, BOX_IOU = 0.25, 0.5
+EDGES = ("top", "bottom", "left", "right")
 
 
 def die(msg):
@@ -154,9 +165,19 @@ def describe(data, fmt):
     return f"{w}x{h} {fmt} {len(data) / 1024:.0f} KiB"
 
 
-def load_image(path, budget, downscale):
+def jev_floor(w, h):
+    """Smallest long side that meets Jev's limits; ValueError when the short side can't reach them."""
+    long, short = max(w, h), min(w, h)
+    floor = max(JEV_MIN_LONG, math.ceil(JEV_MIN_SIDE * long / short) + 1)  # +1: magick rounds the short side
+    if floor > JEV_MAX_SIDE:
+        raise ValueError(f"{w}x{h} can't fit Jev's {JEV_MIN_SIDE}-{JEV_MAX_SIDE} px per side; crop it")
+    return floor
+
+
+def load_image(path, budget, downscale, jev=False):
     """-> (data URL, bytes sent, note on what was changed or None); ValueError on a missing
-    file, a type Clef rejects, or a failed conversion."""
+    file, a type the models reject, or a failed conversion. With `jev`, images are also scaled
+    up to Jev's minimum and WebP becomes PNG."""
     try:
         with open(path, "rb") as f:
             data = f.read()
@@ -167,23 +188,30 @@ def load_image(path, budget, downscale):
     elif data[:4] == b"RIFF" and data[8:12] == b"WEBP": fmt = "webp"
     else: raise ValueError(f"image {path}: not PNG, JPEG or WebP")
     out, out_fmt, note = data, fmt, None
+    if jev and fmt == "webp" and not downscale:
+        raise ValueError(f"image {path}: Jev takes only PNG or JPEG; drop --no-downscale to convert it")
     if downscale:
         try:
             w, h = size_of(data)
-            side = min(max(w, h), MAX_SIDE)
+            if jev:
+                # No `>`: Jev's minimum can mean scaling up.
+                floor = jev_floor(w, h)
+                side, flag, out_fmt = max(floor, min(max(w, h), MAX_SIDE)), "", "png" if fmt == "webp" else fmt
+            else:
+                floor, side, flag = MIN_SIDE, min(max(w, h), MAX_SIDE), ">"
             # Always re-encoded: -strip drops EXIF (GPS, camera, owner), which would otherwise leave
             # the machine with every photo; -auto-orient first, since stripping loses the rotation.
-            out = magick(["-[0]", "-auto-orient", "-strip", "-resize", f"{side}x{side}>", f"{fmt}:-"], data)
+            out = magick(["-[0]", "-auto-orient", "-strip", "-resize", f"{side}x{side}{flag}", f"{out_fmt}:-"], data)
             # Transparency is flattened onto white: JPEG has no alpha channel. Re-encode at least
             # once even when small: a few pixels can still carry megabytes of trailing data.
             while len(out) > budget:
                 out_fmt = "jpeg"
-                out = magick(["-[0]", "-auto-orient", "-strip", "-resize", f"{side}x{side}>", "-background", "white",
+                out = magick(["-[0]", "-auto-orient", "-strip", "-resize", f"{side}x{side}{flag}", "-background", "white",
                               "-alpha", "remove", "-alpha", "off", "-quality", str(JPEG_QUALITY), "jpeg:-"], data)
-                if side < MIN_SIDE:
+                if side <= floor:
                     break
-                side = int(side * SHRINK)
-            if side < max(w, h) or out_fmt != fmt:
+                side = max(floor, int(side * SHRINK))
+            if size_of(out) != (w, h) or out_fmt != fmt:
                 note = f"{path}: {describe(data, fmt)} -> {describe(out, out_fmt)}"
         except ValueError as e:
             raise ValueError(f"image {path}: {e}")
@@ -195,10 +223,10 @@ def text_cost(text_len):
     return text_len * 3 // 4
 
 
-def limit_problems(sizes, text_len=0):
+def limit_problems(sizes, text_len=0, max_images=MAX_IMAGES, request_bytes=REQUEST_BYTES):
     p, total = [], sum(sizes) + text_cost(text_len)
-    if len(sizes) > MAX_IMAGES: p.append(f"{len(sizes)} images > {MAX_IMAGES}")
-    if total > REQUEST_BYTES: p.append(f"images plus state ≈{total >> 10} KiB > {REQUEST_BYTES >> 10} KiB")
+    if max_images and len(sizes) > max_images: p.append(f"{len(sizes)} images > {max_images}")
+    if total > request_bytes: p.append(f"images plus state ≈{total >> 10} KiB > {request_bytes >> 10} KiB")
     return p
 
 
@@ -211,23 +239,36 @@ def sent_len(state):
     return len(json.dumps(state_text(state))) - 2
 
 
+def has_box(questions):
+    return any(q.get("type") == "box" for q in questions.values())
+
+
 def wire(backend, model, state, questions, images, provider):
-    """-> (url, body) for one request."""
+    """-> (url, body, extra headers) for one request."""
+    headers = IMAGES_HEADER if is_typesafe(model) and (images or has_box(questions)) else {}
     # Measured on 8 decoy items: Clef follows `item.x` paths into JSON text as well as into a
     # native state object, so state can be flattened where the transport needs text.
     text = state_text(state)
     if backend == "openrouter":
         if images:
             # OpenRouter rejects Cloudflare's top-level `images`; it wants them as parts of a state array.
+            # For Jev it also accepts TypeSafe's `assets` and silently drops the images (2026-10-15).
             state = [{"type": "text", "text": text}] + [{"type": "image_url", "image_url": {"url": u}} for u in images]
-        return OPENROUTER_URL, {"model": model, "provider": provider, "state": state, "questions": questions}
+        return OPENROUTER_URL, {"model": model, "provider": provider, "state": state, "questions": questions}, headers
     if backend == "typesafe":
-        return TYPESAFE_URL, {"model": typesafe_id(model), "state": state, "questions": questions}
+        body = {"model": typesafe_id(model), "state": state, "questions": questions}
+        if images:
+            # References are matched as plain text anywhere in the request, so they must not occur by accident.
+            refs = [f"image-{uuid.uuid4().hex}" for _ in images]
+            body["assets"] = {r: {"type": "image", "format": u[len("data:image/"):u.index(";")],
+                                  "data_base64": u.split(",", 1)[1]} for r, u in zip(refs, images)}
+            body["state"] = {**state, "_images": refs} if isinstance(state, dict) else {"state": state, "_images": refs}
+        return TYPESAFE_URL, body, headers
     # Only reached with images under --do-it-anyway: Requesty documents image_url parts for cloudflare/clef.
     content = [{"type": "text", "text": text}] + [{"type": "image_url", "image_url": {"url": u}} for u in images] \
         if images else text
     return REQUESTY_URL, {"model": model, "messages": [{"role": "user", "content": content}],
-                          "response_format": {"type": "questions", "questions": questions}}
+                          "response_format": {"type": "questions", "questions": questions}}, headers
 
 
 def normalize(backend, d):
@@ -250,26 +291,33 @@ def is_number(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
 
 
+def is_box(v):
+    return (isinstance(v, dict) and all(is_number(v.get(e)) and 0 <= v[e] <= 1 for e in EDGES)
+            and v["left"] <= v["right"] and v["top"] <= v["bottom"])
+
+
+ANSWER_CHECK = {"noul": is_number, "score": is_number, "choice": lambda v: isinstance(v, str), "box": is_box}
+
+
 def bad_answers(questions, answers):
-    """Question ids whose answer lacks the field its type promises (noul/choice/score)."""
+    """Question ids whose answer lacks the field its type promises (noul/choice/score/box)."""
     bad = []
     for qid, q in questions.items():
-        want = ANSWER_FIELD.get(q.get("type")) if isinstance(q, dict) else None
+        check = ANSWER_CHECK.get(q.get("type")) if isinstance(q, dict) else None
         a = answers.get(qid)
-        v = a.get(q["type"]) if isinstance(a, dict) and want else None
-        if not isinstance(a, dict) or (want and (not isinstance(v, want) or isinstance(v, bool)
-                                                 or (want is not str and not is_number(v)))):
+        if not isinstance(a, dict) or (check and not check(a.get(q["type"]))):
             bad.append(qid)
     return bad
 
 
-def call(backend, url, body, questions, k, stop):
+def call(backend, url, body, questions, k, stop, headers=None):
     """POST with retries; returns {model, answers, usage}, or {"error": ...}. Sets `stop` on auth/billing errors."""
     if stop.is_set():
         return {"error": {"code": "skipped", "message": "batch stopped after an auth/billing error"}}
     data = json.dumps(body).encode()
     for attempt in range(TRIES):
-        req = urllib.request.Request(url, data, {"Authorization": f"Bearer {k}", "Content-Type": "application/json"})
+        req = urllib.request.Request(url, data, {"Authorization": f"Bearer {k}", "Content-Type": "application/json",
+                                                 **(headers or {})})
         retry_after = None
         try:
             with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
@@ -355,6 +403,8 @@ def disagree(questions, by_model):
         elif t == "score" and len(q.get("criteria") or []) > 1:
             s = [x["score"] / (len(q["criteria"]) - 1) for x in a]
             hit = max(s) - min(s) >= SCORE_GAP
+        elif t == "box":
+            hit = min(iou(x["box"], y["box"]) for x, y in itertools.combinations(a, 2)) < BOX_IOU
         else:
             continue
         if hit:
@@ -362,9 +412,19 @@ def disagree(questions, by_model):
     return out
 
 
+def iou(a, b):
+    w = max(0.0, min(a["right"], b["right"]) - max(a["left"], b["left"]))
+    h = max(0.0, min(a["bottom"], b["bottom"]) - max(a["top"], b["top"]))
+    union = sum((x["right"] - x["left"]) * (x["bottom"] - x["top"]) for x in (a, b)) - w * h
+    return w * h / union if union > 0 else 1.0
+
+
 def elide(body):
     """Copy of body with base64 image data replaced by its size, for --dry-run."""
     def walk(x):
+        if isinstance(x, dict) and isinstance(x.get("data_base64"), str):
+            b64 = x["data_base64"]
+            return {**x, "data_base64": f"<{len(b64) * 3 // 4 - b64.count('=')} bytes>"}
         if isinstance(x, dict): return {k: walk(v) for k, v in x.items()}
         if isinstance(x, list): return [walk(v) for v in x]
         if isinstance(x, str) and x.startswith("data:image/") and ";base64," in x:
@@ -414,14 +474,14 @@ def main():
                     help="force a backend (default: typesafe/jev-preview typesafe, other typesafe/* openrouter, "
                          "else requesty); typesafe takes only typesafe/* and needs --no-zdr")
     ap.add_argument("--image", action="append", default=[], metavar="FILE",
-                    help="PNG/JPEG/WebP sent with every request (repeatable; cloudflare/clef* via openrouter with --no-zdr)")
+                    help="PNG/JPEG/WebP sent with every request (repeatable; Jev, or cloudflare/clef* via openrouter with --no-zdr)")
     ap.add_argument("--no-downscale", action="store_true",
-                    help=f"send images unchanged instead of shrinking them to {MAX_SIDE} px and {REQUEST_BYTES >> 10} KiB per request")
+                    help=f"send images unchanged instead of resizing them to {MAX_SIDE} px (at least {JEV_MIN_LONG} for Jev) "
+                         f"and, with Clef, {REQUEST_BYTES >> 10} KiB per request")
     ap.add_argument("--do-it-anyway", action="store_true",
                     help="send despite refusals based on provider capabilities or limits that may have gone stale "
-                         "(images per model, the --no-zdr requirement, image count and bytes, sference's question cap, "
-                         "jev-preview off TypeSafe's API); never drops ZDR, never sends images to TypeSafe's API, which has "
-                         "no image input")
+                         "(images and box questions per model, the --no-zdr requirement, image count and bytes, sference's "
+                         "question cap, jev-preview off TypeSafe's API); never drops ZDR")
     ap.add_argument("--no-zdr", action="store_true",
                     help="accept losing zero data retention: Clef via OpenRouter (no-training still enforced there), "
                          "Jev via requesty or typesafe")
@@ -479,7 +539,7 @@ def main():
             models = mb
         jobs = [(b["state"], None)]
     if not isinstance(qs, dict) or not qs or not all(isinstance(q, dict) and isinstance(q.get("type"), str) for q in qs.values()):
-        die("questions must be a non-empty map {id: {type: noul|choice|score, instructions, ...}}")
+        die("questions must be a non-empty map {id: {type: noul|choice|score|box, instructions, ...}}")
 
     backends = {m: backend_for(m, a.via) for m in models}
     if a.via == "typesafe" and (nt := [m for m in models if not is_typesafe(m)]):
@@ -502,15 +562,19 @@ def main():
     sref = [m for m in models if family(m).startswith("sference/")]
     if sref and len(qs) > SFERENCE_MAX_QUESTIONS:
         refuse(f"{len(qs)} questions > {SFERENCE_MAX_QUESTIONS}, sference's cap; split them into several runs", sref)
-    if a.image or any(p is not None for _, p in jobs):
-        if ti := [m for m in models if backends[m] == "typesafe"]:
-            die(f"TypeSafe's own API takes no images: {', '.join(ti)}")
-        # Jev rejects images, and sference declares image_input unsupported for its Clef (Requesty
-        # answers 400 or silently drops them). Refuse before paying for a comparison where only
-        # one side saw the picture.
-        if bad := [m for m in models if backends[m] != "openrouter" or not family(m).startswith("cloudflare/clef")]:
-            refuse(f"images need --model cloudflare/clef[-flash] --via openrouter --no-zdr; not supported by: {', '.join(bad)}",
+    has_images = bool(a.image) or any(p is not None for _, p in jobs)
+    if has_images:
+        # sference declares image_input unsupported for its Clef (Requesty answers 400 or silently
+        # drops them). Refuse before paying for a comparison where only one side saw the picture.
+        if bad := [m for m in models if not (is_typesafe(m) and backends[m] != "requesty")
+                   and not (backends[m] == "openrouter" and family(m).startswith("cloudflare/clef"))]:
+            refuse(f"images need Jev, or cloudflare/clef[-flash] --via openrouter --no-zdr; not supported by: {', '.join(bad)}",
                    bad, images_ignored=True)
+    if has_box(qs):
+        if not has_images:
+            die("box questions need an image: --image or _images")
+        if bad := [m for m in models if not is_typesafe(m) or backends[m] == "requesty" or typesafe_id(m) in NO_BOX]:
+            refuse(f"box questions need Jev 1.14 or later; not supported by: {', '.join(bad)}", bad)
 
     if not a.no_zdr and (jr := [m for m in models if is_typesafe(m) and backends[m] != "openrouter"]):
         # A privacy guard, not a provider fact: --do-it-anyway does not lift it.
@@ -519,20 +583,23 @@ def main():
     if not a.no_zdr and (orc := [m for m in models if backends[m] == "openrouter" and not is_typesafe(m)]):
         refuse(f"{', '.join(orc)} via OpenRouter needs --no-zdr: it has no zero-data-retention endpoint for Clef", orc)
 
+    # Images are prepared once for every model in the run, so the strictest limits apply.
+    jev_images = any(is_typesafe(m) for m in models)
+    limits = (MAX_IMAGES, REQUEST_BYTES) if any(not is_typesafe(m) for m in models) else (None, JEV_REQUEST_BYTES)
     # The byte budget is shared evenly by every image a request can carry, after the longest
     # state's text, which every shared image travels with.
     most_per_item = max((len(p) for _, p in jobs if isinstance(p, list)), default=0)
     longest_text = max(sent_len(s) for s, _ in jobs)
     shared, shared_sizes, shared_notes = [], [], []
     for p in a.image:
-        budget = (REQUEST_BYTES - text_cost(longest_text)) // (len(a.image) + most_per_item)
-        try: u, n, note = load_image(p, budget, not a.no_downscale)
+        budget = (limits[1] - text_cost(longest_text)) // (len(a.image) + most_per_item)
+        try: u, n, note = load_image(p, budget, not a.no_downscale, jev_images)
         except ValueError as e: die(str(e))
         shared.append(u); shared_sizes.append(n)
         if note:
             shared_notes.append(note)
-            print(f"jev.py: downscaled {note}", file=sys.stderr)
-    if problems := limit_problems(shared_sizes):
+            print(f"jev.py: resized {note}", file=sys.stderr)
+    if problems := limit_problems(shared_sizes, 0, *limits):
         refuse("--image: " + "; ".join(problems) + " (every request would fail)", models)
 
     def images_for(i, state, paths):
@@ -540,19 +607,19 @@ def main():
         over the limits are sent anyway: the server decides, and the rest of the batch survives."""
         text_len = sent_len(state)
         if paths is None:
-            if shared and (problems := limit_problems(shared_sizes, text_len)):
+            if shared and (problems := limit_problems(shared_sizes, text_len, *limits)):
                 print(f"jev.py: item {i}: {'; '.join(problems)}; sending anyway", file=sys.stderr)
             return shared, None, []
         if not isinstance(paths, list) or not all(isinstance(p, str) for p in paths):
             return None, {"code": "image", "message": "_images must be a list of file paths"}, []
         urls, sizes, notes = list(shared), list(shared_sizes), []
-        budget = (REQUEST_BYTES - sum(shared_sizes) - text_cost(text_len)) // len(paths)
+        budget = (limits[1] - sum(shared_sizes) - text_cost(text_len)) // len(paths)
         for p in paths:
-            try: u, n, note = load_image(p, budget, not a.no_downscale)
+            try: u, n, note = load_image(p, budget, not a.no_downscale, jev_images)
             except ValueError as e: return None, {"code": "image", "message": str(e)}, notes
             urls.append(u); sizes.append(n)
             if note: notes.append(note)
-        if problems := limit_problems(sizes, text_len):
+        if problems := limit_problems(sizes, text_len, *limits):
             print(f"jev.py: item {i}: {'; '.join(problems)}; sending anyway", file=sys.stderr)
         return urls, None, notes
 
@@ -565,9 +632,9 @@ def main():
                     local_errors += 1
                     print(json.dumps({"i": i, "model": m, "error": err}, ensure_ascii=False))
                     continue
-                url, body = wire(backends[m], m, state, qs, imgs, provider_for(m, a.no_zdr))
-                print(json.dumps({"url": url, "body": elide(body), **({"downscaled": notes} if notes else {})},
-                                 ensure_ascii=False))
+                url, body, headers = wire(backends[m], m, state, qs, imgs, provider_for(m, a.no_zdr))
+                print(json.dumps({"url": url, **({"headers": headers} if headers else {}), "body": elide(body),
+                                  **({"downscaled": notes} if notes else {})}, ensure_ascii=False))
         return 1 if local_errors else 0
 
     ks = {b: key(b) for b in set(backends.values())}
@@ -582,8 +649,8 @@ def main():
             if err:
                 out[m] = {"error": err}
                 continue
-            url, body = wire(backends[m], m, state, qs, imgs, provider_for(m, a.no_zdr))
-            out[m] = call(backends[m], url, body, qs, ks[backends[m]], stops[backends[m]])
+            url, body, headers = wire(backends[m], m, state, qs, imgs, provider_for(m, a.no_zdr))
+            out[m] = call(backends[m], url, body, qs, ks[backends[m]], stops[backends[m]], headers)
         return out, notes
 
     results, compare = [], len(models) > 1
@@ -631,7 +698,7 @@ def main():
     print(f"jev.py: {len(flat)} req, {failed} failed, ${cost:.6f}{' (est.)' if estimated else ''}"
           f"{' + unknown' if unknown else ''}, {time.monotonic() - t0:.2f}s, model={served}", file=sys.stderr)
     if n_item_downscaled:
-        print(f"jev.py: downscaled {n_item_downscaled} item images (see `downscaled` in their output lines)",
+        print(f"jev.py: resized {n_item_downscaled} item images (see `downscaled` in their output lines)",
               file=sys.stderr)
     if compare:
         compared = sum(1 for by_model in results if not any("error" in r for r in by_model.values()))
