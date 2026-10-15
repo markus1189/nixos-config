@@ -1,11 +1,14 @@
-# Autorandr profiles for the original ThinkPad P1 (hostname nixos-p1):
-# BOE panel, external DisplayPorts enumerate as DP-1/2/3 (p1g8 has its
+# Home config for the original ThinkPad P1 (hostname nixos-p1), the
+# always-on agent box: it alone runs the claude remote-control server.
+#
+# Autorandr profiles: BOE panel, external DisplayPorts enumerate as DP-1/2/3 (p1g8 has its
 # own set in p1g8/home.nix — different panel + connector names). Merged
 # into the shared laptop/home.nix config via home-manager.users.*.imports.
-# NOTE: p1 is slated for retirement; this file dies with the host.
 { pkgs, ... }:
 
 {
+  imports = [ ../nixos-shared/home-manager/claude-remote-control ];
+
   programs.autorandr.profiles =
     let
       internalDisplay = "00ffffffffffff0009e5ec0800000000011d0104b523137802df50a35435b5260f50540000000101010101010101010101010101010152d000a0f0703e803020350058c21000001a00000000000000000000000000000000001a000000fe00424f452048460a202020202020000000fe004e4531353651554d2d4e36410a017702030f00e3058000e6060501737321000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008b";
