@@ -290,8 +290,11 @@
           };
         };
 
+        # opencode saves its UI settings here by replacing the symlink with a
+        # file; force lets activation reset them instead of failing.
         "opencode-cli-config" = {
           target = ".config/opencode/cli.json";
+          force = true;
           text = pkgs.lib.strings.toJSON {
             "$schema" = "https://opencode.ai/v2/cli.json";
             scroll.speed = 5;
@@ -302,6 +305,35 @@
               notifications = true;
               sound = false;
             };
+            theme = {
+              name = "opencode";
+              mode = "dark";
+            };
+            animations = true;
+            diffs.wrap = "word";
+            session = {
+              grouping = "none";
+              image_preview = true;
+              markdown = "rendered";
+              scrollbar = true;
+              sidebar = "auto";
+              thinking = "show";
+              verbosity = "high";
+            };
+            prompt = {
+              image_preview = false;
+              paste = "compact";
+            };
+            tabs = {
+              indicators = "status";
+              layout = "horizontal";
+              scope = "cwd";
+            };
+            terminal = {
+              copy = "select";
+              title = true;
+            };
+            debug.devtools = true;
           };
         };
 
