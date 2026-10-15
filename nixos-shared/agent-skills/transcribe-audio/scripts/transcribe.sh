@@ -3,7 +3,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-# Transcribe audio files using Gemini 3.6 Flash via OpenRouter
+# Transcribe audio files using Gemini 4 Argon via OpenRouter
 # Usage: transcribe.sh [-o OUTPUT.md] <audio-file> [prompt]
 #
 # Long recordings (> CHUNK_THRESHOLD_SEC) are automatically split into chunks,
@@ -23,7 +23,9 @@ readonly RETRY_BASE_SLEEP=4                 # backoff base: 4s, 8s, 16s
 readonly CURL_MAX_TIME=600                  # per-request timeout (s)
 readonly CHUNK_MARKER='<!-- chunked transcript: no summary included; the agent should read this and append a single merged "## Summary" -->'
 
-readonly MODEL="google/gemini-3.6-flash"
+# 3.6/3.8-flash cost a third but collapsed the speaker turns into a few long
+# unlabelled blocks in 3 of 5 runs on a 23-min meeting; argon: 0 of 3.
+readonly MODEL="google/gemini-4-argon"
 
 # Default prompt: transcript + summary, used for short (single-shot) files.
 readonly DEFAULT_PROMPT='You are an expert audio transcriber. Transcribe the provided audio accurately and provide a useful summary.
@@ -246,13 +248,17 @@ transcribe_one() {
       ],
       max_tokens: 60000,
       reasoning: { effort: "low" },
+      provider: { zdr: true },
       usage: { include: true }
     }' > "$payload"; then
     echo "jq payload build failed ($slug)" >&2; return 1
   fi
   # NOTE: gemini-3.x-flash forces reasoning ("cannot be disabled"). Left at
   # default effort it burns the whole output budget thinking and returns empty
-  # content, so we pin effort=low — it emits the transcript with ~0 reasoning.
+  # content, so we pin effort=low — it (and 4-argon) emits the transcript with
+  # ~0 reasoning.
+  # zdr: only Gemini's Vertex endpoints are zero-data-retention; unpinned,
+  # OpenRouter also routes to AI Studio (1 of 6 runs did).
 
   # Request loop. curl_with_retry already handles transport/5xx retries; this
   # outer loop additionally retries a 200-with-empty-content response, which

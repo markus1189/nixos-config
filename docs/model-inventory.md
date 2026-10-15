@@ -19,7 +19,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `nixos-shared/home-manager/zsh/default.nix` (~line 45) | `oc` / `pi` / `pi-glados` aliases — inject `REQUESTY_API_KEY_CC` from `pass api/requesty/agent`. No model slugs. |
 | `nixos-shared/packages/emacs/emacs-config.el` (~line 1550) | **gptel** model list (OpenRouter). |
 | `nixos-shared/packages/scripts/gemini-vision.sh:20` | `MODEL` const for the vision script. |
-| `nixos-shared/agent-skills/transcribe-audio/scripts/transcribe.sh:26` | `MODEL` const for transcription. |
+| `nixos-shared/agent-skills/transcribe-audio/scripts/transcribe.sh:28` | `MODEL` const for transcription. |
 | `nixos-shared/agent-skills/nano-banana/scripts/nano-banana.sh:24,51-52` | image model mapping (`flash`/`pro`). |
 | `nixos-shared/claude/claude-code-statusline.sh:19,61` | parses bedrock model names + gateway URL. |
 
@@ -53,7 +53,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
-| `google/gemini-3.6-flash` | `transcribe.sh:26` (OpenRouter) |
+| `google/gemini-4-argon` | `transcribe.sh:28` (OpenRouter, `provider.zdr` → Vertex) — speaker turns in 3/3 runs vs 3.6/3.8-flash 2/5, ~$0.38/h audio, verified 2026-10 |
 
 ### OpenAI GPT (Requesty EU via Azure)
 
