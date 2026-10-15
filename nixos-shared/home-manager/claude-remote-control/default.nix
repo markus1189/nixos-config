@@ -19,6 +19,8 @@
       # ssh-agent runs as a user service but doesn't export its socket to
       # the manager; gpg finds its socket on its own.
       Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
+      # The TUI repaints its status every second: 420 journal lines/min.
+      StandardOutput = "null";
       Restart = "always";
       RestartSec = "30s";
     };
