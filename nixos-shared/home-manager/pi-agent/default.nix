@@ -7,6 +7,19 @@
 }:
 
 let
+  requestyPrices = pkgs.callPackage ../../requesty-prices { };
+
+  modelsSrc = pkgs.lib.importJSON ./models.json;
+  models = modelsSrc // {
+    providers = pkgs.lib.mapAttrs (
+      _: provider:
+      provider
+      // {
+        models = map (m: m // { cost = requestyPrices.costOf m.id; }) provider.models;
+      }
+    ) modelsSrc.providers;
+  };
+
   # Helper function to automatically discover and configure markdown files
   autoConfigMarkdownFiles =
     sourceDir: targetSubdir: namePrefix:
@@ -151,7 +164,7 @@ let
 
     "pi-agent-models" = {
       target = ".pi/agent/models.json";
-      text = builtins.readFile ./models.json;
+      source = (pkgs.formats.json { }).generate "pi-models.json" models;
     };
 
     "pi-agent-keybindings" = {

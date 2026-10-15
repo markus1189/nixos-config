@@ -78,16 +78,17 @@ Pi agent's schema has some differences from the API format:
 | `name` | `name` | Add provider context (e.g., "(Requesty/Vertex EU)") |
 | `reasoning` | `reasoning` | Direct mapping |
 | `modalities.input` | `input` | Array, but **exclude "pdf"** - schema only accepts "text" and "image" |
-| `cost.input` | `cost.input` | Direct mapping ($/M tokens) |
-| `cost.output` | `cost.output` | Direct mapping ($/M tokens) |
-| `cost.cache_read` | `cost.cacheRead` | **Required field** - use 0 if not provided |
-| `cost.cache_write` | `cost.cacheWrite` | **Required field** - use 0 if not provided |
 | `limit.context` | `contextWindow` | Direct mapping |
 | `limit.output` | `maxTokens` | Direct mapping |
 
+No `cost` here: prices come from Requesty's `/v1/models`, not models.dev, and live in
+[`requesty-prices/prices.json`](../../requesty-prices/prices.json), which pi and opencode both read.
+Add the model with `nixos-shared/requesty-prices/update.py <slug>`; eval fails for a model without
+a price. `update.py --check` exits 1 when the table has drifted from the router.
+
 ### Step 3: Create models.json Entry
 
-Location: `~/.pi/agent/models.json`
+Location: `nixos-shared/home-manager/pi-agent/models.json` (deployed to `~/.pi/agent/models.json` with prices added)
 
 Requesty supports the Anthropic SDK directly (Bearer auth, no custom header). Use the bare
 host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoints:
@@ -106,12 +107,6 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
           "name": "Claude Sonnet 4.6 (Requesty/Vertex EU)",
           "reasoning": true,
           "input": ["text", "image"],
-          "cost": {
-            "input": 3,
-            "output": 15,
-            "cacheRead": 0.3,
-            "cacheWrite": 3.75
-          },
           "contextWindow": 200000,
           "maxTokens": 64000
         }
@@ -129,12 +124,6 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": ["text", "image"],
-          "cost": {
-            "input": 1.75,
-            "output": 14,
-            "cacheRead": 0.175,
-            "cacheWrite": 0
-          },
           "contextWindow": 400000,
           "maxTokens": 128000
         }
@@ -160,10 +149,6 @@ the export to `~/.bashrc` or `~/.zshrc` for persistence.
 **Error**: `/providers/requesty-anthropic/models/0/input/2: must be equal to constant`
 - **Cause**: Using "pdf" in input array
 - **Fix**: Remove "pdf", only use "text" and "image"
-
-**Error**: `/providers/requesty-anthropic/models/0/cost: must have required property 'cacheRead'`
-- **Cause**: Missing cache pricing fields
-- **Fix**: Add `"cacheRead": 0` and `"cacheWrite": 0` if not applicable
 
 **Error**: `Cannot read properties of undefined (reading 'startsWith')`
 - **Cause**: The model is registered under an `openai-responses` provider (`api:
@@ -269,8 +254,7 @@ pi
 ```
 
 If validation fails, check:
-1. All required cost fields present (`input`, `output`, `cacheRead`, `cacheWrite`)
-2. Input array only contains "text" and/or "image"
-3. JSON syntax is valid (trailing commas, quotes, brackets)
-4. The model is on the organization's Approved Models / Access List
-5. Environment variable `REQUESTY_API_KEY_CC` is set
+1. Input array only contains "text" and/or "image"
+2. JSON syntax is valid (trailing commas, quotes, brackets)
+3. The model is on the organization's Approved Models / Access List
+4. Environment variable `REQUESTY_API_KEY_CC` is set

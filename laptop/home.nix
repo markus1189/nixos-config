@@ -49,6 +49,22 @@
         piAgentConfig = pkgs.callPackage ../nixos-shared/home-manager/pi-agent {
           globalAgentMdText = claudeConfig.globalAgentMd.text;
         };
+        requestyPrices = pkgs.callPackage ../nixos-shared/requesty-prices { };
+        withRequestyCost =
+          id: model:
+          let
+            c = requestyPrices.costOf id;
+          in
+          model
+          // {
+            cost = {
+              inherit (c) input output;
+              cache = {
+                read = c.cacheRead;
+                write = c.cacheWrite;
+              };
+            };
+          };
       in
       {
         "claude-code" = claudeConfig.settings;
@@ -106,7 +122,8 @@
                   apiKey = "{env:REQUESTY_API_KEY_CC}";
                 };
 
-                models = {
+                # Not models.dev-backed (see above), so opencode knows no prices.
+                models = pkgs.lib.mapAttrs withRequestyCost {
                   "vertex/gemini-3.8-flash@eu" = {
                     name = "Gemini 3.8 Flash";
                     capabilities = {
