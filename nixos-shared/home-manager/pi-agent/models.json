@@ -15,9 +15,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1000000,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "vertex/claude-haiku-5-5@eu",
@@ -28,9 +26,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1000000,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "bedrock/claude-opus-5-5@eu-central-1",
@@ -41,9 +37,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1000000,
-          "maxTokens": 128000
+          ]
         }
       ]
     },
@@ -60,9 +54,7 @@
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "sference/glm-5.3",
@@ -71,9 +63,7 @@
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "sference/glm-5.3-flash",
@@ -83,9 +73,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1000000,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "tensorx/glm-5.3-flash",
@@ -94,9 +82,7 @@
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "sference/kimi-k3",
@@ -105,9 +91,7 @@
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "tensorx/kimi-k3",
@@ -117,9 +101,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "sference/deepseek-v4.1-flash",
@@ -129,9 +111,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "tensorx/minimax-m3",
@@ -141,9 +121,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "tensorx/qwen3.8",
@@ -152,9 +130,7 @@
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
             "text"
-          ],
-          "contextWindow": 1000000,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "tensorx/qwen3.8-flash-next",
@@ -164,9 +140,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 262144,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "mistral/mistral-large-4",
@@ -177,9 +151,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 524288,
-          "maxTokens": 128000
+          ]
         }
       ]
     },
@@ -197,9 +169,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1050000,
-          "maxTokens": 128000
+          ]
         },
         {
           "id": "azure/gpt-6-luna@swedencentral",
@@ -209,9 +179,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1050000,
-          "maxTokens": 128000
+          ]
         }
       ]
     },
@@ -229,9 +197,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 65535
+          ]
         },
         {
           "id": "vertex/gemini-3.8-flash@eu",
@@ -241,9 +207,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 65535
+          ]
         },
         {
           "id": "vertex/gemini-4-argon@eu",
@@ -253,9 +217,7 @@
           "input": [
             "text",
             "image"
-          ],
-          "contextWindow": 1048576,
-          "maxTokens": 65536
+          ]
         }
       ]
     }

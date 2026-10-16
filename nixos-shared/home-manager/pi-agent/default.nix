@@ -15,7 +15,19 @@ let
       _: provider:
       provider
       // {
-        models = map (m: m // { cost = requestyPrices.costOf m.id; }) provider.models;
+        models = map (
+          m:
+          let
+            limit = requestyPrices.limitOf m.id;
+          in
+          m
+          // {
+            cost = requestyPrices.costOf m.id;
+            contextWindow = limit.context;
+            # Some routes report max output as the whole context window.
+            maxTokens = pkgs.lib.min (limit.output or 128000) 128000;
+          }
+        ) provider.models;
       }
     ) modelsSrc.providers;
   };

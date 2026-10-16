@@ -14,7 +14,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 |------|---------------|
 | `nixos-shared/home-manager/pi-agent/models.json` | **The canonical model catalog** — pi agent's full provider+model list. Deployed to `~/.pi/agent/models.json` with prices merged in. |
 | `nixos-shared/requesty-prices/prices.json` | Requesty prices for pi and opencode, written by `update.py` from `/v1/models`; a model either uses without an entry fails eval. |
-| `nixos-shared/requesty-prices/limits.json` | Requesty context/output limits, same `update.py` run; opencode only (pi's `models.json` sets its own). |
+| `nixos-shared/requesty-prices/limits.json` | Requesty context/output limits for pi and opencode, same `update.py` run. |
 | `nixos-shared/home-manager/pi-agent/extensions/model-shortcuts.ts` | F1–F9 keybindings → provider/modelId pairs (Requesty + fallback openrouter). |
 | `laptop/home.nix` (~line 103) | **opencode** provider `requesty-cc` (`@ai-sdk/openai-compatible`, Requesty EU): a hand-picked subset of `models.json`. Vet new entries with `pi-agent/ADD_MODEL.md` (access list, tools, CAKE test). |
 | `nixos-shared/home-manager/zsh/default.nix` (~line 45) | `oc` / `pi` / `pi-glados` aliases — inject `REQUESTY_API_KEY_CC` from `pass api/requesty/agent`. No model slugs. |

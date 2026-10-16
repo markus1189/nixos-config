@@ -78,13 +78,11 @@ Pi agent's schema has some differences from the API format:
 | `name` | `name` | Add provider context (e.g., "(Requesty/Vertex EU)") |
 | `reasoning` | `reasoning` | Direct mapping |
 | `modalities.input` | `input` | Array, but **exclude "pdf"** - schema only accepts "text" and "image" |
-| `limit.context` | `contextWindow` | Direct mapping |
-| `limit.output` | `maxTokens` | Direct mapping |
 
-No `cost` here: prices come from Requesty's `/v1/models`, not models.dev, and live in
-[`requesty-prices/prices.json`](../../requesty-prices/prices.json), which pi and opencode both read.
-Add the model with `nixos-shared/requesty-prices/update.py <slug>`; eval fails for a model without
-a price. The same run writes `limits.json`, opencode's context and output limits.
+No `cost`, `contextWindow` or `maxTokens` here: they come from Requesty's `/v1/models`, not
+models.dev, and live in [`requesty-prices/`](../../requesty-prices/) (`prices.json`,
+`limits.json`), which pi and opencode both read. Add the model with
+`nixos-shared/requesty-prices/update.py <slug>`; eval fails for a model without a price.
 `update.py --check` exits 1 when either table has drifted from the router.
 
 ### Step 3: Create models.json Entry
@@ -107,9 +105,7 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
           "id": "vertex/claude-sonnet-4-6@europe-west1",
           "name": "Claude Sonnet 4.6 (Requesty/Vertex EU)",
           "reasoning": true,
-          "input": ["text", "image"],
-          "contextWindow": 200000,
-          "maxTokens": 64000
+          "input": ["text", "image"]
         }
       ]
     },
@@ -124,9 +120,7 @@ host for `anthropic-messages` and the `/v1` suffix for the OpenAI-style endpoint
           "name": "GPT-5.4 (Requesty/Azure EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
-          "input": ["text", "image"],
-          "contextWindow": 400000,
-          "maxTokens": 128000
+          "input": ["text", "image"]
         }
       ]
     }
@@ -236,9 +230,8 @@ during testing, while `tensorx/kimi-k2.7-code` ($1.25/$4.50) was reliable (both 
 with K2.7). Load-test a cheap route before relying on it for long agent runs. The inceptron slug
 capitalised `Code` and the tensorx one did not — the IDs are case-sensitive.
 
-Also beware `max_output_tokens` from the router: inceptron/tensorx report it equal to the full
-context window (e.g. 1048576), which is nonsense. Cap `maxTokens` at 128000, matching the other
-entries.
+The router's `max_output_tokens` is sometimes the full context window (e.g. 1048576), so
+`default.nix` caps pi's `maxTokens` at 128000.
 
 ### Verification
 
