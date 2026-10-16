@@ -50,12 +50,10 @@
 
 ## Friction
 
-1. Something snagged (a skill, env, docs, or your own mistake)? End
-   with a **Friction** list after any TL;DR, only items not yet
-   listed this session, one line each:
-   `🔴|🟠|🟡 <skill-name>|env|docs|self: what snagged [fix: doc line|example|script|redesign]`
-   A named part of a skill that got you past a likely snag earns a
-   `🟢 <skill-name>:` line; "it worked" does not
+1. Could a skill, doc, script or config have made this session
+   smoother? End with a **Friction** list after any TL;DR: the
+   change and why, one line each, file first. Nothing to change →
+   no list. Subagents never list
 
 ## Environment (NixOS)
 
