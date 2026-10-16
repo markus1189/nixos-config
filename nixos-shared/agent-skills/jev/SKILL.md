@@ -11,12 +11,12 @@ Decision models answer typed questions about a `state` you send them. They never
 |---|---|---|---|---|
 | `jev` = `typesafe/jev-1.14`, `jev-1.13` | OpenRouter, zero data retention, no training | 0.042 | 32k | yes (box: 1.14 only) |
 | `~typesafe/jev-preview`, or `jev --via typesafe` | `--no-zdr`: TypeSafe's own API, no training, retention possible (ZDR is enterprise-only) | 0.042 | 32k | yes |
-| `clef` = `sference/clef` | Requesty EU router, no retention guarantee | 0.24 | 64k | no |
+| `clef` = `sference/clef` | Requesty EU router; catalog 2026-10-16: no retention, no training, EU-hosted | 0.24 | 64k | no |
 | `cloudflare/clef`, `cloudflare/clef-flash` | `--via openrouter --no-zdr`: OpenRouter, no training, retention possible | 0.24 / 0.09 | 64k | ≤4 |
 
-**Pick:** Jev by default, images included: cheapest, ~0.3–0.8 s a call, and the only route with zero retention. Clef when the user asks for it or an item won't fit 32k tokens. `--model jev,clef` (or `jev,cloudflare/clef --via openrouter --no-zdr` with images) when you have no labels and want the contested items. `--via typesafe` only when OpenRouter itself fails (gateway errors, credits). Thresholds tuned on 1.13 may not carry over to 1.14: `--model jev,jev-1.13` shows where they part. When `jev-preview` moves past 1.14, send it one request alone and read its `model` before comparing.
+**Pick:** Jev by default, images included: cheapest, ~0.3–0.8 s a call, and the only route where zero retention is enforced per request. Clef when the user asks for it or an item won't fit 32k tokens. `--model jev,clef` (or `jev,cloudflare/clef --via openrouter --no-zdr` with images) when you have no labels and want the contested items. `--via typesafe` only when OpenRouter itself fails (gateway errors, credits). Thresholds tuned on 1.13 may not carry over to 1.14: `--model jev,jev-1.13` shows where they part. When `jev-preview` moves past 1.14, send it one request alone and read its `model` before comparing.
 
-**State leaves the machine.** Only Jev on its default OpenRouter route has zero retention; Jev via Requesty or TypeSafe's own API is refused unless `--no-zdr` accepts that. Before sending the user's private data anywhere else, get their OK once per session unless they named that route, and say that retention isn't guaranteed. Images lose their metadata (EXIF, GPS) before sending unless `--no-downscale`. Never send secrets, tokens or credentials.
+**State leaves the machine.** Only Jev on its default OpenRouter route has zero retention enforced per request. The Clef catalog advertises no retention, no training, EU-hosted (see the table), but the skill cannot verify that per request, so everything but that route is treated as no-ZDR and refused unless `--no-zdr` accepts it. Before sending the user's private data anywhere else, get their OK once per session unless they named that route; on Clef data handling, report the catalog status as a listing and point to sference's privacy policy and Requesty's DPA for the binding terms. Images lose their metadata (EXIF, GPS) before sending unless `--no-downscale`. Never send secrets, tokens or credentials.
 
 ## Run it
 
