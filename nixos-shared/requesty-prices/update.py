@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Refresh prices.json from Requesty's /v1/models.
+"""Refresh prices.json and limits.json from Requesty's /v1/models.
 
 Usage: update.py [--check] [MODEL_ID...]
 
 Refreshes every model already in prices.json, plus any MODEL_ID given (which
-adds it). Prices are USD per million tokens. --check writes nothing and exits 1
-if the table differs from the API.
+adds it). Prices are USD per million tokens, limits are tokens. --check writes
+nothing and exits 1 if either table differs from the API.
 
 Key: $REQUESTY_API_KEY_CC, else `pass api/requesty/agent`. The key matters:
 /v1/models lists only the organization's access list when called with one.
@@ -22,6 +22,7 @@ import urllib.request
 from pathlib import Path
 
 PRICES = Path(__file__).resolve().parent / "prices.json"
+LIMITS = PRICES.with_name("limits.json")
 URL = "https://router.eu.requesty.ai/v1/models"
 
 # Requesty's per-token field -> our per-million field.
@@ -30,6 +31,11 @@ FIELDS = {
     "output_price": "output",
     "cached_price": "cacheRead",
     "caching_price": "cacheWrite",
+}
+
+LIMIT_FIELDS = {
+    "context_window": "context",
+    "max_output_tokens": "output",
 }
 
 
@@ -66,19 +72,35 @@ def main(argv):
         print("not on the access list: " + ", ".join(missing), file=sys.stderr)
         return 2
 
-    fresh = {
-        i: {ours: per_million(listed[i].get(theirs)) for theirs, ours in FIELDS.items()}
-        for i in ids
-    }
-    for i in ids:
-        if current.get(i) != fresh[i]:
-            print(f"{i}: {current.get(i)} -> {fresh[i]}", file=sys.stderr)
+    tables = [
+        (
+            PRICES,
+            {
+                i: {ours: per_million(listed[i].get(theirs)) for theirs, ours in FIELDS.items()}
+                for i in ids
+            },
+        ),
+        (
+            LIMITS,
+            {
+                i: {ours: listed[i][theirs] for theirs, ours in LIMIT_FIELDS.items()}
+                for i in ids
+            },
+        ),
+    ]
+    stale = []
+    for path, fresh in tables:
+        old = json.loads(path.read_text()) if path.exists() else {}
+        for i in ids:
+            if old.get(i) != fresh[i]:
+                print(f"{path.name} {i}: {old.get(i)} -> {fresh[i]}", file=sys.stderr)
+        if fresh != old:
+            stale.append((path, fresh))
 
-    if fresh == current:
-        return 0
-    if check:
+    if stale and check:
         return 1
-    PRICES.write_text(json.dumps(fresh, indent=2) + "\n")
+    for path, fresh in stale:
+        path.write_text(json.dumps(fresh, indent=2) + "\n")
     return 0
 
 

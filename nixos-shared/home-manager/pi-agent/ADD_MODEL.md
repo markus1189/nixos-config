@@ -84,7 +84,8 @@ Pi agent's schema has some differences from the API format:
 No `cost` here: prices come from Requesty's `/v1/models`, not models.dev, and live in
 [`requesty-prices/prices.json`](../../requesty-prices/prices.json), which pi and opencode both read.
 Add the model with `nixos-shared/requesty-prices/update.py <slug>`; eval fails for a model without
-a price. `update.py --check` exits 1 when the table has drifted from the router.
+a price. The same run writes `limits.json`, opencode's context and output limits.
+`update.py --check` exits 1 when either table has drifted from the router.
 
 ### Step 3: Create models.json Entry
 

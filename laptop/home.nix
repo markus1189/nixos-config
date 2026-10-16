@@ -50,13 +50,14 @@
           globalAgentMdText = claudeConfig.globalAgentMd.text;
         };
         requestyPrices = pkgs.callPackage ../nixos-shared/requesty-prices { };
-        withRequestyCost =
+        withRequestyMeta =
           id: model:
           let
             c = requestyPrices.costOf id;
           in
           model
           // {
+            limit = requestyPrices.limitOf id;
             cost = {
               inherit (c) input output;
               cache = {
@@ -122,8 +123,9 @@
                   apiKey = "{env:REQUESTY_API_KEY_CC}";
                 };
 
-                # Not models.dev-backed (see above), so opencode knows no prices.
-                models = pkgs.lib.mapAttrs withRequestyCost {
+                # Not models.dev-backed (see above), so opencode knows no prices or
+                # context limits.
+                models = pkgs.lib.mapAttrs withRequestyMeta {
                   "vertex/gemini-3.8-flash@eu" = {
                     name = "Gemini 3.8 Flash";
                     capabilities = {

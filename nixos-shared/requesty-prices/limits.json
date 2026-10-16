@@ -1,0 +1,78 @@
+{
+  "azure/gpt-6-luna@swedencentral": {
+    "context": 1050000,
+    "output": 128000
+  },
+  "azure/gpt-6.1-sol@swedencentral": {
+    "context": 1050000,
+    "output": 128000
+  },
+  "bedrock/claude-opus-5-5@eu-central-1": {
+    "context": 1000000,
+    "output": 128000
+  },
+  "mistral/mistral-large-4": {
+    "context": 524288,
+    "output": 0
+  },
+  "sference/deepseek-v4.1-flash": {
+    "context": 1048576,
+    "output": 393216
+  },
+  "sference/glm-5.3": {
+    "context": 1048576,
+    "output": 1048576
+  },
+  "sference/glm-5.3-flash": {
+    "context": 1000000,
+    "output": 262144
+  },
+  "sference/kimi-k3": {
+    "context": 1048576,
+    "output": 262144
+  },
+  "tensorx/glm-5.3": {
+    "context": 1048576,
+    "output": 1048576
+  },
+  "tensorx/glm-5.3-flash": {
+    "context": 1048576,
+    "output": 1048576
+  },
+  "tensorx/kimi-k3": {
+    "context": 1048576,
+    "output": 262144
+  },
+  "tensorx/minimax-m3": {
+    "context": 1048576,
+    "output": 1048576
+  },
+  "tensorx/qwen3.8": {
+    "context": 1000000,
+    "output": 262144
+  },
+  "tensorx/qwen3.8-flash-next": {
+    "context": 262144,
+    "output": 262144
+  },
+  "vertex/claude-haiku-5-5@eu": {
+    "context": 1000000,
+    "output": 128000
+  },
+  "vertex/claude-sonnet-5-5@eu": {
+    "context": 1000000,
+    "output": 128000
+  },
+  "vertex/gemini-3.5-flash-lite@eu": {
+    "context": 1048576,
+    "output": 65535
+  },
+  "vertex/gemini-3.8-flash@eu": {
+    "context": 1048576,
+    "output": 65535
+  },
+  "vertex/gemini-4-argon@eu": {
+    "context": 1048576,
+    "output": 65536
+  }
+}
