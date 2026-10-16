@@ -124,10 +124,7 @@ Syntax notes:
 
 1. Extensive tmux use, access pane '123's content via global %-id:
   `tmux capture-pane -p -t '%123'`
-2. The Bash tool runs **zsh**: quote glob-bearing args or zsh expands
-   them against the cwd first: `grep -rn --include='*.nix'`; unquoted
-   gives "no matches found"
-3. Hook-blocked: `rm -rf` (use `rm -r`); `find`/`fd` rooted at `/`,
+2. Hook-blocked: `rm -rf` (use `rm -r`); `find`/`fd` rooted at `/`,
    `~`, `/home/markus`, `/nix/store` — scope to a subpath, or use `rg`
 
 ## Clipboard (xclip)

@@ -222,8 +222,8 @@ in
       voiceEnabled = true;
       skipDangerousModePermissionPrompt = true;
 
-      # Use bash for the Bash tool instead of the login shell (zsh), so
-      # exit-code idioms like ${PIPESTATUS[0]} behave as written.
+      # Shell for `!` input-box commands only; the Bash tool reads
+      # CLAUDE_CODE_SHELL (env below).
       defaultShell = "bash";
 
       # Custom spinner verbs appended to the ~185 built-in defaults
@@ -488,6 +488,9 @@ in
         BASH_DEFAULT_TIMEOUT_MS = 1 * 60 * 1000; # default = 2 min, background them faster since 2.0.19
         BASH_MAX_TIMEOUT_MS = 30 * 60 * 1000;
         MAX_MCP_OUTPUT_TOKENS = 50 * 1000; # default = 25,000
+        # Bash tool shell; otherwise the login shell (zsh) runs agent commands
+        # and `echo ====`, unsplit `$var` and unmatched globs break bash idioms.
+        CLAUDE_CODE_SHELL = "${pkgs.bash}/bin/bash";
         # Tested store paths: a mod edit lands with a rebuild and a new session.
         CLAUDE_CODE_PLUGIN_DIRS = pkgs.lib.concatStringsSep ":" (builtins.attrValues claudeMods);
       };
