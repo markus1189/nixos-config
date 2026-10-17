@@ -85,6 +85,14 @@ nh os switch
 `nix store diff-closures` produce in two steps, so it covers the common
 "what would this change" case on its own.
 
+`nh os build` writes ANSI escapes and NUL bytes. Piping it into `rg` or
+`grep` stops at the first NUL (`binary file matches`) and can hide the
+exit status. Capture to a file and read that back:
+
+```bash
+nh os build > "$log" 2>&1; echo $?
+```
+
 ### Validation and Testing
 ```bash
 # Syntax check before building

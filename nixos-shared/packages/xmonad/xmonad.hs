@@ -269,7 +269,7 @@ myManageHook =
       [ "NormCap"
       ]
     resourceFloats = []
-    ignored = ["Unity-2d-panel", "trayer"]
+    ignored = ["Unity-2d-panel", "stalonetray"]
     ws1 = ["X-terminal-emulator"]
     ws1Resources = ["ws1-default"]
     -- "firefox" is what current Firefox actually sets; "Firefox" is kept for

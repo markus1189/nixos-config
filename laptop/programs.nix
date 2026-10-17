@@ -138,7 +138,7 @@
         terminator
         testdisk
         html-tidy
-        trayer
+        stalonetray
         tree
         units
         unrar

@@ -178,12 +178,12 @@
           ${pkgs.xsetroot}/bin/xsetroot -cursor_name left_ptr
           ${pkgs.xset}/bin/xset r rate 250 30
           ${pkgs.feh}/bin/feh --no-fehbg --bg-fill ${pkgs.markus-wallpapers.orange-cube-left} ${pkgs.markus-wallpapers.orange-cube-right} &
-          # widthtype request: the tray is exactly as wide as its icons.
-          # A percentage width would reserve the full slice and, being
-          # pseudo-transparent (it paints the root pixmap, it does not
-          # composite), hide whatever the lower xmobar draws underneath it.
-          # That bar is BottomW L 91, so anything over 9% overlaps it.
-          ${pkgs.trayer}/bin/trayer --edge bottom --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --transparent true --alpha 0 --tint 0x000000 --height 17.5 --monitor primary &
+          # The tray grows westward from the primary output's bottom-right
+          # corner, as wide as its icons: a fixed-width tray paints the root
+          # pixmap (pseudo-transparency) over the lower xmobar (BottomW L 91).
+          # stalonetray only positions relative to the root window, hence the
+          # xrandr lookup; it does not follow later output changes.
+          ${pkgs.stalonetray}/bin/stalonetray --geometry "1x1+$(${pkgs.xrandr}/bin/xrandr | ${pkgs.gawk}/bin/awk '/ primary /{split($4,g,/[x+]/); print g[1]+g[3]-17 "+" g[2]+g[4]-17; exit}')" --grow-gravity E --icon-size 16 --slot-size 17 --window-type dock --window-strut bottom --skip-taskbar --sticky --transparent &
         '';
       };
 
