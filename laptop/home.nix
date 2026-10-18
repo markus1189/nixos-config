@@ -906,6 +906,10 @@
           deband-grain = 5;
 
           volume-max = 300;
+
+          # Any non-empty sub-langs stops ytdl_hook from adding `--sub-langs all`
+          # (every machine-translated track). Keep in sync with yt-dlp.conf.
+          ytdl-raw-options-append = "sub-langs=en.*,de-orig";
         };
 
         profiles.stream = {

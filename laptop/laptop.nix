@@ -514,7 +514,7 @@
           --embed-info-json                     # writes a temp, attaches it, deletes it: no stray file
           --embed-subs
           --write-auto-subs                     # ASR captions; most videos have no manual subs at all
-          --sub-langs en.*,de.*                 # makes --embed-subs actually do something
+          --sub-langs en.*,de-orig              # plain "de" is a machine translation on any non-German video
           --convert-subs srt                    # normalize so embedding always succeeds
 
           # ---- Robustness / speed ----
