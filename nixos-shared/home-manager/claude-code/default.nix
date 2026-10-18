@@ -197,7 +197,8 @@ in
         "cc-plugin-you-should-know@builtin" = true;
       };
 
-      effortLevel = "high";
+      model = "opus";
+      effortLevel = "low";
       viewMode = "verbose";
       showThinkingSummaries = true;
       alwaysThinkingEnabled = true;
