@@ -1169,7 +1169,7 @@ string). It returns t if a new completion is found, nil otherwise."
      ("y" "~/Syncthing/"                   "Syncthing")
      ("d" "~/Downloads/"                   "Downloads")
      ("a" "~/mounts/rclone/gdrive/Ablage/" "Ablage")
-     ("n" "/nix/store/"                    "Nix store")))
+     ("n" "~/repos/nixos-config/"          "nixos-config")))
   ;; dirvish--check-dependencies requires the providing extension for each
   ;; of these on demand, so no explicit (require 'dirvish-vc) etc.
   (dirvish-attributes '(vc-state subtree-state nerd-icons collapse file-time file-size))
