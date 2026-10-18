@@ -6,6 +6,11 @@
   ...
 }:
 
+let
+  # Absolute, not "$HOME/...": systemd units neither expand $HOME nor source
+  # hm-session-vars.sh, so outside a shell pass falls back to ~/.password-store.
+  passDir = "${config.home.homeDirectory}/.local/share/password-store";
+in
 {
   imports = [
     ./atuin-sync.nix
@@ -618,372 +623,373 @@
       }
       // claudeConfig.agentFiles
       // opencodeConfig.markdownFiles
-      // piAgentConfig.linkedFiles;
+      // piAgentConfig.linkedFiles
+      // {
+        # pass's fallback when PASSWORD_STORE_DIR is unset (claude-remote-control
+        # sessions); out-of-store so it stays the live, writable git repo.
+        ".password-store".source = config.lib.file.mkOutOfStoreSymlink passDir;
+      };
   };
 
-  programs =
-    let
-      passDir = "$HOME/.local/share/password-store";
-    in
-    {
-      mr = {
-        enable = true;
-        settings =
-          let
-            clonedRepo = owner: repo: {
-              "repos/clones/${repo}".checkout = "git clone 'https://github.com/${owner}/${repo}' '${repo}'";
-            };
-            projectRepo = repo: {
-              "repos/projects/${repo}".checkout = "git clone 'git@github.com:markus1189/${repo}.git'";
-            };
-          in
-          {
-            "repos/nixos-config".checkout =
-              "git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'";
-          }
-          // clonedRepo "nixos" "nixpkgs"
-          // clonedRepo "nix-community" "home-manager"
-          // projectRepo "tiervermittlung-bot"
-          // projectRepo "hocket"
-          // projectRepo "marginal"
-          // projectRepo "bookbuddy.koplugin"
-          // projectRepo "ciqt"
-          // projectRepo "tools";
-      };
-
-      zathura = {
-        enable = true;
-        options = {
-          selection-clipboard = "clipboard";
-        };
-      };
-
-      alacritty = # config documentation at https://alacritty.org/config-alacritty.html
+  programs = {
+    mr = {
+      enable = true;
+      settings =
         let
-          emacsclient-jump = pkgs.writeShellScript "emacsclient-jump" ''
-            # Parse argument: /path/to/file or /path/to/file:123
-            input="$1"
-
-            if [[ "$input" =~ ^(.+):([0-9]+)$ ]]; then
-              # Contains line number
-              filepath="''${BASH_REMATCH[1]}"
-              linenum="''${BASH_REMATCH[2]}"
-              exec ${pkgs.emacs}/bin/emacsclient -n "+''${linenum}" "''${filepath}"
-            else
-              # No line number
-              exec ${pkgs.emacs}/bin/emacsclient -n "''${input}"
-            fi
-          '';
+          clonedRepo = owner: repo: {
+            "repos/clones/${repo}".checkout = "git clone 'https://github.com/${owner}/${repo}' '${repo}'";
+          };
+          projectRepo = repo: {
+            "repos/projects/${repo}".checkout = "git clone 'git@github.com:markus1189/${repo}.git'";
+          };
         in
         {
-          enable = true;
-          settings = {
-            font.size = 9;
-            window = {
-              opacity = 0.92;
-              blur = false;
-            };
-            selection.save_to_clipboard = true;
-            mouse.hide_when_typing = true;
-            keyboard.bindings = [
-              {
-                key = "v";
-                mods = "Alt";
-                action = "Paste";
-              }
-              {
-                key = "F";
-                mods = "Control|Shift";
-                action = "None";
-              }
-            ];
-            hints = {
-              enabled = [
-                # Default: URL/hyperlink hints (preserving Alacritty default)
-                {
-                  command = "xdg-open";
-                  hyperlinks = true;
-                  post_processing = true;
-                  persist = false;
-                  mouse = {
-                    enabled = false;
-                  };
-                  binding = {
-                    key = "O";
-                    mods = "Control|Shift";
-                  };
-                  regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001f\\u007f-\\u009f<>\"\\\\s{-}\\\\^⟨⟩`]+";
-                }
-                # File path hints - open with emacsclient (FF style, supports :line notation)
-                {
-                  regex = "(~?/(?:\\\\\\\\.|\\\\S)+)(:[0-9]+)?";
-                  command = "${emacsclient-jump}";
-                  post_processing = true;
-                  mouse = {
-                    enabled = false;
-                    mods = "None";
-                  };
-                  binding = {
-                    key = "F";
-                    mods = "Control|Shift";
-                  };
-                }
-                # Git commit hash hints - copy to clipboard
-                {
-                  regex = "[0-9a-f]{7,40}";
-                  action = "Select";
-                  mouse = {
-                    enabled = false;
-                    mods = "None";
-                  };
-                  binding = {
-                    key = "C";
-                    mods = "Control|Shift";
-                  };
-                }
-              ];
-            };
-          };
-        };
+          "repos/nixos-config".checkout =
+            "git clone 'git@github.com:markus1189/nixos-config.git' 'nixos-config'";
+        }
+        // clonedRepo "nixos" "nixpkgs"
+        // clonedRepo "nix-community" "home-manager"
+        // projectRepo "tiervermittlung-bot"
+        // projectRepo "hocket"
+        // projectRepo "marginal"
+        // projectRepo "bookbuddy.koplugin"
+        // projectRepo "ciqt"
+        // projectRepo "tools";
+    };
 
-      ghostty = {
-        enable = true;
-        enableZshIntegration = true;
-        settings = {
-          mouse-hide-while-typing = true;
-
-          copy-on-select = "clipboard";
-
-          app-notifications = "no-clipboard-copy";
-
-          background-opacity = 0.95;
-          background = "#0d0d0d";
-          background-blur = false;
-          gtk-titlebar = false;
-
-          shell-integration-features = "no-cursor";
-
-          confirm-close-surface = false;
-
-          font-feature = "-calt, -liga, -dlig";
-
-          bell-features = "no-title";
-
-          keybind = [
-            "alt+v=paste_from_clipboard"
-            "ctrl+enter=unbind"
-            "ctrl+shift+f=unbind"
-            "ctrl+shift+o=unbind"
-            "ctrl+shift+t=unbind"
-            "ctrl+shift+p=unbind"
-            "ctrl+shift+i=unbind"
-          ];
-        };
-      };
-
-      atuin = {
-        enable = true;
-        settings = {
-          show_preview = true;
-          max_preview_height = 5;
-          history_filter = [ "DONOTTRACK" ];
-          inline_height = 25;
-          update_check = false;
-
-          # Self-hosted sync via SSH tunnel to nuc. Tunnel + sync is driven
-          # by the atuin-sync systemd user timer (see atuin-sync.nix).
-          sync_address = "http://127.0.0.1:49888";
-          auto_sync = false;
-        };
-      };
-
-      bash.enable = true;
-
-      direnv = {
-        enable = true;
-        enableBashIntegration = true;
-        nix-direnv = {
-          enable = true;
-          package = pkgs.masterPkgs.nix-direnv;
-        };
-        enableZshIntegration = true;
-      };
-
-      delta = {
-        enable = true;
-        enableGitIntegration = true;
-        options = {
-          navigate = true;
-          features = "side-by-side line-numbers decorations";
-        };
-      };
-
-      jujutsu = {
-        enable = true;
-        settings = {
-          user = {
-            name = "Markus Hauck";
-            email = "markus1189@gmail.com";
-          };
-
-          merge-tools = {
-            ediff = {
-              merge-args = [
-                "merge"
-                "$left"
-                "$right"
-                "$base"
-                "$output"
-              ];
-              diff-args = [
-                "diff-dir"
-                "$left"
-                "$right"
-              ];
-              edit-args = [
-                "diff-dir"
-                "$left"
-                "$right"
-              ];
-              program = "${pkgs.myScripts.emacs-ediff-dispatch}/bin/ediff-dispatch";
-            };
-          };
-
-          revsets = {
-            log = "@ | ancestors(immutable_heads().., 5) | trunk()";
-          };
-
-          ui = {
-            default-command = [ "log" ];
-          };
-        };
-      };
-
-      mpv = {
-        enable = true;
-        package = pkgs.mpv.override {
-          scripts = with pkgs.mpvScripts; [
-            # Its default g/G/h/H keys (segment submission and votes) outrank
-            # mpv's builtin g-* prefix menus (g-h history, g-c chapters, ...),
-            # and even a user input.conf g-h does not win. Drop the keys; the
-            # named bindings stay reachable via script-binding sponsorblock/<name>.
-            (sponsorblock.overrideAttrs (old: {
-              postPatch = (old.postPatch or "") + ''
-                sed -Ei 's/mp\.add_key_binding\("[gGhH]", /mp.add_key_binding(nil, /' sponsorblock.lua
-              '';
-            }))
-            mpris
-            smartskip
-            mpv-notify-send
-          ];
-        };
-
-        # Values are emitted in mpv's %<len>%<value> form, so spaces, quotes
-        # and '#' need no quoting of their own here.
-        config = {
-          write-filename-in-watch-later-config = true;
-          save-position-on-quit = true;
-          # Enables the built-in g-h watch history menu (select.lua)
-          save-watch-history = true;
-          osd-msg3 = "\${time-pos} / \${duration} [\${playtime-remaining} @ \${speed}]";
-          osd-duration = 5000;
-          osd-font-size = 40;
-
-          # Video output
-          vo = "gpu-next";
-          gpu-api = "vulkan";
-          # Pin render to the Intel iGPU -- libplacebo otherwise defaults to the
-          # discrete NVIDIA dGPU, which wakes it and forces an Intel->NVIDIA copy.
-          # (p1 is Intel-only, so this name simply won't match there and is ignored.)
-          vulkan-device = "Intel(R) Graphics (ARL)";
-          hwdec = "vaapi,nvdec-copy";
-
-          # Debanding
-          deband = true;
-          deband-iterations = 2;
-          deband-threshold = 35;
-          deband-range = 16;
-          deband-grain = 5;
-
-          volume-max = 300;
-
-          # Any non-empty sub-langs stops ytdl_hook from adding `--sub-langs all`
-          # (every machine-translated track). Keep in sync with yt-dlp.conf.
-          ytdl-raw-options-append = "sub-langs=en.*,de-orig";
-        };
-
-        profiles.stream = {
-          cache = true;
-          demuxer-max-bytes = "1000MiB";
-          demuxer-readahead-secs = 60;
-          cache-secs = 600;
-          prefetch-playlist = true;
-        };
-
-        bindings = {
-          "!" =
-            ''run sh -c "echo ''${path} >> list.txt && notify-send mpv \"Saved ''${path} to ''${working-directory}/list.txt\""'';
-        };
-      };
-
-      password-store = {
-        enable = true;
-        package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-        settings = {
-          PASSWORD_STORE_DIR = passDir;
-        };
-      };
-
-      autorandr = {
-        enable = true;
-        # Profiles are per-host (different panels + connector enumeration):
-        # p1/home.nix and p1g8/home.nix, merged in via
-        # home-manager.users.*.imports in each configuration.nix.
-      };
-
-      rofi = {
-        enable = true;
-
-        # Was a hand-written ~/.config/rofi/config.rasi: the packaged Arc-Dark
-        # theme plus our accent overrides. mkLiteral keeps colour and variable
-        # references unquoted, which rasi requires.
-        theme =
-          let
-            inherit (config.lib.formats.rasi) mkLiteral;
-          in
-          {
-            "@import" = "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi";
-
-            "*" = {
-              accent = mkLiteral "#f3843d";
-              accent-text = mkLiteral "#000000";
-              selected-normal-background = mkLiteral "@accent";
-              selected-normal-foreground = mkLiteral "@accent-text";
-              selected-active-background = mkLiteral "@accent";
-              selected-active-foreground = mkLiteral "@accent-text";
-              selected-urgent-background = mkLiteral "#cc4444";
-              selected-urgent-foreground = mkLiteral "#ffffff";
-            };
-
-            "element selected, element selected.active, element-text selected, element-text selected.active" = {
-              background-color = mkLiteral "@accent";
-              text-color = mkLiteral "@accent-text";
-            };
-          };
-      };
-
-      sioyek = {
-        enable = true;
-        bindings = {
-          "next_page" = "J";
-          "previous_page" = "K";
-        };
-      };
-
-      fd = {
-        enable = true;
+    zathura = {
+      enable = true;
+      options = {
+        selection-clipboard = "clipboard";
       };
     };
+
+    alacritty = # config documentation at https://alacritty.org/config-alacritty.html
+      let
+        emacsclient-jump = pkgs.writeShellScript "emacsclient-jump" ''
+          # Parse argument: /path/to/file or /path/to/file:123
+          input="$1"
+
+          if [[ "$input" =~ ^(.+):([0-9]+)$ ]]; then
+            # Contains line number
+            filepath="''${BASH_REMATCH[1]}"
+            linenum="''${BASH_REMATCH[2]}"
+            exec ${pkgs.emacs}/bin/emacsclient -n "+''${linenum}" "''${filepath}"
+          else
+            # No line number
+            exec ${pkgs.emacs}/bin/emacsclient -n "''${input}"
+          fi
+        '';
+      in
+      {
+        enable = true;
+        settings = {
+          font.size = 9;
+          window = {
+            opacity = 0.92;
+            blur = false;
+          };
+          selection.save_to_clipboard = true;
+          mouse.hide_when_typing = true;
+          keyboard.bindings = [
+            {
+              key = "v";
+              mods = "Alt";
+              action = "Paste";
+            }
+            {
+              key = "F";
+              mods = "Control|Shift";
+              action = "None";
+            }
+          ];
+          hints = {
+            enabled = [
+              # Default: URL/hyperlink hints (preserving Alacritty default)
+              {
+                command = "xdg-open";
+                hyperlinks = true;
+                post_processing = true;
+                persist = false;
+                mouse = {
+                  enabled = false;
+                };
+                binding = {
+                  key = "O";
+                  mods = "Control|Shift";
+                };
+                regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001f\\u007f-\\u009f<>\"\\\\s{-}\\\\^⟨⟩`]+";
+              }
+              # File path hints - open with emacsclient (FF style, supports :line notation)
+              {
+                regex = "(~?/(?:\\\\\\\\.|\\\\S)+)(:[0-9]+)?";
+                command = "${emacsclient-jump}";
+                post_processing = true;
+                mouse = {
+                  enabled = false;
+                  mods = "None";
+                };
+                binding = {
+                  key = "F";
+                  mods = "Control|Shift";
+                };
+              }
+              # Git commit hash hints - copy to clipboard
+              {
+                regex = "[0-9a-f]{7,40}";
+                action = "Select";
+                mouse = {
+                  enabled = false;
+                  mods = "None";
+                };
+                binding = {
+                  key = "C";
+                  mods = "Control|Shift";
+                };
+              }
+            ];
+          };
+        };
+      };
+
+    ghostty = {
+      enable = true;
+      enableZshIntegration = true;
+      settings = {
+        mouse-hide-while-typing = true;
+
+        copy-on-select = "clipboard";
+
+        app-notifications = "no-clipboard-copy";
+
+        background-opacity = 0.95;
+        background = "#0d0d0d";
+        background-blur = false;
+        gtk-titlebar = false;
+
+        shell-integration-features = "no-cursor";
+
+        confirm-close-surface = false;
+
+        font-feature = "-calt, -liga, -dlig";
+
+        bell-features = "no-title";
+
+        keybind = [
+          "alt+v=paste_from_clipboard"
+          "ctrl+enter=unbind"
+          "ctrl+shift+f=unbind"
+          "ctrl+shift+o=unbind"
+          "ctrl+shift+t=unbind"
+          "ctrl+shift+p=unbind"
+          "ctrl+shift+i=unbind"
+        ];
+      };
+    };
+
+    atuin = {
+      enable = true;
+      settings = {
+        show_preview = true;
+        max_preview_height = 5;
+        history_filter = [ "DONOTTRACK" ];
+        inline_height = 25;
+        update_check = false;
+
+        # Self-hosted sync via SSH tunnel to nuc. Tunnel + sync is driven
+        # by the atuin-sync systemd user timer (see atuin-sync.nix).
+        sync_address = "http://127.0.0.1:49888";
+        auto_sync = false;
+      };
+    };
+
+    bash.enable = true;
+
+    direnv = {
+      enable = true;
+      enableBashIntegration = true;
+      nix-direnv = {
+        enable = true;
+        package = pkgs.masterPkgs.nix-direnv;
+      };
+      enableZshIntegration = true;
+    };
+
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true;
+        features = "side-by-side line-numbers decorations";
+      };
+    };
+
+    jujutsu = {
+      enable = true;
+      settings = {
+        user = {
+          name = "Markus Hauck";
+          email = "markus1189@gmail.com";
+        };
+
+        merge-tools = {
+          ediff = {
+            merge-args = [
+              "merge"
+              "$left"
+              "$right"
+              "$base"
+              "$output"
+            ];
+            diff-args = [
+              "diff-dir"
+              "$left"
+              "$right"
+            ];
+            edit-args = [
+              "diff-dir"
+              "$left"
+              "$right"
+            ];
+            program = "${pkgs.myScripts.emacs-ediff-dispatch}/bin/ediff-dispatch";
+          };
+        };
+
+        revsets = {
+          log = "@ | ancestors(immutable_heads().., 5) | trunk()";
+        };
+
+        ui = {
+          default-command = [ "log" ];
+        };
+      };
+    };
+
+    mpv = {
+      enable = true;
+      package = pkgs.mpv.override {
+        scripts = with pkgs.mpvScripts; [
+          # Its default g/G/h/H keys (segment submission and votes) outrank
+          # mpv's builtin g-* prefix menus (g-h history, g-c chapters, ...),
+          # and even a user input.conf g-h does not win. Drop the keys; the
+          # named bindings stay reachable via script-binding sponsorblock/<name>.
+          (sponsorblock.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              sed -Ei 's/mp\.add_key_binding\("[gGhH]", /mp.add_key_binding(nil, /' sponsorblock.lua
+            '';
+          }))
+          mpris
+          smartskip
+          mpv-notify-send
+        ];
+      };
+
+      # Values are emitted in mpv's %<len>%<value> form, so spaces, quotes
+      # and '#' need no quoting of their own here.
+      config = {
+        write-filename-in-watch-later-config = true;
+        save-position-on-quit = true;
+        # Enables the built-in g-h watch history menu (select.lua)
+        save-watch-history = true;
+        osd-msg3 = "\${time-pos} / \${duration} [\${playtime-remaining} @ \${speed}]";
+        osd-duration = 5000;
+        osd-font-size = 40;
+
+        # Video output
+        vo = "gpu-next";
+        gpu-api = "vulkan";
+        # Pin render to the Intel iGPU -- libplacebo otherwise defaults to the
+        # discrete NVIDIA dGPU, which wakes it and forces an Intel->NVIDIA copy.
+        # (p1 is Intel-only, so this name simply won't match there and is ignored.)
+        vulkan-device = "Intel(R) Graphics (ARL)";
+        hwdec = "vaapi,nvdec-copy";
+
+        # Debanding
+        deband = true;
+        deband-iterations = 2;
+        deband-threshold = 35;
+        deband-range = 16;
+        deband-grain = 5;
+
+        volume-max = 300;
+
+        # Any non-empty sub-langs stops ytdl_hook from adding `--sub-langs all`
+        # (every machine-translated track). Keep in sync with yt-dlp.conf.
+        ytdl-raw-options-append = "sub-langs=en.*,de-orig";
+      };
+
+      profiles.stream = {
+        cache = true;
+        demuxer-max-bytes = "1000MiB";
+        demuxer-readahead-secs = 60;
+        cache-secs = 600;
+        prefetch-playlist = true;
+      };
+
+      bindings = {
+        "!" =
+          ''run sh -c "echo ''${path} >> list.txt && notify-send mpv \"Saved ''${path} to ''${working-directory}/list.txt\""'';
+      };
+    };
+
+    password-store = {
+      enable = true;
+      package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
+      settings = {
+        PASSWORD_STORE_DIR = passDir;
+      };
+    };
+
+    autorandr = {
+      enable = true;
+      # Profiles are per-host (different panels + connector enumeration):
+      # p1/home.nix and p1g8/home.nix, merged in via
+      # home-manager.users.*.imports in each configuration.nix.
+    };
+
+    rofi = {
+      enable = true;
+
+      # Was a hand-written ~/.config/rofi/config.rasi: the packaged Arc-Dark
+      # theme plus our accent overrides. mkLiteral keeps colour and variable
+      # references unquoted, which rasi requires.
+      theme =
+        let
+          inherit (config.lib.formats.rasi) mkLiteral;
+        in
+        {
+          "@import" = "${pkgs.rofi}/share/rofi/themes/Arc-Dark.rasi";
+
+          "*" = {
+            accent = mkLiteral "#f3843d";
+            accent-text = mkLiteral "#000000";
+            selected-normal-background = mkLiteral "@accent";
+            selected-normal-foreground = mkLiteral "@accent-text";
+            selected-active-background = mkLiteral "@accent";
+            selected-active-foreground = mkLiteral "@accent-text";
+            selected-urgent-background = mkLiteral "#cc4444";
+            selected-urgent-foreground = mkLiteral "#ffffff";
+          };
+
+          "element selected, element selected.active, element-text selected, element-text selected.active" = {
+            background-color = mkLiteral "@accent";
+            text-color = mkLiteral "@accent-text";
+          };
+        };
+    };
+
+    sioyek = {
+      enable = true;
+      bindings = {
+        "next_page" = "J";
+        "previous_page" = "K";
+      };
+    };
+
+    fd = {
+      enable = true;
+    };
+  };
 
   services = {
     picom = {
@@ -1049,13 +1055,8 @@
       maxCacheTtl = 60 * (14 * 60 + 45);
     };
 
-    pass-secret-service = {
-      enable = true;
-      # mkForce needed: password-store module auto-sets storePath to
-      # PASSWORD_STORE_DIR ("$HOME/..."), but $HOME isn't expanded in
-      # systemd ExecStart args, causing pass_secret_service to crash.
-      storePath = pkgs.lib.mkForce "${config.home.homeDirectory}/.local/share/password-store";
-    };
+    # storePath comes from programs.password-store's PASSWORD_STORE_DIR.
+    pass-secret-service.enable = true;
 
   };
 
