@@ -198,7 +198,9 @@ in
       };
 
       model = "opus";
-      effortLevel = "low";
+      # A top-level effortLevel in user settings only applies to a few
+      # legacy models; newer ones read the per-model key (as /effort writes).
+      modelSettings.opus.effortLevel = "low";
       viewMode = "verbose";
       showThinkingSummaries = true;
       alwaysThinkingEnabled = true;
