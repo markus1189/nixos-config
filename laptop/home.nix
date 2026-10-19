@@ -202,8 +202,8 @@ in
                     };
                   };
 
-                  "sference/deepseek-v4.1-flash" = {
-                    name = "DeepSeek V4.1 Flash";
+                  "sference/deepseek-v4.1-flash-1017" = {
+                    name = "DeepSeek V4.1 Flash 1017";
                     capabilities = {
                       input = [
                         "text"

@@ -104,8 +104,8 @@
           ]
         },
         {
-          "id": "sference/deepseek-v4.1-flash",
-          "name": "DeepSeek V4.1 Flash (Requesty/Sference EU)",
+          "id": "sference/deepseek-v4.1-flash-1017",
+          "name": "DeepSeek V4.1 Flash 1017 (Requesty/Sference EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [

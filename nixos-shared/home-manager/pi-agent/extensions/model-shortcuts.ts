@@ -25,7 +25,7 @@ const SLOTS: Record<(typeof SHORTCUT_KEYS)[number], ModelRef[]> = {
   f1: [
     {
       provider: "requesty-completions",
-      modelId: "sference/deepseek-v4.1-flash",
+      modelId: "sference/deepseek-v4.1-flash-1017",
     },
   ],
   f2: [

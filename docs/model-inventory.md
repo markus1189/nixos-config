@@ -69,7 +69,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
-| `sference/deepseek-v4.1-flash` (vision) | `pi-agent/models.json` (requesty-completions), `laptop/home.nix` (opencode); F1 default in `model-shortcuts.ts` |
+| `sference/deepseek-v4.1-flash-1017` (vision) | `pi-agent/models.json` (requesty-completions), `laptop/home.nix` (opencode); F1 default in `model-shortcuts.ts` |
 | `sference/glm-5.3` | `pi-agent/models.json`, `laptop/home.nix` (opencode, text-only); F4 primary |
 | `sference/glm-5.3-flash` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode); F4 cycle |
 | `tensorx/kimi-k3` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
@@ -125,7 +125,7 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 
 | Key | Requesty primary | OpenRouter fallback |
 |-----|------------------|---------------------|
-| F1 | `sference/deepseek-v4.1-flash` | — |
+| F1 | `sference/deepseek-v4.1-flash-1017` | — |
 | F2 | `bedrock/claude-opus-5-5@eu-central-1` | `anthropic/claude-opus-5.5` |
 | F3 | `vertex/claude-sonnet-5-5@eu` | `anthropic/claude-sonnet-5.5` |
 | F4 | `sference/glm-5.3` → `sference/glm-5.3-flash` | — |
