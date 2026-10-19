@@ -41,6 +41,10 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
+      // Read before navigateTree moves the leaf: names the branch being left.
+      const sessionFile = ctx.sessionManager.getSessionFile();
+      const oldLeafId = ctx.sessionManager.getLeafId();
+
       // Branch to the root: the tree is preserved, history stays reachable via /tree.
       //
       // "Root" = the end of the leading settings run (model_change / thinking_level_change),
@@ -75,9 +79,14 @@ export default function (pi: ExtensionAPI) {
       // into a plain role "user" message, so without it the model receives the carried reply
       // as if the user had typed it, with no hint of where it came from. It renders as a
       // distinct block in the UI, but the model only ever sees the text.
+      // The old branch stays in the same session file: entries are JSONL with id/parentId,
+      // so walking parentId up from the old leaf recovers it on demand.
+      const origin = sessionFile
+        ? `\nEarlier branch: session file ${sessionFile}, leaf entry ${oldLeafId} (follow parentId to the root).`
+        : "";
       pi.sendMessage({
         customType: "popout-context",
-        content: `[popout] Your own last reply, carried into a fresh branch as the only context:\n\n${text}`,
+        content: `[popout] Your own last reply, carried into a fresh branch as the only context.${origin}\n\n${text}`,
         display: true,
       });
 
