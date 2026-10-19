@@ -510,7 +510,10 @@ in
       bindings = [
         {
           context = "Chat";
-          bindings."ctrl+x m" = "command:marginal";
+          bindings = {
+            "ctrl+x m" = "command:marginal";
+            "ctrl+x p" = "command:popout";
+          };
         }
       ];
     };
