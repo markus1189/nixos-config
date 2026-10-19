@@ -28,6 +28,7 @@ let
     '';
 in
 builtins.mapAttrs mkClaudeMod {
+  popout = ./popout;
   tps-meter = ./tps-meter;
   marginal = marginal + "/share/claude-code/mods/marginal";
 }
