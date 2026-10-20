@@ -17,6 +17,7 @@ Usage: phone-tunnel start [LIMIT]   open the tunnel; closes itself after LIMIT (
        phone-tunnel stop            close it now
        phone-tunnel status
        phone-tunnel alias           print the alias the phone's ssh config needs
+       phone-tunnel termux-config   print a block to paste into Termux: pinned host keys + ssh config
 EOF
 }
 
@@ -36,6 +37,27 @@ tunnel_alias() {
     )
   fi
   cat "$alias_file"
+}
+
+termux_config() {
+  local host=${HOSTNAME%%.*}
+  host=${host#nixos-}
+  cat <<EOF
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+cat >> ~/.ssh/known_hosts <<'KH'
+$(cat "$SERVEO_KNOWN_HOSTS")
+$host $(cut -d' ' -f1,2 /etc/ssh/ssh_host_ed25519_key.pub)
+KH
+cat >> ~/.ssh/config <<'CFG'
+Host $host
+  HostName $(tunnel_alias)
+  Port $port
+  User $USER
+  ProxyJump serveo.net
+  HostKeyAlias $host
+  StrictHostKeyChecking yes
+CFG
+EOF
 }
 
 # The pane, not the session: a global remain-on-exit keeps dead panes around.
@@ -119,6 +141,7 @@ start) start "${2:-}" ;;
 stop) stop ;;
 status) status ;;
 alias) tunnel_alias ;;
+termux-config) termux_config ;;
 _run) run "$2" ;;
 *)
   usage
