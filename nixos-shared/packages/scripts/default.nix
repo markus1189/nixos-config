@@ -16,6 +16,7 @@
   gawk,
   git,
   gnugrep,
+  gnupg,
   gnuplot,
   gnused,
   haskellPackages,
@@ -41,6 +42,7 @@
   scrot,
   sqlite,
   systemd,
+  openssh,
   tmux,
   unixtools,
   wmctrl,
@@ -259,6 +261,32 @@ rec {
     excludeShellChecks = [ "SC2016" ];
     text = builtins.readFile ./kb-index.sh;
   };
+
+  # Phone -> this host's sshd through a serveo private alias, for Termux.
+  phoneTunnel =
+    let
+      # Pinned, matching the fingerprint serveo.net/docs publishes
+      # (SHA256:GnmVK+70U6GqbupoV+gg7LnHHUsW1IjrK0cLqvDJxIk).
+      serveoKnownHosts = writeText "serveo-known-hosts" ''
+        serveo.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGX8CMtRKSA58fmA3I6oat6+7Z6VUwGbzYUE5FVrA3g1
+      '';
+    in
+    writeShellApplication {
+      name = "phone-tunnel";
+      runtimeInputs = [
+        coreutils
+        gnugrep
+        gnupg
+        notifySendTelegram
+        openssh
+        tmux
+      ];
+      inheritPath = false;
+      text = ''
+        readonly SERVEO_KNOWN_HOSTS=${serveoKnownHosts}
+      ''
+      + builtins.readFile ./phone-tunnel.sh;
+    };
 
   # Ledger miner for /mh:retro-week. Was ~/Stuff/.kb/retro-scan.
   kbRetroScan = writeShellApplication {

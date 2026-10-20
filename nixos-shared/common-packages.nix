@@ -73,6 +73,7 @@
         myScripts.tmuxPollPane
         myScripts.chronic-file
         myScripts.gemini-vision
+        myScripts.phoneTunnel
       ]);
   };
 }
