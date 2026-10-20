@@ -20,6 +20,8 @@ Top stories, search over stories and comments, and full comment threads, through
 ./scripts/hn-cli.sh -t ID -n 800             # bigger budget
 ./scripts/hn-cli.sh -t ID --since "2026-10-08 07:40"  # only newer comments; ancestors as one-line context
 ./scripts/hn-cli.sh -t COMMENT_ID            # one comment and its replies, headed by its story
+./scripts/hn-cli.sh --delta FILE 50          # New/Movers tables against a daily file
+./scripts/dive-prompt.sh --check N ID...     # deep-dive prompts; see references/deep-dives.md
 ```
 
 - **Search is exact**: typos are not matched and every word is required. `--fuzzy` turns

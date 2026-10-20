@@ -28,6 +28,10 @@ readonly HOT_FACTOR=3
 readonly SCORE_HOT_THRESHOLD=$((HOT_THRESHOLD * HOT_FACTOR))  # 300
 readonly COMMENT_HOT_THRESHOLD=$HOT_THRESHOLD                  # 100
 
+# --delta: a seen story counts as moved past either gain
+readonly MOVER_POINTS=50
+readonly MOVER_COMMENTS=30
+
 # Terminal width for text wrapping
 readonly TERM_WIDTH="${COLUMNS:-80}"
 
@@ -53,6 +57,7 @@ Usage: ${0##*/} [OPTIONS] [COUNT]
        ${0##*/} --comments ID [OPTIONS]
        ${0##*/} --thread ID [OPTIONS]
        ${0##*/} --search QUERY [OPTIONS]
+       ${0##*/} --delta FILE [COUNT]
 
 Fetch and display Hacker News stories or comments.
 
@@ -62,6 +67,9 @@ Modes:
   -t, --thread ID   Dump the full comment tree in ONE request via Algolia (plain text);
                     a comment ID dumps its subthread, headed by the story it belongs to
   -s, --search QUERY  Search stories or comments via Algolia
+  --delta FILE      Top COUNT stories against a daily file (hn-daily.md): markdown
+                    tables of New (no item?id= link in FILE) and Movers (+>${MOVER_POINTS} points
+                    or +>${MOVER_COMMENTS} comments since the last numbers FILE holds for them)
 
 Story Options:
   COUNT             Number of stories to display (default: ${DEFAULT_STORY_COUNT}, max: 500)
@@ -104,6 +112,7 @@ Examples:
   ${0##*/} -t 46691835                     # Full thread, one request, up to ${DEFAULT_THREAD_COMMENTS} comments
   ${0##*/} --thread 46691835 -n 800        # Monster threads
   ${0##*/} -t 46691835 --since "8 hours ago"  # Only what is new, with context
+  ${0##*/} --delta hn-daily.md 50        # What's new or moving since the last check
   ${0##*/} -s "rust programming"           # Search for Rust stories (recent first)
   ${0##*/} --search "AI" --sort popular    # Search for AI stories (by popularity)
   ${0##*/} -s "nix" 50                     # Search Nix stories, show 50 results
@@ -814,6 +823,66 @@ show_stories() {
     echo -e "${DIM}Tip: Use '${0##*/} --comments ID' to view comments for a story${RESET}"
 }
 
+# One TSV line per story: id, score, comments, title
+fetch_story_tsv() {
+    curl --fail -s --max-time 10 "${API_BASE}/item/$1.json" \
+        | jq -r 'select(.id) | [.id, .score // 0, .descendants // 0, (.title // "untitled")] | @tsv'
+}
+
+# The daily file's last numbers per story come from briefing rows (| Pts | 💬 |),
+# Movers rows (Now = pts/comments) and dive metadata (**N pts · N 💬**).
+show_delta() {
+    local file=$1 limit=$2 raw_ids
+    if ! raw_ids=$(curl --fail -s --max-time 10 "${API_BASE}/topstories.json"); then
+        echo "Error: Failed to fetch top stories." >&2
+        exit 1
+    fi
+    export -f fetch_story_tsv
+    export API_BASE
+    jq -r ".[:${limit}][]" <<< "$raw_ids" \
+        | parallel -k -j 20 fetch_story_tsv {} \
+        | gawk -F'\t' -v mp="$MOVER_POINTS" -v mc="$MOVER_COMMENTS" '
+            NR == FNR {
+                line = $0
+                gsub(/\\\|/, "\x1e", line)  # an escaped | in a title is not a column
+                while (match(line, /item\?id=([0-9]+)/, m)) {
+                    id = m[1]; seen[id] = 1; rest = substr(line, RSTART + RLENGTH)
+                    n = split(line, c, "|")
+                    if (n >= 6 && c[3] ~ /^ *[0-9]+ *$/ && c[4] ~ /^ *[0-9]+ *$/) {
+                        pts[id] = c[3] + 0; cmt[id] = c[4] + 0
+                    } else if (n >= 5 && match(c[4], /^ *([0-9]+)\/([0-9]+) *$/, w)) {
+                        pts[id] = w[1]; cmt[id] = w[2]
+                    } else if (match(line, /\*\*([0-9]+) pts · ([0-9]+) 💬/, w)) {
+                        pts[id] = w[1]; cmt[id] = w[2]
+                    }
+                    line = rest  # the matches above moved RSTART
+                }
+                next
+            }
+            {
+                id = $1; title = $4; gsub(/\|/, "\\|", title)
+                link = "[" title "](https://news.ycombinator.com/item?id=" id ")"
+                if (!(id in seen)) {
+                    new[++nn] = sprintf("| %s | %d | %d | %s |  |", link, $2, $3, id)
+                } else if (id in pts && ($2 - pts[id] > mp || $3 - cmt[id] > mc)) {
+                    mov[++nm] = sprintf("| %s | %d/%d | %d/%d | %+d/%+d |", link,
+                        pts[id], cmt[id], $2, $3, $2 - pts[id], $3 - cmt[id])
+                }
+            }
+            END {
+                print "### New"
+                if (nn) {
+                    print "| Story | Pts | 💬 | ID | Note |"; print "| --- | --- | --- | --- | --- |"
+                    for (i = 1; i <= nn; i++) print new[i]
+                } else print "none"
+                print ""; print "### Movers"
+                if (nm) {
+                    print "| Story | Was | Now | Δ |"; print "| --- | --- | --- | --- |"
+                    for (i = 1; i <= nm; i++) print mov[i]
+                } else print "none"
+            }' "$file" -
+}
+
 # Parse arguments
 MODE="stories"
 STORY_ID=""
@@ -854,6 +923,15 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             STORY_ID="$2"
+            shift 2
+            ;;
+        --delta)
+            MODE="delta"
+            if [[ ! -f "${2:-}" ]]; then
+                echo "Error: --delta requires an existing daily file" >&2
+                exit 1
+            fi
+            DELTA_FILE="$2"
             shift 2
             ;;
         -s|--search)
@@ -987,6 +1065,12 @@ elif [[ "$MODE" == "thread" ]]; then
         exit 1
     fi
     show_thread "$STORY_ID" "$THREAD_DEPTH" "$THREAD_MAX" "$SINCE_EPOCH"
+elif [[ "$MODE" == "delta" ]]; then
+    if ! [[ "$STORY_COUNT" =~ ^[0-9]+$ ]] || ((STORY_COUNT < 1 || STORY_COUNT > 500)); then
+        echo "Error: COUNT must be a number between 1 and 500" >&2
+        exit 1
+    fi
+    show_delta "$DELTA_FILE" "$STORY_COUNT"
 elif [[ "$MODE" == "search" ]]; then
     if [[ -z "$SEARCH_QUERY" ]]; then
         echo "Error: Search query cannot be empty" >&2

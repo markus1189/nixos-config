@@ -8,27 +8,22 @@ A deep dive runs as a **subagent** — it fetches the article + comments and ret
 structured markdown summary, keeping the raw content out of the main context.
 
 **How to launch one:**
-1. Read [`deepdive-prompt.md`](../deepdive-prompt.md).
-2. Substitute `{{STORY_ID}}`, `{{ARTICLE_URL}}` (empty for Ask HN / no link),
-   `{{STORY_TITLE}}`, `{{CHECK_N}}` (which check this dive belongs to), `{{HN_CLI}}` →
-   absolute path to `scripts/hn-cli.sh`, resolving `./scripts/` against the directory
-   containing SKILL.md, `{{READER_PROFILE}}` → the body of [interests.md](interests.md) (everything below its title),
-   and `{{TAG_VOCAB}}` → the bullet list under [Tag vocabulary](#tag-vocabulary). Drop the
-   article-fetch step when there's no URL.
-3. Spawn a subagent with that filled-in text as its prompt. Its result *is* the summary —
-   read it directly, no temp files.
+1. `scripts/dive-prompt.sh --check N ID...` (absolute path, resolved against SKILL.md's
+   directory) fills the template from Firebase, [interests.md](interests.md) and the
+   [Tag vocabulary](#tag-vocabulary), and prints one prompt path per ID.
+2. Spawn one subagent per path, all in parallel, with the prompt `Read <path> and follow it.`
+   Each writes its dive to `ID.out.md` next to the prompt; read those for the 🔗/💬 blocks below.
+3. `scripts/dive-prompt.sh --collect "$(stuff-today --default)/hn-daily.md" ID...` appends
+   them verbatim in the given order, or nothing if one is missing.
 
 **Re-dive** (story already dived today): don't repeat the dive. Have the subagent read the
 earlier dive (`treemd -s "<Title> [ID]" hn-daily.md`) and dump only
 `-t ID --since "<date> <HH:MM of the Check heading that dive sits under>"`, then report what is
 new, reinforced or contradicted. Append it as `## <Title>: thread delta [ID]`.
 
-**Parallel deep-dives** — spawn **multiple deep-dive subagents in parallel**; collect each
-one's summary when they return. (No `&`/`wait`, no `/tmp` files.)
-
 Output is a `##` heading + metadata line + `###` subsections (TL;DR, Key Points, HN Discussion
-Themes, ⭐ High-Profile Commenters, Notable Comments, Linked Artifacts, Cited Papers, Meta) —
-append it verbatim, see "Dive metadata contract" below.
+Themes, ⭐ High-Profile Commenters, Notable Comments, Linked Artifacts, Cited Papers, Meta), see
+"Dive metadata contract" below.
 
 ### Dive metadata contract
 
@@ -68,7 +63,7 @@ Promote a free tag into the canonical list once it recurs in 3 dives.
 
 ### Ghost thread auto-follow
 
-If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically launch a second deep-dive subagent on that linked thread — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
+If a deep dive returns a **ghost thread** (≤5 comments, thin discussion) that **explicitly links to another HN item** as "the real discussion," automatically launch a second deep-dive on that linked thread (`dive-prompt.sh --check N <linked id>`) — do not ask the user first. Treat it as part of the same request. Present the result under the original story's heading with a note like: *"Ghost thread → auto-followed to [47114579]"*.
 
 ## Comment Mining
 

@@ -30,25 +30,19 @@ No `hn-daily.md` for today → full briefing mode (below). Then:
 3. Run `kb-index`
 
 ### Subsequent checks (file exists)
-1. Read file, collect already-handled ids (dedup below)
-2. Fetch top N
-3. Delta: **New** = ids not in file; **Movers** = score +>50 or comments +>30 against the
-   `Pts`/`💬` columns of the earlier check tables (that's where the previous numbers live)
-4. Write `## Check N — HH:MM` **before** presenting
-5. Present delta only
-6. Dives → append **before** presenting summaries
-7. Run `kb-index`
+1. `scripts/hn-cli.sh --delta "$(stuff-today --default)/hn-daily.md" 50` prints the New and
+   Movers tables (format below): New = no `item?id=` link in the file (dedup below), Movers =
+   score +>50 or comments +>30 against the file's last numbers for the story
+2. Fill the Note column, then write `## Check N — HH:MM` **before** presenting
+3. Present delta only
+4. Dives → append **before** presenting summaries
+5. Run `kb-index`
 
 ### Seen-story dedup
 
 No state block. The tables are the state — briefing titles and dive metadata lines both link
-the thread:
-
-```bash
-grep -oE 'item\?id=[0-9]+' "$(stuff-today --default)/hn-daily.md" | sort -u
-```
-
-Match `item?id=`, never bare 7–9 digit numbers: dive bodies cite comment ids as `[49379070]`,
+the thread, and `--delta` reads them. Match `item?id=`, never bare 7–9 digit numbers: dive
+bodies cite comment ids as `[49379070]`,
 which a numeric grep counts as seen stories and silently hides real ones.
 
 Disposition goes in the Note column (`skipped — job ad`). Dived stories have their own `##`.

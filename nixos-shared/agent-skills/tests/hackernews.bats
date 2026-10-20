@@ -38,6 +38,7 @@ echo "\$url\$params" >> "\$FAKE_CURL_LOG"
 case "\$url" in
     *hn.algolia.com/api/v1/items/*) route="algolia-item-\${url##*/}" ;;
     *hn.algolia.com/api/v1/search*) route="algolia-search" ;;
+    *firebaseio.com/v0/topstories.json) route="firebase-topstories" ;;
     *firebaseio.com/v0/item/*) id="\${url##*/}"; route="firebase-item-\${id%.json}" ;;
     *) route="unknown" ;;
 esac
@@ -50,6 +51,10 @@ EOF
 
 hn() {
     bash "$SCRIPT" "$@"
+}
+
+dive() {
+    bash "$BATS_TEST_DIRNAME/../hackernews/scripts/dive-prompt.sh" --dir "$BATS_TEST_TMPDIR/dives" "$@"
 }
 
 answer() { # answer ROUTE FIXTURE
@@ -202,4 +207,61 @@ thread_fixture() {
     assert_success
     assert_output --partial "  1 Documenting software architecture with arc42 [200] · 146 pts · 32 comments · 2022-08-05"
     refute grep -q firebaseio "$FAKE_CURL_LOG"
+}
+
+# --- delta -------------------------------------------------------------------
+
+@test "delta: an id cited only in a dive body is new; movers need more than +50/+30" {
+    answer firebase-topstories topstories.json
+    for id in 300 400 500; do answer "firebase-item-$id" "firebase-item-$id.json"; done
+    run hn --delta "$FIX/delta-daily.md" 3
+    assert_success
+    assert_output --partial "| [Only cited as a comment](https://news.ycombinator.com/item?id=400) | 20 | 3 | 400 |  |"
+    assert_output --partial "| [Gains 51 points](https://news.ycombinator.com/item?id=300) | 100/10 | 151/10 | +51/+0 |"
+    refute_output --partial "item?id=500"
+}
+
+# --- dive-prompt -------------------------------------------------------------
+
+@test "dive-prompt: fills every placeholder and points the dive at its out file" {
+    answer firebase-item-300 firebase-item-300.json
+    run dive --check 2 300
+    assert_success
+    assert_output "$BATS_TEST_TMPDIR/dives/300.prompt.md"
+    run cat "$output"
+    refute_output --partial "{{"
+    assert_output --partial "## Gains 51 points [300]"
+    assert_output --partial "curl -sL 'https://example.com/300'"
+    assert_output --partial "dive @ check 2"
+    assert_output --partial "\`ai-agents\`"
+    assert_output --partial "Write ONLY the markdown document to \`$BATS_TEST_TMPDIR/dives/300.out.md\`"
+}
+
+@test "dive-prompt: no article url drops the fetch task and the domain link" {
+    answer firebase-item-601 firebase-item-601.json
+    run dive --check 1 601
+    assert_success
+    run cat "$output"
+    refute_output --partial "{{"
+    refute_output --partial "Fetch the article"
+    refute_output --partial "bare.domain"
+    assert_output --partial 'Ask HN: What does "done" mean? [601]'
+    assert_line --regexp '^1\. Fetch the full thread'
+    assert_line --regexp '^3\. Collect every outbound link'
+}
+
+@test "dive-prompt: --collect appends in argument order, or nothing if one is missing" {
+    mkdir -p "$BATS_TEST_TMPDIR/dives"
+    echo "## B [2]" > "$BATS_TEST_TMPDIR/dives/2.out.md"
+    echo "# daily" > "$BATS_TEST_TMPDIR/daily.md"
+    run dive --collect "$BATS_TEST_TMPDIR/daily.md" 1 2
+    assert_failure
+    assert_output --partial "1.out.md"
+    run cat "$BATS_TEST_TMPDIR/daily.md"
+    assert_output "# daily"
+    echo "## A [1]" > "$BATS_TEST_TMPDIR/dives/1.out.md"
+    run dive --collect "$BATS_TEST_TMPDIR/daily.md" 2 1
+    assert_success
+    run cat "$BATS_TEST_TMPDIR/daily.md"
+    assert_output $'# daily\n\n## B [2]\n\n## A [1]'
 }

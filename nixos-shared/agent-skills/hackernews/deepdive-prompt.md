@@ -1,6 +1,6 @@
 # Deep-Dive Subagent Prompt
 
-Substitute before launching:
+`scripts/dive-prompt.sh` fills these; never substitute by hand:
 
 - `{{STORY_ID}}` — HN item id
 - `{{ARTICLE_URL}}` — article URL, or empty for Ask HN / text-only Show HN
@@ -9,10 +9,11 @@ Substitute before launching:
 - `{{HN_CLI}}` — absolute path to this skill's `scripts/hn-cli.sh`
 - `{{READER_PROFILE}}` — the body of `references/interests.md` (everything below its title), pasted verbatim
 - `{{TAG_VOCAB}}` — the bullet list under `### Tag vocabulary` in `references/deep-dives.md`, pasted verbatim
+- `{{OUT_FILE}}` — where the dive document goes, `DIR/ID.out.md`
 
 Those files are the single source for both; don't keep a copy here.
 
-If `{{ARTICLE_URL}}` is empty, drop task 1 and renumber.
+With no article URL it drops task 1, renumbers, and drops the domain link.
 
 ---
 
@@ -41,7 +42,7 @@ Weight themes, quotes and links toward these interests:
 
 ## Output Format
 
-Return one markdown document. The `##` heading, the two metadata lines, and `###` subsections are a fixed contract — the caller appends this verbatim to a file indexed by `##` heading only.
+Produce one markdown document. The `##` heading, the two metadata lines, and `###` subsections are a fixed contract — the caller appends this verbatim to a file indexed by `##` heading only.
 
 ```markdown
 ## {{STORY_TITLE}} [{{STORY_ID}}]
@@ -87,4 +88,4 @@ Free tags: lowercase, hyphenated, specific (`lean4`, `sondehub`, `cricut`) — n
 - Preserve technical accuracy; don't simplify jargon.
 - Paywalled or empty article → say so explicitly, focus on comments.
 - **Ghost thread** (few comments, thin) that points to another HN item as the real discussion → say so and give that item's id/URL so the caller can follow it.
-- Final message is ONLY the markdown document. No preamble, no sign-off.
+- Write ONLY the markdown document to `{{OUT_FILE}}`: no preamble, no sign-off. Your final message is just that path.
