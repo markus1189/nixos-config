@@ -65,10 +65,9 @@ is_open() {
   [[ $(tmux list-panes -t "=$session" -F '#{pane_dead}' 2>/dev/null) == 0 ]]
 }
 
-# Clearing the cache matters because the usual reason to open the tunnel is
-# to unlock gpg from the phone.
+# No gpg-agent flush: it would also drop passphrases unlocked at the desk.
+# A phone unlock expires with the agent's cache TTLs.
 cleanup() {
-  gpgconf --reload gpg-agent || true
   notify "phone-tunnel closed ($1)"
 }
 

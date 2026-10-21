@@ -32,11 +32,11 @@ SSH runs from Termux straight to this host's sshd. Background and evidence:
    export GPG_TTY=$(tty); gpg-connect-agent updatestartuptty /bye
    echo test | gpg --clearsign >/dev/null
    ```
-   Check the cache: `gpg-connect-agent 'keyinfo --list' /bye | awk '$7=="1"'`. Do the work that
-   needs it (signed commits, `pass`) **before** closing: closing clears the cache.
-4. `phone-tunnel stop` when done (it also closes itself at the limit). Both clear the gpg
-   cache and notify. Remind the user that pinentry now points at the closed Termux tty until
-   they run `gpg-connect-agent updatestartuptty /bye` in a desktop terminal.
+   Check the cache: `gpg-connect-agent 'keyinfo --list' /bye | awk '$7=="1"'`. Closing the
+   tunnel keeps the cache (it expires with gpg-agent's TTLs), so signing works after `stop`.
+4. `phone-tunnel stop` when done (it also closes itself at the limit). Both notify. Remind the
+   user that pinentry now points at the closed Termux tty until they run
+   `gpg-connect-agent updatestartuptty /bye` in a desktop terminal.
 
 ## Trouble
 
