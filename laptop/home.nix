@@ -351,6 +351,11 @@ in
           text = builtins.readFile ../nixos-shared/home-manager/opencode/terminal-bell.ts;
         };
 
+        "opencode-plugin-popout" = {
+          target = ".config/opencode/plugins/popout/tui.ts";
+          text = builtins.readFile ../nixos-shared/home-manager/opencode/popout.ts;
+        };
+
         # The whole directory: tui.ts imports its siblings, resolved from the
         # store path opencode loads it by.
         "opencode-plugin-marginal" = {
