@@ -1692,11 +1692,33 @@ string). It returns t if a new completion is found, nil otherwise."
   ;; The :init configuration is always executed (Not lazy)
   :init
 
+  ;; Reads the database instead of running `fasd -Rl': fasd tests every entry
+  ;; with `[ -e ]', and each stat under an rclone mount whose dir cache has
+  ;; expired costs ~0.45s, which stalled `consult-buffer' for seconds.
+  ;; Ranking mirrors fasd's default `times * frecent(last-access)'.
   (defun mh/fasd-paths ()
     "Paths from the fasd frecency database, most frecent first."
-    (mapcar #'abbreviate-file-name
-            (seq-remove #'string-blank-p
-                        (ignore-errors (process-lines "fasd" "-Rl")))))
+    (let ((file (or (getenv "_FASD_DATA")
+                    (expand-file-name "fasd" (or (getenv "XDG_CACHE_HOME") "~/.cache"))))
+          (now (float-time))
+          (scores (make-hash-table :test #'equal)))
+      (when (file-readable-p file)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (dolist (line (split-string (buffer-string) "\n" t))
+            (pcase (split-string line "|")
+              (`(,path ,rank ,time)
+               (let ((dx (- now (string-to-number time))))
+                 (puthash path
+                          (+ (gethash path scores 0)
+                             (* (string-to-number rank)
+                                (cond ((< dx 3600) 6) ((< dx 86400) 4)
+                                      ((< dx 604800) 2) (t 1))))
+                          scores)))))))
+      (let (entries)
+        (maphash (lambda (path score) (push (cons score path) entries)) scores)
+        (mapcar (lambda (entry) (abbreviate-file-name (cdr entry)))
+                (sort entries (lambda (a b) (> (car a) (car b))))))))
 
   (defun mh/consult-fasd ()
     "Open a file or directory from the fasd frecency database."
@@ -1704,7 +1726,7 @@ string). It returns t if a new completion is found, nil otherwise."
     ;; The database is small enough (hundreds of entries) to read in one go,
     ;; which leaves the filtering to orderless instead of to fasd's matcher.
     (let ((paths (mh/fasd-paths)))
-      (unless paths (user-error "No fasd entries -- is fasd on PATH?"))
+      (unless paths (user-error "No fasd entries"))
       (find-file (consult--read paths
                                 :prompt "fasd: "
                                 :category 'file
