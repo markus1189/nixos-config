@@ -34,7 +34,6 @@
         cloc
         coreutils
         discord
-        docker-compose
         dmenu
         ddgr
         deluge

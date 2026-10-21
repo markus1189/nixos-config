@@ -10,7 +10,6 @@
     extraGroups = [
       "wheel"
       "audio"
-      "docker"
       "lp"
     ];
     shell = "${pkgs.zsh}/bin/zsh";

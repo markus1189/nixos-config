@@ -322,23 +322,6 @@
   };
 
   virtualisation = {
-    docker = {
-      enable = true;
-      extraOptions = "--bip='172.30.0.1/16'"; # Change to avoid conflicts in routing
-
-      daemon = {
-        settings = {
-          default-ulimits = {
-            nofile = {
-              Name = "nofile";
-              Hard = 8192; # MongoDB is not happy with lower limits
-              Soft = 8192;
-            };
-          };
-        };
-      };
-    };
-
     podman = {
       enable = true;
     };
