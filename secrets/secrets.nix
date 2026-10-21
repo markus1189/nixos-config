@@ -56,4 +56,5 @@ in
   "authinfo.age".publicKeys = all;
   "reddit-visidata.age".publicKeys = all;
   "kagi-session.age".publicKeys = laptops;
+  "splid.env.age".publicKeys = laptops;
 }
