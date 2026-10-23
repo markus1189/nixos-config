@@ -331,11 +331,7 @@ in
               image_preview = false;
               paste = "compact";
             };
-            tabs = {
-              indicators = "status";
-              layout = "horizontal";
-              scope = "cwd";
-            };
+            tabs.mode = "off";
             terminal = {
               copy = "select";
               title = true;
