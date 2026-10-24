@@ -35,9 +35,22 @@ let
       src = inputs.xclip;
     });
   };
+
+  # rustc 1.99 removed the no_mangle_generic_items lint; clipcat 0.26 denies it
+  # and renamed_and_removed_lints together, so the build hard-errors.
+  clipcatOverlay = _: super: {
+    clipcat = super.clipcat.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        grep -q '^no_mangle_generic_items ' Cargo.toml \
+          || { echo "clipcat no longer denies no_mangle_generic_items: drop clipcatOverlay" >&2; exit 1; }
+        sed -i '/^no_mangle_generic_items /d' Cargo.toml
+      '';
+    });
+  };
 in
 [
   wallpapersOverlay
   visidataOverlay
   xclipOverlay
+  clipcatOverlay
 ]

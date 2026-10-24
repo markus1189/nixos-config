@@ -327,6 +327,16 @@
     };
   };
 
+  system.checks = [
+    (pkgs.runCommand "sysdig-cer-check" { } ''
+      if [ -n "$(find ${config.boot.kernelPackages.sysdig}/lib/modules -name scap.ko.cer)" ]; then
+        echo "sysdig now ships scap.ko.cer: re-enable programs.sysdig and drop this check" >&2
+        exit 1
+      fi
+      touch $out
+    '')
+  ];
+
   programs = {
 
     captive-browser = {
@@ -417,8 +427,11 @@
       package = pkgs.wireshark;
     };
 
+    # Off until nixpkgs ships scap.ko.cer: the module aggregator now cats a
+    # .ko.cer for every out-of-tree module and fails without it. The
+    # sysdig-cer-check in system.checks fails the build once it does.
     sysdig = {
-      enable = true;
+      enable = false;
     };
   };
 
