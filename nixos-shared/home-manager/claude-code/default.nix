@@ -215,6 +215,9 @@ in
       # On a claude.ai usage limit, wait for the reset and carry on instead
       # of parking the session on a dialog nobody at the phone can answer.
       autoContinueAtUsageLimit = true;
+      # Don't summarize a long idle session behind my back; exact earlier
+      # context beats the cache savings, and /compact stays manual.
+      idleCompaction = false;
       # Spawned teammates get tmux panes rather than running in-process.
       teammateMode = "tmux";
       showMessageTimestamps = true;
