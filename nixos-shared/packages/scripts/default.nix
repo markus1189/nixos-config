@@ -254,6 +254,7 @@ rec {
       gawk
       gnugrep
       gnused
+      kbPages
       treemd
     ];
     inheritPath = false;
@@ -287,6 +288,25 @@ rec {
       ''
       + builtins.readFile ./phone-tunnel.sh;
     };
+
+  # Gallery of ~/Stuff's _sync-all-files pages, written by kb-index.
+  kbPages =
+    writers.writePython3Bin "kb-pages"
+      {
+        flakeIgnore = [ "E501" ];
+      }
+      (
+        builtins.replaceStrings
+          [ ''["@junkDirs@"]'' ]
+          [
+            (
+              "["
+              + lib.concatMapStringsSep ", " (d: ''"${d}"'') (import ../../stuff-patterns.nix).junkDirs
+              + "]"
+            )
+          ]
+          (builtins.readFile ./kb-pages.py)
+      );
 
   # Ledger miner for /mh:retro-week. Was ~/Stuff/.kb/retro-scan.
   kbRetroScan = writeShellApplication {

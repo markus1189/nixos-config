@@ -200,6 +200,12 @@ if [ -d .kb/series ]; then
   done
 fi
 
+# --- Page gallery: _sync-all-files/pages.html --------------------------------------
+# Unlike the indexes above it syncs: it lists synced pages only, so every host writes
+# the same bytes, and the phone gets it.
+mkdir -p _sync-all-files
+kb-pages . | write_if_changed _sync-all-files/pages.html
+
 # --- Root llms.txt -----------------------------------------------------------------
 RECENT="$(fd -e md --changed-within 7d . "${EXCLUDES[@]}" 2>/dev/null \
             | sed 's#^\./##' | grep -v '/INDEX\.md$' | sort || true)"
@@ -218,7 +224,8 @@ EVERGREEN="$(printf '%s\n' "$ALL_MD" | grep '^evergreen/[^/]*\.md$' || true)"
   printf -- '- Headings of a file:  `treemd -l FILE`  (`--tree` hierarchy, `-s "Sec" FILE` to extract)\n'
   printf -- '- Find files:          `fd -e md PATTERN ~/Stuff`\n'
   printf -- '- Full-text search:    `rg "term" ~/Stuff`\n'
-  printf -- '- Re-index:            `kb-index`\n\n'
+  printf -- '- Re-index:            `kb-index`\n'
+  printf -- '- HTML pages:          [_sync-all-files/pages.html](_sync-all-files/pages.html)\n\n'
 
   if [ -n "$EVERGREEN" ]; then
     printf '## Evergreen (curated reference docs)\n\n'

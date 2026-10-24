@@ -34,6 +34,9 @@ Change it there and rebuild; an edit here cannot stick.
   synced file (`repo.gradle.org/`, `x.md/`). Other types sync only below a `_sync-all-files/`
   dir (a report with its assets): keep it small, no scrapes, captures or downloads. The lists
   live in nixos-config (`nixos-shared/stuff-patterns.nix`); `.stignore` is generated, don't edit it
+- **Give every HTML page below `_sync-all-files/` a `<meta name="description">`** (in its
+  template, if it is built). `kb-index` lists them all in `_sync-all-files/pages.html`; without
+  one the card falls back to the page's first paragraph. A dir with an `index.html` is one card
 - **No two names that differ only in case** (`SOLVE.py` next to `solve.py`): the phone
   has case-insensitive storage, holds only one of them and reports the other as failed
 - **Never put secrets in a synced type**: tokens, cookies and credentials go in `.env`,
