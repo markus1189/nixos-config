@@ -49,6 +49,13 @@
     owner = config.my.userName;
   };
 
+  # heike-amazon (laptop-only skill); encrypted for laptops only
+  age.secrets.splidEnv = {
+    file = ../secrets/splid.env.age;
+    name = "splid.env";
+    owner = config.my.userName;
+  };
+
   documentation = {
     enable = true;
     dev.enable = true;

@@ -40,12 +40,6 @@ in
       owner = user;
     };
 
-    splidEnv = {
-      file = ../secrets/splid.env.age;
-      name = "splid.env";
-      owner = user;
-    };
-
     redditVisidata = {
       file = ../secrets/reddit-visidata.age;
       name = "reddit-visidata";
