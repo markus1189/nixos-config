@@ -114,6 +114,12 @@ diff <(nix-store -qR "$(nix-store --query --deriver /run/current-system)" | sort
 nix build .#myScripts.<scriptName>
 nix run .#myScripts.<scriptName>
 
+# Print a generated home-manager file without building (~2s). home.file is
+# keyed by module-chosen names (claude-keybindings), so match on target
+nix eval --raw .#nixosConfigurations.p1g8.config.home-manager.users.markus.home.file \
+  --apply 'f: builtins.readFile (builtins.head (builtins.filter
+    (v: v.target == ".claude/keybindings.json") (builtins.attrValues f))).source'
+
 # Typecheck xmonad.hs
 nix build --no-link .#checks.x86_64-linux.xmonad-config
 
