@@ -228,6 +228,13 @@ merely disfigured by the global line numbers."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
+(use-package server
+  :ensure nil
+  ;; Only the first emacs claims the socket; a second one would hijack it.
+  :hook (after-init . (lambda ()
+                        (require 'server)
+                        (unless (server-running-p) (server-start)))))
+
 (use-package flymake
   :ensure nil
   ;; markdown-mode does not derive from prog-mode, so it needs its own entry.
