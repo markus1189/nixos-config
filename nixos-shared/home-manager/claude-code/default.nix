@@ -516,6 +516,8 @@ in
           bindings = {
             "ctrl+x m" = "command:marginal";
             "ctrl+x p" = "command:popout";
+            "ctrl+x e" = "command:effort";
+            "ctrl+x u" = "command:rewind";
           };
         }
       ];
