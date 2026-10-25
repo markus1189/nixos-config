@@ -1015,9 +1015,9 @@ rec {
         set +a
 
         MESSAGE=''${1:?"Error: no message given!"}
-        # No --retry, for the reason spelled out at sendTelegramAnimation below: sendMessage is
-        # not idempotent, and both --retry and --retry-all-errors resend on 429/5xx -- i.e.
-        # precisely when Telegram has already accepted the message.
+        # No --retry: sendMessage is not idempotent. Telegram posts the message *before* it
+        # answers, and both --retry and --retry-all-errors resend on 429/5xx -- i.e. precisely
+        # when Telegram has already accepted the message, and every resend feeds the 429.
         curl --silent --fail -XPOST \
          --connect-timeout 10 --max-time 30 \
          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
@@ -1046,7 +1046,7 @@ rec {
 
       QUESTION=''${1:?"Error: no message given!"}
       shift
-      # Not idempotent either; see sendTelegramAnimation.
+      # Not idempotent either; see sendTelegram.
       curl --silent --fail -XPOST \
        --connect-timeout 10 --max-time 30 \
        --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
@@ -1064,60 +1064,6 @@ rec {
 
   # Internal: the "home" telegram group, used by viessmannOutsideTemperature.
   notifySendHome = sendTelegram "-1001328938887" "notifySendHome" null;
-
-  sendTelegramAnimation =
-    chatid: name:
-    writeShellApplication {
-      inherit name;
-      runtimeInputs = [
-        curl
-        cacert
-      ];
-      inheritPath = false;
-      bashOptions = [ "errexit" ];
-      text = ''
-        set -a
-        # shellcheck source=/dev/null
-        . /run/agenix/telegram.env
-        set +a
-
-        FILE=''${1:?"Error: no file given!"}
-        CAPTION=''${2:-}
-        # sendAnimation, not sendPhoto: Telegram transcodes the GIF to MP4 and plays it
-        # inline, whereas a photo upload would flatten it to a single still frame.
-        # No --retry here, deliberately. sendAnimation is not idempotent: Telegram accepts the
-        # upload and posts the message *before* it answers, so a 429 or a dropped response makes
-        # curl re-upload a GIF that is already in the channel -- and every retry feeds the rate
-        # limit that caused the 429. On nuc that produced four identical radar loops plus the
-        # "Regenradar konnte nicht erzeugt werden" fallback, because curl still exits non-zero
-        # after the last attempt. A missed radar frame is by far the cheaper failure.
-        # --max-time also stops a slow upload from holding the remind child for minutes.
-        curl --silent --fail -XPOST \
-          --connect-timeout 10 --max-time 120 \
-          --cacert ${cacert}/etc/ssl/certs/ca-bundle.crt \
-          --url "https://api.telegram.org/bot''${TELEGRAM_BOT_TOKEN}/sendAnimation" \
-          -F chat_id=${chatid} \
-          -F animation="@''${FILE}" \
-          -F caption="''${CAPTION}" > /dev/null
-      '';
-    };
-
-  # The "home" telegram group, same destination as viessmannOutsideTemperature.
-  notifySendHomeAnimation = sendTelegramAnimation "-1001328938887" "notifySendHomeAnimation";
-
-  # The other direction: a long-poll daemon that runs a whitelisted command table on request.
-  # It deliberately does NOT reuse the senders above -- those source /run/agenix/telegram.env,
-  # whose TELEGRAM_BOT_TOKEN would override botler's own and make replies come from the wrong
-  # bot. See nixos-shared/botler.nix for the unit and the command table.
-  botler = writers.writePython3Bin "botler" {
-    # flakeIgnore REPLACES flake8's default ignore list, so the defaults that matter have to be
-    # restated: W503/W504 contradict each other and cannot both be satisfied.
-    flakeIgnore = [
-      "E501" # long lines: the API-shape comments read better unwrapped
-      "W503"
-      "W504"
-    ];
-  } (builtins.readFile ./botler.py);
 
   telegramSendPhoto = writeShellApplication {
     name = "telegramSendPhoto";
@@ -1345,106 +1291,14 @@ rec {
         };
       };
     };
-  # The radar loop itself. Vendored from ~/Stuff/2026-08/27-scratch/dwd-radar-gif; it needs no
-  # assets (the 17-colour legend LUT and the Germany bbox are inlined) and no fontconfig — the
-  # wrapper below hands it a font from the store.
-  dwd-radar-gif = writers.writePython3Bin "dwd-radar-gif" {
-    libraries = [
-      python3Packages.numpy
-      python3Packages.pillow
-    ];
-    # flakeIgnore REPLACES flake8's default ignore list, so the defaults that matter have to
-    # be restated: W503/W504 contradict each other and cannot both be satisfied.
-    flakeIgnore = [
-      "E501" # long lines: the calibration tables and encoding notes read better unwrapped
-      "W503"
-      "W504"
-    ];
-    # The vendored file is byte-identical to the original so it can simply be re-copied; the
-    # writer supplies its own shebang, so the script's own has to go or flake8 sees a comment.
-  } (builtins.replaceStrings [ "#!/usr/bin/env python3\n" ] [ "" ] (builtins.readFile ./dwd-radar-gif.py));
 
-  # The rendering half on its own, so the framing (marks, crop, size) lives in one place and
-  # botler can ask for exactly the picture the nightly reminder sends. Takes the destination
-  # .gif path as $1; dwd-radar-gif's --out is a *base* name it appends the extension to,
-  # hence the ${OUT%.gif}. Anything after $1 is appended to the dwd-radar-gif call, so a caller
-  # can add flags (dwdRadarTelegram adds --min-precip) without a second copy of the framing;
-  # the exit code is the renderer's own, including 3 for "too dry to bother".
-  dwdRadarRender = writeShellApplication {
-    name = "dwdRadarRender";
-    runtimeInputs = [ dwd-radar-gif ];
-    inheritPath = false;
-    bashOptions = [ "errexit" ];
-    text = ''
-      OUT=''${1:?"Error: no output path given!"}
-      shift
-
-      dwd-radar-gif \
-        --past 60 \
-        --gif-only \
-        --size 700 \
-        --mark 'Lorsbach;Hasselbach;Frankfurt am Main;Hegewiese' \
-        --crop marks \
-        --margin-km 100 \
-        --font ${dejavu_fonts}/share/fonts/truetype/DejaVuSans.ttf \
-        --font-bold ${dejavu_fonts}/share/fonts/truetype/DejaVuSans-Bold.ttf \
-        --out "''${OUT%.gif}" "$@" > /dev/null
-    '';
-  };
-
-  # One rendered loop, sent to the home group. Kept separate from the reminder wiring so it can
-  # be run by hand: `dwdRadarTelegram` needs no arguments.
-  #
-  # A dry evening gets no message at all: the renderer exits 3 when the wettest frame of the
-  # hour covers less than DWD_RADAR_MIN_PRECIP percent of the view, and that is a verdict, not
-  # a failure -- so it must NOT reach homeWeatherReport's `|| notifySendHome "Regenradar konnte
-  # nicht erzeugt werden"`, which would replace one unwanted message with another. 0.5% of the
-  # ~226x226 km view is roughly 250 km2 of rain at intensity class 1 or above, i.e. an actual
-  # shower somewhere in it rather than a few clutter pixels. Set DWD_RADAR_MIN_PRECIP=0 to send
-  # unconditionally, as before.
-  dwdRadarTelegram = writeShellApplication {
-    name = "dwdRadarTelegram";
-    runtimeInputs = [
-      coreutils
-      dwdRadarRender
-      notifySendHomeAnimation
-    ];
-    inheritPath = false;
-    bashOptions = [ "errexit" ];
-    text = ''
-      MIN_PRECIP=''${DWD_RADAR_MIN_PRECIP:-0.5}
-
-      OUT="$(mktemp -d -t dwd-radar.XXXXXX)"
-      trap 'rm -rf "''${OUT}"' EXIT
-
-      STATUS=0
-      dwdRadarRender "''${OUT}/radar.gif" --min-precip "''${MIN_PRECIP}" || STATUS=$?
-      if [ "''${STATUS}" -eq 3 ]; then
-        echo "dwdRadarTelegram: less than ''${MIN_PRECIP}% of the view is wet, sending nothing"
-        exit 0
-      fi
-      if [ "''${STATUS}" -ne 0 ]; then
-        exit "''${STATUS}"
-      fi
-
-      notifySendHomeAnimation "''${OUT}/radar.gif" "Regenradar, letzte Stunde"
-    '';
-  };
-
-  # What the remind daemon calls: radar first, then the temperature. Each half guards its own
-  # failure, so neither can swallow the other -- hence the `|| true` on the temperature.
   homeWeatherReport = writeShellApplication {
     name = "homeWeatherReport";
-    runtimeInputs = [
-      viessmannOutsideTemperature
-      dwdRadarTelegram
-      notifySendHome
-    ];
+    runtimeInputs = [ viessmannOutsideTemperature ];
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
-      dwdRadarTelegram || notifySendHome "Regenradar konnte nicht erzeugt werden"
-      viessmannOutsideTemperature || true
+      viessmannOutsideTemperature
     '';
   };
 

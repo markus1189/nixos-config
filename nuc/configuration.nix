@@ -274,7 +274,6 @@
       serviceConfig = {
         User = config.my.userName;
         Group = "users";
-        # homeWeatherReport = outside temperature (as before) plus the rain-radar loop.
         ExecStart = "${pkgs.remind}/bin/remind -z -k'${pkgs.homeWeatherReport}/bin/homeWeatherReport' /home/${config.my.userName}/Syncthing/remind/home-notification-reminders";
         Restart = "always";
       };

@@ -44,17 +44,7 @@ in
   # then store it: agenix -e secrets/viessmann-refresh-token.age
   inherit (myScripts) viessmannOutsideTemperature;
 
-  # The rain-radar loop that rides along with the temperature. dwdRadarTelegram, the bare
-  # renderer and the generator itself are exposed too, so all three can be run by hand.
-  inherit (myScripts)
-    homeWeatherReport
-    dwdRadarTelegram
-    dwdRadarRender
-    dwd-radar-gif
-    ;
-
-  # The Telegram command bot; wired up by nixos-shared/botler.nix.
-  inherit (myScripts) botler;
+  inherit (myScripts) homeWeatherReport;
 
   emacs = final.callPackage ./emacs {
     inherit (prev) emacs;
