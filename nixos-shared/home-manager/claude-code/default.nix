@@ -518,6 +518,7 @@ in
             "ctrl+x p" = "command:popout";
             "ctrl+x e" = "command:effort";
             "ctrl+x u" = "command:rewind";
+            "ctrl+x o" = "command:model";
           };
         }
       ];
