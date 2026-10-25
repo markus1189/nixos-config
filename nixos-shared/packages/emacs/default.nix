@@ -3,6 +3,7 @@
   replaceVars,
   runCommandLocal,
   plantuml,
+  mermaid-cli,
   rumdl,
   myScripts,
   elispSrcs,
@@ -10,7 +11,7 @@
 
 let
   emacsConfig = replaceVars ./emacs-config.el {
-    inherit plantuml rumdl;
+    inherit plantuml rumdl mermaid-cli;
     inherit (myScripts) stuffToday;
   };
 
@@ -112,6 +113,7 @@ emacs.pkgs.withPackages (
       dap-mode
       ##########
       markdown-mode
+      mermaid-mode
       markdown-preview-mode
       marginalia
       magit
@@ -119,6 +121,7 @@ emacs.pkgs.withPackages (
       multiple-cursors
       nerd-icons
       nix-mode
+      ob-mermaid
       orderless
       org-drill
       ormolu

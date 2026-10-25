@@ -96,7 +96,7 @@ merely disfigured by the global line numbers."
  '(magit-repository-directories '("~/repos"))
  '(magit-restore-window-configuration t)
  '(magit-tag-arguments '("--annotate"))
- '(org-babel-load-languages '((emacs-lisp . t) (python . t)))
+ '(org-babel-load-languages '((emacs-lisp . t) (python . t) (mermaid . t)))
  '(whitespace-action '(auto-cleanup)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -1157,6 +1157,17 @@ string). It returns t if a new completion is found, nil otherwise."
   :ensure t
   :config
   (setq plantuml-jar-path "@plantuml@/lib/plantuml.jar"))
+
+(use-package mermaid-mode
+  :ensure t
+  :mode "\\.mmd\\'"
+  :config
+  (setq mermaid-mmdc-location "@mermaid-cli@/bin/mmdc"))
+
+(use-package ob-mermaid
+  :ensure t
+  :config
+  (setq ob-mermaid-cli-path "@mermaid-cli@/bin/mmdc"))
 
 (use-package terraform-mode
   :ensure t)
