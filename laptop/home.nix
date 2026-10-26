@@ -109,11 +109,6 @@ in
                 resource = "rm -f *";
                 effect = "ask";
               }
-              {
-                action = "shell";
-                resource = "rm -rf *";
-                effect = "deny";
-              }
             ];
 
             providers = {
@@ -366,6 +361,11 @@ in
             inherit (pkgs) coreutils;
             sounds = "${../nixos-shared/claude/sounds}";
           };
+        };
+
+        "opencode-plugin-check-dangerous-commands" = {
+          target = ".config/opencode/plugins/check-dangerous-commands.ts";
+          source = opencodeConfig.checkDangerousCommandsPlugin;
         };
 
         "opencode-global-rules" = {

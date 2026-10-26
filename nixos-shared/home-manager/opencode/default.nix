@@ -66,7 +66,23 @@ let
   # mode/model/permissions) kept separate from Claude output-styles
   opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" lib.id;
 
+  # Same derivation as pi's and claude-code's, so one store path for all three.
+  dangerousCommandCheckScript = pkgs.writeShellApplication {
+    name = "check-dangerous-commands";
+    runtimeInputs = with pkgs; [
+      bash
+      jq
+      coreutils
+      ast-grep
+    ];
+    text = builtins.readFile ../../claude/hooks/check-dangerous-commands.sh;
+  };
+
 in
 {
   markdownFiles = commandEntries // agentEntries // opencodeAgentEntries;
+
+  checkDangerousCommandsPlugin = pkgs.replaceVars ./check-dangerous-commands.ts {
+    checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";
+  };
 }
