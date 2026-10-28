@@ -22,6 +22,7 @@
   marginal,
   hocketSrc,
   mattpocockSkills,
+  astGrepSkills,
   agentBrowser ? null,
 }:
 
@@ -127,6 +128,16 @@ let
   # Claude Code gets `/marginal` from the mod (claude/mods), pi from the
   # extension the pi-agent module links.
   webSkills = {
+    ast-grep = mkAgentSkill {
+      name = "ast-grep";
+      src = astGrepSkills + "/ast-grep/skills/ast-grep";
+    };
+
+    ast-grep-outline = mkAgentSkill {
+      name = "ast-grep-outline";
+      src = astGrepSkills + "/ast-grep/skills/outline";
+    };
+
     marginal-diff = mkAgentSkill {
       name = "marginal-diff";
       src = marginal + "/share/claude-code/skills/marginal-diff";

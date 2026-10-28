@@ -36,13 +36,16 @@ in
           # Headless: no chromium here, and marginal-diff (like the marginal
           # mod, below) launches a TUI into a borrowed tty that does not exist
           # on this box.
-          # sourcegraph-search needs `src`, which only laptops install. The
+          # sourcegraph-search and the ast-grep skills need binaries only
+          # laptops install. The
           # first two would only drag their packages into the nightly autoUpgrade
           # closure — marginal newly so, since its skill comes out of the
           # package's $out rather than its source tree. removeAttrs is lazy,
           # so none of them is ever realised on nuc.
           agentSkills = builtins.removeAttrs pkgs.agentSkills [
             "agent-browser"
+            "ast-grep"
+            "ast-grep-outline"
             "marginal-diff"
             "sourcegraph-search"
           ];

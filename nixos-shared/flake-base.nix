@@ -64,6 +64,7 @@
         inherit (final) marginal;
         hocketSrc = inputs.hocket;
         mattpocockSkills = inputs.mattpocock-skills;
+        astGrepSkills = inputs.ast-grep-skills;
         agentBrowser = final.agent-browser;
       };
 

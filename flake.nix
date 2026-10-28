@@ -88,6 +88,12 @@
       flake = false;
     };
 
+    # ast-grep's agent skills (ast-grep, outline); the plugin metadata is ignored.
+    ast-grep-skills = {
+      url = "github:ast-grep/agent-skill";
+      flake = false;
+    };
+
     # Rust CLI for span-level markdown annotation. Consumed via its own flake
     # output (packages.marginal) but built against our nixpkgs for one toolchain.
     marginal = {
@@ -188,6 +194,7 @@
             marginal = inputs.marginal.packages.x86_64-linux.marginal;
             hocketSrc = inputs.hocket;
             mattpocockSkills = inputs.mattpocock-skills;
+            astGrepSkills = inputs.ast-grep-skills;
             agentBrowser = inputs.llm-agents.packages.x86_64-linux.agent-browser;
           };
 
