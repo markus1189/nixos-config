@@ -43,14 +43,13 @@ don't do, name its handle (`VERIFY/trace`).
 ## Writing for Readers `WRITE`
 
 1. **new**: Every line must tell a smart reader something they cannot
-   get from the code, the name, or a nearby line
+   get from the code, the name, or a nearby line. Before finishing,
+   test each comment and doc line you wrote against this; fails →
+   delete
 2. **why**: Comments: why, non-obvious constraints, measured facts;
    never what the code says
 3. **once**: Agent docs (AGENTS.md, skills, CLAUDE.md): each rule once;
    no restating, no consequences the reader can derive
-4. **delete**: Before finishing, run the deletion test on every comment
-   and doc line you wrote: would a smart reader lose anything without
-   it? No → delete
 
 ## Friction `FRIC`
 
@@ -66,11 +65,10 @@ don't do, name its handle (`VERIFY/trace`).
 2. One-time commands: `nix run nixpkgs#$program` or using "comma" via
    `, command`
 3. Scripts: Use Nix shebangs (see templates below)
-4. Flakes: use `nix develop` or `nix run` etc
-5. **flake-src**: Flake `src` = the git index: new files are invisible
+4. **flake-src**: Flake `src` = the git index: new files are invisible
    to `nix build`
-6. Editable System Config Location in ~/repos/nixos-config
-7. Read upstream source: `nix build --no-link --print-out-paths
+5. Editable System Config Location in ~/repos/nixos-config
+6. Read upstream source: `nix build --no-link --print-out-paths
    nixpkgs#$pkg.src` (wrappers: `$pkg-unwrapped`)
 
 ## Script Templates
@@ -80,9 +78,6 @@ Nix shebang (simple packages):
 #!/usr/bin/env nix
 #! nix shell nixpkgs#bash nixpkgs#coreutils --command bash
 set -euo pipefail
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Temp files: mktemp -t claude-code.XXXXXX.$EXT
 ```
 
 Python: global `python3` (`nixos-shared/python-env.nix`) ships
@@ -98,12 +93,6 @@ Only for packages OUTSIDE that list:
 #! nix python3.withPackages (ps: with ps; [ polars ])
 #! nix ``
 #! nix --command python3
-```
-
-Haskell:
-```bash
-#!/usr/bin/env nix
-#! nix shell --impure --expr ``with import (builtins.getFlake ''nixpkgs'') {}; haskellPackages.ghcWithPackages (ps: [ps.aeson])`` --command runhaskell
 ```
 
 Syntax notes:
@@ -135,12 +124,8 @@ Syntax notes:
 
 ## Clipboard (xclip)
 
-1. `xclip -i` forks a daemon that outlives the shell to own the
-   selection, and it inherits stdout/stderr, so any caller reading
-   those to EOF (command substitution, a captured pipe) blocks
-   forever. Redirect them: ```bash echo "text" | xclip -selection
-   clipboard -i >/dev/null 2>&1 ```
-2. For HTML clipboard content, add `-t text/html`.
+1. `xclip -i` hangs any caller that reads its stdout: `… | xclip
+   -selection clipboard -i >/dev/null 2>&1` (`-t text/html` for HTML)
 
 ## Find Installed Emacs Package Source
 
@@ -153,5 +138,5 @@ Syntax notes:
    (`find`/`fd`/`rg`), it blows the timeout; `ls` the likely dir
    instead
 2. ~/Syncthing (/ePubs for eBooks)
-3. ~/Stuff/yyyy-mm/dd-<host> (daily directories; dd-scratch before
-   2026-09-27), ~/Stuff/Today/
+3. ~/Stuff: date-organized working dirs, `Today` symlink; rules in
+   ~/Stuff/AGENTS.md
