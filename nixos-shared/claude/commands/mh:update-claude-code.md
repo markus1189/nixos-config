@@ -56,6 +56,9 @@ them are not.
 0. Check for competing PRs first: `gh pr list --repo NixOS/nixpkgs
    --search "claude-code in:title" --state open`. If someone else's
    already covers NEW, report and stop (see step 7 for handling).
+   Covering NEW means both packages: a CLI-only bump (r-ryantm
+   touches just `manifest.zst.json`) leaves the extension stale, so
+   proceed with the lockstep PR and say it supersedes that one.
 1. Sync to clean `master`: `git fetch upstream && git checkout master
    && git reset --hard upstream/master`. **The fetch is load-bearing**
    — `upstream/master` is only as fresh as the last one, and a stale
