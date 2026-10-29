@@ -60,9 +60,13 @@
       package = pkgs.temurin-bin;
     };
 
+    # Cache TTLs live in home-manager's services.gpg-agent (laptop/home.nix).
     gnupg = {
       agent = {
         enable = true;
+        # Without it a prompt nobody answers (remote session, phone tunnel
+        # closed) blocks the caller forever.
+        settings.pinentry-timeout = 60;
       };
     };
 
