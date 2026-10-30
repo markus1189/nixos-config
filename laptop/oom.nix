@@ -38,6 +38,8 @@
       # implicit would re-gate the SIGKILL escalation at 50 %.
       freeSwapThreshold = 100;
       freeSwapKillThreshold = 100;
+
+      extraArgs = [ "--prefer" "claude-wrapped" ];
     };
   };
 
