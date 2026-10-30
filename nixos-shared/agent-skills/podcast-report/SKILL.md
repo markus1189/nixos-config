@@ -1,6 +1,6 @@
 ---
 name: podcast-report
-description: "Summarizes a podcast episode from the user's Pocket Casts history into a report (markdown in ~/Stuff plus a Claude Doc). Use only when the user asks to summarize a podcast episode ('summarize this podcast episode', 'fass die Podcast-Folge zusammen')."
+description: "Summarizes a podcast episode the user names (show and/or title), or else the latest one from their Pocket Casts history, into a report (markdown in ~/Stuff plus a Claude Doc). Use only when the user asks to summarize a podcast episode ('fass die Folge X von Y zusammen', 'summarize the episode about Z', 'fass die Podcast-Folge zusammen')."
 ---
 
 # Podcast report
@@ -11,8 +11,11 @@ questions unless the script exits 3.
 ## Pipeline
 
 1. **Resolve.** `./scripts/podcast.py episode -o WORK`, `WORK` = a new dir in the scratchpad.
-   The default is the latest started episode, skipping one that autoplay just began.
-   The user names one → `--show S` and/or `--title T`. Report `picked_because` and
+   Any hint in the request wins: show/title words → `--show S` and/or `--title T` (substrings);
+   a topic or guest → pick from `./scripts/podcast.py history`, then `--uuid`. The user often
+   hears several episodes in a row and wants only one of them. Only with no
+   hint at all fall back to the default, the latest started episode, skipping one that
+   autoplay just began. Report `picked_because` and
    `alternatives` in one line, so a wrong pick is visible at once.
 2. **Skip fiction.** `fiction: true` → stop and say so. Readings of stories count too
    (LeVar Burton Reads is filed under Performing Arts, not Fiction).
