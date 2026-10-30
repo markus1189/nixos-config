@@ -371,6 +371,24 @@
                 touch $out
               '';
 
+          # Offline: transcript parsing, feed matching, episode choice on synthetic fixtures.
+          podcast-report-bats =
+            pkgs.runCommand "podcast-report-bats"
+              {
+                nativeBuildInputs = [
+                  batsWith
+                  (pkgs.python3.withPackages (ps: [
+                    ps.requests
+                    ps.beautifulsoup4
+                  ]))
+                ];
+              }
+              ''
+                cd ${./nixos-shared/agent-skills}
+                HOME=$TMPDIR bats tests/podcast-report.bats
+                touch $out
+              '';
+
           # The real odiff, magick and poppler on images and PDFs the suite draws.
           diffing-images-bats =
             pkgs.runCommand "diffing-images-bats"

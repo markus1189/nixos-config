@@ -1,0 +1,12 @@
+1
+00:00:10,240 --> 00:00:12,000
+SPEAKER_00: Hallo und
+herzlich willkommen
+
+2
+00:00:12,000 --> 00:00:13,359
+zur Folge.
+
+3
+00:00:46,000 --> 00:00:48,000
+SPEAKER_03: Moin Moin.

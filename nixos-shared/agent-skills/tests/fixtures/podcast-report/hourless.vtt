@@ -1,0 +1,17 @@
+WEBVTT
+
+1
+00:01.000 --> 00:04.000
+<v Anna>first minute
+
+2
+59:59.000 --> 01:00:02.000
+<v Ben>last of hour one
+
+3
+01:00:05.000 --> 01:00:09.000
+<v Anna>after one hour <00:00:06.000><c>tagged</c>
+
+4
+01:00:10.000 --> 01:00:12.000
+<v Ben>Hi Anna <v Anna>Hi Ben

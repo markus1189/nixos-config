@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:podcast="https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md">
+  <channel>
+    <item><title>Renamed Episode</title></item>
+    <item>
+      <title>Episode 249: Renamed Episode</title>
+      <enclosure url="https://cdn.example.com/show/ep249.mp3" type="audio/mpeg"/>
+      <podcast:transcript url="https://cdn.example.com/show/ep249.vtt" type="text/vtt"/>
+      <podcast:person role="guest">Jane Doe</podcast:person>
+    </item>
+    <item>
+      <title>Tracked</title>
+      <enclosure url="https://www.podtrac.com/pts/redirect.mp3/https://op3.dev/e/cdn.example.com/show/tracked.mp3" type="audio/mpeg"/>
+    </item>
+    <item>
+      <title>Query A</title>
+      <enclosure url="https://media.example.com/audio.mp3?episodeId=aaa" type="audio/mpeg"/>
+    </item>
+    <item>
+      <title>Query B</title>
+      <enclosure url="https://media.example.com/audio.mp3?episodeId=bbb" type="audio/mpeg"/>
+    </item>
+  </channel>
+</rss>
