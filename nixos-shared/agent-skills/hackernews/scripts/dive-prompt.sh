@@ -17,7 +17,8 @@ its dive to DIR/ID.out.md.
 
   --check N       which check of the day the dives belong to
   --collect FILE  append DIR/ID.out.md for every ID to FILE, in argument order;
-                  fails without appending anything if one is missing or empty
+                  fails without appending anything if one is missing or empty,
+                  or if FILE does not exist or has no '## Check N' heading
   --dir DIR       default: \${TMPDIR:-/tmp}/hn-dives/$(date +%F)
 EOF
 }
@@ -44,6 +45,10 @@ if [[ -n "$COLLECT" ]]; then
         [[ -s "$DIR/$id.out.md" ]] || missing+=("$DIR/$id.out.md")
     done
     ((${#missing[@]} == 0)) || die "missing or empty, nothing appended: ${missing[*]}"
+    # Dives belong under a briefing; appending to a fresh file once produced a
+    # daily file with neither title nor Check section.
+    [[ -f "$COLLECT" ]] || die "$COLLECT does not exist: write the title and '## Check N' briefing first"
+    grep -qE '^## Check [0-9]+' "$COLLECT" || die "$COLLECT has no '## Check N' heading: write the briefing first"
     for id in "${IDS[@]}"; do
         { echo; cat "$DIR/$id.out.md"; } >> "$COLLECT"
     done
