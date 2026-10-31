@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 # podcast.py's pure parts imported as a module against synthetic fixtures: transcript parsing,
-# feed item matching and episode choice. Nothing touches Pocket Casts, iTunes or a feed.
+# feed item matching and transcript order. Nothing touches Pocket Casts, iTunes or a feed.
+# Episode choice lives in pocketcasts.py: tests/pocketcasts.bats.
 
 bats_require_minimum_version 1.5.0
 
@@ -22,9 +23,6 @@ FEED="import xml.etree.ElementTree as ET; ITEMS = ET.parse(FIX + '/feed.xml').ge
 def m(url, title):
     i, how = p.match_item(ITEMS, {'url': url, 'title': title})
     return (i.findtext('title') if i is not None else None, how)"
-
-# hist(pcts): history entries newest first, each 1000 s long and played to pct %.
-HIST="def hist(*pcts): return [{'uuid': f'u{n}', 'title': f'Ep {n}', 'podcastTitle': 'Show', 'duration': 1000, 'playedUpTo': c * 10} for n, c in enumerate(pcts)]"
 
 @test "VTT cues without an hour field are kept" {
     run py "print([r[0] for r in p.parse_cues(open(FIX + '/hourless.vtt').read())])"
@@ -98,41 +96,13 @@ print([t.get('type') for t in p.pi_all(ITEMS[1], 'transcript')], [x.text for x i
     assert_output "['text/vtt'] ['Jane Doe']"
 }
 
-@test "choose: latest started episode by default" {
-    run py "$HIST
-ep, why, alt = p.choose(hist(0, 50, 100)); print(ep['uuid'], why)"
-    assert_output "u1 latest started"
+@test "the publisher's transcripts come before Pocket Casts' generated one, each by type preference" {
+    run py "print([(t['type'], t.get('origin')) for t in p.ordered([
+        {'type': 'text/vtt', 'origin': 'pocketcasts'}, {'type': 'text/vtt'}, {'type': 'image/png'}, {'type': 'application/json'}])])"
+    assert_output "[('application/json', None), ('text/vtt', None), ('image/png', None), ('text/vtt', 'pocketcasts')]"
 }
 
-@test "choose: a barely started newest episode above a finished one is taken as autoplay" {
-    run py "$HIST
-ep, why, alt = p.choose(hist(1, 95, 40)); print(ep['uuid'], len(alt))"
-    assert_output "u1 2"
-}
-
-@test "choose: barely started with nothing finished below stays the pick" {
-    run py "$HIST
-ep, why, alt = p.choose(hist(5, 40)); print(ep['uuid'], why)"
-    assert_output "u0 latest started"
-}
-
-@test "choose: several title matches exit 3 with the candidates" {
-    run py "$HIST
-p.choose(hist(10, 20), title='Ep')"
-    assert_failure 3
-    assert_output --partial "several episodes match"
-}
-
-@test "choose: a title without letters or digits is refused" {
-    run py "$HIST
-p.choose(hist(10), title='!!')"
-    assert_failure 1
-    assert_output --partial "no letters or digits"
-}
-
-@test "choose: --show narrows the default pick" {
-    run py "$HIST
-h = hist(50, 50); h[1]['podcastTitle'] = 'Other Pod'
-ep, why, alt = p.choose(h, show='other pod'); print(ep['uuid'])"
-    assert_output "u1"
+@test "podcast.py finds pocketcasts.py next to itself" {
+    run py "print(p.choose.__module__)"
+    assert_output "pocketcasts"
 }

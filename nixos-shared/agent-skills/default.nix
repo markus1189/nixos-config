@@ -121,6 +121,14 @@ let
         ) (builtins.readDir ./.)
       );
 
+  # podcast-report imports the pocketcasts skill's client. The checkout links
+  # it in; each skill is its own store path, where that link would dangle.
+  podcastReport = mkAgentSkill {
+    name = "podcast-report";
+    src = ./podcast-report;
+    postPatch = "cp --remove-destination ${./pocketcasts/scripts/pocketcasts.py} scripts/pocketcasts.py";
+  };
+
   # Skills sourced from other repos via flake inputs, optionally patched.
   # marginal-diff is our own upstream: "patching" it means committing there.
   # It is claude-only, having no pi counterpart — a diff extension is the fix
@@ -175,4 +183,4 @@ let
     };
   };
 in
-localSkills // webSkills
+localSkills // { podcast-report = podcastReport; } // webSkills

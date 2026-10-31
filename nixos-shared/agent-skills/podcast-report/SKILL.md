@@ -12,7 +12,7 @@ questions unless the script exits 3.
 
 1. **Resolve.** `./scripts/podcast.py episode -o WORK`, `WORK` = a new dir in the scratchpad.
    Any hint in the request wins: show/title words → `--show S` and/or `--title T` (substrings);
-   a topic or guest → pick from `./scripts/podcast.py history`, then `--uuid`. The user often
+   a topic or guest → pick from `./scripts/pocketcasts.py history`, then `--uuid`. The user often
    hears several episodes in a row and wants only one of them. Only with no
    hint at all fall back to the default, the latest started episode, skipping one that
    autoplay just began. Report `picked_because` and
@@ -20,7 +20,8 @@ questions unless the script exits 3.
 2. **Skip fiction.** `fiction: true` → stop and say so. Readings of stories count too
    (LeVar Burton Reads is filed under Performing Arts, not Fiction).
 3. **Transcript**, first that works:
-   - `./scripts/podcast.py transcript WORK`
+   - `./scripts/podcast.py transcript WORK`: the feed's, else Pocket Casts' generated one
+     (`"origin": "pocketcasts"`: no speaker labels, names misspelled)
    - the publisher page: [references/transcript-sources.md](references/transcript-sources.md)
    - `./scripts/podcast.py audio WORK`, then the transcribe-audio skill. Its speaker
      labels are best effort and sometimes confidently wrong: treat them as unlabelled.
@@ -40,7 +41,7 @@ questions unless the script exits 3.
 | Exit | Meaning | Do |
 |---|---|---|
 | 1 | error, message says why | `pass … failed`: the gpg key is locked; tell the user to unlock it at the desktop (or over phone-tunnel) and stop. Network/feed errors: retry once, then report. |
-| 2 | no feed transcript | next step in 3 |
+| 2 | no transcript | next step in 3 |
 | 3 | needs a choice | several episodes match → rerun with `--uuid` if the request decides it, else ask with the printed list. No iTunes match → rerun with `--feed` from the candidates, or find the feed URL on the show's site. |
 
 **Script Execution:** Always invoke scripts by absolute path: resolve `./scripts/` against

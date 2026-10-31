@@ -4,25 +4,22 @@
 #! nix python3.withPackages (ps: with ps; [ requests beautifulsoup4 ])
 #! nix ``
 #! nix --command python3
-"""Resolve a podcast episode from Pocket Casts and fetch its publisher transcript.
+"""Resolve a podcast episode from Pocket Casts and fetch its transcript.
 
-  podcast.py history [-n N]                       recent history: played %, show, title, uuid
   podcast.py episode [--show S] [--title T | --uuid U] [--feed URL] -o DIR
                                                   resolve -> DIR/episode.json, DIR/notes.md
-  podcast.py transcript DIR                       feed transcript -> DIR/transcript.txt
+  podcast.py transcript DIR                       transcript -> DIR/transcript.txt
   podcast.py audio DIR                            download the enclosure -> DIR/audio.<ext>
 
-Exit codes: 0 ok · 1 error (message says why) · 2 no feed transcript ·
-3 needs a choice (candidates are printed; rerun with --uuid or --feed).
+Episode uuids come from `pocketcasts.py history` (the pocketcasts skill's client, next to this file).
 
-Pocket Casts login: `pass api/pocketcasts/user` and `pass api/pocketcasts/password`.
+Exit codes: 0 ok · 1 error (message says why) · 2 no transcript ·
+3 needs a choice (candidates are printed; rerun with --uuid or --feed).
 """
 
 import argparse
 import json
-import os
 import re
-import subprocess
 import sys
 import time
 import urllib.parse
@@ -32,7 +29,9 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-PC_API = "https://api.pocketcasts.com"
+# The checkout links pocketcasts.py in from the pocketcasts skill; the build copies it.
+from pocketcasts import PocketCasts, choose, die, hms, norm, pct, seconds, show_notes
+
 # beehiiv's Cloudflare challenges curl/requests default UAs; a browser UA passes.
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/141.0 Safari/537.36"}
@@ -46,103 +45,12 @@ TRANSCRIPT_PREF = ["application/json", "text/vtt", "application/x-subrip",
 # can disagree on which wrappers are present.
 REDIRECT = re.compile(r"(?:www\.)?(?:podtrac\.com/pts/redirect\.mp3|dts\.podtrac\.com/redirect\.mp3"
                       r"|op3\.dev/e|chtbl\.com/track/[^/]+|pdst\.fm/e|pfx\.vpixl\.com/[^/]+)/(?:https?://)?(.*)")
-# Autoplay starts the next episode when one ends: a barely started newest entry
-# above a nearly finished one means the user heard the nearly finished one.
-AUTOPLAY_MAX_PCT, FINISHED_MIN_PCT = 10, 80
-
-
-def die(msg, code=1):
-    print(f"error: {msg}", file=sys.stderr)
-    sys.exit(code)
-
-
-def norm(s):
-    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
-
 
 def strip_redirects(u):
     u = re.sub(r"^https?://", "", u or "")
     while m := REDIRECT.match(u):
         u = m.group(1)
     return u
-
-
-def pass_get(name):
-    # gpg-agent has no pinentry-timeout here: an expired cache would open a desktop
-    # dialog and block forever, typically while the user is out running. Fail instead.
-    env = {**os.environ, "PASSWORD_STORE_GPG_OPTS":
-           (os.environ.get("PASSWORD_STORE_GPG_OPTS", "") + " --pinentry-mode error").strip()}
-    try:
-        r = subprocess.run(["pass", name], capture_output=True, text=True, env=env,
-                           stdin=subprocess.DEVNULL, timeout=30)
-    except subprocess.TimeoutExpired:
-        die(f"pass {name} timed out after 30 s")
-    if r.returncode != 0 or not r.stdout.strip():
-        die(f"pass {name} failed (gpg key locked? run `pass {name}` once at the desktop): "
-            + r.stderr.strip())
-    return r.stdout.splitlines()[0]
-
-
-def pc_auth():
-    r = requests.post(f"{PC_API}/user/login", timeout=30, json={
-        "email": pass_get("api/pocketcasts/user"), "password": pass_get("api/pocketcasts/password"),
-        "scope": "webplayer"})
-    if r.status_code != 200:
-        die(f"Pocket Casts login: HTTP {r.status_code} {r.text[:200]}")
-    return {"Authorization": f"Bearer {r.json()['token']}"}
-
-
-def pc_post(auth, path):
-    r = requests.post(f"{PC_API}{path}", json={}, timeout=30, headers=auth)
-    r.raise_for_status()
-    return r.json()
-
-
-def podcast_title(ep):
-    # Pocket Casts sometimes returns an empty podcastTitle; its podcast cache has it.
-    if ep.get("podcastTitle"):
-        return ep["podcastTitle"]
-    r = requests.get(f"https://podcast-api.pocketcasts.com/podcast/full/{ep['podcastUuid']}", timeout=30)
-    return r.json().get("podcast", {}).get("title", "") if r.ok else ""
-
-
-def pct(ep):
-    return (ep.get("playedUpTo") or 0) * 100 // max(ep.get("duration") or 1, 1)
-
-
-def line(ep):
-    return f"{pct(ep):3d}%  {(ep.get('podcastTitle') or '?')[:30]:30}  {ep['title'][:60]:60}  {ep['uuid']}"
-
-
-def choose(hist, show=None, title=None, uuid=None):
-    """Pick the history entry the user means. Returns (episode, why, alternatives)."""
-    if show is not None and not norm(show):
-        die(f"--show {show!r} has no letters or digits to match on")
-    if title is not None and not norm(title):
-        die(f"--title {title!r} has no letters or digits to match on")
-    pool = [e for e in hist if not show or norm(show) in norm(e.get("podcastTitle"))]
-    if uuid:
-        ep = next((e for e in hist if e["uuid"] == uuid), None)
-        return ep or die(f"uuid {uuid} not in the last {len(hist)} history entries"), "uuid", []
-    if title:
-        hits = [e for e in pool if norm(title) in norm(e["title"])]
-        if not hits:
-            die(f"no history entry matches title {title!r}" + (f" in show {show!r}" if show else ""))
-        if len(hits) > 1:
-            more = f"\n… {len(hits) - 10} more; narrow with --show" if len(hits) > 10 else ""
-            print("several episodes match; rerun with --uuid:\n" + "\n".join(map(line, hits[:10])) + more,
-                  file=sys.stderr)
-            sys.exit(3)
-        return hits[0], "title", []
-    started = [e for e in pool if (e.get("playedUpTo") or 0) > 0]
-    if not started:
-        die("no started episode in history" + (f" for show {show!r}" if show else ""))
-    ep, why = started[0], "latest started"
-    if pct(ep) < AUTOPLAY_MAX_PCT:
-        done = next((e for e in started[1:3] if pct(e) >= FINISHED_MIN_PCT), None)
-        if done:
-            ep, why = done, f"latest started is {pct(started[0])}% played (autoplay?); took the finished one"
-    return ep, why, [line(e) for e in started[:3] if e is not ep]
 
 
 def itunes_lookup(title):
@@ -190,17 +98,10 @@ def pi_all(item, tag):
     return [x for ns in PODCAST_NS for x in item.findall(f"{{{ns}}}{tag}")]
 
 
-def cmd_history(args):
-    for n, ep in enumerate(pc_post(pc_auth(), "/user/history").get("episodes", [])[:args.n]):
-        ep["podcastTitle"] = podcast_title(ep)
-        print(f"{n:2d}  {line(ep)}")
-
-
 def cmd_episode(args):
-    auth = pc_auth()
-    hist = pc_post(auth, "/user/history").get("episodes", [])
-    ep, why, alternatives = choose(hist, args.show, args.title, args.uuid)
-    show = podcast_title(ep)
+    pc = PocketCasts()
+    ep, why, alternatives = choose(pc.history(), args.show, args.title, args.uuid)
+    show = ep["podcastTitle"]
     hit = None if args.feed else itunes_lookup(show)
     feed_url = args.feed or hit["feedUrl"]
     genres = hit.get("genres", []) if hit else []
@@ -210,12 +111,17 @@ def cmd_episode(args):
     if item is None:
         die(f"episode {ep['title']!r} not found in feed {feed_url}")
 
-    bookmarks = {b["time"]: b.get("title") for b in pc_post(auth, "/user/bookmark/list").get("bookmarks", [])
-                 if b.get("episodeUuid") == ep["uuid"]}
+    bookmarks = {b["time"]: b.get("title") for b in pc.bookmarks(ep["uuid"])}
     # Whether the history entry's own `bookmarks` field ever fills is unverified; merge it in.
     for b in ep.get("bookmarks") or []:
         if isinstance(b, dict) and "time" in b:
             bookmarks.setdefault(b["time"], b.get("title"))
+    # Pocket Casts generates transcripts for many shows whose feed has none.
+    try:
+        generated = show_notes(ep["podcastUuid"], ep["uuid"]).get("pocket_casts_transcripts") or []
+    except (requests.RequestException, ValueError, KeyError) as ex:
+        print(f"Pocket Casts show notes unavailable, feed transcripts only: {ex}", file=sys.stderr)
+        generated = []
     notes_html = item.findtext("content:encoded", namespaces=NS) or item.findtext("description") or ""
     out = Path(args.o)
     out.mkdir(parents=True, exist_ok=True)
@@ -235,7 +141,8 @@ def cmd_episode(args):
         "guid": (item.findtext("guid") or "").strip(),
         "audio_url": item.find("enclosure").get("url"),
         "matched_by": how,
-        "transcripts": [t.attrib for t in pi_all(item, "transcript")],
+        "transcripts": [t.attrib for t in pi_all(item, "transcript")]
+                       + [{**t, "origin": "pocketcasts"} for t in generated],
         "persons": [{"name": (p.text or "").strip(), **p.attrib} for p in pi_all(item, "person")],
         "chapters_url": next((c.get("url") for c in pi_all(item, "chapters")), None),
         "bookmarks": [{"t": t, "title": bookmarks[t]} for t in sorted(bookmarks)],
@@ -245,19 +152,9 @@ def cmd_episode(args):
     (out / "notes.md").write_text(BeautifulSoup(notes_html, "html.parser").get_text("\n").strip() + "\n")
     summary = {k: meta[k] for k in ("show", "title", "played_pct", "picked_because", "alternatives",
                                     "fiction", "matched_by", "page_url")}
-    print(json.dumps(summary | {"transcripts": [t.get("type") for t in meta["transcripts"]],
+    print(json.dumps(summary | {"transcripts": [" ".join(filter(None, (t.get("type"), t.get("origin"))))
+                                                for t in meta["transcripts"]],
                                 "bookmarks": len(meta["bookmarks"])}, ensure_ascii=False, indent=1))
-
-
-def hms(t):
-    t = int(float(t))
-    return f"{t // 3600:02d}:{t % 3600 // 60:02d}:{t % 60:02d}"
-
-
-def seconds(stamp):
-    """'1:02:03', '02:03', '00:00:10,240' -> seconds."""
-    parts = [float(p.replace(",", ".")) for p in stamp.strip().split(":")]
-    return int(sum(p * 60 ** i for i, p in enumerate(reversed(parts))))
 
 
 CUE = re.compile(r"((?:\d+:)?\d\d:\d\d[.,]\d+)\s+-->[^\n]*\n(.*?)(?=\n\s*\n|\Z)", re.S)
@@ -323,13 +220,20 @@ def to_turns(kind, body):
     return turns, True
 
 
+def ordered(tags):
+    """The publisher's transcripts by TRANSCRIPT_PREF, then Pocket Casts' generated ones, which
+    never carry speaker labels."""
+    return sorted(tags, key=lambda t: (t.get("origin") == "pocketcasts",
+                                       TRANSCRIPT_PREF.index(t["type"]) if t.get("type") in TRANSCRIPT_PREF else 99))
+
+
 def cmd_transcript(args):
     d = Path(args.dir)
     meta = json.loads((d / "episode.json").read_text())
-    tags = sorted(meta["transcripts"], key=lambda t: TRANSCRIPT_PREF.index(t.get("type"))
-                  if t.get("type") in TRANSCRIPT_PREF else 99)
+    tags = ordered(meta["transcripts"])
     if not tags:
-        print("no feed transcript; try the publisher page, else `audio` + transcribe-audio", file=sys.stderr)
+        print("no transcript in the feed or from Pocket Casts; try the publisher page, else `audio` + "
+              "transcribe-audio", file=sys.stderr)
         sys.exit(2)
     failures = []
     for tag in tags:
@@ -351,7 +255,8 @@ def cmd_transcript(args):
     with open(d / "transcript.txt", "w") as f:
         for t, spk, txt in turns:
             f.write(f"[{hms(t)}] {spk}: {txt.strip()}\n")
-    print(json.dumps({"source": tag.get("type"), "turns": len(turns), "timestamps": has_ts,
+    print(json.dumps({"source": tag.get("type"), "origin": tag.get("origin", "feed"),
+                      "turns": len(turns), "timestamps": has_ts,
                       "words": sum(len(x[2].split()) for x in turns),
                       "speakers": sorted({s for _, s, _ in turns})}))
 
@@ -372,14 +277,12 @@ def cmd_audio(args):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    h = sub.add_parser("history", help="recent Pocket Casts history: played %%, show, title, uuid")
-    h.add_argument("-n", type=int, default=10)
     e = sub.add_parser("episode", help="resolve an episode to episode.json + notes.md",
                        description="Default: the latest started episode, skipping an autoplayed one.")
     e.add_argument("--show", help="substring of the podcast title (narrows every other option)")
     sel = e.add_mutually_exclusive_group()
     sel.add_argument("--title", help="substring of the episode title; several matches exit 3")
-    sel.add_argument("--uuid", help="Pocket Casts episode uuid, as printed by `history`")
+    sel.add_argument("--uuid", help="Pocket Casts episode uuid, as printed by `pocketcasts.py history`")
     e.add_argument("--feed", help="RSS feed URL, skipping the iTunes lookup")
     e.add_argument("-o", required=True, help="output dir")
     t = sub.add_parser("transcript", help="fetch the feed transcript into DIR/transcript.txt")
@@ -388,8 +291,7 @@ def main():
     a.add_argument("dir")
     args = p.parse_args()
     try:
-        {"history": cmd_history, "episode": cmd_episode, "transcript": cmd_transcript,
-         "audio": cmd_audio}[args.cmd](args)
+        {"episode": cmd_episode, "transcript": cmd_transcript, "audio": cmd_audio}[args.cmd](args)
     except requests.RequestException as ex:
         die(f"network: {ex}")
     except ET.ParseError as ex:
