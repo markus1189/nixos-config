@@ -395,38 +395,6 @@ in
           '';
         };
 
-        "arbtt-categorizer" = {
-          target = ".arbtt/categorize.cfg";
-          text = ''
-            aliases ("Navigator"  -> "firefox",
-                     "org_pwmt_zathura" -> "zathura",
-                     "telegram-desktop" -> "telegram",
-                     "gl" -> "mpv"
-                    )
-
-            $idle > 600 ==> tag inactive,
-
-            current window ($title =~ /.*YouTube.*Firefox/ || $title =~ /- mpv$/) ==> tag act:watching,
-            current window $program == ["org_pwmt_zathura", "zathura"] ==> tag act:reading,
-            current window $program == ["telegram-desktop", "slack"] ==> tag act:chatting,
-            current window $program == ["zoom"] ==> tag act:conference,
-            current window $title =~ /.*Microsoft Teams.*/ ==> tag act:conference,
-            current window $program == "emacs" ==> tag act:coding,
-
-            -- Could be useful to see whom I chat with most
-            -- current window ($program == "slack" && $title =~ /Slack \|[[:space:]]*([^|]*) \|/) ==> tag slack:$1,
-
-            current window $title =~ /Online Whiteboard for Visual Collaboration/ ==> tag web:miro,
-            current window $title =~ /Amazon.de/ ==> tag web:amazon,
-            current window $title =~ /DuckDuckGo/ ==> tag web:ddg,
-            current window $title =~ /Ultimate AWS Certified.*Udemy/ ==> tag web:aws,
-
-            current window ($program == "emacs" && $title =~ /.*nixos-config.*/) ==> tag emacs:nixos,
-
-            -- tag program:$current.program,
-          '';
-        };
-
         "xmonad.hs" = {
           target = ".xmonad/xmonad.hs";
           source = pkgs.myConfigFiles.xmonad;
@@ -1094,28 +1062,6 @@ in
     signal.command = "${pkgs.signal-desktop}/bin/signal-desktop";
     slack.command = "${pkgs.slack}/bin/slack";
     spotify.command = "${pkgs.spotify}/bin/spotify";
-  };
-
-  systemd.user.services = {
-    arbtt =
-      let
-        arbttPackage = pkgs.haskellPackages.arbtt;
-      in
-      {
-        Unit = {
-          Description = "arbtt statistics capture service";
-        };
-
-        Install = {
-          WantedBy = [ "graphical-session.target" ];
-        };
-
-        Service = {
-          Type = "simple";
-          ExecStart = "${arbttPackage}/bin/arbtt-capture --logfile=%h/.arbtt/capture.log --sample-rate=${toString 60}";
-          Restart = "always";
-        };
-      };
   };
 
   # Replaces the three hand-written files (.gtk-bookmarks, .gtkrc-2.0,
