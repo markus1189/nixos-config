@@ -450,16 +450,13 @@
               fi
             fi
 
-            # Hand over to the machine-wide hook (gitleaks), which this one
-            # displaces. Resolved at runtime so it always chains to the current
-            # one. Fail closed: a missing secret scanner on a public repo is a
-            # reason not to commit, not a reason to shrug.
-            template="$(git config --get init.templatedir || true)"
-            if [ -z "$template" ] || [ ! -x "$template/hooks/pre-commit" ]; then
-              echo "pre-commit: no template pre-commit hook via init.templatedir -- refusing to commit without the gitleaks scan (run nh os switch)" >&2
+            # gitleaks runs separately as the global hook.gitleaks. Fail closed
+            # if it is gone: a public repo without a secret scan should not
+            # take commits.
+            if [ -z "$(git config --get hook.gitleaks.command || true)" ]; then
+              echo "pre-commit: hook.gitleaks not configured -- refusing to commit without the gitleaks scan (run nh os switch)" >&2
               exit 1
             fi
-            exec "$template/hooks/pre-commit"
           '';
         in
         {

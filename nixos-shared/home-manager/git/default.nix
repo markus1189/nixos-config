@@ -11,7 +11,6 @@ let
     writeText
     writeScript
     writeShellScript
-    runCommandLocal
     stdenv
     gitleaks
     xxd
@@ -101,15 +100,6 @@ let
       args+=(-c "$cfg")
     fi
     exec ${gitleaks}/bin/gitleaks "''${args[@]}"
-  '';
-
-  # git's init.templatedir seeds new repos from a directory of hooks. Copy the
-  # static hooks verbatim, then drop in the generated gitleaks pre-commit.
-  gitTemplateDir = runCommandLocal "git-template-dir" { } ''
-    cp -r ${./git_template} $out
-    chmod -R u+w $out
-    cp ${preCommitHook} $out/hooks/pre-commit
-    chmod +x $out/hooks/pre-commit
   '';
 
   userName = "Markus Hauck";
@@ -226,8 +216,19 @@ in
         gpgsign = signingKey != null;
       };
 
+      # Config-based hook (git >= 2.54): runs alongside .git/hooks/pre-commit
+      # and even under core.hooksPath, and lives in this HM-rooted config, so
+      # its store paths survive GCs. The name must not be an event name.
+      # Opt a repo out with `git config hook.gitleaks.enabled false`.
+      hook.gitleaks = {
+        event = "pre-commit";
+        command = "${preCommitHook}";
+      };
+
       init = {
-        templatedir = "${gitTemplateDir}";
+        # Seeds new repos with *copies* of these hooks, which are no GC roots:
+        # keep store paths out of git_template (gitleaks is hook.gitleaks).
+        templatedir = "${./git_template}";
         defaultBranch = "main";
       };
 
