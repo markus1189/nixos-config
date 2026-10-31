@@ -93,6 +93,17 @@ exit status. Capture to a file and read that back:
 nh os build > "$log" 2>&1; echo $?
 ```
 
+A fetch that times out may be the WireGuard tunnel (all unmarked traffic
+goes through `wg-nyc`; elpa.gnu.org drops it). Stop the build first, since
+it holds the output path's lock, then fetch around the tunnel and add the
+file. `--add-fixed` only lands on the expected path if the hash matches:
+
+```bash
+curl -fsSL --interface wlp0s20f3 -o NAME URL
+nix hash file --sri NAME   # must equal the .drv's outputHash
+nix-store --add-fixed sha256 NAME
+```
+
 ### Validation and Testing
 ```bash
 # Syntax check before building
