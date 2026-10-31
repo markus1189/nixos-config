@@ -1,6 +1,6 @@
 ---
 name: pocketcasts
-description: "Reads and changes the user's Pocket Casts account: listening history, Up Next, in-progress and new episodes, starred, bookmarks, subscriptions, listening stats, a show's episode list, show notes and transcripts, podcast and episode search; queues and unqueues episodes, marks them played, unplayed or at a position, stars, archives, subscribes and unsubscribes. Use when the user mentions Pocket Casts or their podcasts: what they heard or are hearing, what is queued or new, queueing, marking or starring an episode, finding a show or episode, subscribing, or listening time ('was hab ich zuletzt gehört', 'pack die Folge in Up Next', 'what's new in my podcasts'). To summarize an episode, use podcast-report instead."
+description: "Reads and changes the user's Pocket Casts account: history, Up Next, new and in-progress episodes, starred, bookmarks, subscriptions, listening stats, show notes, transcripts, podcast and episode search; queues, marks played, stars, archives, subscribes. Use when the user mentions Pocket Casts or their podcasts ('was hab ich zuletzt gehört', 'pack die Folge in Up Next', 'what's new in my podcasts'). To summarize an episode, use podcast-report instead."
 ---
 
 # Pocket Casts

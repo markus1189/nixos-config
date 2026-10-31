@@ -1,6 +1,6 @@
 ---
 name: hackernews
-description: "Daily HN briefing agent with delta tracking, deep-dive sub-agent pipeline, user-interest-aware filtering, and topic research across HN stories and comments. Use when the user asks about HN, Hacker News, tech news, wants to check/browse HN, get a briefing, see what's new or hot, search stories or comments, find HN discussions on a topic, asks what HN thinks about something, read or analyze HN comments, or do a deep dive on a story."
+description: "Reads Hacker News: top stories, daily briefings with what's new since the last check, deep dives on a story and its comments, and topic search across stories and comments, filtered by the user's interests. Use when the user mentions HN or Hacker News, asks for tech news, a briefing, what's new or hot, what HN thinks about a topic, HN discussions on something, to read or analyze an HN thread, a deep dive on a story, or an HN wrapup."
 ---
 
 # Hacker News CLI

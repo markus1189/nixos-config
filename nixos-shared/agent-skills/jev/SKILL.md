@@ -1,6 +1,6 @@
 ---
 name: jev
-description: "Runs cheap typed judgments (yes/no, pick-one, rubric score, bounding box) over text and images with the decision models Jev (TypeSafe) and Clef (Cloudflare), so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef or decision models, or wants many items or pages triaged, classified, ranked, deduplicated or checked against criteria or a source (feeds, logs, tickets, search results, screenshots, document piles), or the relevant lines or value found in a long file. Not for generating text, reasoning, counting or arithmetic, or building TypeSafe into an app."
+description: "Runs cheap typed judgments (yes/no, pick-one, rubric score, bounding box) over text and images with the decision models Jev (TypeSafe) and Clef (Cloudflare), so bulk semantic reading happens in a script instead of in context. Use when the user mentions Jev, TypeSafe, Clef or decision models, or wants many items or pages triaged, classified, ranked, deduplicated or checked against criteria or a source (feeds, logs, tickets, search results, screenshots, document piles), or wants the lines answering a question, or a value, located in a long file. Not for generating text, reasoning, counting or arithmetic, or building TypeSafe into an app."
 ---
 
 # Jev and Clef (decision models)

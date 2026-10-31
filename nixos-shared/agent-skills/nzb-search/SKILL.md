@@ -1,6 +1,6 @@
 ---
 name: nzb-search
-description: "Search and download NZB files from Usenet indexers (Treasure Maps, NZBgeek, NZBFinder, NZBPlanet, DrunkenSlug) for movies, TV shows, books, and other media. Use when the user wants to find or download content from Usenet, mentions NZBs, asks for movies/TV/books with download intent, or wants to manage their cart."
+description: "Searches Usenet indexers (Treasure Maps, NZBgeek, NZBFinder, NZBPlanet, DrunkenSlug) for movies, TV, ebooks and audiobooks, ranks releases, and downloads the NZB or adds it to the Treasure Maps cart. Use when the user mentions Usenet, NZBs or one of these indexers, wants a movie, show or book to download, or wants to change their cart. Fetching the content itself is the premiumize skill's job."
 ---
 
 # NZB Search

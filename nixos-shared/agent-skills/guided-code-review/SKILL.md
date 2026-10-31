@@ -1,6 +1,6 @@
 ---
 name: guided-code-review
-description: "Conducts an interactive, chunk-by-chunk code review of commits for a ticket or branch. Builds a mental model from story/commits, maps changes, then walks through logical groups with the reviewer. Accumulates findings for a structured final summary. Trigger: user asks for a 'guided code review'."
+description: "Walks the user through a code review of a ticket's or branch's commits interactively, one logical chunk at a time, collecting their findings into a final summary. Use only when the user asks for a 'guided code review'. Not for one-shot reviews of a diff or PR."
 ---
 
 # Guided Code Review

@@ -1,6 +1,6 @@
 ---
 name: diffing-images
-description: "Finds where two images, screenshots or PDF versions differ, pixel-exactly, and crops each changed region into a small A/B/diff strip to look at, using odiff. Use when asked what changed between two images, screenshots, renders, charts or versions of a PDF; for visual regression checks before and after a CSS, theme, layout or code change, including verifying one's own UI edits; to prove that a refactor, regeneration, re-export or image optimization changed nothing visible; when odiff, pixel diff, image diff, screenshot diff or spot the difference come up; and before claiming two images or pages look the same. Also for PDF versions whose text diff cannot show ticked boxes, stamps, signatures or layout. Not for inputs that are not pixel-aligned: two scans, photos taken separately, or PDFs exported by different programs."
+description: "Finds where two images, screenshots or PDF versions differ pixel by pixel and crops each changed region into an A/B/diff strip, using odiff. Use when asked what changed between two images, screenshots, renders or PDF versions (including ticks, stamps, signatures or layout a text diff misses); for visual regression checks after a CSS, layout or UI change; to prove a refactor, re-export or optimization changed nothing visible; when odiff, pixel diff or screenshot diff come up; and before claiming two images look the same. Not for inputs that are not pixel-aligned: separate scans or photos, or PDFs exported by different programs."
 ---
 
 # Diffing images

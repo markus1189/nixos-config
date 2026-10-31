@@ -1,6 +1,6 @@
 ---
 name: transcribe-audio
-description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) using Gemini 4 Argon via OpenRouter, saves transcripts as markdown, and supports follow-up analysis. Use when the user asks to transcribe audio, summarize a meeting recording, check a voice note, extract action items from a recording, asks what was discussed in an audio file, or mentions processing audio files in any way."
+description: "Transcribes audio files (mp3, wav, ogg, m4a, flac, webm) to a markdown transcript with speakers, timestamps, summary and action items, chunking long recordings, and answers follow-up questions about it. Use when the user asks to transcribe or summarise a recording, meeting, voice note or audio file, asks what was said or decided in one, or wants action items from it. For a podcast episode named by show or title, use podcast-report."
 ---
 
 # Audio Transcription

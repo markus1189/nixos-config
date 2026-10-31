@@ -1,6 +1,6 @@
 ---
 name: premiumize
-description: "Manage downloads and cloud storage on Premiumize.me. Add downloads from URLs, magnets, or NZB files, monitor transfer progress, get direct download/streaming links, browse and search cloud files, check cache availability, and manage folders. Use when the user mentions Premiumize, premium downloads, debrid service, cloud torrents, magnet links, direct download links, or wants to manage their Premiumize.me account."
+description: "Manages a Premiumize.me debrid account: adds transfers from URLs, magnets or NZB files, checks cache, monitors transfers, returns direct download and stream links, and browses, searches and organises cloud files. Use when the user mentions Premiumize or debrid, wants a magnet, torrent, hoster link or NZB downloaded in the cloud, or asks for a direct download link. To find an NZB first, use nzb-search."
 ---
 
 # Premiumize.me Download Manager

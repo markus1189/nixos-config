@@ -1,6 +1,6 @@
 ---
 name: google-maps
-description: "Queries Google Maps Platform and Google Weather APIs for geocoding, reverse-geocoding, directions with travel times, distance matrix, places search, place details, static map images, and current/hourly/daily weather forecasts. Use when the user asks about a location: where it is, what is there or nearby (restaurants, cafes, bars, points of interest, the closest X), how far it is, or how to get there (travel time, ETA, route by driving, walking, bicycling, transit); wants a map image; or asks about weather, forecast, temperature, rain, or conditions at a place. Needs a named place or coordinates: cannot resolve the user's own location."
+description: "Queries Google Maps and Google Weather APIs: geocoding, places and place details, directions, distance matrix, static map images, weather forecasts. Use when the user asks where a place is, what is nearby (restaurants, cafes, the closest X), how far it is or how to get there (travel time, ETA, driving, walking, bicycling, transit), wants a map image, or asks about weather, forecast or rain at a place. Needs a named place or coordinates: cannot resolve the user's own location."
 ---
 
 # Google Maps

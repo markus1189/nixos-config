@@ -1,6 +1,6 @@
 ---
 name: humanizing-prose
-description: "The 'de-ai' skill: writes, rewrites, or reviews prose to remove AI/LLM tells. Use whenever the user says 'de-ai' in any phrasing ('de-ai', 'apply de-ai', 'de-ai per skill'), asks to humanize text, de-AI writing, review for AI tells, write naturally, sound less robotic, sound less ChatGPT, sound more human, edit for voice, make text authentic, or mentions AI detection concerns — German phrasings too ('klingt nach KI', 'menschlicher formulieren') — and when composing outgoing emails, letters, comments, or posts meant to read as human-written. Handles English and German. Never claim de-ai was applied without loading this skill."
+description: "Writes, rewrites or reviews English and German prose to remove AI/LLM tells. Use when the user says 'de-ai' in any phrasing, asks to humanize text, review for AI tells, sound less robotic, less ChatGPT or more human, edit for voice, or mentions AI detection ('klingt nach KI', 'menschlicher formulieren'); and when composing outgoing emails, letters, comments or posts meant to read as human-written."
 ---
 
 # Humanizing Prose
