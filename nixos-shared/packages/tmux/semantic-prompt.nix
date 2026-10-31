@@ -9,9 +9,18 @@
     # tmux drops a mark printed from precmd. Prepended lazily because
     # starship sets PS1 after /etc/zshrc.
     _osc133_prompt() { [[ $PS1 == *']133;A'* ]] || PS1=$'%{\e]133;A\e\\%}'$PS1 }
-    _osc133_output() { print -n '\e]133;C\e\\' }
+    # D carries the exit status into #{pane_command_status}. Sent only after
+    # a C, so an empty Enter keeps the last real status; first in
+    # precmd_functions because $? is only the command's before other hooks run.
+    _osc133_output() { _osc133_ran=1; print -n '\e]133;C\e\\' }
+    _osc133_done() {
+      local s=$?
+      (( ''${_osc133_ran:-0} )) && print -n "\e]133;D;$s\e\\"
+      _osc133_ran=0
+    }
     add-zsh-hook precmd _osc133_prompt
     add-zsh-hook preexec _osc133_output
+    precmd_functions=(_osc133_done $precmd_functions)
   '';
   programs.tmux.extraConfig = ''
     bind O copy-mode \; send -X previous-prompt -o
