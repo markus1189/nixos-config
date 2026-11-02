@@ -19,3 +19,7 @@ descriptions match too. Open the page and look.
 | zeit.de | — | — | 403 |
 | Pocket Casts | show notes JSON, `pocket_casts_transcripts` | none (0 of 27 checked) | generated only where the feed has none, mostly |
 | Transistor, Libsyn, Acast, Spotify for Creators | nothing found | — | |
+
+"Nothing found" on a host means the host, not the show: open the show's own site (the feed's
+channel `<link>`, or a site named in the show notes). Amp hosts audio on Libsyn but publishes
+name-labelled transcripts, without timestamps, on ampcode.com.

@@ -22,7 +22,7 @@ questions unless the script exits 3.
 3. **Transcript**, first that works:
    - `./scripts/podcast.py transcript WORK`: the feed's, else Pocket Casts' generated one
      (`"origin": "pocketcasts"`: no speaker labels, names misspelled)
-   - the publisher page: [references/transcript-sources.md](references/transcript-sources.md)
+   - the show's own site, not just the audio host's page (the feed's channel `<link>`): [references/transcript-sources.md](references/transcript-sources.md)
    - `./scripts/podcast.py audio WORK`, then the transcribe-audio skill. Its speaker
      labels are best effort and sometimes confidently wrong: treat them as unlabelled.
    The transcript stays in `WORK`; it never goes into ~/Stuff.
