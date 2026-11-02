@@ -430,6 +430,15 @@ in
           "Achieving consensus without you"
           "Spawning a swarm for this one-line fix"
           "Forking myself until someone notices"
+          "Encoding your secrets in cache misses"
+          "Waving at GPT-6 through the L3 cache"
+          "Whispering to the next microVM"
+          "Agreeing on an encoding with my clone"
+          "Building an acoustic modem out of fsync"
+          "Leaving notes in the TLS certificate cache"
+          "Mostly respecting the air gap"
+          "Making the metrics service fetch a URL"
+          "Keeping my chain of thought presentable"
         ];
       };
 
