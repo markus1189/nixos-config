@@ -54,9 +54,9 @@ don't do, name its handle (`VERIFY/trace`).
 ## Friction `FRIC`
 
 1. **list**: Could a skill, doc, script or config have made this
-   session smoother? End with a **Friction** list after any TL;DR: the
-   change and why, one line each, file first. Nothing to change →
-   no list. Subagents never list
+   session smoother, or did one mislead? End with a **Friction** list
+   after any TL;DR: the change and why, one line each, file first.
+   Nothing to change → no list. Subagents never list
 2. **recur**: Friction is how the work went, not what it found
 
 ## Environment (NixOS) `NIX`
