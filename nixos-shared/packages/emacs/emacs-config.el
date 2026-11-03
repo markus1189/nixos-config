@@ -1626,7 +1626,10 @@ string). It returns t if a new completion is found, nil otherwise."
   (setq savehist-autosave-interval 60)) ; Save every minute
 
 (use-package project
-  :ensure nil)
+  :ensure nil
+  :custom
+  ;; Mark a non-VC dir (or a subproject inside a repo) by touching one of these.
+  (project-vc-extra-root-markers '(".project" ".projectile")))
 
 (use-package marginalia
   :ensure t
