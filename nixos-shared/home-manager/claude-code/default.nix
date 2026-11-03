@@ -218,8 +218,6 @@ in
       # Don't summarize a long idle session behind my back; exact earlier
       # context beats the cache savings, and /compact stays manual.
       idleCompaction = false;
-      # Spawned teammates get tmux panes rather than running in-process.
-      teammateMode = "tmux";
       showMessageTimestamps = true;
       # Mobile push, both off by default upstream. Only fire while Remote
       # Control is connected; no-ops otherwise.
@@ -506,6 +504,7 @@ in
         # Bash tool shell; otherwise the login shell (zsh) runs agent commands
         # and `echo ====`, unsplit `$var` and unmatched globs break bash idioms.
         CLAUDE_CODE_SHELL = "${pkgs.bash}/bin/bash";
+        CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         # Tested store paths: a mod edit lands with a rebuild and a new session.
         CLAUDE_CODE_PLUGIN_DIRS = pkgs.lib.concatStringsSep ":" (builtins.attrValues claudeMods);
       };
