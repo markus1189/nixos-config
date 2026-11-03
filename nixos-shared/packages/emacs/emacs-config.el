@@ -1423,7 +1423,33 @@ string). It returns t if a new completion is found, nil otherwise."
   (eval-after-load "org"
     '(require 'ox-md nil t))
   ;; verb-command-map is autoloaded, so this does not load verb
-  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+  :config
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
+
+  ;; split-width-threshold 0 makes every file link whose buffer is not on
+  ;; screen yet split the largest window again: display-buffer pops up a
+  ;; window before it reuses one.  Raising the threshold instead splits
+  ;; top/bottom on frames narrower than it and hands links any LRU window.
+  (defun mh/org-link-window-display (buffer alist)
+    "Show BUFFER in a window an earlier org file link created on this frame."
+    (when-let* ((window (seq-find (lambda (w)
+                                    (and (window-parameter w 'mh/org-link)
+                                         (not (eq w (selected-window)))
+                                         (not (window-dedicated-p w))))
+                                  (window-list nil 'nomini))))
+      (window--display-buffer buffer window 'reuse alist)))
+
+  (defun mh/org-find-file-in-link-window (file)
+    "Visit FILE like `find-file-other-window', reusing the previous link's window.
+Only a window that such a link created is reused, never one you set up."
+    (let ((before (window-list nil 'nomini))
+          (display-buffer-overriding-action
+           '((display-buffer-reuse-window mh/org-link-window-display))))
+      (find-file-other-window file)
+      (unless (memq (selected-window) before)
+        (set-window-parameter nil 'mh/org-link t))))
+
+  (push '(file . mh/org-find-file-in-link-window) org-link-frame-setup))
 
 (use-package transpose-frame
   :ensure t)
