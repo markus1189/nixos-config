@@ -529,6 +529,7 @@ in
             "ctrl+x o" = "command:model";
             "ctrl+x y" = "command:copy";
             "ctrl+x b" = "command:btw";
+            "ctrl+x n" = "command:clear";
           };
         }
       ];
