@@ -33,7 +33,9 @@ questions unless the script exits 3.
 6. **Deliver** both:
    - `$(stuff-today --default)/podcast-<show>-<episode-slug>.md`
    - a Claude Doc with the same content via the `anthropic-skills:docs` skill; its link goes
-     in the md header.
+     in the md header. Write the md first, then create the Doc in one `batch` call carrying the
+     finished markdown: skip the connector's skeleton-first, one-section-per-call flow. The user
+     is out running and reads only the finished report.
    The user comments in the Doc; apply each change to the Doc and the md together.
 
 ## When the script stops
