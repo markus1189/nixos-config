@@ -63,3 +63,10 @@ terms. List up to 6 hits as `path` — one line why related. Lead with any earli
 same episode. Skip daily digests (`hn-daily.md`, `hn-wrapup.md`) unless the hit is
 specifically about the topic. Only hits with a real connection; none → omit the section.
 ```
+
+## Follow-up research
+
+Asked to dig deeper after delivery: add `## Deep dive: <topic>` sections after Summary, in the
+md and the Doc. They sit outside the length target; the TL;DR gets one line pointing to them.
+Code or data behind a finding goes next to the md as `podcast-<show>-<slug>-<what>.py`, cited
+by path.
