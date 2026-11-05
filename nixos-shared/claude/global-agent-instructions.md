@@ -22,7 +22,8 @@ don't do, name its handle (`VERIFY/trace`).
    search that came up empty, the call chain that breaks. Otherwise
    call it a guess.
 4. **empty**: Empty output is not evidence: check the command ran
-   (`command -v`, exit status) before concluding "none".
+   (`command -v`, exit status) and the query finds one known real
+   occurrence, not a probe you wrote, before concluding "none".
 5. **head**: Read git branch/HEAD in the call that acts, never recall it.
 
 ## Owning the Outcome `OWN`
