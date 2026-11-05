@@ -100,7 +100,7 @@ file. `--add-fixed` only lands on the expected path if the hash matches:
 
 ```bash
 curl -fsSL --interface wlp0s20f3 -o NAME URL
-nix hash file --sri NAME   # must equal the .drv's outputHash
+nix hash file --sri NAME   # must equal: nix derivation show DRV | jq -r '.derivations[].outputs.out.hash'
 nix-store --add-fixed sha256 NAME
 ```
 
