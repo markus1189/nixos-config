@@ -139,6 +139,7 @@ let
     ast-grep = mkAgentSkill {
       name = "ast-grep";
       src = astGrepSkills + "/ast-grep/skills/ast-grep";
+      patches = [ ./patches/ast-grep-zero-matches.patch ];
     };
 
     ast-grep-outline = mkAgentSkill {
