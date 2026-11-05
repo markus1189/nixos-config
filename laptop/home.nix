@@ -358,7 +358,7 @@ in
           target = ".config/opencode/plugins/sounds.ts";
           source = pkgs.replaceVars ../nixos-shared/home-manager/opencode/sounds.ts {
             aplay = pkgs.alsa-utils;
-            inherit (pkgs) coreutils;
+            inherit (pkgs) coreutils dunst;
             sounds = "${../nixos-shared/claude/sounds}";
           };
         };

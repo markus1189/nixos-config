@@ -15,6 +15,15 @@ function playSound(name: string) {
   }).unref()
 }
 
+// Unlike the built-in attention notification, which stays quiet while the
+// terminal has focus, this pops up always, as claude-code's Notification hook does.
+function popup(title: string, message: string, tag: string) {
+  spawn("@dunst@/bin/dunstify", ["--stack-tag", tag, title, message], {
+    detached: true,
+    stdio: "ignore",
+  }).unref()
+}
+
 // Tool ids as OpenCode 2.0.24 lists them through `ctx.tool.list()`, minus
 // the opencode_* session/MCP helpers: patch, edit, write, glob, grep, read,
 // shell, skill, subagent, webfetch, websearch, question.
@@ -45,6 +54,10 @@ export default {
             // hollow-582 is compaction across the fleet; pull-out-551 means
             // "cleared / switched" in claude-code and pi-agent, so don't reuse it.
             if (!children.has(id)) playSound("hollow-582.wav")
+            break
+          case "form.created":
+            playSound("your-turn-491.wav")
+            popup("opencode", event.data.form.title ?? "Input needs response", `opencode-question-${event.data.form.sessionID}`)
             break
           case "permission.asked":
             // Blocked on the user, like claude-code's permission_prompt.
