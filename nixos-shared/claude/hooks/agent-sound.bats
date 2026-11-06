@@ -44,9 +44,18 @@ tool_sound() {
     assert_output "graceful-285.wav"
 }
 
-@test "tool: AskUserQuestion plays your-turn" {
+@test "tool: AskUserQuestion plays your-turn and rings the bell" {
     run tool_sound AskUserQuestion
-    assert_output "your-turn-491.wav"
+    assert_output "your-turn-491.wav
+BEL"
+}
+
+@test "tool: ExitPlanMode rings the bell, other tools do not" {
+    run tool_sound ExitPlanMode
+    assert_output "your-turn-491.wav
+BEL"
+    run tool_sound Edit
+    refute_line "BEL"
 }
 
 @test "tool: MCP tools are no longer silent" {
@@ -206,11 +215,17 @@ tool_sound() {
     assert_output "hollow-582.wav"
 }
 
-@test "stop and subagent stop" {
+@test "stop rings the bell, subagent stop does not" {
     run sound_for '{"hook_event_name":"Stop"}'
-    assert_output "for-sure-576.wav"
+    assert_output "for-sure-576.wav
+BEL"
     run sound_for '{"hook_event_name":"SubagentStop"}'
     assert_output "time-is-now-585.wav"
+}
+
+@test "notifications leave the bell to Claude Code's own channel" {
+    run sound_for '{"hook_event_name":"Notification","notification_type":"permission_prompt"}'
+    refute_line "BEL"
 }
 
 @test "garbage input plays nothing and exits cleanly" {

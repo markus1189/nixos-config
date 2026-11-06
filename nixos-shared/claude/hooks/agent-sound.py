@@ -3,7 +3,8 @@
 Reads the hook JSON on stdin, picks a sound, starts playback detached and
 exits. Wired as an async hook, so it never delays a tool call.
 
-AGENT_SOUND_DRY_RUN=1 prints the chosen sound instead of playing it (tests).
+AGENT_SOUND_DRY_RUN=1 prints the chosen sound instead of playing it, plus a
+`BEL` line when it would ring the terminal bell (tests).
 """
 
 import json
@@ -383,6 +384,41 @@ def choose_sound(event):
     return None
 
 
+# The fleet-wide bell means "this window needs you": a finished turn or a
+# question. pi and opencode ring on both; Claude Code's own bell
+# (preferredNotifChannel) covers permission prompts but rings for a finished
+# turn only once messageIdleNotifThresholdMs has passed, so the hook rings
+# these itself.
+BELL_TOOLS = {"AskUserQuestion", "ExitPlanMode"}
+
+
+def wants_bell(event):
+    name = event.get("hook_event_name")
+    if name == "Stop":
+        return True
+    return name == "PreToolUse" and event.get("tool_name") in BELL_TOOLS
+
+
+def ring_bell():
+    # Hooks run without a controlling terminal, so /dev/tty fails; Claude
+    # Code's own stdout is the pane's pty. Walk up until an ancestor has one.
+    pid = os.getppid()
+    for _ in range(4):
+        if pid <= 1:
+            return
+        try:
+            target = os.readlink(f"/proc/{pid}/fd/1")
+            if target.startswith("/dev/pts/"):
+                with open(target, "w") as tty:
+                    tty.write("\a")
+                return
+            with open(f"/proc/{pid}/stat") as f:
+                # comm (field 2) may contain spaces; ppid follows its ")".
+                pid = int(f.read().rsplit(")", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            return
+
+
 def play(sound):
     # The timeout is load-bearing: if the audio stack wedges, aplay blocks
     # forever on the PipeWire socket and every tool call leaks a process.
@@ -401,10 +437,16 @@ def main():
     except ValueError:
         return
     sound = choose_sound(event)
+    bell = wants_bell(event)
     if os.environ.get("AGENT_SOUND_DRY_RUN"):
         print(sound or "")
-    elif sound:
+        if bell:
+            print("BEL")
+        return
+    if sound:
         play(sound)
+    if bell:
+        ring_bell()
 
 
 if __name__ == "__main__":

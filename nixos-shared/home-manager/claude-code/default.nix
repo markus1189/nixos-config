@@ -205,8 +205,9 @@ in
       showThinkingSummaries = true;
       alwaysThinkingEnabled = true;
 
-      # Ring the terminal BEL on task-finish / permission prompts. Fires
-      # alongside the Notification sound hooks, not instead of them.
+      # BEL on Claude Code's own notifications (permission prompts, idle
+      # past messageIdleNotifThresholdMs, background agents). Finished turns
+      # and questions ring from the agent-sound hook instead.
       preferredNotifChannel = "terminal_bell";
       # Start the Remote Control bridge in every session (same as /config's
       # "Enable Remote Control for all sessions"). Only honored from user
