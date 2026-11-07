@@ -60,6 +60,16 @@ in
         c-plain = "${claudeEnv} claude";
         cy-plain = "${claudeEnv} claude ${yolo}";
 
+      }
+      //
+        lib.mapAttrs'
+          (k: lvl: lib.nameValuePair "cy${k}" "${claudeEnv} claude ${yolo} ${gladosFlag} --effort ${lvl}")
+          {
+            h = "high";
+            x = "xhigh";
+            m = "max";
+          }
+      // {
         oc = "env ${requestyAgentKey} opencode2 --standalone --auto";
 
         pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
