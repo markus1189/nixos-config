@@ -102,6 +102,8 @@ Syntax notes:
 
 ## Web Search and Fetching
 
+0. Built-in web search/fetch tools win; the rules below are for
+   agents without them
 1. DuckDuckGo search: `ddgr --unsafe --json --noua $SEARCH_TERM`
    (`--json` implies `--noprompt`), prioritize credible websites as
    sources
