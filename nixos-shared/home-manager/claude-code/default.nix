@@ -195,6 +195,8 @@ in
       # read-only store path, so /plugin enable can't write this itself.
       enabledPlugins = {
         "cc-plugin-you-should-know@builtin" = true;
+        # Arrives via the synced marketplace; 0 uses since install (doctor, 2026-11-06).
+        "engineering@synced" = false;
       };
 
       model = "opus";
