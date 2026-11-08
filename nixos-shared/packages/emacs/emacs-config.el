@@ -2655,6 +2655,7 @@ Provides more detailed messages on failure."
            ("https://byorgey.github.io/blog/rss.xml" programming haskell-fp)
            ("https://planet.haskell.org/rss20.xml" programming haskell-fp)
            ("https://www.tweag.io/rss.xml" programming)
+           ("https://comonad.com/feed.xml" programming haskell-fp)
            ("https://feeds2.feedburner.com/catonmat")
            ("https://themonadreader.wordpress.com/feed/" programming haskell-fp)
            ("https://irreal.org/blog/?feed=rss2" programming emacs-dev)
