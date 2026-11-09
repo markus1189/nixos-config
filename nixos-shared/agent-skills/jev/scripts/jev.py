@@ -26,8 +26,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Pinned: thresholds tuned on one version don't carry over. `~typesafe/jev-latest` tracks releases.
 MODEL = "typesafe/jev-1.14"
-# sference/clef is the only Clef endpoint approved for the systemone key; cloudflare/* needs a
-# Model Library approval in the Requesty console first.
+# sference/clef is the only Clef endpoint that answers for the systemone key (2026-11-09):
+# melious/clef[-flash] are on its access list but 400 on chat completions, Requesty's Decisions
+# endpoint (/v1/systemone) lists no model for the key and 403s every one, and cloudflare/* is not
+# on the access list.
 ALIASES = {"jev": MODEL, "jev-1.13": "typesafe/jev-1.13", "clef": "sference/clef"}
 OPENROUTER_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/") + "/systemone"
 # The org enforces EU data residency: router.requesty.ai answers 403 for every request.
