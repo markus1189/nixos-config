@@ -116,7 +116,7 @@ slug in backticks right after the title:
 ```
 
 Omit empty categories. Be specific and actionable — reference actual file paths and concrete changes.
-Keep it concise. 3-5 high-value findings beats 15 minor ones.
+Retry traces are always reported; beyond those, prefer a few high-value findings over many minor ones.
 
 ## Applying Fixes
 

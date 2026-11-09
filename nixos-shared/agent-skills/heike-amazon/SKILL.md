@@ -7,7 +7,7 @@ disable-model-invocation: true
 # heike-amazon
 
 Both scripts read `/run/agenix/splid.env` (mail filter, Splid IDs and Parse
-headers). Run them from this skill's directory.
+headers). Invoke them by absolute path, resolved against this SKILL.md's directory.
 
 ## 1. List the links
 

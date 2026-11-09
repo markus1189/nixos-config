@@ -7,7 +7,7 @@ description: "Reads the Telegram bot's inbox and sends text, photos or documents
 
 The scripts take the token from `TELEGRAM_BOT_TOKEN`, else from
 `/run/agenix/telegram.env`; no setup needed. Errors go to stderr with the token
-redacted. Run them from this skill's directory.
+redacted. Invoke them by absolute path, resolved against this SKILL.md's directory.
 
 ## Checking Inbox Messages
 

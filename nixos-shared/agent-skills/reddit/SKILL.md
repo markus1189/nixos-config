@@ -62,5 +62,5 @@ thread is already known, `comments` on it directly is exact.
   flag, or pass the URL to `url`.
 - API reference: <https://www.reddit.com/dev/api>
 
-**Script Execution:** Scripts should be executed from the skill directory.
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory.
 All scripts use Nix shebangs so no manual dependency installation is required.

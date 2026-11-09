@@ -23,19 +23,6 @@ conversation. Keep the reply tight so the parent's context stays clean:
 - Do not paste raw TSV, full transcripts, or the entire hit list. Filter,
   summarize, hand back UUIDs.
 
-## When to invoke
-
-Any user request to recall or read a previous Claude Code session:
-
-- "find our conversation about kanata"
-- "where did we discuss the OTel setup"
-- "what did we do last week about backports"
-- "show me that session where I asked about emacsclient"
-- "read the session where we set up X"
-
-If unsure, prefer to use the skill — the cost of a missed hit is the user
-re-explaining context; the cost of a spurious search is one second.
-
 ## Tools
 
 Both scripts live in `scripts/` next to this SKILL.md; call them by that

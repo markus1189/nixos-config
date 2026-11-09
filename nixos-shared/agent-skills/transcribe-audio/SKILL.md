@@ -115,5 +115,5 @@ After transcription (or when an existing transcript is available), support any f
   renames on success only; a failed run never leaves an empty/partial `.md`
 - **Max file size**: 200MB per file
 
-**Script Execution:** Scripts should be executed from the skill directory.
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory.
 All scripts use Nix shebangs so no manual dependency installation is required.

@@ -51,9 +51,7 @@ For each chunk in the agreed map:
 1. **Read the relevant files** at the current revision
 2. **Present the chunk**: what changed, why (inferred from context), and how it connects to the story
 3. **Assess** against review dimensions (see [references/review-dimensions.md](references/review-dimensions.md))
-4. **Wait for reviewer feedback** before proceeding to the next chunk
-
-IMPORTANT: Use the question tool (`AskUserQuestion` / `questionnaire`) to step through this process!
+4. **Wait for reviewer feedback** via the question tool before proceeding to the next chunk
 
 #### Reviewer Steering Commands
 

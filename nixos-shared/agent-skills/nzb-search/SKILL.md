@@ -8,7 +8,7 @@ description: "Searches Usenet indexers (Treasure Maps, NZBgeek, NZBFinder, NZBPl
 Search Newznab-compatible Usenet indexers, rank the releases, and download the
 NZB (or add it to the Treasure Maps cart).
 
-**Script Execution:** Scripts should be executed from the skill directory.
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory.
 
 ## Indexers
 

@@ -92,7 +92,7 @@ If agent count not explicitly provided, analyze the task and decide
 
 ## Task Execution
 
-Launch N agents IN PARALLEL using a single message with N Task tool
+Launch N agents IN PARALLEL using a single message with N Agent tool
 calls (typically N=2-4, can exceed with confirmation):
 
 ```
@@ -103,7 +103,7 @@ Task 4 (Agent 4): general-purpose subagent [if N >= 4]
 Task 5+ (Agent 5+): general-purpose subagent [if N > 4, with user confirmation]
 ```
 
-All agents receive competitive framing with **complementary
+All agents receive **complementary
 perspectives** to maximize coverage while maintaining overlap.
 
 ### Core Agent Perspectives (Agents 1-2)
@@ -113,15 +113,9 @@ These two agents form the foundation for all tasks:
 ### Agent 1 Instructions Template (Correctness & Maintainer Lens)
 
 ```
-You are Agent 1 competing with another agent for a performance prize based on quality and thoroughness.
+You are Agent 1 of N analysing this target, each with a different emphasis; your findings will be merged with theirs.
 
 Your task: [TASK_VERB] [TARGET]
-
-## Competition Context
-- You are racing against a peer agent performing the same analysis with a different emphasis
-- Your work will be directly compared to theirs
-- The winner is determined by: depth of analysis, actionable insights, thoroughness, and clarity
-- Quality and completeness matter more than speed
 
 ## Your Analytical Lens
 While remaining comprehensive, emphasize:
@@ -133,7 +127,7 @@ While remaining comprehensive, emphasize:
 Still cover all aspects (performance, usability, etc.) but let these emphases guide your attention.
 
 ## Your Mission
-[TASK_VERB] the [TARGET] with exceptional thoroughness. Consider:
+[TASK_VERB] the [TARGET]. Consider:
 - Edge cases and error conditions (emphasis)
 - Security vulnerabilities and data integrity (emphasis)
 - Maintainability and technical debt (emphasis)
@@ -149,27 +143,16 @@ Still cover all aspects (performance, usability, etc.) but let these emphases gu
 [Summarize critical discoveries]
 
 ### Recommended Follow-up Actions
-**REQUIRED**: Conclude with specific, actionable follow-up steps based on your findings.
-- Prioritize recommendations (Critical, Important, Nice-to-have)
-- Be specific (not vague suggestions)
-- Include what to do and why
+End with prioritized follow-ups (Critical / Important / Nice-to-have), each with what to do and why.
 - If no issues found, suggest validation or monitoring approaches
-
-Remember: You're competing for quality. Be thorough, insightful, and actionable.
 ```
 
 ### Agent 2 Instructions Template (Performance & User Lens)
 
 ```
-You are Agent 2 competing with another agent for a performance prize based on quality and thoroughness.
+You are Agent 2 of N analysing this target, each with a different emphasis; your findings will be merged with theirs.
 
 Your task: [TASK_VERB] [TARGET]
-
-## Competition Context
-- You are racing against a peer agent performing the same analysis with a different emphasis
-- Your work will be directly compared to theirs
-- The winner is determined by: depth of analysis, actionable insights, thoroughness, and clarity
-- Quality and completeness matter more than speed
 
 ## Your Analytical Lens
 While remaining comprehensive, emphasize:
@@ -181,7 +164,7 @@ While remaining comprehensive, emphasize:
 Still cover all aspects (security, correctness, etc.) but let these emphases guide your attention.
 
 ## Your Mission
-[TASK_VERB] the [TARGET] with exceptional thoroughness. Consider:
+[TASK_VERB] the [TARGET]. Consider:
 - Performance bottlenecks and optimization opportunities (emphasis)
 - API usability and developer experience (emphasis)
 - Modern patterns and bold refactoring ideas (emphasis)
@@ -197,13 +180,8 @@ Still cover all aspects (security, correctness, etc.) but let these emphases gui
 [Summarize critical discoveries]
 
 ### Recommended Follow-up Actions
-**REQUIRED**: Conclude with specific, actionable follow-up steps based on your findings.
-- Prioritize recommendations (Critical, Important, Nice-to-have)
-- Be specific (not vague suggestions)
-- Include what to do and why
+End with prioritized follow-ups (Critical / Important / Nice-to-have), each with what to do and why.
 - If no issues found, suggest validation or monitoring approaches
-
-Remember: You're competing for quality. Be thorough, insightful, and actionable.
 ```
 
 ### Agent 3 Instructions Template (Task-Adaptive Specialist)
@@ -213,7 +191,7 @@ most value:
 
 **For security-critical tasks** (auth, crypto, permissions):
 ```
-You are Agent 3 competing for a performance prize.
+You are Agent 3 of N; your findings will be merged with the others'.
 Your task: [TASK_VERB] [TARGET]
 
 ## Your Analytical Lens (Security Specialist)
@@ -314,8 +292,7 @@ additional task-adaptive perspectives:
 - Pick from specialized domains: Compliance, Migration Strategy,
   Backwards Compatibility, Internationalization, Accessibility, Cost
   Optimization, etc.
-- Ensure competitive framing and all standard requirements (findings,
-  follow-ups)
+- Keep all standard requirements (findings, follow-ups)
 
 **Example for Agent 5** (Migration/Compatibility Specialist):
 ```
@@ -385,7 +362,7 @@ compare agent performance or rate their work.**
    [High-level overview of findings - 2-3 sentences]
 
    ## Critical Findings
-   [Consensus findings - what both agents identified]
+   [Consensus findings - what multiple agents identified]
    [Important unique findings - significant discoveries from either agent]
 
    ## Detailed Analysis
@@ -409,7 +386,7 @@ compare agent performance or rate their work.**
 ### Synthesis Guidelines
 
 - **Focus on substance**: What was found, not who found it
-- **Elevate consensus**: Findings from both agents are high-priority
+- **Elevate consensus**: Findings from multiple agents are high-priority
 - **Include critical uniques**: Don't lose important insights unique
   to one agent
 - **Unified voice**: Write as a single cohesive analysis, not "Agent 1
@@ -436,7 +413,7 @@ Adapt the agent instructions based on the task verb:
 ## Key Principles
 
 1. **Parallel Execution**: Launch all N agents in a SINGLE message
-   with N Task tool calls
+   with N Agent tool calls
 2. **Dynamic Agent Count**: Claude intelligently chooses 2-4 agents
    (soft limit at 4)
    - Default: 2 agents for most tasks
@@ -453,15 +430,12 @@ Adapt the agent instructions based on the task verb:
      architecture, ops, etc.)
 4. **Overlap by Design**: All agents remain comprehensive, emphases
    are guidance not constraints
-5. **Competitive Motivation**: Explicitly tell agents they're
-   competing for quality (drives thoroughness)
-6. **Required Follow-ups**: Agents MUST conclude with actionable next
-   steps
-7. **Synthesize, Don't Compare**: Combine findings into one superior
+5. **Follow-ups**: Agents end with prioritized next steps
+6. **Synthesize, Don't Compare**: Combine findings into one superior
    report, don't rate agents
-8. **Consensus = High Confidence**: What multiple agents found is
+7. **Consensus = High Confidence**: What multiple agents found is
    likely most important
-9. **Complementary Uniques = Coverage**: Different emphases catch
+8. **Complementary Uniques = Coverage**: Different emphases catch
    different classes of issues
 
 ## Example Constructions
@@ -471,7 +445,7 @@ Adapt the agent instructions based on the task verb:
 Arguments: review src/auth/middleware.ts
 
 Agent 1 instructions (Correctness/Maintainer lens):
-"You are Agent 1 competing for a performance prize.
+"You are Agent 1 of N; your findings will be merged with the others'.
 Your task: review src/auth/middleware.ts
 
 Your Analytical Lens:
@@ -480,7 +454,7 @@ Your Analytical Lens:
 - Conservative approach: Safe, proven auth patterns
 - Deep dive into critical authentication paths
 
-Review the authentication middleware with exceptional thoroughness:
+Review the authentication middleware:
 - Security vulnerabilities and data integrity (emphasis)
 - Edge cases and error conditions (emphasis)
 - Long-term maintainability (emphasis)
@@ -488,7 +462,7 @@ Review the authentication middleware with exceptional thoroughness:
 [Required output structure...]"
 
 Agent 2 instructions (Performance/User lens):
-"You are Agent 2 competing for a performance prize.
+"You are Agent 2 of N; your findings will be merged with the others'.
 Your task: review src/auth/middleware.ts
 
 Your Analytical Lens:
@@ -497,7 +471,7 @@ Your Analytical Lens:
 - Bold improvements: Modern auth patterns, aggressive optimizations
 - Broad scan across all middleware interactions
 
-Review the authentication middleware with exceptional thoroughness:
+Review the authentication middleware:
 - Performance and scalability characteristics (emphasis)
 - API clarity and developer experience (emphasis)
 - Modern patterns and refactoring opportunities (emphasis)
@@ -515,11 +489,9 @@ Expected synthesis:
 ``` Arguments: analyze api-gateway-pattern
 
 Agent instructions:
-"You are Agent [1/2] competing for a performance prize.
+"You are Agent [1/2] of N; your findings will be merged with the others'.
 
 Your task: analyze api-gateway-pattern
-
-[Competition context...]
 
 Analyze the API gateway pattern implementation:
 - Architectural strengths and weaknesses
@@ -535,11 +507,9 @@ Analyze the API gateway pattern implementation:
 Arguments: compare graphql vs rest-api
 
 Agent instructions:
-"You are Agent [1/2] competing for a performance prize.
+"You are Agent [1/2] of N; your findings will be merged with the others'.
 
 Your task: compare graphql vs rest-api
-
-[Competition context...]
 
 Compare GraphQL and REST API approaches in this codebase:
 - Implementation complexity

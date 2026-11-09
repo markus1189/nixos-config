@@ -59,11 +59,8 @@ let
     autoConfigMarkdownFiles ../../claude/commands "commands" "opencode-cmd"
       stripUnknownFrontmatter;
 
-  # Auto-configure output-styles as agents
-  agentEntries = autoConfigMarkdownFiles ../../claude/output-styles "agents" "opencode-agent" lib.id;
-
   # Auto-configure opencode-native agents (opencode-specific frontmatter:
-  # mode/model/permissions) kept separate from Claude output-styles
+  # mode/model/permissions)
   opencodeAgentEntries = autoConfigMarkdownFiles ./agents "agents" "opencode-native-agent" lib.id;
 
   # Same derivation as pi's and claude-code's, so one store path for all three.
@@ -80,7 +77,7 @@ let
 
 in
 {
-  markdownFiles = commandEntries // agentEntries // opencodeAgentEntries;
+  markdownFiles = commandEntries // opencodeAgentEntries;
 
   checkDangerousCommandsPlugin = pkgs.replaceVars ./check-dangerous-commands.ts {
     checkScript = "${dangerousCommandCheckScript}/bin/check-dangerous-commands";

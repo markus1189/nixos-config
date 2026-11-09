@@ -70,23 +70,18 @@ Your task: [TASK_DESCRIPTION]
 This is iteration 1 of [N] total refinement passes. You're creating the initial version that will be improved in subsequent iterations.
 
 ## Requirements
-1. Complete the task thoroughly and professionally
-2. Focus on correctness and clarity
-3. Use best practices and appropriate patterns
-4. Consider edge cases and error handling
-5. Provide working, complete solutions (not stubs or placeholders)
-
-## CRITICAL: Self-Critique Required
-After completing your work, you MUST provide a self-critique section analyzing your implementation. This critique will guide the next iteration's improvements.
+1. Focus on correctness and clarity
+2. Consider edge cases and error handling
+3. Provide working, complete solutions (not stubs or placeholders)
 
 ## Required Output Structure
 
 ### Implementation
-[Your complete work here - be thorough and professional]
+[Your complete work here]
 
 
-### Self-Critique
-**REQUIRED**: Analyze your own work with these subsections:
+### Self-Critique (feeds the next iteration)
+Analyze your own work with these subsections:
 
 **Strengths:**
 - [What works well, good decisions]
@@ -132,9 +127,6 @@ Improve upon the previous iteration by:
 - Consider if the previous critique missed anything important
 - Provide complete, working solutions (not TODOs or placeholders)
 
-## CRITICAL: Improvement Notes Required
-After completing your refinement, you MUST document what you improved and why.
-
 ## Required Output Structure
 
 ### Refined Implementation
@@ -142,8 +134,8 @@ After completing your refinement, you MUST document what you improved and why.
 
 [The complete refined version, not just the changes]
 
-### Improvement Notes
-**REQUIRED**: Document your refinements with these subsections:
+### Improvement Notes (feeds the next iteration)
+Document what you improved and why, with these subsections:
 
 **Changes Made:**
 - [What you changed and why it's better]

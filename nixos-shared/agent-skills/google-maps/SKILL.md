@@ -38,7 +38,7 @@ Commands validate responses and exit non-zero on real errors (printing the API m
 DRIVE-mode traffic estimates default to departing ~now. Set `MAPS_DEPARTURE_TIME` to any `date -d` compatible string to get traffic predictions for a future departure. Applies to `directions`, `directions-waypoints`, and `distance-matrix`. The API requires a future timestamp.
 
 ```bash
-MAPS_DEPARTURE_TIME="2026-04-21 17:45 CEST" \
+MAPS_DEPARTURE_TIME="next friday 17:45" \
   ./scripts/maps-api.sh directions-pretty "Lorsbach" "Frankfurt Ostend" driving
 
 MAPS_DEPARTURE_TIME="tomorrow 08:00" \

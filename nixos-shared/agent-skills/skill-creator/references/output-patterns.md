@@ -11,7 +11,7 @@ Provide templates for output format. Match the level of strictness to your needs
 ```markdown
 ## Report structure
 
-ALWAYS use this exact template structure:
+Use this template structure exactly:
 
 # [Analysis Title]
 

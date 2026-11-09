@@ -10,7 +10,7 @@ Takeaway discovery API. No authentication, no API key. Run `--help` for the full
 
 **`--lat` and `--lon` are required — there is no default location.** The script takes raw
 coordinates, not addresses. Ask the user where they want to order from, then geocode it with the
-**google-maps** skill (`./scripts/maps-api.sh geocode-pretty "<address>"`) and pass the result
+**google-maps** skill (its `scripts/maps-api.sh geocode-pretty "<address>"`, by absolute path from that skill's directory) and pass the result
 through. Do not guess coordinates.
 
 ```bash
@@ -38,5 +38,5 @@ Defaults otherwise: delivery, sorted by rating, `--country de`.
   error, including missing `--lat`/`--lon`. Zero matches is a *success* (exit 0, `[]` under
   `--json`).
 
-**Script Execution:** Run scripts from the skill directory. The Nix shebang pulls its own
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory. The Nix shebang pulls its own
 dependencies (curl, jq, util-linux) — no installation needed.

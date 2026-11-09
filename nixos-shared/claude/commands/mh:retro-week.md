@@ -82,7 +82,7 @@ Candidates are already generated — do not re-derive them:
 - `~/Stuff/llms.txt` → **Recently updated (last 7 days)**
 - `~/Stuff/YYYY-MM/INDEX.md` → every title and outline for the month
 
-Filter out `hn-daily` / `hn-wrapup` (263 files; they will drown everything). Then **read** the
+Filter out `hn-daily` / `hn-wrapup` (hundreds of files; they drown everything). Then **read** the
 candidates and chain them into threads **by topic, across day dirs**. For each thread:
 
 - What is its **current** state? Trust the newest file in the chain, not the oldest.

@@ -39,11 +39,6 @@ let
   # Auto-configure docs files
   docsEntries = autoConfigMarkdownFiles ../../claude/docs "user-docs" "claude-docs";
 
-  # Auto-configure output-styles files
-  outputStylesEntries =
-    autoConfigMarkdownFiles ../../claude/output-styles "output-styles"
-      "claude-output-styles";
-
   # One dir-level symlink per validated skill derivation. Unmanaged skills
   # in ~/.claude/skills coexist untouched beside these.
   skillsEntries = pkgs.lib.attrsets.mapAttrs' (
@@ -545,5 +540,5 @@ in
   };
 
   # Not only markdown since skills carry scripts/assets; renamed accordingly.
-  agentFiles = commandEntries // docsEntries // outputStylesEntries // skillsEntries;
+  agentFiles = commandEntries // docsEntries // skillsEntries;
 }

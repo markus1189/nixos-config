@@ -51,4 +51,4 @@ For non-trivial generations (text in images, multi-image composition, photoreali
 - `API error: ...` — surfaced from OpenRouter (rate limit, model unavailable, content policy). Report it verbatim.
 - `No image returned` — model produced text only (e.g. refused). Show the response if helpful.
 
-**Script Execution:** Scripts should be executed from the skill directory. All scripts use Nix shebangs so no manual dependency installation is required.
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory. All scripts use Nix shebangs so no manual dependency installation is required.

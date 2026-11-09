@@ -11,12 +11,8 @@ The user specified purpose:
 <purpose>$ARGUMENTS</purpose>
 
 You are creating a summary specifically so that it can be continued by
-another agent.  For this to work you MUST have a purpose.  If no
-specified purpose was provided in the `<purpose>...</purpose>` tag you
-must STOP IMMEDIATELY and ask the user what the purpose is.
-
-Do not continue before asking for the purpose as you will otherwise
-not understand the instructions and do not assume a purpose!
+another agent. If `<purpose>` is empty, ask the user for the next
+session's purpose before writing anything; the plan is built around it.
 
 ## Goal
 
@@ -28,21 +24,8 @@ essential for continuing development work without losing context.
 
 ## Process
 
-Before providing your final plan, wrap your analysis in <analysis>
-tags to organize your thoughts and ensure you've covered all necessary
-points. In your analysis process:
-
-1. Chronologically analyze each message and section of the
-   conversation. For each section thoroughly identify:
-   - The user's explicit requests and intents
-   - Your approach to addressing the user's requests
-   - Key decisions, technical concepts and code patterns
-   - Specific details like file names, full code snippets, function
-     signatures, file edits, etc
-2. Double-check for technical accuracy and completeness, addressing
-   each required element thoroughly.
-
-Your plan should include the following sections:
+Before writing, check the plan for technical accuracy and
+completeness. It must include the following sections:
 
 1. **Primary Request and Intent**: Capture all of the user's explicit
    requests and intents in detail
@@ -62,10 +45,9 @@ Your plan should include the following sections:
    attention to the most recent messages from both user and
    assistant. Include file names and code snippets where applicable.
 7. **Optional Next Step**: List the next step that you will take that
-   is related to the most recent work you were doing. IMPORTANT:
-   ensure that this step is DIRECTLY in line with the user's explicit
-   requests, and the task you were working on immediately before this
-   handoff request. If your last task was concluded, then only list
+   is related to the most recent work you were doing. Keep
+   this step in line with the user's explicit requests and the task in
+   progress immediately before this handoff request. If your last task was concluded, then only list
    next steps if they are explicitly in line with the users
    request. Do not start on tangential requests without confirming
    with the user first.
@@ -89,10 +71,6 @@ Here's an example of how your output should be structured:
 
 ````markdown
 # Readable Summary
-
-<analysis>
-[Your thought process, ensuring all points are covered thoroughly and accurately]
-</analysis>
 
 <plan>
 # Session Handoff Plan
@@ -139,12 +117,12 @@ file names and code snippets]
 
 ## Final Step
 
-After providing your analysis and summary, write the handoff to a
+Write the handoff to a
 markdown file at `.plan/handoffs/[timestamp]-[slug].md` where
 [timestamp] is the current local time as YYYY-MM-DD-HHMM (`date
 +%F-%H%M`) and the slug is what we defined before.  The file contains
 only the `# Readable Summary` title line followed by the content inside
-`<plan>...</plan>` (without the tags); the `<analysis>` stays out.
+`<plan>...</plan>` (without the tags).
 
 Then tell the user about this file (with an absolute path) and that
 they can use `/mh:pickup FILENAME` to continue.

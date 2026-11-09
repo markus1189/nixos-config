@@ -27,8 +27,8 @@ Update claude-code in nixpkgs. Arguments: $ARGUMENTS
   gotcha).
 - **Both commits carry `Assisted-by: <tool> (<model>)`** — the tool
   actually executing this (`Claude Code` when run from it) plus the
-  model as a prose name, e.g. `Claude Opus 5`, not the raw model
-  id. `Co-authored-by:` does not satisfy the policy, and a wrong tool
+  model you are running as a prose name (e.g. `Claude Opus 5.5`), not
+  the raw model id. `Co-authored-by:` does not satisfy the policy, and a wrong tool
   name is grounds for closing the PR. If you cannot determine your own
   tool name or model version, ask; if unattended, stop before
   committing rather than guess.

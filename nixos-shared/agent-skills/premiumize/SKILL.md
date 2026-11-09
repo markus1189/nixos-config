@@ -153,5 +153,5 @@ Run `./scripts/premiumize-api.sh` without arguments for the full command list. C
 
 Confirm with the user before any `*-delete` or `transfer-clear`.
 
-**Script Execution:** Scripts should be executed from the skill directory.
+**Script Execution:** Invoke scripts by absolute path, resolving `./scripts/` against this SKILL.md's directory.
 All scripts use Nix shebangs so no manual dependency installation is required.
