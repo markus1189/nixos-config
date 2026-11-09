@@ -229,17 +229,34 @@ The router's `max_output_tokens` is sometimes the full context window (e.g. 1048
 
 ### Verification
 
-Test your configuration:
+Run pi and opencode against configs rendered from the working tree (`git add` first), before
+any switch. The redirected config dirs leave `~` and the session history alone:
 
-```bash
-# Validate schema
-pi --provider requesty-anthropic --model vertex/claude-sonnet-4-6@europe-west1
+```zsh
+s=$(mktemp -d)
+for t in .config/opencode/opencode.json .pi/agent/models.json; do
+  mkdir -p "$s/$(dirname $t)"
+  nix eval --raw .#nixosConfigurations.p1.config.home-manager.users.markus.home.file --apply \
+    "f: builtins.readFile (builtins.head (builtins.filter (v: v.target == \"$t\") (builtins.attrValues f))).source" > "$s/$t"
+done
+export REQUESTY_API_KEY_CC="$(pass api/requesty/agent)"
+cd "$(mktemp -d)"   # put a file here for the model to work on
 
-# Interactive test
-pi
-> /model
-# Select your Requesty model
+# --standalone: a private server, which reads the redirected config
+XDG_CONFIG_HOME=$s/.config XDG_DATA_HOME=$s/data XDG_STATE_HOME=$s/state XDG_CACHE_HOME=$s/cache \
+  opencode2 --standalone run --auto --thinking -m "requesty-cc/<slug>" "<task>" < /dev/null
+
+# <pi>: the command behind the `pi` alias in zsh/default.nix
+PI_CODING_AGENT_DIR=$s/.pi/agent <pi> --mode json --no-session \
+  --provider <provider> --model <slug> --thinking medium "<task>" < /dev/null
 ```
+
+The task needs two separate tool calls, say a read and then a shell command on the same file,
+and an answer that depends on both results: a second call only happens if the first result
+and any replayed reasoning made it back. Both CLIs read a non-TTY stdin as more prompt and
+wait for EOF, hence `< /dev/null`. pi's JSONL has a `tool_execution_start` event per call
+and, per assistant turn, a `message_end` whose `message.stopReason` and `errorMessage` show
+failures.
 
 If validation fails, check:
 1. Input array only contains "text" and/or "image"
