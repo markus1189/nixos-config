@@ -25,6 +25,7 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `nixos-shared/claude/claude-code-statusline.sh:19,61` | parses bedrock model names + gateway URL. |
 
 > **Useful commands to find every mention of a model before/after editing:**
+> - `nixos-shared/requesty-prices/update.py --new` lists access-list slugs not configured yet, newest first
 > - `rg -n "claude-sonnet|gemini-2.5|gpt-5.6" --ignore-case` (whole repo)
 > - Slugs appear in `.nix`, `.json`, `.sh`, `.ts`, `.el`, `.md` — search all globs.
 
@@ -36,8 +37,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model slug used | Consumers (files) |
 |-----------------|-------------------|
-| `bedrock/claude-opus-5-5@eu-central-1` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2), `laptop/home.nix` (opencode) — Bedrock only, no Vertex slug on Requesty EU (checked 2026-09) |
-| `vertex/claude-sonnet-5-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3), `laptop/home.nix` (opencode) — Vertex only, no Bedrock slug (checked 2026-10) |
+| `bedrock/claude-opus-5-5@eu-central-1` | `pi-agent/models.json` (requesty-anthropic), `model-shortcuts.ts` (F2), `laptop/home.nix` (opencode) — `vertex/claude-opus-5-5@eu` exists but is not on the access list (checked 2026-11) |
+| `vertex/claude-sonnet-5-5@eu` | `pi-agent/models.json`, `model-shortcuts.ts` (F3), `laptop/home.nix` (opencode) — `bedrock/claude-sonnet-5-5@eu-*` exists but is not on the access list (checked 2026-11) |
 | `vertex/claude-haiku-5-5@eu` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — adaptive thinking verified 2026-10 |
 
 **gptel/Emacs (OpenRouter slug style, separate):**
@@ -61,7 +62,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | Model | Consumers |
 |-------|-----------|
 | `azure/gpt-6.1-sol@swedencentral` | `pi-agent/models.json` (requesty-openai), `laptop/home.nix` (opencode) — streaming tools + `reasoning_effort` verified 2026-10 |
-| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `azure/gpt-6.1-terra@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — vision, streaming tools + `reasoning_effort` verified 2026-11 |
+| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — no GPT-6.1 Luna on Requesty yet (checked 2026-11) |
 
 **gptel/Emacs (OpenRouter):** `openai/gpt-5.2`, `gpt-5.1`, `gpt-5-mini` — `emacs-config.el:1555-1557`.
 
@@ -72,13 +74,14 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `sference/deepseek-v4.1-flash-1017` (vision) | `pi-agent/models.json` (requesty-completions), `laptop/home.nix` (opencode); F1 default in `model-shortcuts.ts` |
 | `sference/glm-5.3` | `pi-agent/models.json`, `laptop/home.nix` (opencode, text-only); F4 primary |
 | `sference/glm-5.3-flash` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode); F4 cycle |
-| `tensorx/kimi-k3` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `tensorx/kimi-k3.1-pro` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) — no sference route (checked 2026-11) |
 | `tensorx/minimax-m3` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
+| `tensorx/minimax-m3.1-flash` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) — a cheaper M3-family sibling, not M3's successor; `reasoning_effort` accepted but barely moves reasoning tokens (2026-11) |
 | `tensorx/qwen3.8` (text-only), `tensorx/qwen3.8-flash-next` (vision) | `pi-agent/models.json`, `laptop/home.nix` (opencode) |
-| `tensorx/glm-5.3`, `sference/kimi-k3` (text-only) | `pi-agent/models.json` — alternate routes, pi only |
+| `tensorx/glm-5.3` (text-only) | `pi-agent/models.json` — alternate route, pi only |
 | `tensorx/glm-5.3-flash` | `pi-agent/models.json` (**text-only**) — tools + reasoning work, but images are silently dropped (verified 2026-09; Requesty's capability flags claim no tools/reasoning, which is wrong) |
 
-Every opencode entry above passed a two-tool-call `opencode2 run` (read + shell, reasoning replayed) and, where marked vision, the CAKE test (2026-10).
+Every opencode entry above passed a two-tool-call `opencode2 run` (read + shell, reasoning replayed) and, where marked vision, the CAKE test (2026-10; K3.1 Pro and M3.1 Flash 2026-11, also in pi).
 
 **gptel/Emacs (OpenRouter):** `deepseek/deepseek-v4-pro`, `deepseek/deepseek-v4-flash`, `mistralai/codestral-2508`, `meta-llama/llama-3.3-70b-instruct` — `emacs-config.el:1563-1568`.
 

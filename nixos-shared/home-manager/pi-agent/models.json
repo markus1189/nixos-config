@@ -85,17 +85,8 @@
           ]
         },
         {
-          "id": "sference/kimi-k3",
-          "name": "Kimi K3 (Requesty/Sference EU)",
-          "reasoning": true,
-          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
-          "input": [
-            "text"
-          ]
-        },
-        {
-          "id": "tensorx/kimi-k3",
-          "name": "Kimi K3 (Requesty/Tensorx EU, vision)",
+          "id": "tensorx/kimi-k3.1-pro",
+          "name": "Kimi K3.1 Pro (Requesty/Tensorx EU, vision)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
@@ -116,6 +107,16 @@
         {
           "id": "tensorx/minimax-m3",
           "name": "MiniMax M3 (Requesty/Tensorx EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "tensorx/minimax-m3.1-flash",
+          "name": "MiniMax M3.1 Flash (Requesty/Tensorx EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
@@ -164,6 +165,16 @@
         {
           "id": "azure/gpt-6.1-sol@swedencentral",
           "name": "GPT-6.1 Sol (Requesty/Azure EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "azure/gpt-6.1-terra@swedencentral",
+          "name": "GPT-6.1 Terra (Requesty/Azure EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [

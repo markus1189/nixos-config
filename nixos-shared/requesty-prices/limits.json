@@ -7,6 +7,10 @@
     "context": 1050000,
     "output": 128000
   },
+  "azure/gpt-6.1-terra@swedencentral": {
+    "context": 1050000,
+    "output": 128000
+  },
   "bedrock/claude-opus-5-5@eu-central-1": {
     "context": 1000000,
     "output": 128000
@@ -27,10 +31,6 @@
     "context": 1000000,
     "output": 262144
   },
-  "sference/kimi-k3": {
-    "context": 1048576,
-    "output": 262144
-  },
   "tensorx/glm-5.3": {
     "context": 1048576,
     "output": 1048576
@@ -39,11 +39,15 @@
     "context": 1048576,
     "output": 1048576
   },
-  "tensorx/kimi-k3": {
+  "tensorx/kimi-k3.1-pro": {
     "context": 1048576,
     "output": 262144
   },
   "tensorx/minimax-m3": {
+    "context": 1048576,
+    "output": 1048576
+  },
+  "tensorx/minimax-m3.1-flash": {
     "context": 1048576,
     "output": 1048576
   },

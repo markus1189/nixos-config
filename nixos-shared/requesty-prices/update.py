@@ -2,10 +2,13 @@
 """Refresh prices.json and limits.json from Requesty's /v1/models.
 
 Usage: update.py [--check] [MODEL_ID...]
+       update.py --new
 
 Refreshes every model already in prices.json, plus any MODEL_ID given (which
 adds it). Prices are USD per million tokens, limits are tokens. --check writes
-nothing and exits 1 if either table differs from the API.
+nothing and exits 1 if either table differs from the API. --new writes
+nothing and lists the access-list models prices.json lacks, newest first:
+`created` is when Requesty listed the slug, not the vendor release.
 
 Key: $REQUESTY_API_KEY_CC, else `pass api/requesty/agent`. The key matters:
 /v1/models lists only the organization's access list when called with one.
@@ -18,6 +21,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -57,7 +61,8 @@ def per_million(per_token):
 
 def main(argv):
     check = "--check" in argv
-    wanted = [a for a in argv if a != "--check"]
+    new = "--new" in argv
+    wanted = [a for a in argv if a not in ("--check", "--new")]
 
     current = json.loads(PRICES.read_text()) if PRICES.exists() else {}
     request = urllib.request.Request(
@@ -65,6 +70,14 @@ def main(argv):
     )
     with urllib.request.urlopen(request, timeout=30) as response:
         listed = {m["id"]: m for m in json.load(response)["data"]}
+
+    if new:
+        for m in sorted(listed.values(), key=lambda m: -m["created"]):
+            if m["id"] not in current:
+                day = time.strftime("%F", time.gmtime(m["created"]))
+                cost = f'{per_million(m.get("input_price"))}/{per_million(m.get("output_price"))}'
+                print(f'{day}  {cost:>11}  {m["id"]}')
+        return 0
 
     ids = sorted(set(current) | set(wanted))
     missing = [i for i in ids if i not in listed]

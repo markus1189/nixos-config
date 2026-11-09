@@ -22,16 +22,10 @@ Examples:
 - `nebius/kimi-k3`
 
 Only models on the organization's **Approved Models / Access List** are routable. `/v1/models`
-returns exactly that list when called with a key (110 slugs; 785 without one, checked 2026-10-13),
-the same for the `agent` and `playground` keys. Newest first, key kept out of argv:
-
-```zsh
-curl -sS -H @<(printf 'Authorization: Bearer %s\n' "$(pass api/requesty/agent)") \
-  https://router.eu.requesty.ai/v1/models \
-  | jq -r '.data | sort_by(-.created)[] | "\(.created|strftime("%F"))  \(.id)"'
-```
-
-`created` is when Requesty listed the slug, not the vendor release date.
+returns exactly that list when called with a key, and Requesty's whole catalog without one; the
+`agent` and `playground` keys see the same list. `nixos-shared/requesty-prices/update.py --new`
+lists the access-list slugs not configured yet, newest first. A slug that exists in the keyless
+catalog but not on the access list needs an approval in the Requesty console first.
 
 ### Step 1: Find Model Specifications
 

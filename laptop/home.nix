@@ -148,6 +148,17 @@ in
                     };
                   };
 
+                  "azure/gpt-6.1-terra@swedencentral" = {
+                    name = "GPT 6.1 Terra";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
                   "azure/gpt-6-luna@swedencentral" = {
                     name = "GPT 6 Luna";
                     capabilities = {
@@ -208,8 +219,8 @@ in
                     };
                   };
 
-                  "tensorx/kimi-k3" = {
-                    name = "Kimi K3";
+                  "tensorx/kimi-k3.1-pro" = {
+                    name = "Kimi K3.1 Pro";
                     capabilities = {
                       input = [
                         "text"
@@ -221,6 +232,17 @@ in
 
                   "tensorx/minimax-m3" = {
                     name = "MiniMax M3";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "tensorx/minimax-m3.1-flash" = {
+                    name = "MiniMax M3.1 Flash";
                     capabilities = {
                       input = [
                         "text"
