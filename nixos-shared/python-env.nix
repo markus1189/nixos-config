@@ -24,6 +24,7 @@
         pandas
         pillow
         psutil
+        pygments
         pytest
         python-dateutil
         pyyaml
