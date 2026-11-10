@@ -42,6 +42,11 @@ in
 
     # Only [binds] — suppress_default_binds stays false, so this is additive
     # on top of imv's built-in binds.  `y` is unbound by default (vim yank).
-    settings.binds."y" = "exec ${copyPath}/bin/imv-copy-path";
+    settings.binds = {
+      "y" = "exec ${copyPath}/bin/imv-copy-path";
+      # Unbound by default (`x` = close).  system(3) blocks imv until the command
+      # returns, so background xdragon or the viewer freezes until the drop.
+      "<Shift+X>" = ''exec ${pkgs.dragon-drop}/bin/xdragon -x "$imv_current_file" &'';
+    };
   };
 }
