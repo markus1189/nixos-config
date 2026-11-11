@@ -88,6 +88,7 @@
         nethogs
         nixVersions.git
         nmap
+        nodejs
         opencode2
         openssl
         openvpn

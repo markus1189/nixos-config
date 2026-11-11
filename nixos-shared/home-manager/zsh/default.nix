@@ -72,9 +72,9 @@ in
       // {
         oc = "env ${requestyAgentKey} opencode2 --standalone --auto";
 
-        pi = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent";
+        pi = "env ${requestyAgentKey} npx -y --ignore-scripts @earendil-works/pi-coding-agent";
 
-        pi-glados = "env ${requestyAgentKey} nix shell nixpkgs#nodejs --command npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
+        pi-glados = "env ${requestyAgentKey} npx -y --ignore-scripts @earendil-works/pi-coding-agent ${gladosFlag}";
       }
       # `settings` defaults to {} independent of programs.password-store.enable
       # (home-manager derives it from home.stateVersion and only feeds the
