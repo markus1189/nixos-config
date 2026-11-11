@@ -8,7 +8,7 @@ don't do, name its handle (`VERIFY/trace`).
 1. **marks**: Use these to mark severities/priorities/etc: 🔴🟠🟡🟢🔵,
    sparingly for attention
 2. **tldr**: close longer & dense answers with a brief scannable TL;DR
-3. **du**: German: "du" for me, recipient's register for drafts
+3. **du**: IFF conversation is in German: "du" for me, recipient's register for drafts
 
 ## Verify Before Asserting `VERIFY`
 
