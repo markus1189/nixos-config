@@ -2264,6 +2264,9 @@ Provides more detailed messages on failure."
   (defface mh/elfeed-newsletter-tag-face
     '((t :foreground "#0E9"))
     "Marks newsletter tags.")
+  (defface mh/elfeed-taoofmac-tag-face
+    '((t :foreground "#9D5"))
+    "Marks Tao of Mac tags.")
   (defface mh/elfeed-special-tag-face
     '((t :foreground "#A0A"))
     "Marks special tags.")
@@ -2284,6 +2287,7 @@ Provides more detailed messages on failure."
                                    (haskell-discourse mh/elfeed-haskell-discourse-tag-face)
                                    (haskell-fp mh/elfeed-haskell-fp-tag-face)
                                    (emacs-dev mh/elfeed-emacs-dev-tag-face)
+                                   (taoofmac mh/elfeed-taoofmac-tag-face)
                                    (programming-general mh/elfeed-programming-general-tag-face)
                                    (pens-stationery mh/elfeed-pens-stationery-tag-face)
                                    (journals-bujo mh/elfeed-journals-bujo-tag-face)
@@ -2716,7 +2720,7 @@ Provides more detailed messages on failure."
            ("https://lucumr.pocoo.org/feed.atom" llm programming programming-general)
            ("https://claudelog.com/rss.xml" llm programming programming-general)
            ("https://code.claude.com/docs/en/whats-new/rss.xml" llm programming programming-general claude)
-           ("https://taoofmac.com/atom.xml" programming programming-general)
+           ("https://taoofmac.com/atom.xml" programming programming-general taoofmac)
            ("https://work.njae.me.uk/rss/" programming haskell-fp))))
   ;; ^^^^ feeds
   )
