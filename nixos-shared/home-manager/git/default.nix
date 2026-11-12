@@ -90,7 +90,9 @@ let
   preCommitHook = writeShellScript "pre-commit" ''
     set -euo pipefail
     root="$(${gitPackage}/bin/git rev-parse --show-toplevel)"
-    args=(git --pre-commit --staged --no-banner --redact)
+    # --verbose: without it a block prints only "leaks found: N", no file,
+    # line or rule. --log-level warn drops the INF chatter on clean commits.
+    args=(git --pre-commit --staged --no-banner --redact --verbose --log-level warn)
     if [ ! -f "$root/.gitleaks.toml" ]; then
       cfg="$HOME/.config/gitleaks/config.toml"
       if [ ! -f "$cfg" ]; then
