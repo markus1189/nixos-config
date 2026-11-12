@@ -2665,6 +2665,7 @@ Provides more detailed messages on failure."
            ("https://irreal.org/blog/?feed=rss2" programming emacs-dev)
            ("https://www.haskellcast.com/feed.xml" programming haskell-fp)
            ("https://jvns.ca/atom.xml" programming programming-general)
+           ("https://muratbuffalo.blogspot.com/feeds/posts/default?alt=rss" programming programming-general)
            ("https://sachachua.com/blog/feed/" programming emacs-dev)
            ("https://blog.zombiesrungame.com/rss/")
            ("https://japgolly.blogspot.com.au/feeds/posts/default")
