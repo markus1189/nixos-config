@@ -195,6 +195,7 @@ in
       };
 
       model = "opus";
+      advisorModel = "fable";
       # A top-level effortLevel in user settings only applies to a few
       # legacy models; newer ones read the per-model key (as /effort writes).
       modelSettings.opus.effortLevel = "low";
