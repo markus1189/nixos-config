@@ -1488,10 +1488,13 @@ rec {
       pulseaudioFull
       ffmpeg
       coreutils
+      libnotify
     ];
     inheritPath = false;
     bashOptions = [ "errexit" ];
     text = ''
+      notify() { notify-send "$@" || true; }
+
       OUTPUT_DIR="."
       LABEL="''${1:+_''${1// /-}}"
       FILENAME="$OUTPUT_DIR/meeting_$(date +%Y%m%d_%H%M)''${LABEL}.mp3"
@@ -1507,14 +1510,33 @@ rec {
       echo "  Output:  $FILENAME"
       echo "  Press Ctrl+C to stop"
       echo
-      ffmpeg -hide_banner -loglevel quiet -stats \
+      notify "record-meeting" "Recording to $FILENAME"
+
+      # ffmpeg exits 255 on Ctrl+C, so its status cannot tell a requested stop
+      # from a failure; the trap can. It also keeps bash alive past the signal.
+      interrupted=0
+      trap 'interrupted=1' INT
+      rc=0
+      ffmpeg -hide_banner -loglevel error -stats \
              -f pulse -i "$SPK" \
              -f pulse -i "$MIC" \
              -filter_complex amix=inputs=2:duration=longest \
-             -ac 1 -ar 24000 -b:a 64k "$FILENAME"
+             -ac 1 -ar 24000 -b:a 64k "$FILENAME" || rc=$?
+      trap - INT
+      echo
 
-      echo ""
-      echo "Saved: $FILENAME"
+      if [[ -s "$FILENAME" ]]; then
+        secs="$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$FILENAME" | cut -d. -f1)"
+        echo "Saved: $FILENAME ($(( ''${secs:-0} / 60 ))m$(( ''${secs:-0} % 60 ))s)"
+      else
+        echo "Nothing recorded: $FILENAME" >&2
+      fi
+
+      if (( rc != 0 && ! interrupted )); then
+        echo "ERROR: ffmpeg stopped on its own (exit $rc)" >&2
+        notify -u critical "record-meeting" "Recording stopped unexpectedly (ffmpeg exit $rc): $FILENAME"
+        exit "$rc"
+      fi
     '';
   };
 
