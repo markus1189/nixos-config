@@ -93,12 +93,12 @@ let
 
     "pi-agent-extension-notify" = {
       target = ".pi/agent/extensions/notify.ts";
-      text = builtins.readFile ./extensions/notify.ts;
+      source = ./extensions/notify.ts;
     };
 
     "pi-agent-extension-questionnaire" = {
       target = ".pi/agent/extensions/questionnaire.ts";
-      text = builtins.readFile ./extensions/questionnaire.ts;
+      source = ./extensions/questionnaire.ts;
     };
 
     "pi-agent-extension-sounds" = {
