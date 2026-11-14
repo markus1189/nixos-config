@@ -25,6 +25,9 @@
 
   system.stateVersion = "20.09";
 
+  # Every pushed change becomes a boot entry on the 510M ESP.
+  boot.loader.systemd-boot.configurationLimit = 20;
+
   hardware = {
     cpu.intel.updateMicrocode = true;
   };

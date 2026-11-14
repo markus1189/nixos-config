@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ../laptop/laptop.nix
     ./p1.nix
+    ../nixos-shared/auto-upgrade.nix
   ];
 
   # Secret is wg-nyc-p1.age, but this host's hostname is nixos-p1 —

@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   ...
@@ -61,7 +62,8 @@
   };
 
   nix = {
-    gc = {
+    # mkDefault: p1 is no longer a daily driver and collects via auto-upgrade.nix.
+    gc = lib.mkDefault {
       automatic = false;
       dates = "12:30";
       options = "--delete-older-than 5d";

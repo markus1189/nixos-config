@@ -19,8 +19,8 @@ Host configs (p1/, p1g8/, nuc/; laptops share laptop/laptop.nix)
 ### Host Configurations
 | Host | Build Method | User | Purpose |
 |------|--------------|------|---------|
-| `p1/` | `nh os build` / `nh os switch` (flake attr `p1`, hostname `nixos-p1`) | markus | ThinkPad P1 (primary laptop) |
-| `p1g8/` | `nh os build` / `nh os switch` | markus | ThinkPad P1 Gen 8 |
+| `p1/` | `system.autoUpgrade` nightly from `github:…#p1` (hostname `nixos-p1`) | markus | Old ThinkPad P1, always-on agent runner |
+| `p1g8/` | `nh os build` / `nh os switch` | markus | ThinkPad P1 Gen 8 (daily driver) |
 | `nuc/` | `system.autoUpgrade` from `github:…#nuc`; build-check it from a laptop with `nh os build -H nuc` | mediacenter | Home server |
 
 ### Shared Modules (`nixos-shared/`)
@@ -179,11 +179,12 @@ something is in the closure; scoped to one package or host, not all of them.
 invariant is *which* drvs differ, never *that* the drvPath differs. Method,
 scoping, failure modes: [docs/derivation-diffing.md](docs/derivation-diffing.md).
 
-**nuc update model**: `system.autoUpgrade` rebuilds nightly from the
-committed `flake.lock` (no channel, no automatic input updates). Updating
-nuc means `nix flake update` + commit on a laptop and **push to GitHub** —
-`autoUpgrade.flake` is `github:markus1189/nixos-config#nuc`, so nuc fetches
-from there rather than from a local checkout.
+**nuc and p1 update model** (`nixos-shared/auto-upgrade.nix`):
+`system.autoUpgrade` rebuilds nightly from the committed `flake.lock` (no
+channel, no automatic input updates). Updating them means commit on p1g8 and
+**push to GitHub**:
+`autoUpgrade.flake` is `github:markus1189/nixos-config#<host>`, never a local
+checkout, so an unpushed `nh os switch` on p1 is reverted by the next run.
 
 ### Option Reference (offline, version-matched)
 ```bash
