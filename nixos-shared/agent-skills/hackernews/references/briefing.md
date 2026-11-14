@@ -4,7 +4,7 @@
 
 One file per day, appended across sessions: `$(stuff-today --default)/hn-daily.md`, i.e.
 `~/Stuff/YYYY-MM/DD-<host>/hn-daily.md` for the current date (days before 2026-09-27 used
-`DD-scratch/`). Not `~/Stuff/Today/`: that follows `cdt NAME`, the daily file must not. It is its own state — no separate tracking block.
+`DD-scratch/`). It is its own state — no separate tracking block.
 
 ### Knowledgebase contract (`kb-index`)
 

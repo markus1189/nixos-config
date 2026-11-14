@@ -277,7 +277,7 @@ let
       ];
     };
     # 2026-09-28: new. Day dirs carry the host (DD-p1g8, DD-p1, DD-nuc) so
-    # two hosts never write the same file; `cdt NAME` dirs are shared on
+    # two hosts never write the same file; `DD-name` dirs are shared on
     # purpose. S26U joined the same day: it was left out for session
     # cookies in day dirs, but those live in .json/.html/.txt, which the
     # opt-in never sends (checked: synced types only hold placeholders).

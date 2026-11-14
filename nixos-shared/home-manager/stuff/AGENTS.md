@@ -11,22 +11,22 @@ Change it there and rebuild; an edit here cannot stick.
 ```
 ~/Stuff/
   YYYY-MM/          ← month dirs, created automatically
-    DD-name/         ← daily working dirs (e.g. 17-some-project-or-topic/)
+    DD-name/         ← topic dirs made by hand (e.g. 17-some-project-or-topic/)
     DD-<host>/       ← default dir per machine (27-p1g8/, 27-p1/, 27-nuc/), created automatically
     DD-scratch/      ← the same, before 2026-09-27 (one machine, no host in the name)
   weeks/
     YYYY-Www/        ← ISO week dirs (2026-W41/), created automatically once the week is over; `stuff-week` prints the latest
-  Today             ← symlink to today's working dir
+  Today             ← symlink to today's `DD-<host>/`
 ```
 
 ## Guidelines for Agents
 
 - **Don't create or rename `YYYY-MM/`, `DD-<host>/`, `DD-scratch/` or `weeks/YYYY-Www/` dirs** — these are managed automatically
 - **Don't write `Today` yourself.** `stuff-today` is its only writer (run by `cdt`, Emacs
-  and a daily timer); `stuff-today NAME` creates `DD-NAME` and repoints `Today` at it
-- **Fixed per-day files go in `$(stuff-today --default)`**, today's `DD-<host>/`, not `Today`:
-  `Today` follows `cdt NAME`. The host in the name keeps machines from writing the same file
-  (`nixos-p1` is tagged `p1`)
+  and a daily timer)
+- **Your output goes below `$(stuff-today --default)`**, today's `DD-<host>/`: per-day files
+  directly in it, a project in a subdirectory, never a new `DD-name/`. The host in the name
+  keeps machines from writing the same file (`nixos-p1` is tagged `p1`)
 - **Only notes and code reach the other machines.** Syncthing syncs `~/Stuff` between p1g8,
   p1 and nuc (and to the phone S26U, receive only), opt-in by extension: `md org py sh nix hs ts el toml yaml yml`. Everything else
   (html, json, pdf, images, dumps) stays on the host that wrote it, and so do junk dirs

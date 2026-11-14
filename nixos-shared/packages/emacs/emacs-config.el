@@ -835,7 +835,7 @@ argument, and for client frames via `after-make-frame-functions'."
   ;; Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
   (defun mh/set-stuff-dir (&rest _)
     "Ensure today's ~/Stuff dir exists and ~/Stuff/Today points at it.
-Delegates to stuff-today, which keeps a same-day `cdt NAME' target."
+Delegates to stuff-today."
     (setq find-temp-file-directory
           (file-name-as-directory (car (process-lines "@stuffToday@/bin/stuff-today")))))
 

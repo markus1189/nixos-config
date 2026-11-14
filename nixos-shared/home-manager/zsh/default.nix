@@ -94,12 +94,11 @@ in
       # cdt: Create Date-organized directory and cd into it
       # Inspired by HN user tetha's 'mkstuff' workflow (Feb 2026)
       # Canonical entrypoint is ~/Stuff/Today, maintained by stuff-today
-      # Usage: cdt [name] -> ~/Stuff/2026-02/13-name; plain cdt keeps
-      # today's current Today target (DD-<host> if none yet)
+      # Usage: cdt -> ~/Stuff/2026-02/13-<host>
       # cd's into the resolved path so $PWD and shell history keep the date
       function cdt() {
         local target
-        target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today "$@") || return
+        target=$(${pkgs.myScripts.stuffToday}/bin/stuff-today) || return
         cd "$target" || return
       }
 

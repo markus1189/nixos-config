@@ -49,7 +49,7 @@
       OnCalendar = "*-*-* 00:00:05";
       # At user-manager start (login). On the timer rather than a
       # default.target WantedBy on the service, so home-manager activation
-      # does not run it; stuff-today's same-day guard makes reruns harmless.
+      # does not run it; stuff-today is idempotent, so reruns are harmless.
       OnStartupSec = "0";
       # Powered off over midnight; suspend catches up without it.
       Persistent = true;
