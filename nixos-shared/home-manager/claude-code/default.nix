@@ -504,6 +504,8 @@ in
         # and `echo ====`, unsplit `$var` and unmatched globs break bash idioms.
         CLAUDE_CODE_SHELL = "${pkgs.bash}/bin/bash";
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
+        # Teams + Code Mode need >= 2.1.326 (CHANGELOG); older builds ignore it.
+        CLAUDE_CODE_EXPERIMENTAL_CODE_MODE = "1";
         # Tested store paths: a mod edit lands with a rebuild and a new session.
         CLAUDE_CODE_PLUGIN_DIRS = pkgs.lib.concatStringsSep ":" (builtins.attrValues claudeMods);
       };
