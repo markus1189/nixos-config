@@ -135,9 +135,11 @@ them are not.
    `raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md`,
    never from memory. Extract the NEW section specifically; it lags
    npm by hours — if absent, say so instead of reporting the previous
-   version. Lead with security/permission-boundary fixes, then
-   breaking changes, then new env vars (name them exactly). Skip UI
-   churn.
+   version. Order: new features first (every `Added` entry that adds a
+   capability, one line each), then changed defaults for existing
+   setups, then security/permission-boundary fixes, then breaking
+   changes, then new env vars and flags (name them exactly). Drop only
+   cosmetic entries: hints, footers, notices, layout.
 
 7 and 8 don't wait on the review.
 
