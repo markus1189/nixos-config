@@ -2580,6 +2580,7 @@ Provides more detailed messages on failure."
            ("https://theangrygm.com/feed")
            ("https://contributors.scala-lang.org/latest.rss")
            ("https://crawshaw.io/atom.xml" programming programming-general)
+           ("https://principal-it.eu/atom.xml" programming programming-general)
            ("https://sunilpai.dev/rss.xml" programming ai)
            ("https://claude.dev/rss.xml" programming ai)
            ("https://www.thariq.io/rss.xml" programming ai)
