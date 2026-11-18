@@ -1,7 +1,6 @@
 { pkgs, lib, ... }:
 let
   claude = "${pkgs.masterPkgs.claude-code}/bin/claude";
-  maxAgeHours = 12;
   prefix = "scheduled-agent-";
 
   mkAgent =
@@ -44,19 +43,6 @@ let
       };
     };
 
-  cleanup = pkgs.writeShellScript "${prefix}cleanup" ''
-    set -euo pipefail
-    cut=$(( ($(${pkgs.coreutils}/bin/date +%s) - ${toString maxAgeHours} * 3600) * 1000 ))
-    ${claude} agents --json --all \
-      | ${pkgs.jq}/bin/jq -r --argjson cut "$cut" '.[]
-          | select(.kind == "background" and (.name | startswith("${prefix}")) and .startedAt < $cut)
-          | .id' \
-      | while read -r id; do
-          ${claude} stop "$id" || true
-          ${claude} rm "$id"
-        done
-  '';
-
   jobs = [
     {
       name = "warm-start";
@@ -66,26 +52,5 @@ let
   ];
 in
 {
-  systemd.user = lib.mkMerge (
-    map mkAgent jobs
-    ++ [
-      {
-        services."${prefix}cleanup" = {
-          Unit.Description = "Stop and remove scheduled agents older than ${toString maxAgeHours}h";
-          Service = {
-            Type = "oneshot";
-            ExecStart = "${cleanup}";
-            WorkingDirectory = "%h/Stuff";
-          };
-        };
-        timers."${prefix}cleanup" = {
-          Timer = {
-            OnCalendar = "*-*-* 04:00";
-            Persistent = true;
-          };
-          Install.WantedBy = [ "timers.target" ];
-        };
-      }
-    ]
-  );
+  systemd.user = lib.mkMerge (map mkAgent jobs);
 }

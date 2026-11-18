@@ -1,9 +1,24 @@
 { pkgs, ... }:
+let
+  claude = "${pkgs.masterPkgs.claude-code}/bin/claude";
+  maxAgeHours = 24;
+  cleanup = pkgs.writeShellScript "claude-session-cleanup" ''
+    set -euo pipefail
+    cutoff=$(${pkgs.coreutils}/bin/date -d '${toString maxAgeHours} hours ago' +%s%3N)
+    ${claude} agents --json --all \
+      | ${pkgs.jq}/bin/jq -r --argjson cutoff "$cutoff" '.[]
+          | select(.kind == "background" and .status == "idle" and .startedAt < $cutoff)
+          | .id' \
+      | while read -r id; do
+          ${claude} stop "$id" || true
+          ${claude} rm "$id"
+        done
+  '';
+in
 {
   systemd.user.services.claude-remote-control = {
     Unit = {
       Description = "Claude Code Remote Control in ~/Stuff";
-      # Give up after 5 failed starts; the app then shows the host offline.
       StartLimitIntervalSec = "10min";
       StartLimitBurst = 5;
       # Starting with the X session hands spawned sessions DISPLAY/XAUTHORITY
@@ -15,7 +30,7 @@
       WorkingDirectory = "%h/Stuff";
       # The store path makes a claude bump change this unit, so the
       # home-manager switch restarts it onto the new version.
-      ExecStart = "${pkgs.masterPkgs.claude-code}/bin/claude remote-control";
+      ExecStart = "${claude} remote-control";
       # ssh-agent runs as a user service but doesn't export its socket to
       # the manager; gpg finds its socket on its own.
       Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
@@ -25,5 +40,21 @@
       RestartSec = "30s";
     };
     Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.claude-session-cleanup = {
+    Unit.Description = "Stop and remove idle Claude background sessions older than ${toString maxAgeHours}h";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${cleanup}";
+      WorkingDirectory = "%h/Stuff";
+    };
+  };
+  systemd.user.timers.claude-session-cleanup = {
+    Timer = {
+      OnCalendar = "*-*-* 04:00";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
   };
 }
