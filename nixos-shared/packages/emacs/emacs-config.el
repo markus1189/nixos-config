@@ -1399,14 +1399,137 @@ string). It returns t if a new completion is found, nil otherwise."
 
 (use-package annotate
   :ensure t
-  :bind (("C-c a" . annotate-mode))
+  :bind (("C-c a" . annotate-mode)
+         :map annotate-mode-map
+         ("C-c C-g" . mh/annotate-to-agent))
   :custom
   ;; Store annotations separately
   (annotate-file "~/.emacs.d/annotations")
   ;; Don't warn about file changes (useful during ediff)
   (annotate-warn-if-hash-mismatch nil)
   ;; Confirm before deleting
-  (annotate-annotation-confirm-deletion t))
+  (annotate-annotation-confirm-deletion t)
+  :config
+  (defvar mh/annotate-review-gap (* 2 3600)
+    "Seconds of silence between two notes that separate two reviews.")
+
+  (defun mh/annotate--time (id)
+    "Creation time of a note, decoded from its UUIDv1 ID."
+    (if (not id)
+        (float-time)
+      (let ((p (mapcar (lambda (h) (string-to-number h 16)) (split-string id "-"))))
+        (/ (- (logior (nth 0 p) (ash (nth 1 p) 32) (ash (logand #xfff (nth 2 p)) 48))
+              #x01b21dd213814000)       ; 100ns ticks since 1582 -> unix epoch
+           1e7))))
+
+  (defun mh/annotate--collect (root)
+    "All notes in files under ROOT: live overlays where the file is open in
+`annotate-mode' (so unsaved notes count), the database otherwise."
+    (let (items live)
+      (dolist (b (buffer-list))
+        (with-current-buffer b
+          (when (and annotate-mode buffer-file-name
+                     (file-in-directory-p buffer-file-name root))
+            (push buffer-file-name live)
+            (dolist (ov (cl-remove-if-not #'annotate-chain-first-p (annotate-all-annotations)))
+              (let ((end (overlay-end (annotate-chain-last ov))))
+                (push (list :file buffer-file-name :buffer b
+                            :beg (overlay-start ov) :end end
+                            :text (buffer-substring-no-properties (overlay-start ov) end)
+                            :note (overlay-get ov 'annotation) :id (overlay-get ov 'id))
+                      items))))))
+      (dolist (rec (annotate-load-annotation-data t))
+        (let ((f (expand-file-name (car rec))))
+          (when (and (file-in-directory-p f root) (file-exists-p f) (not (member f live)))
+            (dolist (a (annotate-annotations-from-dump rec))
+              (when (and (car a) (not (annotate-annotation-dump-reply-p a)))
+                (push (list :file f :beg (nth 0 a) :end (nth 1 a) :text (nth 3 a)
+                            :note (nth 2 a) :id (annotate-id-from-dump a))
+                      items))))))
+      items))
+
+  (defun mh/annotate--latest-review (items)
+    "The newest run of ITEMS without a gap over `mh/annotate-review-gap'."
+    (let* ((sorted (sort (copy-sequence items)
+                         (lambda (a b) (> (mh/annotate--time (plist-get a :id))
+                                          (mh/annotate--time (plist-get b :id))))))
+           (prev (and sorted (mh/annotate--time (plist-get (car sorted) :id))))
+           out)
+      (cl-loop for it in sorted
+               for tm = (mh/annotate--time (plist-get it :id))
+               while (<= (- prev tm) mh/annotate-review-gap)
+               do (push it out) (setq prev tm))
+      out))
+
+  (defun mh/annotate--lines (it)
+    (let ((beg (plist-get it :beg)) (end (plist-get it :end)))
+      (cl-flet ((span () (let ((l1 (line-number-at-pos beg))
+                               (l2 (line-number-at-pos (max beg (1- end)))))
+                           (if (= l1 l2) (format "%d" l1) (format "%d-%d" l1 l2)))))
+        (if (buffer-live-p (plist-get it :buffer))
+            (with-current-buffer (plist-get it :buffer) (save-restriction (widen) (span)))
+          (with-temp-buffer (insert-file-contents (plist-get it :file)) (span))))))
+
+  (defun mh/annotate--clear (items)
+    "Delete ITEMS and their replies: overlays, leftover display props, database."
+    (let ((ids (delq nil (mapcar (lambda (it) (plist-get it :id)) items))))
+      (dolist (b (delete-dups (delq nil (mapcar (lambda (it) (plist-get it :buffer)) items))))
+        (with-current-buffer b
+          (dolist (ov (annotate-all-annotations))
+            (when (member (overlay-get ov 'id) ids)
+              ;; annotate draws end-of-line notes as a `display' property on the
+              ;; newline, and leaves it behind when the overlay goes away.
+              (with-silent-modifications
+                (save-excursion
+                  (goto-char (overlay-end ov))
+                  (end-of-line)
+                  (when (< (point) (point-max))
+                    (remove-text-properties (point) (1+ (point)) '(display nil)))))
+              (delete-overlay ov)))
+          (annotate-save-annotations)
+          (font-lock-flush)))
+      ;; Saving keeps reply records, and closed files were never touched above.
+      (annotate-dump-annotation-data
+       (mapcar (lambda (rec)
+                 (list (car rec)
+                       (cl-remove-if (lambda (a) (or (member (annotate-id-from-dump a) ids)
+                                                     (member (annotate-reply-to-from-dump a) ids)))
+                                     (annotate-annotations-from-dump rec))
+                       (annotate-checksum-from-dump rec)))
+               (annotate-load-annotation-data t))
+       t)))
+
+  (defun mh/annotate-to-agent (arg)
+    "Copy this repo's latest review as an agent prompt.
+The review is the newest run of notes in files under the git root with no
+gap over `mh/annotate-review-gap'.  \\[universal-argument]: also delete the
+copied notes.  \\[universal-argument] \\[universal-argument]: every note in
+the repo, regardless of time."
+    (interactive "p")
+    (let* ((root (expand-file-name (if-let ((p (project-current))) (project-root p) default-directory)))
+           (all (mh/annotate--collect root))
+           (items (if (>= arg 16) all (mh/annotate--latest-review all)))
+           (items (sort items (lambda (a b)
+                                (if (string= (plist-get a :file) (plist-get b :file))
+                                    (< (plist-get a :beg) (plist-get b :beg))
+                                  (string< (plist-get a :file) (plist-get b :file))))))
+           (files (delete-dups (mapcar (lambda (it) (plist-get it :file)) items))))
+      (if (null items)
+          (message "No annotations under %s" (abbreviate-file-name root))
+        (kill-new
+         (concat
+          (format "Review comments on %d file(s), each on the quoted code. Address every one:\n\n"
+                  (length files))
+          (mapconcat
+           (lambda (it)
+             (format "### `%s:%s`\n\n```\n%s\n```\n\n%s\n"
+                     (abbreviate-file-name (plist-get it :file)) (mh/annotate--lines it)
+                     (plist-get it :text) (plist-get it :note)))
+           items "\n")))
+        (when (= arg 4) (mh/annotate--clear items))
+        (message "Copied %d note(s) from %d file(s)%s (%d older left in repo)"
+                 (length items) (length files) (if (= arg 4) ", deleted" "")
+                 (- (length all) (length items)))))))
 
 (use-package org-drill
   :ensure t
