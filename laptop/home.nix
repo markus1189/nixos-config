@@ -137,8 +137,19 @@ in
                     };
                   };
 
-                  "azure/gpt-6.1-sol@swedencentral" = {
-                    name = "GPT 6.1 Sol";
+                  "azure/gpt-6.2-astra@swedencentral" = {
+                    name = "GPT 6.2 Astra";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "azure/gpt-6.2-sol@swedencentral" = {
+                    name = "GPT 6.2 Sol";
                     capabilities = {
                       input = [
                         "text"
@@ -172,6 +183,28 @@ in
 
                   "vertex/gemini-4-argon@eu" = {
                     name = "Gemini 4 Argon";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "vertex/gemini-4-carbon@eu" = {
+                    name = "Gemini 4 Carbon";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
+                  "vertex/gemini-4-hydrogen@eu" = {
+                    name = "Gemini 4 Hydrogen";
                     capabilities = {
                       input = [
                         "text"

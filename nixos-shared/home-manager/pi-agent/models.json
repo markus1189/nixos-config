@@ -163,8 +163,18 @@
       "authHeader": true,
       "models": [
         {
-          "id": "azure/gpt-6.1-sol@swedencentral",
-          "name": "GPT-6.1 Sol (Requesty/Azure EU)",
+          "id": "azure/gpt-6.2-astra@swedencentral",
+          "name": "GPT-6.2 Astra (Requesty/Azure EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "azure/gpt-6.2-sol@swedencentral",
+          "name": "GPT-6.2 Sol (Requesty/Azure EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [
@@ -223,6 +233,26 @@
         {
           "id": "vertex/gemini-4-argon@eu",
           "name": "Gemini 4 Argon (Requesty/Vertex EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "vertex/gemini-4-carbon@eu",
+          "name": "Gemini 4 Carbon (Requesty/Vertex EU)",
+          "reasoning": true,
+          "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "vertex/gemini-4-hydrogen@eu",
+          "name": "Gemini 4 Hydrogen (Requesty/Vertex EU)",
           "reasoning": true,
           "thinkingLevelMap": { "minimal": "low", "xhigh": "high" },
           "input": [

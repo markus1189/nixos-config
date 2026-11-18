@@ -52,6 +52,8 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 | `vertex/gemini-3.8-flash@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision), `gemini-vision.sh:20` (Requesty /chat) — vision + tools verified 2026-09 |
 | `vertex/gemini-3.5-flash-lite@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — vision + opencode tool run verified 2026-10 |
 | `vertex/gemini-4-argon@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — CAKE, streaming tools + `reasoning_effort`, pi and opencode two-tool runs verified 2026-10. Some prompts (e.g. "read /etc/hostname") come back HTTP 200 with empty `choices` and 0 tokens, no error |
+| `vertex/gemini-4-carbon@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — CAKE, streaming tools + `reasoning_effort`, pi and opencode two-tool runs verified 2026-11 |
+| `vertex/gemini-4-hydrogen@eu` | `pi-agent/models.json` (requesty-google), `laptop/home.nix` (opencode, vision) — same checks as Carbon, verified 2026-11 |
 | `google/gemini-3.5-flash`, `google/gemini-3.1-flash-lite` | `emacs-config.el` (gptel, OpenRouter) |
 | `google/gemini-3.1-flash-image-preview` | `nano-banana.sh:51` (flash, OpenRouter) |
 | `google/gemini-3-pro-image-preview` | `nano-banana.sh:52` (pro, OpenRouter) |
@@ -61,9 +63,10 @@ for image/transcribe/emacs. Model slugs appear in **multiple independent files**
 
 | Model | Consumers |
 |-------|-----------|
-| `azure/gpt-6.1-sol@swedencentral` | `pi-agent/models.json` (requesty-openai), `laptop/home.nix` (opencode) — streaming tools + `reasoning_effort` verified 2026-10 |
+| `azure/gpt-6.2-astra@swedencentral` | `pi-agent/models.json` (requesty-openai), `laptop/home.nix` (opencode) — new tier above Sol ($9.6/$48); CAKE, streaming tools + `reasoning_effort`, pi and opencode two-tool runs verified 2026-11 |
+| `azure/gpt-6.2-sol@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — replaced 6.1 Sol; CAKE, streaming tools + `reasoning_effort`, pi and opencode two-tool runs verified 2026-11 |
 | `azure/gpt-6.1-terra@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — vision, streaming tools + `reasoning_effort` verified 2026-11 |
-| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — no GPT-6.1 Luna on Requesty yet (checked 2026-11) |
+| `azure/gpt-6-luna@swedencentral` | `pi-agent/models.json`, `laptop/home.nix` (opencode) — no GPT-6.1/6.2 Luna on Requesty yet (checked 2026-11-18) |
 
 **gptel/Emacs (OpenRouter):** `openai/gpt-5.2`, `gpt-5.1`, `gpt-5-mini` — `emacs-config.el:1555-1557`.
 
@@ -106,7 +109,7 @@ Mistral wants reasoning replayed as a `ThinkChunk` in `content` ([docs](https://
 
 - **Claude sonnet/opus/haiku bump** → `models.json` (requesty-anthropic) + `model-shortcuts.ts` (if pinned) + `laptop/home.nix` (opencode) + `emacs-config.el` (gptel, OpenRouter slug). Watch the **rd git** `@eu`/`@europe-west1` region slug and the thinking/adaptive caveats in `laptop/home.nix` comments.
 - **New Gemini tier** → `models.json` (requesty-google); if it becomes the vision/transcribe/banana workhorse, also `gemini-vision.sh`, `transcribe.sh`, `nano-banana.sh`.
-- **New GPT-x** → `models.json` (requesty-openai, sol/terra/luna tiers) + optionally `laptop/home.nix`.
+- **New GPT-x** → `models.json` (requesty-openai, astra/sol/terra/luna tiers) + optionally `laptop/home.nix`.
 - **New GLM/Kimi/DeepSeek/MiniMax** → `models.json` (requesty-completions) + `model-shortcuts.ts` if shortcut-bound.
 - **Any OpenRouter model** (gptel/Emacs, transcribe, banana) → `emacs-config.el`, `transcribe.sh`, `nano-banana.sh` — these are *independent* of the Requesty EU catalog.
 
