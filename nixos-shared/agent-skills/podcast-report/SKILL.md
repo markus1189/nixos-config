@@ -1,6 +1,8 @@
 ---
 name: podcast-report
 description: "Summarizes a podcast episode the user names (show and/or title), or else the latest one from their Pocket Casts history, into a report (markdown in ~/Stuff plus a Claude Doc). Use only when the user asks to summarize a podcast episode ('fass die Folge X von Y zusammen', 'summarize the episode about Z', 'fass die Podcast-Folge zusammen')."
+model: fable
+effort: xhigh
 ---
 
 # Podcast report
