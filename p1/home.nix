@@ -7,7 +7,10 @@
 { pkgs, ... }:
 
 {
-  imports = [ ../nixos-shared/home-manager/claude-remote-control ];
+  imports = [
+    ../nixos-shared/home-manager/claude-remote-control
+    ../nixos-shared/home-manager/scheduled-agents
+  ];
 
   programs.autorandr.profiles =
     let
