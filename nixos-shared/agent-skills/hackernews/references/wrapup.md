@@ -35,7 +35,7 @@ re-derive. Subsections `###` if the entry is long enough to need them.)
 (linked titles, as in the briefing tables; skip low-signal)
 
 ## Comment Highlights
-(the day's best 5–10 across all checks, same row format; drawn from the dives' Notable Comments)
+(the day's best 5–10 across all checks, same row format; drawn from the dives' Discussion sections)
 
 ## Threads to Follow Tomorrow
 (omit if nothing genuine to follow up on)

@@ -234,7 +234,7 @@ thread_fixture() {
     assert_output --partial "curl -sL 'https://example.com/300'"
     assert_output --partial "dive @ check 2"
     assert_output --partial "\`ai-agents\`"
-    assert_output --partial "Write ONLY the markdown document to \`$BATS_TEST_TMPDIR/dives/300.out.md\`"
+    assert_output --partial "\`$BATS_TEST_TMPDIR/dives/300.out.md\` holds only the document"
 }
 
 @test "dive-prompt: no article url drops the fetch task and the domain link" {
@@ -253,15 +253,15 @@ thread_fixture() {
 @test "dive-prompt: --collect appends in argument order, or nothing if one is missing" {
     mkdir -p "$BATS_TEST_TMPDIR/dives"
     echo "## B [2]" > "$BATS_TEST_TMPDIR/dives/2.out.md"
-    echo "# daily" > "$BATS_TEST_TMPDIR/daily.md"
+    printf '# daily\n## Check 1\n' > "$BATS_TEST_TMPDIR/daily.md"
     run dive --collect "$BATS_TEST_TMPDIR/daily.md" 1 2
     assert_failure
     assert_output --partial "1.out.md"
     run cat "$BATS_TEST_TMPDIR/daily.md"
-    assert_output "# daily"
+    assert_output $'# daily\n## Check 1'
     echo "## A [1]" > "$BATS_TEST_TMPDIR/dives/1.out.md"
     run dive --collect "$BATS_TEST_TMPDIR/daily.md" 2 1
     assert_success
     run cat "$BATS_TEST_TMPDIR/daily.md"
-    assert_output $'# daily\n\n## B [2]\n\n## A [1]'
+    assert_output $'# daily\n## Check 1\n\n## B [2]\n\n## A [1]'
 }

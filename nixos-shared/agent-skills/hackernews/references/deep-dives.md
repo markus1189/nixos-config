@@ -21,9 +21,9 @@ earlier dive (`treemd -s "<Title> [ID]" hn-daily.md`) and dump only
 `-t ID --since "<date> <HH:MM of the Check heading that dive sits under>"`, then report what is
 new, reinforced or contradicted. Append it as `## <Title>: thread delta [ID]`.
 
-Output is a `##` heading + metadata line + `###` subsections (TL;DR, Key Points, HN Discussion
-Themes, ⭐ High-Profile Commenters, Notable Comments, Linked Artifacts, Cited Papers, Meta), see
-"Dive metadata contract" below.
+Output is a `##` heading + metadata line + `###` subsections (Card, Leads, Discussion, Article,
+Cited Papers, Meta), see "Dive metadata contract" below. Dives before 2026-11-18 use the older
+set (TL;DR, Key Points, HN Discussion Themes, Notable Comments, Linked Artifacts).
 
 ### Dive metadata contract
 
@@ -36,7 +36,7 @@ Themes, ⭐ High-Profile Commenters, Notable Comments, Linked Artifacts, Cited P
 **350 pts · 198 💬 · danielvaughn** · [thread](https://news.ycombinator.com/item?id=49378768) · [danielvaughn.dev](https://www.danielvaughn.dev/posts/huzzah/) · dive @ check 1
 `tags: ai-agents, tooling | +pseudocode, source-maps`
 
-### TL;DR
+### Card
 …
 ```
 
@@ -86,7 +86,7 @@ The most valuable HN finds are often **linked in comments, not described** — s
 
 **Filtering**: Surface links that are personal/hand-crafted (someone's own config, dotfiles, tool), validated by the thread (other commenters engaged with it), and relevant to the [user interests](interests.md). Skip generic libraries and well-known projects.
 
-**During deep dives**: The sub-agent surfaces these in a "Linked Artifacts" section (🎯 = most chase-worthy). After every deep-dive batch, aggregate them into a dedicated **🔗 Artifacts & Papers** block in the response — its own section, never buried inside comment quotes. The block always appears; if no dive surfaced anything, say so in one line.
+**During deep dives**: The sub-agent surfaces the few high-signal ones in a "Leads" section, best first; other links stay with their comment in Discussion. After every deep-dive batch, aggregate them into a dedicated **🔗 Artifacts & Papers** block in the response — its own section, never buried inside comment quotes. The block always appears; if no dive surfaced anything, say so in one line.
 
 **Chase proactively**: For 1–3 artifacts per batch that match User Interests, don't ask — fetch the README/gist/file immediately (read-only) and attach a 2–3 sentence verdict: what it actually is, whether it's worth adopting. Ask first only when a chase would become a rabbit hole (cloning repos, long papers, multi-repo spelunking).
 
@@ -120,7 +120,7 @@ Use your general knowledge to recognize notable HN usernames — you know who th
 
 ### How to surface them
 
-- In deep dives: add a **⭐ High-Profile Commenters** section before Notable Comments listing who appeared, their identity, and their key point
+- In deep dives: ⭐ and identity at their first comment in Discussion
 - In main context briefings: call it out inline if a notable person is the submitter or a prominent commenter (e.g., "Armin Ronacher is in the thread and disagrees with the framing")
 - Weight their comments higher — quote them first, even if the comment isn't the most upvoted
 

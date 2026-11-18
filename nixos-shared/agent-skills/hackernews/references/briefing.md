@@ -17,8 +17,10 @@ One file per day, appended across sessions: `$(stuff-today --default)/hn-daily.m
 | `###` | briefing categories, New/Movers, dive subsections | no |
 
 - Filenames exact — a rename splits the series.
-- Dive subsections use `###`, never bold labels: free in the index, and `treemd -s "Notable
-  Comments"` works on a 3,000-line file.
+- Dive subsections use `###`, never bold labels: free in the index, and `treemd -s "Discussion"`
+  works on a 3,000-line file.
+- The [digest](#digest) has no heading for the same reason: a `##` would add a "Digest" entry
+  to every day of the series index.
 - Run `kb-index` after writing (idempotent, ~10s), else today is missing from
   `llms.txt` and the series indexes.
 
@@ -27,7 +29,8 @@ No `hn-daily.md` for today → full briefing mode (below). Then:
 1. Create file: `# HN Daily — Weekday, Month Day, Year`, then `## Check 1 — HH:MM` holding the
    briefing (categories `###`, tables per format below)
 2. Dives → append each verbatim (`## Title [story_id]` + metadata line)
-3. Run `kb-index`
+3. Rewrite the [digest](#digest)
+4. Run `kb-index`
 
 ### Subsequent checks (file exists)
 1. `scripts/hn-cli.sh --delta "$(stuff-today --default)/hn-daily.md" 50` prints the New and
@@ -35,8 +38,46 @@ No `hn-daily.md` for today → full briefing mode (below). Then:
    score +>50 or comments +>30 against the file's last numbers for the story
 2. Fill the Note column, then write `## Check N — HH:MM` **before** presenting
 3. Present delta only
-4. Dives → append **before** presenting summaries
+4. Dives → append **before** presenting summaries, then rewrite the [digest](#digest)
 5. Run `kb-index`
+
+### Digest
+
+The top of the file, between the `#` title and `## Check 1`: the only part read top to bottom,
+raw in Emacs. Rewrite it whole after every dive batch so it covers all of the day's dives.
+
+```markdown
+# HN Daily — Tuesday, November 17, 2026
+
+**Dived**
+
+- 🟢 Pulsar [50526967]
+  ghost thread; the repo maps prompt-injection paths into 7 harnesses
+  open: docs/adapters.md
+- 🟡 lend [50526152]
+  Touch ID gate for agent commands; author concedes it's ceremony
+- ⚪ Do Repeat Yourself [50516689]
+  SOA parable on a SaaS blog; thread rehashes DRY vs WET
+
+**Leads**
+
+- pulsar adapters.md (Pulsar): per-harness injection paths
+  https://github.com/yocontra/pulsar/blob/main/docs/adapters.md
+
+**Threads**
+
+- Agent containment three ways: lend, Browse, Pulsar; each admits the gap
+
+## Check 1 — 07:42
+```
+
+- **Dived**: every dive of the day, 🟢 then 🟡 then ⚪. Mark and one-liner come from the first
+  line of the dive's Card; `open:` names the one thing worth opening, omitted when there is none.
+- Story reference is the bare `[story_id]`: searching it lands on the dive heading, and an
+  `item?id=` link here would be noise in a raw buffer.
+- **Leads**: every dive's Leads, re-ranked across the day; URL alone on its own line.
+- **Threads**: what connects two or more of the day's stories; omit when nothing does.
+- Lines wrap at 80 columns; no tables.
 
 ### Seen-story dedup
 
