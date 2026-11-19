@@ -10,6 +10,7 @@
   imports = [
     ../nixos-shared/home-manager/claude-remote-control
     ../nixos-shared/home-manager/scheduled-agents
+    ../nixos-shared/home-manager/claude-login-check
   ];
 
   programs.autorandr.profiles =
