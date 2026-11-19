@@ -30,7 +30,9 @@ let
           ExecStart = "${pkgs.writeShellScript "${prefix}${name}" "${claude} ${flags} ${lib.escapeShellArg prompt}"}";
           # claude refuses background sessions in an untrusted $HOME.
           WorkingDirectory = "%h/Stuff";
-          ExecStopPost = "${pkgs.notifySendTelegram}/bin/notifySendTelegram 'agent ${name} dispatched: \${SERVICE_RESULT}'";
+          # The --bg daemon would otherwise die with the oneshot's cgroup.
+          KillMode = "process";
+          ExecStopPost = "-${pkgs.notifySendTelegram}/bin/notifySendTelegram 'agent ${name} dispatched: \${SERVICE_RESULT}'";
           Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
         };
       };
