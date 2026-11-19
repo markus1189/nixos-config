@@ -41,9 +41,7 @@ Default: Markus paid, for Heike. Both owing 50/50 is rare; only on request.
 Show the dry-run, then run without `--dry-run` only after explicit yes: the
 entry is immediately visible to Heike.
 
-`--for heike markus` writes shares of 0.5 each, a format not yet confirmed
-against the Splid app: after the first such entry, have the user check the
-split in the app.
+For 50/50 pass `--for heike markus`.
 
 ## 4. Remind
 
