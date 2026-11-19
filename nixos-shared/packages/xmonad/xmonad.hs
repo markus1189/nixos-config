@@ -345,7 +345,7 @@ myTab =
     }
 
 myFont :: String
-myFont = "xft:SauceCodePro Nerd Font Bold:10"
+myFont = "xft:SauceCodePro Nerd Font:bold:size=10,DejaVu Sans Mono:bold:size=10"
 
 myMouseBindings :: p -> [((ButtonMask, Button), Window -> X ())]
 myMouseBindings _ = [((myModKey, button3), \w -> focus w >> Flex.mouseWindow Flex.linear w)]
