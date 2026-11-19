@@ -48,8 +48,8 @@ let
   jobs = [
     {
       name = "warm-start";
-      schedule = "*-*-* 18:00";
-      prompt = "List three short ideas for what to look into tomorrow morning. Answer in markdown, under 200 words.";
+      schedule = "*-*-* 20:00";
+      prompt = "List three short ideas for what to look into tomorrow morning. Answer in markdown, under 200 words. Also look at today's Stuff dirs.";
     }
   ];
 in
