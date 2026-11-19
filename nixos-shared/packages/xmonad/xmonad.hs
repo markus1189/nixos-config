@@ -1,5 +1,5 @@
 import Control.Monad (filterM, when)
-import Data.Char (toLower)
+import Data.Char (GeneralCategory (Format), generalCategory, toLower)
 import Data.Functor ((<&>))
 import Data.List (isInfixOf, isPrefixOf)
 import Data.Map qualified as M
@@ -170,6 +170,7 @@ import XMonad.Layout.Tabbed
         urgentColor,
         urgentTextColor
       ),
+    Shrinker (shrinkIt),
     shrinkText,
     tabbed,
   )
@@ -642,7 +643,14 @@ autoMasterLayout = autoMaster 1 (1 / 50)
 tiled :: ResizableTall t
 tiled = ResizableTall 1 (1 / 50) (3 / 4) []
 
-tabLayout = tabbed shrinkText myTab
+tabLayout = tabbed StripFormatShrinker myTab
+
+-- Xft fallback draws Unicode format characters (Telegram's bidi isolates
+-- U+2068/U+2069, LRM) as tofu: no font has a glyph, so the last font gets them.
+data StripFormatShrinker = StripFormatShrinker deriving (Show, Read)
+
+instance Shrinker StripFormatShrinker where
+  shrinkIt _ = shrinkIt shrinkText . filter ((/= Format) . generalCategory)
 
 gimpLayout =
   withIM 0.11 (Role "gimp-toolbox") $
