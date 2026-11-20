@@ -194,11 +194,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795166903,
-        "narHash": "sha256-6SW4SqKrlLzlXRn+TkqYbUOhTBz4RWKq0bv1leYDuQQ=",
+        "lastModified": 1795167040,
+        "narHash": "sha256-8A99lZ6rJQsPfVVTB5KYkJV3P67Se4q1lr+zekURDQU=",
         "owner": "markus1189",
         "repo": "hocket",
-        "rev": "d758a938374f19cd160799982311c55a1bda8de4",
+        "rev": "7bc99744e657b5aef11c2c4c892fdf45d099871e",
         "type": "github"
       },
       "original": {
