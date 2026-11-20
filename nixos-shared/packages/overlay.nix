@@ -20,6 +20,8 @@ in
 
   fasd = final.callPackage ./fasd { src = inputs.fasd; };
 
+  frictionDigest = final.callPackage ./friction-digest { };
+
   inherit (myScripts)
     notifySendPb
     notifySendTelegram

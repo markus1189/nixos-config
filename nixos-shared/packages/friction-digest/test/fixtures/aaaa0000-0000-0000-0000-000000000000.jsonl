@@ -1,0 +1,9 @@
+{"type": "user", "timestamp": "2026-11-19T09:59:00Z", "cwd": "/home/u/repo", "message": {"content": "**Friction**\n- the user's text is never collected"}}
+{"type": "assistant", "timestamp": "2026-11-19T10:00:00Z", "cwd": "/home/u/repo", "isSidechain": false, "entrypoint": "cli", "message": {"content": [{"type": "thinking", "thinking": "**Friction**\n- thinking is not text"}, {"type": "text", "text": "Done.\n\n**TL;DR:** it works.\n\n**Friction**\n- `a.md`: first item\n  continued line\n- second item with [link](https://example.org)"}]}}
+{"type": "assistant", "timestamp": "2026-11-19T10:05:00Z", "cwd": "/home/u/repo", "isSidechain": true, "entrypoint": "cli", "message": {"content": [{"type": "thinking", "thinking": "**Friction**\n- thinking is not text"}, {"type": "text", "text": "**Friction**\n- sidechain item, excluded"}]}}
+this line is not json
+{"type": "assistant", "timestamp": "2026-11-19T11:00:00Z", "cwd": "/home/u/repo/sub", "isSidechain": false, "entrypoint": "cli", "message": {"content": [{"type": "thinking", "thinking": "**Friction**\n- thinking is not text"}, {"type": "text", "text": "Done.\n\n**TL;DR:** it works.\n\n**Friction**\n- `a.md`: first item\n  continued line\n- second item with [link](https://example.org)"}]}}
+{"type": "assistant", "timestamp": "2026-11-19T12:00:00Z", "cwd": "/home/u/repo/sub", "isSidechain": false, "entrypoint": "cli", "message": {"content": [{"type": "thinking", "thinking": "**Friction**\n- thinking is not text"}, {"type": "text", "text": "More.\n\n### Friction\n\n- header-form item\n\nTrailing paragraph."}]}}
+{"type": "assistant", "timestamp": "2026-11-18T23:59:00Z", "cwd": "/home/u/repo", "isSidechain": false, "entrypoint": "cli", "message": {"content": [{"type": "thinking", "thinking": "**Friction**\n- thinking is not text"}, {"type": "text", "text": "**Friction**\n- previous day, excluded"}]}}
+{"type": "ai-title", "aiTitle": "Early title"}
+{"type": "ai-title", "aiTitle": "Fixture session A"}

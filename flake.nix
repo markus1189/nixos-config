@@ -182,6 +182,7 @@
         in
         {
           myScripts = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) pkgs.myScripts;
+          inherit (pkgs) frictionDigest;
 
           # Agent skills as `nix build .#agentSkills.<name>` — the fast
           # no-sudo iteration check; validation runs inside each build.
@@ -258,6 +259,9 @@
             deadnix --no-lambda-pattern-names --fail ${lintTree}
             touch $out
           '';
+
+          # The tasty suite runs in its checkPhase.
+          friction-digest = pkgs.callPackage ./nixos-shared/packages/friction-digest { };
 
           xmonad-config =
             let

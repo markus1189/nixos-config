@@ -56,4 +56,30 @@
     };
     Install.WantedBy = [ "timers.target" ];
   };
+
+  # Verbatim Friction lists from this host's Claude Code transcripts into
+  # today's and yesterday's DD-<host>/friction-digest.md, rewritten only on change.
+  systemd.user.services.friction-digest = {
+    Unit = {
+      Description = "Collect Claude Code Friction lists into ~/Stuff";
+      # A user that never ran Claude Code (e.g. mediacenter on nuc) has nothing to collect.
+      ConditionPathIsDirectory = "%h/.claude/projects";
+    };
+    Service = {
+      Type = "oneshot";
+      # Resume and login make both timers due at once; the day dir must exist first.
+      ExecStartPre = "${pkgs.myScripts.stuffToday}/bin/stuff-today --default";
+      ExecStart = "${pkgs.frictionDigest}/bin/friction-digest --write";
+    };
+  };
+
+  systemd.user.timers.friction-digest = {
+    Unit.Description = "Hourly Friction digest";
+    Timer = {
+      OnCalendar = "hourly";
+      OnStartupSec = "0";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
 }

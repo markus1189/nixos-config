@@ -1,0 +1,31 @@
+cabal-version:      3.0
+name:               friction-digest
+version:            0.1.0
+synopsis:           Collect verbatim Friction lists from Claude Code transcripts into ~/Stuff
+build-type:         Simple
+extra-source-files: test/fixtures/*.jsonl
+                    test/golden/*.md
+
+common shared
+  default-language: GHC2021
+  ghc-options:      -Wall
+  build-depends:    base, aeson, bytestring, lens, text, time
+
+library
+  import:           shared
+  hs-source-dirs:   src
+  exposed-modules:  FrictionDigest
+  build-depends:    containers, directory, filepath, lens-aeson, pandoc
+
+executable friction-digest
+  import:           shared
+  hs-source-dirs:   app
+  main-is:          Main.hs
+  build-depends:    friction-digest, directory, filepath, hostname, lens-aeson
+
+test-suite spec
+  import:           shared
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Spec.hs
+  build-depends:    friction-digest, directory, filepath, hedgehog, tasty, tasty-golden, tasty-hedgehog, tasty-hunit
