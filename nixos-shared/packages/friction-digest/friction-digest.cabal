@@ -15,17 +15,17 @@ library
   import:           shared
   hs-source-dirs:   src
   exposed-modules:  FrictionDigest
-  build-depends:    containers, directory, filepath, lens-aeson, pandoc
+  build-depends:    containers, deepseq, directory, filepath, foldl, lens-aeson, pandoc, pandoc-types, streaming, streaming-bytestring
 
 executable friction-digest
   import:           shared
   hs-source-dirs:   app
   main-is:          Main.hs
-  build-depends:    friction-digest, directory, filepath, hostname, lens-aeson
+  build-depends:    friction-digest, directory, filepath, hostname
 
 test-suite spec
   import:           shared
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
   main-is:          Spec.hs
-  build-depends:    friction-digest, directory, filepath, hedgehog, tasty, tasty-golden, tasty-hedgehog, tasty-hunit
+  build-depends:    friction-digest, directory, filepath, hedgehog, streaming, tasty, tasty-golden, tasty-hedgehog, tasty-hunit

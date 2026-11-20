@@ -9,13 +9,18 @@ haskell.lib.justStaticExecutables (
       aeson,
       bytestring,
       containers,
+      deepseq,
       directory,
       filepath,
+      foldl,
       hedgehog,
       hostname,
       lens,
       lens-aeson,
       pandoc,
+      pandoc-types,
+      streaming,
+      streaming-bytestring,
       tasty,
       tasty-golden,
       tasty-hedgehog,
@@ -33,20 +38,23 @@ haskell.lib.justStaticExecutables (
         aeson
         bytestring
         containers
+        deepseq
         directory
         filepath
+        foldl
         lens
         lens-aeson
         pandoc
+        pandoc-types
+        streaming
+        streaming-bytestring
         text
         time
       ];
-      executableHaskellDepends = [
-        hostname
-        lens-aeson
-      ];
+      executableHaskellDepends = [ hostname ];
       testHaskellDepends = [
         hedgehog
+        streaming
         tasty
         tasty-golden
         tasty-hedgehog

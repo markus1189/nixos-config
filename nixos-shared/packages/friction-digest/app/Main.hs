@@ -2,12 +2,8 @@
 module Main (main) where
 
 import Control.Exception (catch, throwIO)
-import Control.Lens (folded, has, hasn't, only)
-import Data.Aeson.Lens (key, _String)
 import Control.Monad (filterM, forM, forM_, when)
-import Data.Aeson (Value)
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as B
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -47,16 +43,19 @@ main = do
       forM_ [yesterday, today] $ \d -> writeDay home host d (digest tz d sessions)
     _ -> die usage
 
-loadSince :: TimeZone -> FilePath -> Day -> IO [(Text, [Value])]
+-- | Summarizes transcripts touched since local midnight of @d@, one after the
+-- other. Transcripts are independent, so @pooledForConcurrently@ (unliftio,
+-- -threaded) would parallelize this; measured 2026-11-20 on p1g8 at -N4: half
+-- the wall time for 31% more CPU and 16 MiB more memory, a bad trade for an
+-- hourly background job.
+loadSince :: TimeZone -> FilePath -> Day -> IO [(Text, Summary)]
 loadSince tz home d = do
   files <- filterM (fmap ((>= d) . localDay . utcToLocalTime tz) . getModificationTime) =<< transcripts (home </> ".claude/projects")
   forM files $ \f -> do
-    vs <- decodeTranscript <$> B.readFile f
-    -- Format drift: assistant records exist but none decodes. A session with no
-    -- assistant reply yet (running, aborted) is not drift.
-    when (has (folded . key "type" . _String . only "assistant") vs && hasn't (folded . turnOf) vs) $
-      hPutStrLn stderr ("warn: assistant records present but none decoded in " <> f)
-    pure (T.pack (takeBaseName f), vs)
+    s <- summarizeFile (localTimeToUTC tz (LocalTime d midnight)) f
+    when (sumDrift s > 0) $
+      hPutStrLn stderr ("warn: " <> show (sumDrift s) <> " assistant records mentioning Friction did not decode in " <> f)
+    pure (T.pack (takeBaseName f), s)
 
 -- Bytes, not Data.Text.IO: the output must not depend on the unit's locale.
 writeDay :: FilePath -> Text -> Day -> [Session] -> IO ()
