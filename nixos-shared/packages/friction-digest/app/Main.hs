@@ -22,7 +22,7 @@ usage =
   unlines
     [ "usage: friction-digest [--date YYYY-MM-DD]  print one day's digest (default: yesterday)"
     , "       friction-digest --write              (over)write today's and yesterday's"
-    , "                                            ~/Stuff/YYYY-MM/DD-<host>/friction-digest.md"
+    , "                                            ~/Stuff/YYYY-MM/DD-<host>/autogen-friction-digest.md"
     ]
 
 main :: IO ()
@@ -61,7 +61,7 @@ loadSince tz home d = do
 writeDay :: FilePath -> Text -> Day -> [Session] -> IO ()
 writeDay home host d ss = do
   let dir = home </> "Stuff" </> formatTime defaultTimeLocale "%Y-%m" d </> formatTime defaultTimeLocale "%d-" d <> T.unpack host
-      out = dir </> "friction-digest.md"
+      out = dir </> "autogen-friction-digest.md"
       new = render (T.pack home) d host ss
   dirExists <- doesDirectoryExist dir
   old <- (Just . TE.decodeUtf8Lenient <$> BS.readFile out) `catch` \e -> if isDoesNotExistError e then pure Nothing else throwIO e

@@ -58,7 +58,7 @@
   };
 
   # Verbatim Friction lists from this host's Claude Code transcripts into
-  # today's and yesterday's DD-<host>/friction-digest.md, rewritten only on change.
+  # today's and yesterday's DD-<host>/autogen-friction-digest.md, rewritten only on change.
   systemd.user.services.friction-digest = {
     Unit = {
       Description = "Collect Claude Code Friction lists into ~/Stuff";
