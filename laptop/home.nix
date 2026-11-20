@@ -214,6 +214,17 @@ in
                     };
                   };
 
+                  "vertex/gemini-4-neon@eu" = {
+                    name = "Gemini 4 Neon";
+                    capabilities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+
                   "vertex/gemini-3.5-flash-lite@eu" = {
                     name = "Gemini 3.5 Flash Lite";
                     capabilities = {

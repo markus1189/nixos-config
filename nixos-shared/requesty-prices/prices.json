@@ -136,5 +136,11 @@
     "output": 8.25,
     "cacheRead": 0.0825,
     "cacheWrite": 1.65
+  },
+  "vertex/gemini-4-neon@eu": {
+    "input": 3.3,
+    "output": 16.5,
+    "cacheRead": 0.165,
+    "cacheWrite": 3.3
   }
 }

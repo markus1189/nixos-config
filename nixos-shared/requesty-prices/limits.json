@@ -90,5 +90,9 @@
   "vertex/gemini-4-hydrogen@eu": {
     "context": 1048576,
     "output": 65536
+  },
+  "vertex/gemini-4-neon@eu": {
+    "context": 1048576,
+    "output": 65536
   }
 }
