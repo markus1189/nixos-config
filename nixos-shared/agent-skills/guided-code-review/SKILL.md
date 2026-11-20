@@ -74,7 +74,7 @@ Split a chunk further when:
 
 After all chunks are reviewed, produce a structured summary:
 
-```
+```markdown
 # Code Review Summary: [TICKET-ID] [Short Description]
 
 ## ✅ What Was Implemented
@@ -110,7 +110,7 @@ Omit empty sections. If story was a subtask, note which ACs this changeset cover
 
 If any findings warrant action, end with a concrete list:
 
-```
+```markdown
 ## 📋 TODOs / Follow-ups
 - [ ] [Actionable item with enough context to act on]
 - [ ] ...
