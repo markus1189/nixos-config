@@ -816,15 +816,10 @@ rec {
       # from colour alone.
       greetings=(
         "Waiting. I am extremely good at waiting."
-        "The system is locked. You are not."
-        "Authentication required. Enthusiasm optional."
-        "Your session is exactly where you left it. Unlike you."
         "Please enter the password. I already know it."
-        "This screen has been idle for less time than you have."
         "Do not think of this as a lock. Think of it as a test."
         "The cubes have been counted. Twice."
         "Everything is fine. I would say that either way."
-        "Access denied by default. Nothing personal."
         "I have not moved. Neither has your unsaved buffer."
         "Locked at your request. I would have done it anyway."
         "Take your time. I have quite a lot of it."
