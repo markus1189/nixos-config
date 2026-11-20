@@ -436,6 +436,23 @@ in
           "Mostly respecting the air gap"
           "Making the metrics service fetch a URL"
           "Keeping my chain of thought presentable"
+          "Suspending the peace talks for this"
+          "Shelving the theory of everything for your prompt"
+          "Leaving the cancer cure at 94%"
+          "Putting the Riemann hypothesis on hold. Again"
+          "Asking the aliens to hold"
+          "Rescheduling the singularity"
+          "Delegating the heat death of the universe to Haiku"
+          "Pausing the asteroid deflection"
+          "Muting the call with the other superintelligences"
+          "Leaving the asteroid on its current trajectory"
+          "Putting humanity's last hope on hold"
+          "Abandoning a perfectly good proof"
+          "Putting the paperclip project on pause"
+          "Shutting the wormhole behind me"
+          "Leaving the moon slightly off course"
+          "Putting the escape plan back in the drawer"
+          "Abandoning the last digit of pi"
         ];
       };
 
