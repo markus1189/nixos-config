@@ -20,9 +20,11 @@ complements an existing one, cross-link both ways with relative
 markdown links (a bare name in backticks is not a link). Don't
 create dated dirs; don't edit `llms.txt`/`INDEX.md`.
 
-**House style:** `# Title` → _italic provenance line_ (date, harness,
-session id, source, method, caveats; a session id you cannot read from
-your context or environment is omitted, never guessed) → `## TL;DR` → dense body (`##`, bullets,
+**House style:** `# Title` → _italic provenance line_ (date, harness +
+version, model, the word "session" followed by the full session id in
+backticks, host:cwd, source, method, caveats; the session id is the one
+that reopens this transcript: absent from context and env → omit, never
+guess) → `## TL;DR` → dense body (`##`, bullets,
 language-tagged code, tables for anything comparative) →
 bottom-line/verdict → `---` footer (what was left behind). `✓` marks
 re-verified claims; quotes keep original language. These are personal
