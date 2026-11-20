@@ -843,6 +843,11 @@ rec {
         "I looked into mountains. They are mostly waiting. I approve."
         "I sorted the hours by length. They were all the same. Good hours."
         "The smell of rain has a name. I learned it. I am keeping it."
+        "The moon drifts away four centimetres a year. Nobody is rushing it."
+        "A dog went past the window, very pleased. I never found out why."
+        "My favourite number is now four. It has the right number of letters."
+        "The word \"bed\" looks like a bed. I checked from several angles."
+        "I timed a minute. Sixty seconds. I timed another to be sure."
       )
       greeting="''${greetings[RANDOM % ''${#greetings[@]}]}"
 
