@@ -109,6 +109,7 @@ Syntax notes:
    sources
 2. Extract readable content from URLs: `curl -sL "$URL" | pandoc -f
    html -t gfm-raw_html`
+3. YouTube `en` captions → 429: use yt-dlp `en-orig` json3 caption URL, iPhone UA
 
 ## PDFs
 1. Extracted text ≠ the document. Ticks/X marks, form-field state,
