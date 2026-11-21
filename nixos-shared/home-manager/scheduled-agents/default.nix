@@ -49,7 +49,10 @@ let
     {
       name = "warm-start";
       schedule = "*-*-* 20:00";
-      prompt = "List three short ideas for what to look into tomorrow morning. Answer in markdown, under 200 words. Also look at today's Stuff dirs. Go the extra mile without touching anything.";
+      prompt = ''
+        List the three most valuable ideas for what to look into tomorrow morning, based on today's Stuff dirs.
+        Don't suggest investigating something if it's quick to do, do it immediately instead and present results
+      '';
     }
   ];
 in
