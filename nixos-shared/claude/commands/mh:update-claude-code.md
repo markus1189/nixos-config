@@ -125,7 +125,7 @@ them are not.
    set: `nohup bash -c "DISPLAY=:0 xdg-open '$PR_URL'" >/dev/null 2>&1
    &`.  If the PR is ever going ready *without* a green all-arch
    review, untick the platform boxes and `Ran nixpkgs-review` first.
-7. Re-run the step-0 `gh pr list` (things move during the build). Others': report only. Your own superseded one: close
+7. Re-run the step-0 `gh pr list` (things move during the build; search lags, so your own new PR may be missing). Others': report only. Your own superseded one: close
    only with user approval *and* a green review here. A competing PR
    can restructure the packaging and not just the version, so check
    *what* landed: `gh pr view N --json state,mergedAt,mergeCommit`

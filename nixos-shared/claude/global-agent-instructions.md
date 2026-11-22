@@ -58,7 +58,7 @@ don't do, name its handle (`VERIFY/trace`).
    session smoother, or did one mislead? End with a **Friction** list
    after any TL;DR: the change and why, one line each, file first.
    Nothing to change → no list. Subagents never list
-2. **recur**: Friction is how the work went, not what it found
+2. **recur**: Friction is how the work went, not what it found or read
 
 ## Environment (NixOS) `NIX`
 

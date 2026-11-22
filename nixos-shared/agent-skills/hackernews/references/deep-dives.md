@@ -15,7 +15,7 @@ structured markdown summary, keeping the raw content out of the main context.
    Each writes its dive to `ID.out.md` next to the prompt; read those for the 🔗/💬 blocks below.
 3. `scripts/dive-prompt.sh --collect "$(stuff-today --default)/hn-daily.md" ID...` appends
    them verbatim in the given order, or nothing if one is missing. Run it only after every
-   subagent has reported finished: `ID.out.md` appears before its subagent stops rewriting it.
+   subagent's completion notification (a path message can come earlier): `ID.out.md` appears before its subagent stops rewriting it.
 
 **Re-dive** (story already dived today): don't repeat the dive. Have the subagent read the
 earlier dive (`treemd -s "<Title> [ID]" hn-daily.md`) and dump only
