@@ -152,8 +152,9 @@ buried mid-bullet among five other links, is one they never see.
 - **Interest beats rank.** A stack hit at #50 with 13 pts outranks a 600-pt story outside
   the interests. Never demote a match to a footnote, a "worth knowing" bullet or the
   "rest is in the file" line because its numbers are small.
-- **Prose may only group non-matches** (obituaries, archives, general news): at most 2 links
-  per bullet. More → a table.
+- **One story per line**, matches and non-matches alike: a table row or a bullet of its own,
+  never two stories in one bullet. The user picks dives by annotating lines (marginal), and
+  a line holding two stories cannot be acked for one of them.
 - Before sending, walk the fetched list once: every interest match is a row, or its absence
   is explained, and the 5 highest-scoring stories appear in the chat, match or not.
 
