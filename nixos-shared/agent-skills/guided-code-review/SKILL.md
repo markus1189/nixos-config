@@ -43,7 +43,7 @@ Present a proposed **chunk structure** before diving in:
 - Flag chunks that may need splitting (e.g., two unrelated endpoints both touched)
 
 Present the map and **wait for the reviewer to approve, reorder,
-merge, or skip areas** before proceeding, ask via the question tool.
+merge, or skip areas** before proceeding.
 
 ### Phase 4: Chunk-by-Chunk Walkthrough
 
@@ -51,8 +51,25 @@ For each chunk in the agreed map:
 
 1. **Read the relevant files** at the current revision
 2. **Present the chunk**: what changed, why (inferred from context), and how it connects to the story/goal
-3. **Assess** against review dimensions
-4. **Wait for reviewer feedback** via the question tool before proceeding to the next chunk
+3. **Assess** against the review dimensions below
+4. **End your turn** and wait for the reviewer's reply before the next chunk
+
+Waiting means ending the message, not calling the question tool: the
+reviewer answers in free text with the steering commands below. Use
+the question tool only for a genuine either/or the reviewer must pick.
+
+#### Review Dimensions
+
+The summary sections below, plus **writing for the reader**:
+
+- Comments that restate the code, the name, or a nearby line → flag
+  for deletion
+- Comments must carry what the code can't: why, non-obvious
+  constraints, measured facts
+- Docs and agent docs (AGENTS.md, skills, prompts): each rule once,
+  no restating, no consequences a smart reader derives; flag padding
+  and repetition
+- Missing a *why* where the code makes a surprising choice → flag
 
 #### Reviewer Steering Commands
 
@@ -92,6 +109,7 @@ After all chunks are reviewed, produce a structured summary:
 
 ## 📝 Code Quality
 [Naming, readability, style issues (with concrete suggestions), unclear parts]
+[Redundant comments/docs to delete, missing whys]
 
 ## 🧪 Test Gaps
 [Missing tests/types, untested edge cases, convention violations]
