@@ -57,8 +57,12 @@ let
       # the --bg daemon retires sessions idle for 8h
       schedule = "*-*-* 01:00";
       prompt = ''
-        You work based on what happened recently in ~/Stuff (start at
-        llms.txt; any host).
+        You work based on what happened in ~/Stuff (start at llms.txt;
+        any host) since your last report
+        (scheduled-agent-warm-start-report.md in earlier day dirs; if
+        none, the last 3 days). Older material only to follow a thread
+        that is still open. Don't repeat items from earlier reports
+        unless you have something new.
 
         Pick a few things you judge most worth my morning, ranked;
         fewer is fine only if the rest is noise.
