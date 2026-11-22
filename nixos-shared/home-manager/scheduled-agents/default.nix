@@ -21,13 +21,18 @@ let
         permission-mode = permissionMode;
         allowedTools = if tools == [ ] then null else lib.concatStringsSep "," tools;
       };
+      fullPrompt = prompt + ''
+
+        Also write your final answer to
+        $(stuff-today --default)/${prefix}${name}-report.md.
+      '';
     in
     {
       services."${prefix}${name}" = {
         Unit.Description = "Scheduled agent: ${name}";
         Service = {
           Type = "oneshot";
-          ExecStart = "${pkgs.writeShellScript "${prefix}${name}" "${claude} ${flags} ${lib.escapeShellArg prompt}"}";
+          ExecStart = "${pkgs.writeShellScript "${prefix}${name}" "${claude} ${flags} ${lib.escapeShellArg fullPrompt}"}";
           # claude refuses background sessions in an untrusted $HOME.
           WorkingDirectory = "%h/Stuff";
           # The --bg daemon would otherwise die with the oneshot's cgroup.
@@ -56,7 +61,7 @@ let
         llms.txt; any host).
 
         Pick a few things you judge most worth my morning, ranked;
-        fewer is fine.
+        fewer is fine only if the rest is noise.
 
         Do the legwork now, e.g. web research, filling gaps in notes,
         reviewing new code for high-value improvements (logic,
