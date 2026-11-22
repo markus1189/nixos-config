@@ -62,8 +62,9 @@ let
         reviewing new code for high-value improvements (logic,
         performance, bugs).
 
-        Read-only everywhere except today's dir ($(stuff-today
-        --default)), where you may write drafts, scripts and diffs.
+        Read-only everywhere except today's dir
+        ($(stuff-today --default)),
+        where you may write drafts, scripts and diffs.
 
         Never send anything that reaches other people: mail, comments,
         PRs, issues, posts, etc.
