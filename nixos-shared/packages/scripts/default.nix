@@ -1,4 +1,6 @@
 {
+  # Set per host by ../default.nix; null only in the flake's `.#myScripts`.
+  hostTag ? null,
   bat,
   buku,
   cacert,
@@ -129,12 +131,11 @@ rec {
       #                          every DD-* dir is one step. Read-only: creates
       #                          nothing, never touches Today. Backs cdp/cdn.
       # The default dir carries the host so ~/Stuff can sync between machines
-      # without two of them writing the same file; `nixos-p1` -> `p1`.
+      # without two of them writing the same file; HOST is config.my.hostTag.
       stuff="$HOME/Stuff"
       link="$stuff/Today"
       day="$stuff/$(date +%Y-%m/%d)" # one date call: no skew across midnight
-      host=$(uname -n)
-      host=''${host#nixos-}
+      host=${if hostTag == null then ''"$(echo 'stuff-today: built without hostTag' >&2; exit 1)"'' else lib.escapeShellArg hostTag}
 
       usage() {
         cat <<'EOF'

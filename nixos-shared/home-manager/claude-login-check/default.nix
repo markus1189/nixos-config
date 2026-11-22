@@ -3,7 +3,6 @@
 # line below records it.
 {
   pkgs,
-  lib,
   osConfig,
   ...
 }:
@@ -18,7 +17,7 @@ let
       pkgs.notifySendTelegram
     ];
     text = ''
-      host=${lib.removePrefix "nixos-" osConfig.networking.hostName}
+      host=${osConfig.my.hostTag}
       credentials=$HOME/.claude/.credentials.json
       warn_window=${toString (hours 72)}
       # One daily timer run lands in it, so "expired" is sent once, not on every

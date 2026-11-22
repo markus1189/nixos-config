@@ -8,6 +8,10 @@
   nixpkgs.overlays = [
     (import ./overlay.nix inputs)
 
+    # stuff-today bakes in the host tag; overriding here reaches every consumer
+    # (zsh, emacs, friction-digest), which all take myScripts from final.
+    (_: prev: { myScripts = prev.myScripts.override { hostTag = config.my.hostTag; }; })
+
     (final: _: {
       myConfigFiles =
         let

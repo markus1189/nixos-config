@@ -4,7 +4,7 @@
 # tree is per machine. Tooling and agent instructions come from here, so the
 # hosts cannot drift apart. Generated indexes (llms.txt, INDEX.md,
 # .kb/series/) are data and stay in ~/Stuff, written by kb-index.
-{ pkgs, ... }:
+{ pkgs, osConfig, ... }:
 {
   home.packages = [
     # On PATH for agents: `stuff-today --default` names today's DD-<host> dir.
@@ -69,7 +69,7 @@
       Type = "oneshot";
       # Resume and login make both timers due at once; the day dir must exist first.
       ExecStartPre = "${pkgs.myScripts.stuffToday}/bin/stuff-today --default";
-      ExecStart = "${pkgs.frictionDigest}/bin/friction-digest --write";
+      ExecStart = "${pkgs.frictionDigest}/bin/friction-digest --write --host ${osConfig.my.hostTag}";
     };
   };
 

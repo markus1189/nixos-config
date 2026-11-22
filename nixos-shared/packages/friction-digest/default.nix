@@ -14,9 +14,9 @@ haskell.lib.justStaticExecutables (
       filepath,
       foldl,
       hedgehog,
-      hostname,
       lens,
       lens-aeson,
+      optparse-applicative,
       pandoc,
       pandoc-types,
       streaming,
@@ -51,7 +51,7 @@ haskell.lib.justStaticExecutables (
         text
         time
       ];
-      executableHaskellDepends = [ hostname ];
+      executableHaskellDepends = [ optparse-applicative ];
       testHaskellDepends = [
         hedgehog
         streaming

@@ -21,7 +21,7 @@ executable friction-digest
   import:           shared
   hs-source-dirs:   app
   main-is:          Main.hs
-  build-depends:    friction-digest, directory, filepath, hostname
+  build-depends:    friction-digest, directory, filepath, optparse-applicative
 
 test-suite spec
   import:           shared

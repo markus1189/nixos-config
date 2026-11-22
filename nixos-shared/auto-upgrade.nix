@@ -5,14 +5,13 @@
 # updates as root on purpose (builds the committed flake.lock).
 {
   config,
-  lib,
   pkgs,
   ...
 }:
 
 let
-  # Flake attr and message label; p1's hostname is nixos-p1.
-  host = lib.removePrefix "nixos-" config.networking.hostName;
+  # Flake attr and message label.
+  host = config.my.hostTag;
 in
 {
   system.autoUpgrade = {
