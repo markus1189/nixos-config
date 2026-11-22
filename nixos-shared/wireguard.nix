@@ -29,5 +29,11 @@
         };
       };
     };
+
+    # tmpfiles ages out the PrivateTmp copy after 10d, breaking upstream's stop.
+    systemd.services.wg-quick-wg-nyc.preStop = lib.mkForce ''
+      cp ${config.age.secrets.wg-nyc.path} /tmp/wg-nyc.conf
+      wg-quick down /tmp/wg-nyc.conf
+    '';
   };
 }
