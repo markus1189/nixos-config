@@ -1,19 +1,48 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   claude = "${pkgs.masterPkgs.claude-code}/bin/claude";
-  maxAgeHours = 24;
-  cleanup = pkgs.writeShellScript "claude-session-cleanup" ''
-    set -euo pipefail
-    cutoff=$(${pkgs.coreutils}/bin/date -d '${toString maxAgeHours} hours ago' +%s%3N)
-    ${claude} agents --json --all \
-      | ${pkgs.jq}/bin/jq -r --argjson cutoff "$cutoff" '.[]
-          | select(.kind == "background" and .status == "idle" and .startedAt < $cutoff)
-          | .id' \
-      | while read -r id; do
-          ${claude} stop "$id" || true
-          ${claude} rm "$id"
+  doneMaxAgeDays = 7;
+  idleMaxDays = 3;
+  cleanup = pkgs.writeShellApplication {
+    name = "claude-session-cleanup";
+    runtimeInputs = with pkgs; [ coreutils jq procps systemd ];
+    text = ''
+      now=$(date +%s)
+      sessions=$(${claude} agents --json --all)
+
+      # Transcript mtime is the only last-activity signal.
+      idle_days() {
+        local t
+        for t in "$HOME"/.claude/projects/*/"$1".jsonl; do
+          [[ -e $t ]] || return 1
+          echo $(( (now - $(stat -c %Y "$t")) / 86400 ))
+          return 0
         done
-  '';
+      }
+
+      jq -r --argjson cutoff "$(( (now - ${toString doneMaxAgeDays} * 86400) * 1000 ))" '.[]
+          | select(.kind == "background" and .state == "done" and .status == null and .startedAt < $cutoff)
+          | .id' <<<"$sessions" \
+        | while read -r id; do ${claude} rm "$id" || true; done
+
+      jq -r '.[] | select(.kind == "background" and .status == "idle")
+          | "\(.id) \(.sessionId)"' <<<"$sessions" \
+        | while read -r id sid; do
+            d=$(idle_days "$sid") || continue
+            if (( d >= ${toString idleMaxDays} )); then ${claude} stop "$id" || true; fi
+          done
+
+      rc=$(systemctl --user show -p MainPID --value claude-remote-control.service)
+      [[ $rc == 0 ]] && exit 0
+      jq -r '.[] | select(.kind == "interactive" and .status == "idle")
+          | "\(.pid) \(.sessionId)"' <<<"$sessions" \
+        | while read -r pid sid; do
+            [[ $(ps -o ppid= -p "$pid" | tr -d ' ') == "$rc" ]] || continue
+            d=$(idle_days "$sid") || continue
+            if (( d >= ${toString idleMaxDays} )); then kill -TERM "$pid" || true; fi
+          done
+    '';
+  };
 in
 {
   systemd.user.services.claude-remote-control = {
@@ -43,10 +72,10 @@ in
   };
 
   systemd.user.services.claude-session-cleanup = {
-    Unit.Description = "Stop and remove idle Claude background sessions older than ${toString maxAgeHours}h";
+    Unit.Description = "Clean up finished and long-idle Claude sessions";
     Service = {
       Type = "oneshot";
-      ExecStart = "${cleanup}";
+      ExecStart = lib.getExe cleanup;
       WorkingDirectory = "%h/Stuff";
     };
   };
