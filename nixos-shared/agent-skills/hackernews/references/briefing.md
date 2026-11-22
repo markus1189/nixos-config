@@ -155,7 +155,7 @@ buried mid-bullet among five other links, is one they never see.
 - **Prose may only group non-matches** (obituaries, archives, general news): at most 2 links
   per bullet. More → a table.
 - Before sending, walk the fetched list once: every interest match is a row, or its absence
-  is explained.
+  is explained, and the 5 highest-scoring stories appear in the chat, match or not.
 
 ### Tone
 - **HN-native**: direct, slightly cynical, technically literate
