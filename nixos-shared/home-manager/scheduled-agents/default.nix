@@ -8,7 +8,7 @@ let
       name,
       schedule,
       prompt,
-      model ? "sonnet",
+      model ? "opus",
       effort ? "medium",
       permissionMode ? "auto",
       tools ? [ ],
@@ -48,9 +48,10 @@ let
   jobs = [
     {
       name = "warm-start";
-      schedule = "*-*-* 20:00";
+      # The --bg daemon retires sessions idle for 8h.
+      schedule = "*-*-* 06:00";
       prompt = ''
-        List the three most valuable ideas for what to look into tomorrow morning, based on today's Stuff dirs.
+        List the three most valuable ideas for what to look into this morning, based on yesterday's Stuff dirs.
         Don't suggest investigating something if it's quick to do, do it immediately instead and present results
       '';
     }
