@@ -71,6 +71,8 @@ let
       timers."${prefix}${name}" = {
         Timer = {
           OnCalendar = schedule;
+          # Moving `schedule` to a slot already past today dispatches the
+          # agent on the next switch: the new slot postdates the stamp.
           Persistent = true;
         };
         Install.WantedBy = [ "timers.target" ];
