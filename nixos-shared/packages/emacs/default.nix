@@ -23,6 +23,11 @@ let
     mkdir -p $out/share/emacs/site-lisp
     cp ${./quick-yes.el} $out/share/emacs/site-lisp/quick-yes.el
   '';
+  # Tested by checks.mh-annotate-ert, which loads it from here.
+  mh-annotate = runCommandLocal "install-mh-annotate" { } ''
+    mkdir -p $out/share/emacs/site-lisp
+    cp ${./mh-annotate.el} $out/share/emacs/site-lisp/mh-annotate.el
+  '';
   # Single-file elisp packages without a MELPA recipe; sources are flake
   # inputs (see flake.nix), so they move with `nix flake update`.
   # Upstream has been dormant since 2015 and predates the `lexical-binding'
@@ -103,6 +108,7 @@ emacs.pkgs.withPackages (
       kind-icon
       lua-mode
       log4j-mode
+      mh-annotate
       ##########
       # LSP mode
       lsp-mode

@@ -38,6 +38,7 @@ in
       myScripts.claude-history
       myScripts.kagi-search
       myScripts.addToRaindropScript
+      myScripts.annotateTake
     ];
 
     file =

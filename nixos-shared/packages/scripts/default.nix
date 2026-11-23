@@ -1761,6 +1761,14 @@ rec {
 
   # Depth 4 = yyyy-mm/dd-host/topic/file: 5.2k rows vs 147k unlimited,
   # most of which are decompiled-APK trees below that.
+  # The pull side of ../emacs/mh-annotate.el; /mh:notes runs it. emacsclient
+  # comes from PATH: it has to be the one that matches the running Emacs.
+  annotateTake = writeShellApplication {
+    name = "annotate-take";
+    runtimeInputs = [ coreutils ];
+    text = builtins.readFile ./annotate-take.sh;
+  };
+
   rofiStuffPicker = writeShellApplication {
     name = "rofiStuffPicker";
     text = ''exec ${rofiFilePicker}/bin/rofiFilePicker -d 4 "$HOME/Stuff" stuff'';

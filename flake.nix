@@ -183,6 +183,8 @@
         {
           myScripts = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) pkgs.myScripts;
           inherit (pkgs) frictionDigest;
+          # For checks.mh-annotate-ert. `emacs` alone would read as nixpkgs' own.
+          myEmacs = pkgs.emacs;
 
           # Agent skills as `nix build .#agentSkills.<name>` — the fast
           # no-sudo iteration check; validation runs inside each build.
@@ -259,6 +261,21 @@
             deadnix --no-lambda-pattern-names --fail ${lintTree}
             touch $out
           '';
+
+          # mh-annotate.el leans on annotate.el internals. The suite loads it
+          # from the site-lisp of an emacs that shares every package
+          # derivation with the hosts' (only the host tag baked into
+          # emacs-config.el differs), so an emacs-overlay bump that changes
+          # those internals fails here.
+          mh-annotate-ert =
+            pkgs.runCommand "mh-annotate-ert"
+              { nativeBuildInputs = [ self.legacyPackages.x86_64-linux.myEmacs ]; }
+              ''
+                HOME=$TMPDIR emacs --batch \
+                  -l ${./nixos-shared/packages/emacs/mh-annotate-test.el} \
+                  -f ert-run-tests-batch-and-exit
+                touch $out
+              '';
 
           # The tasty suite runs in its checkPhase.
           friction-digest = pkgs.callPackage ./nixos-shared/packages/friction-digest { };
