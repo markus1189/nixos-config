@@ -24,6 +24,7 @@
               currentSpotifySong
               dunstStatus
               isVpnActive
+              systemdFailed
               ;
             wirelessInterface = config.my.wirelessInterface;
           };

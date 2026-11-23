@@ -5,6 +5,7 @@
   dunstStatus,
   currentSpotifySong,
   isVpnActive,
+  systemdFailed,
   wirelessInterface,
   btHeadphoneBattery,
   chargeRate,
@@ -51,6 +52,7 @@ in
       isVpnActive
       wirelessInterface
       dunstStatus
+      systemdFailed
       btHeadphoneBattery
       chargeRate
       wirelessSsid

@@ -620,6 +620,23 @@ rec {
     '';
   };
 
+  # Polled, not event-driven: units fail rarely enough that a few seconds of
+  # latency costs nothing. Only `degraded` counts -- `starting` and
+  # `maintenance` are also non-zero exits but no failed unit.
+  systemdFailed = writeShellApplication {
+    name = "systemdFailed";
+    runtimeInputs = [ systemd ];
+    inheritPath = false;
+    bashOptions = [ ];
+    text = ''
+      out=""
+      [[ "$(systemctl is-system-running)" == degraded ]] && out+="S"
+      [[ "$(systemctl --user is-system-running)" == degraded ]] && out+="U"
+      [[ -n "$out" ]] && echo "<fc=red>$out</fc> "
+      exit 0
+    '';
+  };
+
   dunstStatus = writeShellApplication {
     name = "dunstStatus";
     runtimeInputs = [
