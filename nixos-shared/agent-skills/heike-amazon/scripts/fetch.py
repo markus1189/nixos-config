@@ -36,7 +36,8 @@ def plain(part):
 
 def main():
     e = env()
-    q = f'from:{e["HEIKE_EMAIL"]} subject:"{e["HEIKE_SUBJECT"]}" is:unread in:inbox'
+    # Amazon's share subjects: "Dies auf Amazon anschauen" (product), "Dieses Angebot auf Amazon anschauen" (deal)
+    q = f'from:{e["HEIKE_EMAIL"]} subject:"auf Amazon anschauen" is:unread in:inbox'
     ids = [m["id"] for m in gws("list", {"userId": "me", "q": q, "maxResults": 100}).get("messages", [])]
     for i in reversed(ids):
         m = gws("get", {"userId": "me", "id": i, "format": "full"})
@@ -46,7 +47,7 @@ def main():
         if not link:
             print(json.dumps({"date": h.get("Date"), "error": "no amazon link", "body": body}), flush=True)
             continue
-        title = " ".join(body[:link.start()].split()).rstrip(" |")
+        title = " ".join(body[:link.start()].split()).rstrip(" |").removeprefix("Angebot: ")
         note = " ".join(body[link.end():].split())
         print(json.dumps({"date": h.get("Date"), "title": title, "link": link[0], "note": note},
                          ensure_ascii=False))
