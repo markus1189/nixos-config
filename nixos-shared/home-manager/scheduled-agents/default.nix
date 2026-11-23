@@ -2,6 +2,10 @@
 let
   claude = "${pkgs.masterPkgs.claude-code}/bin/claude";
   prefix = "scheduled-agent-";
+  telegram = "${pkgs.notifySendTelegram}/bin/notifySendTelegram";
+  # A preflight exiting non-zero means "nothing to do": the service exits
+  # with this, and ExecStopPost stays silent for it.
+  skipStatus = 75;
 
   mkAgent =
     {
@@ -12,6 +16,9 @@ let
       effort ? "medium",
       permissionMode ? "auto",
       tools ? [ ],
+      # Command run before claude. Its stdout is appended to the prompt;
+      # lines starting with FAIL are also sent to Telegram.
+      preflight ? null,
     }:
     let
       flags = lib.cli.toCommandLineShellGNU { } {
@@ -21,7 +28,11 @@ let
         permission-mode = permissionMode;
         allowedTools = if tools == [ ] then null else lib.concatStringsSep "," tools;
       };
-      fullPrompt = prompt + ''
+      fullPrompt = prompt + lib.optionalString (preflight != null) ''
+
+        Preflight output:
+        @PREFLIGHT@
+      '' + ''
 
         Also write your final answer to
         $(stuff-today --default)/${prefix}${name}-report.md.
@@ -32,12 +43,28 @@ let
         Unit.Description = "Scheduled agent: ${name}";
         Service = {
           Type = "oneshot";
-          ExecStart = "${pkgs.writeShellScript "${prefix}${name}" "${claude} ${flags} ${lib.escapeShellArg fullPrompt}"}";
+          ExecStart = "${pkgs.writeShellScript "${prefix}${name}" (
+            if preflight == null then
+              "${claude} ${flags} ${lib.escapeShellArg fullPrompt}"
+            else
+              ''
+                set -uo pipefail
+                out=$(${preflight}); rc=$?
+                fails=$(printf '%s\n' "$out" | ${pkgs.gnugrep}/bin/grep '^FAIL' || true)
+                [ -n "$fails" ] && ${telegram} "agent ${name}: $fails"
+                [ "$rc" -eq 0 ] || exit ${toString skipStatus}
+                prompt=${lib.escapeShellArg fullPrompt}
+                exec ${claude} ${flags} "''${prompt/@PREFLIGHT@/"$out"}"
+              ''
+          )}";
+          SuccessExitStatus = skipStatus;
           # claude refuses background sessions in an untrusted $HOME.
           WorkingDirectory = "%h/Stuff";
           # The --bg daemon would otherwise die with the oneshot's cgroup.
           KillMode = "process";
-          ExecStopPost = "-${pkgs.notifySendTelegram}/bin/notifySendTelegram 'agent ${name} dispatched: \${SERVICE_RESULT}'";
+          ExecStopPost = "-${pkgs.writeShellScript "${prefix}${name}-notify" ''
+            [ "$EXIT_STATUS" = ${toString skipStatus} ] || ${telegram} "agent ${name} dispatched: $SERVICE_RESULT"
+          ''}";
           Environment = [ "SSH_AUTH_SOCK=%t/ssh-agent" ];
         };
       };
@@ -53,9 +80,8 @@ let
   jobs = [
     {
       name = "warm-start";
-      # Runs on p1. 01:00 so its 5h usage window expires before the 07:30 start;
       # the --bg daemon retires sessions idle for 8h
-      schedule = "*-*-* 01:00";
+      schedule = "*-*-* 02:30";
       prompt = ''
         You work based on what happened in ~/Stuff (start at llms.txt;
         any host) since your last report
@@ -85,6 +111,39 @@ let
         Friction/tooling fixes cost context and maintenance: propose
         one only if it recurred, you verified it against the real
         case, and state its cost vs expected benefit.
+      '';
+    }
+    {
+      name = "audiobook-recap";
+      schedule = "*-*-* 02:30";
+      preflight = "${pkgs.python3}/bin/python3 -I ${./audiobook-recap-preflight.py}";
+      prompt = ''
+        For each RECAP line below (RECAP <book dir> <old_s> <new_s>
+        <total_s> <epub>) dispatch one subagent with this brief and
+        the line; ignore FAIL lines. Then send one message,
+        ${telegram} "<message>", with each subagent's result line.
+
+        Brief: Append to <book dir>/recap.md a section `## YYYY-MM-DD
+        · <chapter at old_s> → <chapter at new_s>` recapping that span
+        from the EPUB for a listener who zoned out at times: the major
+        plot points, character development and changed relationships,
+        new characters and terms, so the next session makes sense.
+        Start with a short "Where you were" recap of what came just
+        before old_s. Name chapters as the EPUB does, never by audio
+        track number.
+
+        Audiobook chapters come from ${pkgs.ffmpeg}/bin/ffprobe
+        -show_chapters (several files: one per file; names like
+        001.mp3 are not titles); EPUB chapters from the spine
+        (${pkgs.unzip}/bin/unzip, ${pkgs.pandoc}/bin/pandoc -t plain),
+        aligned by content when counts differ, positions within a
+        chapter by word fraction.
+
+        Nothing after new_s, not even hints; don't read past it except
+        to find the chapter end. Only after the section is written set
+        frontmatter last_position_s = new_s, updated, epub. Touch no
+        other file. On failure leave recap.md as is. Return one line:
+        title and chapter range, or "FAILED: <reason>".
       '';
     }
   ];
