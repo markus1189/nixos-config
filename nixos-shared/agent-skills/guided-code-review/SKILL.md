@@ -1,7 +1,6 @@
 ---
 name: guided-code-review
 description: "Start a guided code review"
-context: fork
 disable-model-invocation: true
 effort: xhigh
 ---
