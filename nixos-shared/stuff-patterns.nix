@@ -45,6 +45,8 @@
     "toml"
     "yaml"
     "yml"
+    "scala"
+    "apls"
   ];
 
   # Every file below a dir of this name syncs, whatever its type. Not
