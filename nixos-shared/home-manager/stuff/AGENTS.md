@@ -28,7 +28,7 @@ Change it there and rebuild; an edit here cannot stick.
   directly in it, a project in a subdirectory, never a new `DD-name/`. The host in the name
   keeps machines from writing the same file (`nixos-p1` is tagged `p1`)
 - **Only notes and code reach the other machines.** Syncthing syncs `~/Stuff` between p1g8,
-  p1 and nuc (and to the phone S26U, receive only), opt-in by extension: `md org py sh nix hs ts el toml yaml yml scala apls`. Everything else
+  p1 and nuc (and to the phone S26U, receive only), opt-in by extension: `md org py sh nix hs ts el toml yaml yml scala apls tsx rs`. Everything else
   (html, json, pdf, images, dumps) stays on the host that wrote it, and so do junk dirs
   (`node_modules`, `*venv*`, `.git`, `jadx*`, …) even for their `.md`, as do dirs named like a
   synced file (`repo.gradle.org/`, `x.md/`). Other types sync only below a `_sync-all-files/`

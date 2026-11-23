@@ -47,6 +47,8 @@
     "yml"
     "scala"
     "apls"
+    "tsx"
+    "rs"
   ];
 
   # Every file below a dir of this name syncs, whatever its type. Not
