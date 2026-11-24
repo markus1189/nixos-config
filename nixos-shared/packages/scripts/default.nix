@@ -259,7 +259,6 @@ rec {
       runtimeInputs = [
         coreutils
         gnugrep
-        gnupg
         notifySendTelegram
         openssh
         systemd

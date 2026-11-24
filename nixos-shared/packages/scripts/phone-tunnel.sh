@@ -86,7 +86,9 @@ watch_session() {
     sleep 3
     peer=$(session_log "$since" | grep -m1 -oP 'Accepted publickey for \S+ from ::1 port \K\d+' || true)
   done
-  until session_log "$since" | grep -qP "Disconnected from user \\S+ ::1 port $peer\\b"; do
+  # A session can also end as "Connection closed by ::1 port N" (5 of 32 on p1
+  # since 2026-10-15) with no Disconnected line.
+  until session_log "$since" | grep -qP "(Disconnected from user \\S+|Connection closed by) ::1 port $peer\\b"; do
     sleep 3
   done
   echo "phone session ended" >"$state/reason"
@@ -100,7 +102,7 @@ run() {
   # process group, and ssh stops (SIGTTIN) on its first read of the tty.
   # </dev/tty: a background job's stdin is /dev/null without job control.
   # Backgrounded so the watcher can kill it by pid.
-  timeout --foreground "$limit" ssh -tt \
+  timeout --foreground -k 5s "$limit" ssh -tt \
     -o UserKnownHostsFile="$SERVEO_KNOWN_HOSTS" -o StrictHostKeyChecking=yes \
     -o PubkeyAuthentication=no \
     -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
@@ -120,6 +122,11 @@ run() {
 
 start() {
   local limit=${1:-$default_limit}
+  # timeout(1) treats a zero duration as no limit at all.
+  if [[ $limit =~ ^0*\.?0*[smhd]?$ ]]; then
+    echo "phone-tunnel: LIMIT must be greater than 0" >&2
+    return 2
+  fi
   if is_open; then
     status
     return 0
