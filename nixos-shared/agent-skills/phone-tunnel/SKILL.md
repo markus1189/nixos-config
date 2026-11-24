@@ -23,20 +23,21 @@ SSH runs from Termux straight to this host's sshd. Background and evidence:
 
 ## Session
 
-1. `phone-tunnel start [LIMIT]` (default `2h`, timeout(1) syntax). Prints `open: <alias>:4241`
+1. `phone-tunnel start [LIMIT]` (default `10m`, timeout(1) syntax). Prints `open: <alias>:4241`
    and sends a Telegram notice. Tell the user it is open and until when.
-2. The user runs `ssh <host>` in Termux. To confirm the login came through the tunnel:
-   `journalctl -u sshd --since -10min | rg 'Accepted publickey .* from ::1'`.
-3. For gpg, the user runs in that Termux shell:
-   ```bash
-   export GPG_TTY=$(tty); gpg-connect-agent updatestartuptty /bye
-   echo test | gpg --clearsign >/dev/null
-   ```
-   Check the cache: `gpg-connect-agent 'keyinfo --list' /bye | awk '$7=="1"'`. Closing the
-   tunnel keeps the cache (it expires with gpg-agent's TTLs), so signing works after `stop`.
-4. `phone-tunnel stop` when done (it also closes itself at the limit). Both notify. Remind the
-   user that pinentry now points at the closed Termux tty until they run
-   `gpg-connect-agent updatestartuptty /bye` in a desktop terminal.
+2. Run `phone-tunnel wait` in the background. The tunnel closes itself when the first session
+   through it ends (the phone's shortcut exits ssh), at the limit, or on `phone-tunnel stop`;
+   `wait` then prints `closed: <reason>`. Report that line; don't ask the user to say "done".
+3. If gpg was the point, check the cache:
+   `gpg-connect-agent 'keyinfo --list' /bye | awk '$7=="1"'`. Closing keeps it (gpg-agent's
+   TTLs expire it). Say once, in that report, that desktop pinentry needs
+   `gpg-connect-agent updatestartuptty /bye` there; never repeat it.
+
+Without the shortcut, the user runs in the Termux shell, then exits:
+```bash
+export GPG_TTY=$(tty); gpg-connect-agent updatestartuptty /bye
+echo test | gpg --clearsign >/dev/null
+```
 
 ## Trouble
 

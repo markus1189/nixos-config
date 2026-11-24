@@ -262,6 +262,7 @@ rec {
         gnupg
         notifySendTelegram
         openssh
+        systemd
         tmux
       ];
       inheritPath = false;
