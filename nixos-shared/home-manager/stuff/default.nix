@@ -75,6 +75,30 @@
     };
   };
 
+  # One card per Claude Code session into DD-<host>/autogen-session-digest.md: today,
+  # yesterday, and the start day of every session resumed since, rewritten only on change.
+  systemd.user.services.session-digest = {
+    Unit = {
+      Description = "Digest Claude Code sessions into ~/Stuff";
+      ConditionPathIsDirectory = "%h/.claude/projects";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStartPre = "${pkgs.myScripts.stuffToday}/bin/stuff-today --default";
+      ExecStart = "${pkgs.myScripts.sessionDigest}/bin/session-digest --write --host ${osConfig.my.hostTag}";
+    };
+  };
+
+  systemd.user.timers.session-digest = {
+    Unit.Description = "Hourly Claude Code session digest";
+    Timer = {
+      OnCalendar = "hourly";
+      OnStartupSec = "0";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   systemd.user.timers.friction-digest = {
     Unit.Description = "Hourly Friction digest";
     Timer = {

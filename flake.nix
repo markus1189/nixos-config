@@ -280,6 +280,24 @@
           # The tasty suite runs in its checkPhase.
           friction-digest = pkgs.callPackage ./nixos-shared/packages/friction-digest { };
 
+          # Synthetic transcripts and throwaway git repos; TZ pinned because days are local.
+          session-digest =
+            pkgs.runCommand "session-digest-test"
+              {
+                nativeBuildInputs = [
+                  (pkgs.python3.withPackages (ps: [
+                    ps.numpy
+                    ps.pytest
+                  ]))
+                  pkgs.git
+                ];
+              }
+              ''
+                HOME=$TMPDIR TZ=Europe/Berlin SESSION_DIGEST=${./nixos-shared/packages/scripts/session-digest.py} \
+                  pytest -q -p no:cacheprovider ${./nixos-shared/packages/scripts/session-digest-test.py}
+                touch $out
+              '';
+
           xmonad-config =
             let
               ghc = pkgs.haskellPackages.ghcWithPackages (ps: [

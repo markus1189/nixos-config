@@ -1566,6 +1566,19 @@ rec {
     libraries = [ python3Packages.colorama ];
   } (builtins.readFile ./claude-history.py);
 
+  # Hourly by the session-digest user timer (../../home-manager/stuff); the suite is
+  # checks.session-digest. git reads commit state, so it is pinned rather than taken from PATH.
+  sessionDigest =
+    writers.writePython3Bin "session-digest"
+      {
+        libraries = [ python3Packages.numpy ];
+      }
+      (
+        builtins.replaceStrings [ ''"@git@"'' ] [ ''"${git}/bin/git"'' ] (
+          builtins.readFile ./session-digest.py
+        )
+      );
+
   # Kagi search from the shell. Session link first (covered by the subscription), the paid
   # API as fallback; credentials from /run/agenix/kagi-{session,api-key} or env. Tests and
   # notes: ~/Stuff/2026-10/03-p1g8/kagi-search/. No shebang in the .py: the writer adds one.
