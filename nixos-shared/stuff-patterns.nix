@@ -1,7 +1,8 @@
 # What of ~/Stuff leaves the machine it was written on, in one place.
 # Read by ./syncthing.nix (the `stuff` folder's .stignore) and by
 # ./packages/scripts/default.nix (backup-stuff's rclone excludes), so
-# the sync and the backup cannot disagree about what is junk.
+# the sync and the backup cannot disagree about what is junk;
+# syncExtensions also fills ~/Stuff/AGENTS.md.
 #
 # Plain names only; each consumer adds its own glob syntax (Syncthing
 # matches a bare name at any depth, rclone `name/**`).

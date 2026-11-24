@@ -22,7 +22,9 @@
   # Store symlinks, read-only: change them here, not in ~/Stuff. force,
   # because each host had its own hand-edited copy in the way.
   home.file."Stuff/AGENTS.md" = {
-    source = ./AGENTS.md;
+    source = pkgs.replaceVars ./AGENTS.md {
+      syncExtensions = builtins.concatStringsSep " " (import ../../stuff-patterns.nix).syncExtensions;
+    };
     force = true;
   };
   home.file."Stuff/CLAUDE.md" = {
