@@ -249,6 +249,11 @@ merely disfigured by the global line numbers."
   ;; with `display-line-numbers' and lsp lenses.
   (flymake-show-diagnostics-at-end-of-line nil))
 
+(use-package eldoc
+  :ensure nil
+  :custom
+  (eldoc-documentation-strategy #'eldoc-documentation-compose))
+
 (use-package flymake-collection
   :ensure t
   ;; Registers per-mode backends (hlint, shellcheck, yamllint, ...) that
