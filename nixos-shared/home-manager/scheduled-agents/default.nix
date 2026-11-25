@@ -97,7 +97,8 @@ let
 
         Do the legwork now, e.g. web research, filling gaps in notes,
         reviewing new code for high-value improvements (logic,
-        performance, bugs).
+        performance, bugs), tying up loose ends or flagging them,
+        connecting dots, etc.
 
         Read-only everywhere except today's dir
         ($(stuff-today --default)),
