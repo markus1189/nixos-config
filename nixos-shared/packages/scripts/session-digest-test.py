@@ -346,6 +346,21 @@ def test_failed_commit_is_counted_not_listed(tmp_path, repo):
     assert s["commits"] == [] and s["unresolved"] == 1
 
 
+def test_retried_commit_listed_once(tmp_path, repo):
+    (repo / "e").write_text("e")
+    git(repo, "add", "e")
+    git(repo, "commit", "-qm", "add e")
+    h = git(repo, "rev-parse", "--short=7", "HEAD")
+    t = (
+        Transcript(cwd=str(repo))
+        .user(0, "go")
+        .bash(1, 'git commit -qm "add e"', "error: gpg failed to sign")
+        .bash(2, 'git commit -qm "add e"', "")
+    )
+    s = parsed(tmp_path, t)
+    assert [c["hash"] for c in s["commits"]] == [h] and s["unresolved"] == 0
+
+
 def test_closing_skips_filler(tmp_path):
     t = (
         Transcript()

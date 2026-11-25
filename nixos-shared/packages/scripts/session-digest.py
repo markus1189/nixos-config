@@ -306,6 +306,7 @@ def resolve_commits(s):
     """Hashes as on a branch now: -q commits print none, and a rebase during
     push rewrites them."""
     s["commits"], s["unresolved"] = [], 0
+    seen = set()
     since = f"--since={(s['start'] - IDLE).isoformat()}"
     for h, subject, repo in s.pop("raw_commits"):
         top = toplevel(repo)
@@ -324,6 +325,11 @@ def resolve_commits(s):
             s["unresolved"] += 1
             continue
         current = current or h
+        if (top, current) in seen:
+            # A retry after a failed attempt (signing, hook) resolves to the
+            # same commit by subject.
+            continue
+        seen.add((top, current))
         s["commits"].append(
             dict(
                 hash=current,
