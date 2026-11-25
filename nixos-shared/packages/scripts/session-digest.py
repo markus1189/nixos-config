@@ -82,6 +82,10 @@ SUBJECT = re.compile(
     r"""|F\s*-\s*<<-?'?\w+'?\n(?P<f>.*?)\n)""",
     re.S,
 )
+ARTIFACT_URL = "https://claude.ai/artifact/"
+DOCS = "mcp__claude_ai_Claude_Docs__"
+# Docs address a doc by its frame slug (a UUID) or by the id in its URL.
+UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-")
 # (key, per-response usage field, cost-state modelUsage field)
 TOKEN_FIELDS = (
     ("in", "input_tokens", "inputTokens"),
@@ -181,11 +185,14 @@ def parse(path):
         usage={},
         ts=[],
         raw_commits=[],
+        artifacts={},
+        docs={},
+        doc_urls={},
         agents=len(
             list((path.parent / path.stem / "subagents").glob("*.jsonl"))
         ),
     )
-    pending = {}
+    pending, calls = {}, {}
     for r in records(path):
         t = r.get("type")
         if r.get("timestamp"):
@@ -228,6 +235,12 @@ def parse(path):
                     )
                 ):
                     pending[b.get("id")] = ci
+                elif name == "Artifact" or name.startswith(DOCS):
+                    calls[b.get("id")] = (name, inp)
+            elif b.get("type") == "tool_result" and (
+                call := calls.pop(b.get("tool_use_id"), None)
+            ):
+                track_artifact(s, *call, b, r)
             elif b.get("type") == "tool_result" and (
                 ci := pending.pop(b.get("tool_use_id"), None)
             ):
@@ -251,6 +264,7 @@ def parse(path):
             s["last_kind"] = "assistant"
     if not s["ts"] or not s["prompts"]:
         return None
+    resolve_docs(s)
     s["ts"].sort()
     s["start"] = s["ts"][0]
     gaps = (b - a for a, b in zip(s["ts"], s["ts"][1:]))
@@ -260,6 +274,83 @@ def parse(path):
     s["tokens"] = tokens(s)
     s["project"] = project(s["cwd"]) if s["cwd"] else path.parent.name
     return s
+
+
+def docs_result(content):
+    """The JSON object a Claude Docs result holds, past any notice line."""
+    txt = text_of(content)
+    try:
+        d = json.JSONDecoder().raw_decode(txt, txt.index("{"))[0]
+    except ValueError:
+        return {}
+    return d if isinstance(d, dict) else {}
+
+
+def track_artifact(s, name, inp, result, record):
+    """Pages published and docs created or edited. Any Docs result with a
+    frame, reads included, maps that doc's ids to its URL."""
+    if result.get("is_error"):
+        return
+    if name == "Artifact":
+        tur = record.get("toolUseResult")
+        if (
+            inp.get("action") not in (None, "publish")
+            or inp.get("asset")
+            or not isinstance(tur, dict)
+            or not tur.get("url")
+        ):
+            return
+        a = s["artifacts"].setdefault(
+            tur["url"],
+            dict(kind="page", url=tur["url"], title=None, new=False, v=None),
+        )
+        a["title"] = tur.get("title") or a["title"]
+        # A page made from a type has no seq; its first file publish
+        # already says updated.
+        a["new"] |= tur.get("updated") is False or bool(
+            tur.get("created_from_type")
+        )
+        a["v"] = tur.get("seq") or a["v"]
+        return
+    d = docs_result(result.get("content"))
+    if d.get("verdict") != "allow":
+        return
+    frame = d.get("frame") or {}
+    if url := frame.get("url"):
+        s["doc_urls"][url.rsplit("/", 1)[-1]] = url
+        if frame.get("slug"):
+            s["doc_urls"][frame["slug"]] = url
+    container = inp.get("container") or {}
+    tool = name.removeprefix(DOCS)
+    if tool == "batch" and "create" in container:
+        key, title = frame.get("slug"), container["create"].get("name")
+    elif tool in ("batch", "update") and container.get("id"):
+        key, title = container["id"], None
+    else:
+        return
+    if not key:
+        return
+    doc = s["docs"].setdefault(key, dict(title=None, new=False, v=None))
+    doc["title"] = title or doc["title"]
+    doc["new"] |= title is not None
+    doc["v"] = d.get("rev") or doc["v"]
+
+
+def resolve_docs(s):
+    """Docs into s['artifacts'] by URL: edits name a doc by slug or by its
+    URL's id, and the frame that maps a slug may come after the edit."""
+    urls = s.pop("doc_urls")
+    for key, doc in s.pop("docs").items():
+        url = urls.get(key) or (
+            None if UUID.match(key) else ARTIFACT_URL + key
+        )
+        a = s["artifacts"].setdefault(
+            url or key,
+            dict(kind="doc", url=url, id=key, title=None, new=False, v=None),
+        )
+        a["title"] = a["title"] or doc["title"]
+        a["new"] |= doc["new"]
+        a["v"] = max(filter(None, (a["v"], doc["v"])), default=None)
 
 
 def tokens(s):
@@ -482,7 +573,27 @@ def file_names(paths):
 
 
 def trivial(s):
-    return len(s["prompts"]) <= 1 and not s["files"] and not s["commits"]
+    return (
+        len(s["prompts"]) <= 1
+        and not s["files"]
+        and not s["commits"]
+        and not s["artifacts"]
+    )
+
+
+def artifact_line(a, w):
+    fallback = "Claude Doc" if a["kind"] == "doc" else "Artifact"
+    title = md(cut(a["title"] or fallback, w // 2))
+    if a["url"]:
+        link = title.replace("[", "\\[").replace("]", "\\]")
+        name = f"[{link}]({a['url']})"
+    else:
+        name = f"{title} `{a['id'][:8]}`"
+    page = a["kind"] == "page"
+    how = ["new" if a["new"] else "updated" if page else "edited"]
+    if a["v"]:
+        how.append(f"v{a['v']}" if page else f"rev {a['v']}")
+    return f"- ◈ {name} {' · '.join(how)}"
 
 
 def state(s):
@@ -506,6 +617,8 @@ def card(s, w=140):
     ]
     if s["agents"]:
         meta.append(f"{s['agents']} subagents")
+    if s["artifacts"]:
+        meta.append(f"{len(s['artifacts'])} artifacts")
     if s["branch"] and s["branch"] != "HEAD":
         meta.append(f"`{md(s['branch'])}`")
     out = [
@@ -532,6 +645,10 @@ def card(s, w=140):
         out[-1] += f" (+{len(s['commits']) - 3} earlier)"
     if s["unresolved"]:
         out.append(f"- ⎇ {s['unresolved']} commit attempt(s) not found in git")
+    arts = list(s["artifacts"].values())
+    out += [artifact_line(a, w) for a in arts[:3]]
+    if len(arts) > 3:
+        out[-1] += f" (+{len(arts) - 3} more)"
     if s["files"]:
         names = file_names(s["files"])
         more = f" +{len(names) - 8}" if len(names) > 8 else ""
@@ -550,7 +667,7 @@ def quick(ss):
         return f"{s['start']:%H:%M} {tag}{name} `{s['id'][:8]}` {fmt_cost(s)}"
 
     items = " · ".join(one(s) for s in ss)
-    return f"**Quick** (1 prompt, nothing edited): {items}\n"
+    return f"**Quick** (1 prompt, nothing made): {items}\n"
 
 
 LEGEND = """<details><summary>How to read this</summary>
@@ -564,10 +681,13 @@ LEGEND = """<details><summary>How to read this</summary>
   over 5 min left out) · cost (recorded costs include subagents; `~` =
   estimated from tokens, `+ subagents` = their share missing) · input tokens
   and the share read from prompt cache · output tokens · prompts typed ·
-  subagents · git branch.
+  subagents · artifacts · git branch.
 - ▸ first prompt · ↳ first and last later prompt (acks like "next" left out;
   `[paste]` = pasted text, `[marginal annotations]` = review notes sent from
-  Emacs) · ⎇ commit · ✎ files edited · ◂ first statement of the last
+  Emacs) · ⎇ commit · ◈ artifact page published or Claude Doc created or
+  edited (new = first version made in this session; `vN` / `rev N` = its
+  version after the session's last change; untitled `Claude Doc` = a doc
+  from an earlier session) · ✎ files edited · ◂ first statement of the last
   replies (8+ words, no filler like "Done."), left out when there is none.
 - ⎇ `hash` is the commit as on a branch today, `(was …)` when a rebase or
   amend changed it; `(+N earlier)` = more commits not shown; "commit
@@ -577,7 +697,7 @@ LEGEND = """<details><summary>How to read this</summary>
 - `project` = the working dir (`Stuff (day dir)`: a dated
   `~/Stuff/YYYY-MM/DD-host` dir); commits often land in another repo, so
   **Commits by repo** counts them where they landed. **Quick** = 1 prompt,
-  nothing edited.
+  nothing edited, committed or published.
 - **Recurring** = same title (ignoring commit hashes) 2+ times, not counting
   hand-typed Quick sessions. **Tools** = tool calls in the main
   conversations, by Claude Code tool name.
@@ -687,6 +807,7 @@ def summary(sessions):
         fmt_tokens(tok),
         f"{total(sessions, 'prompts')} prompts",
         f"{total(sessions, 'commits')} commits",
+        f"{total(sessions, 'artifacts')} artifacts",
         f"{total(sessions, 'files')} files edited",
     ])
 

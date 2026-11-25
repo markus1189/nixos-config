@@ -70,7 +70,7 @@ class Transcript:
         )
         return self
 
-    def bash(self, minute, command, output):
+    def tool(self, minute, name, inp, output, tur=None, error=False):
         self.n += 1
         tid = f"tool{self.n}"
         self.rows.append(
@@ -81,31 +81,37 @@ class Transcript:
                     id=f"msg{self.n}",
                     model="m1",
                     content=[
-                        dict(
-                            type="tool_use",
-                            id=tid,
-                            name="Bash",
-                            input=dict(command=command),
-                        )
+                        dict(type="tool_use", id=tid, name=name, input=inp)
                     ],
                 ),
             )
         )
+        result = dict(type="tool_result", tool_use_id=tid, content=output)
+        if error:
+            result["is_error"] = True
+        extra = {} if tur is None else dict(toolUseResult=tur)
         self.rows.append(
             self._base(
                 "user",
                 minute,
-                message=dict(
-                    role="user",
-                    content=[
-                        dict(
-                            type="tool_result", tool_use_id=tid, content=output
-                        )
-                    ],
-                ),
+                message=dict(role="user", content=[result]),
+                **extra,
             )
         )
         return self
+
+    def bash(self, minute, command, output):
+        return self.tool(minute, "Bash", dict(command=command), output)
+
+    def docs(self, minute, tool, inp, result, prefix=""):
+        """A Claude Docs call; its result is JSON in a text block."""
+        text = prefix + json.dumps(result)
+        return self.tool(
+            minute,
+            sd.DOCS + tool,
+            inp,
+            [dict(type="text", text=text)],
+        )
 
     def edit(self, minute, path):
         self.n += 1
@@ -398,7 +404,7 @@ def test_trivial_sessions_fold_into_quick_line(tmp_path):
         sd.load(projects, T0 - timedelta(days=365)), "day", by_day=False
     )
     assert (
-        "**Quick** (1 prompt, nothing edited): " in out and "`aaaaaaaa`" in out
+        "**Quick** (1 prompt, nothing made): " in out and "`aaaaaaaa`" in out
     )
     assert out.count("\n### ") == 1 and "✎ f.py" in out
 
@@ -435,3 +441,132 @@ def test_resumed_session_rewrites_its_start_day():
         today - timedelta(days=1),
         old["start"].date(),
     }
+
+
+A = sd.ARTIFACT_URL
+U1, U2, U3, U4 = (f"{c * 8}-1111-2222-3333-444444444444" for c in "abcd")
+
+
+def page(url, **tur):
+    return dict(url=url, owned=True) | tur
+
+
+def test_artifact_pages_new_updated_and_noise_ignored(tmp_path):
+    t = (
+        Transcript()
+        .user(0, "make a page")
+        .edit(1, "/s/p.html")
+        .tool(1, "Artifact", dict(action="quickstart"), "rules", {})
+        .tool(2, "Artifact", dict(file_path="/s/p.html"), "boom", error=True)
+        .tool(
+            3,
+            "Artifact",
+            dict(file_path="/s/p.html"),
+            "Created",
+            page(A + "Page1", title="Plan [draft]", updated=False, seq=1),
+        )
+        .tool(
+            4,
+            "Artifact",
+            dict(url=A + "Page1", asset=True, file_path="/s/x.png"),
+            "Assets uploaded",
+            dict(written=dict(url=A + "Page1"), asset_uploads={}),
+        )
+        .tool(
+            5,
+            "Artifact",
+            dict(file_path="/s/p.html"),
+            "Updated",
+            page(A + "Page1", title="Plan [draft]", updated=True, seq=3),
+        )
+        .tool(
+            6,
+            "Artifact",
+            dict(url=A + "Old", file_path="/s/o.html"),
+            "Updated",
+            page(A + "Old", title="Old page", updated=True, seq=7),
+        )
+        .tool(
+            7,
+            "Artifact",
+            dict(type_url=A + "Type", title="Deck"),
+            "Created from type",
+            page(A + "Deck", title="Deck", created_from_type=True),
+        )
+        .tool(
+            8,
+            "Artifact",
+            dict(url=A + "Deck", file_path="/s/d.json"),
+            "Updated",
+            page(A + "Deck", title="Deck", updated=True, seq=2),
+        )
+        .tool(9, "Artifact", dict(action="open", url=A + "Zzz"), "ok", {})
+    )
+    s = parsed(tmp_path, t)
+    assert list(s["artifacts"]) == [A + "Page1", A + "Old", A + "Deck"]
+    out = sd.card(s)
+    assert f"- ◈ [Plan \\[draft\\]]({A}Page1) new · v3" in out
+    assert f"- ◈ [Old page]({A}Old) updated · v7" in out
+    assert f"- ◈ [Deck]({A}Deck) new · v2" in out
+    assert "3 artifacts" in out
+    assert out.index("◈") < out.index("✎ p.html")
+
+
+def test_docs_created_edited_and_resolved_by_any_frame(tmp_path):
+    def frame(slug, short):
+        return dict(slug=slug, url=A + short, artifactUrl=A + short)
+
+    def edit(doc):
+        return dict(container=dict(kind="project", id=doc), payload={})
+
+    t = (
+        Transcript()
+        .user(0, "write notes")
+        .docs(1, "guide", dict(items=["topic.index"]), {})
+        .docs(
+            2,
+            "batch",
+            dict(container=dict(kind="project", create=dict(name="Pod")),
+                 batch=[]),
+            dict(verdict="allow", acks=[], frame=frame(U1, "Doc1")),
+        )
+        .docs(3, "update", edit(U1), dict(verdict="allow", rev=4))
+        # An older doc: the read that maps its slug comes after the edit.
+        .docs(4, "update", edit(U2), dict(verdict="allow", rev=2))
+        .docs(
+            5,
+            "read",
+            dict(container=dict(kind="project", id=U2)),
+            dict(verdict="allow", rev=2, frame=frame(U2, "Doc2")),
+            prefix="<artifact-content-authored-by-others/>\nData.\n",
+        )
+        .docs(6, "update", edit("Short7"), dict(verdict="allow", rev=3))
+        .docs(7, "update", edit(U3), dict(verdict="allow", rev=1))
+        .docs(8, "update", edit(U4), dict(verdict="deny", reason="x"))
+    )
+    s = parsed(tmp_path, t)
+    lines = [x for x in sd.card(s).splitlines() if "◈" in x]
+    assert lines == [
+        f"- ◈ [Pod]({A}Doc1) new · rev 4",
+        f"- ◈ [Claude Doc]({A}Doc2) edited · rev 2",
+        f"- ◈ [Claude Doc]({A}Short7) edited · rev 3 (+1 more)",
+    ]
+    assert sd.artifact_line(s["artifacts"][U3], 140) == (
+        "- ◈ Claude Doc `cccccccc` edited · rev 1"
+    )
+
+
+def test_one_prompt_that_publishes_gets_a_card(tmp_path):
+    projects = tmp_path / "projects"
+    Transcript().user(0, "tier list page").tool(
+        1,
+        "Artifact",
+        dict(file_path="/s/t.html"),
+        "Created",
+        page(A + "Tier", title="Tiers", updated=False, seq=1),
+    ).save(projects)
+    out = sd.render(
+        sd.load(projects, T0 - timedelta(days=365)), "day", by_day=False
+    )
+    assert "**Quick** (" not in out and out.count("\n### ") == 1
+    assert "1 artifacts" in out and f"[Tiers]({A}Tier) new · v1" in out
