@@ -424,6 +424,9 @@ def test_write_day_only_on_change_and_never_creates_day_dirs(tmp_path):
         .read_text()
         .startswith(f"# Claude Code sessions {d:%Y-%m-%d}")
     )
+    assert sd.write_day(stuff, "h", d, []) == "removed"
+    assert not (day_dir / sd.FILE_NAME).exists()
+    assert sd.write_day(stuff, "h", d, []) == "empty"
 
 
 def test_resumed_session_rewrites_its_start_day():

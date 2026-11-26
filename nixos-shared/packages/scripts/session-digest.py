@@ -864,12 +864,17 @@ def days_to_write(sessions, today):
 
 
 def write_day(stuff, host, d, sessions):
-    """'written', 'unchanged' or 'no dir': day dirs belong to stuff-today and
-    are never created here."""
+    """'written', 'unchanged', 'removed', 'empty' or 'no dir': day dirs belong
+    to stuff-today and are never created here."""
     day_dir = stuff / f"{d:%Y-%m}" / f"{d:%d}-{host}"
     if not day_dir.is_dir():
         return "no dir"
     target = day_dir / FILE_NAME
+    if not sessions:
+        if target.exists():
+            target.unlink()
+            return "removed"
+        return "empty"
     text = render(
         sessions,
         f"Claude Code sessions {d:%Y-%m-%d %a} ({host})",
