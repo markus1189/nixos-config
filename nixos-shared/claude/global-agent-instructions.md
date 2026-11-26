@@ -118,6 +118,8 @@ Syntax notes:
 2. Any claim about a visual state needs a render first: `pdftoppm -png
    -r 400 -f 1 -l 1 $FILE out` crop dense tables/images/graphs with
    `magick` (not `convert`)
+3. web-fetch returns a PDF as unreadable bytes: `pdftotext -layout`
+   the `tool-results/webfetch-*.pdf` path its harness note lists
 
 ## Terminal Environment
 
