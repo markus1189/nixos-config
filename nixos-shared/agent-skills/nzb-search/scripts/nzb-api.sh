@@ -342,13 +342,37 @@ book() {
     api "t=book&q=$(urlencode "$query")${EXTRA}"
 }
 
-# Cart operations (Treasure Maps only)
+# Cart operations (Treasure Maps only). Success answers a bare
+# {"@attributes":{"id":""}}, which reads like a failure; errors (code 300 for
+# an unknown GUID) already die in check_response.
 cartadd() {
-    api "t=cartadd&id=$1"
+    api "t=cartadd&id=$1" > /dev/null
+    echo "added $1"
 }
 
 cartdel() {
-    api "t=cartdel&id=$1"
+    api "t=cartdel&id=$1" > /dev/null
+    echo "removed $1"
+}
+
+# The API has no cart listing (t=cart answers 202); the "My Cart" RSS feed
+# does. Premiumize's feed appears to drain the cart as it grabs, so this shows
+# what is still waiting, not a history.
+cartlist() {
+    [[ "$INDEXER" == "treasuremaps" ]] || die "cartlist: only Treasure Maps has a readable cart"
+    if [[ -n "${NZB_DRY_RUN:-}" ]]; then
+        echo "${BASE_URL%/api}/rss?t=-2"
+        return 0
+    fi
+    ensure_key
+    local url="${BASE_URL%/api}/rss?t=-2&r=${API_KEY}" body
+    body=$(printf 'url = "%s"\n' "$url" | curl -K - -sS --max-time 30) \
+        || die "$INDEXER: request failed"
+    # The feed echoes its own URL, key included, in atom:link.
+    body=${body//"$API_KEY"/REDACTED}
+    body=$(xml_to_json <<< "$body") || die "$INDEXER: unparseable XML response"
+    check_response "$body"
+    normalize_response <<< "$body"
 }
 
 # Get server capabilities. DrunkenSlug answers t=caps&o=json with literal
@@ -382,7 +406,7 @@ usage() {
     list_indexers
     echo ""
     echo "Commands: search, search_all, tvsearch, movie, book, results, details, nfo,"
-    echo "          download, cartadd, cartdel, caps, api, list_indexers"
+    echo "          download, cartadd, cartdel, cartlist, caps, api, list_indexers"
 }
 
 # Parse indexer from first argument or use default
@@ -394,7 +418,7 @@ else
 fi
 
 case "${1:-}" in
-    search|search_all|results|details|nfo|download|tvsearch|movie|book|cartadd|cartdel|caps|api|list_indexers)
+    search|search_all|results|details|nfo|download|tvsearch|movie|book|cartadd|cartdel|cartlist|caps|api|list_indexers)
         cmd="$1"
         shift
         "$cmd" "$@"

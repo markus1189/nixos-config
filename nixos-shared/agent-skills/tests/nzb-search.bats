@@ -218,6 +218,45 @@ answer() { # answer HOST FIXTURE
     [ ! -e "$BATS_TEST_TMPDIR/movie.nzb" ]
 }
 
+# --- cart --------------------------------------------------------------------
+
+@test "cartadd reports success instead of the bare id-less answer" {
+    answer treasure-maps.com treasuremaps-cartadd.json
+    run nzb cartadd bbb222
+    assert_success
+    assert_output "added bbb222"
+}
+
+@test "cartadd fails on an unknown GUID" {
+    answer treasure-maps.com treasuremaps-badkey.json
+    run nzb cartadd nope
+    assert_failure
+}
+
+@test "cartlist reads the cart feed, redacts the key and feeds results" {
+    answer treasure-maps.com treasuremaps-cart.xml
+    run nzb cartlist
+    assert_success
+    refute_output --partial testkey
+    grep -q 'treasure-maps.com/rss?t=-2&r=testkey' "$FAKE_CURL_LOG"
+    run bash -c "bash '$SCRIPT' cartlist | bash '$SCRIPT' results | jq -r '.[] | .guid + \" \" + .indexer'"
+    assert_success
+    assert_output $'bbb222 treasuremaps\nccc333 treasuremaps'
+}
+
+@test "cartlist on an empty cart yields no results" {
+    answer treasure-maps.com treasuremaps-cart-empty.xml
+    run bash -c "bash '$SCRIPT' cartlist | bash '$SCRIPT' results"
+    assert_success
+    assert_output "[]"
+}
+
+@test "cartlist refuses indexers without a readable cart" {
+    run nzb @nzbgeek cartlist
+    assert_failure
+    assert_output "Error: cartlist: only Treasure Maps has a readable cart"
+}
+
 # --- search_all --------------------------------------------------------------
 
 @test "search_all merges indexers, skips nzbfinder and survives failures" {

@@ -97,7 +97,11 @@ results came from more than one.
 ./scripts/nzb-api.sh [@indexer] download GUID ["path/name.nzb"]   # prints the saved path
 ./scripts/nzb-api.sh cartadd GUID                                 # Treasure Maps only
 ./scripts/nzb-api.sh cartdel GUID
+./scripts/nzb-api.sh cartlist | ./scripts/nzb-api.sh results --table
 ```
+
+- `cartlist` shows only what is still waiting: a feed that grabs from the cart
+  (Premiumize) appears to empty it, so an empty list after `cartadd` is normal.
 
 - Use the `@indexer` the result came from: a GUID is only valid on its own indexer.
 - Without a path the NZB lands in `$TMPDIR/nzb-search/GUID.nzb` (`/tmp` if

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:newznab="http://www.newznab.com/DTD/2010/feeds/attributes/">
+    <channel>
+        <atom:link href="https://treasure-maps.com/rss?t=-2&amp;r=testkey" rel="self" type="application/rss+xml" />
+        <title>Treasure Maps My Cart Feed</title>
+        <item>
+            <title>Inception.2010.1080p.BluRay.x264-GRP</title>
+            <guid isPermaLink="true">https://treasure-maps.com/details/bbb222</guid>
+            <link>https://treasure-maps.com/details/bbb222</link>
+            <pubDate>Tue, 02 Sep 2026 10:00:00 +0000</pubDate>
+            <category>Movies > HD</category>
+            <newznab:attr name="category" value="2040" />
+            <newznab:attr name="size" value="8804682956" />
+            <newznab:attr name="guid" value="bbb222" />
+        </item>
+        <item>
+            <title>Inception.2010.720p.BluRay.x264-GRP</title>
+            <guid isPermaLink="true">https://treasure-maps.com/details/ccc333</guid>
+            <link>https://treasure-maps.com/details/ccc333</link>
+            <pubDate>Tue, 02 Sep 2026 09:00:00 +0000</pubDate>
+            <category>Movies > HD</category>
+            <newznab:attr name="category" value="2040" />
+            <newznab:attr name="size" value="4402341478" />
+            <newznab:attr name="guid" value="ccc333" />
+        </item>
+    </channel>
+</rss>

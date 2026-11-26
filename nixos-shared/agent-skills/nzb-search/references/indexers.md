@@ -12,13 +12,16 @@ quirk, or are adding an indexer.
 | Book search      | ✅                     | ✅                           | ❌ use `search` + `&cat=7000` | ✅               | ❌ use `search` + `&cat=7000` |
 | Download NZB     | ✅                     | ✅                           | ✅                 | ✅                           | ✅                 |
 | Add/remove cart  | ✅ `cartadd`/`cartdel` | ❌ web-only (session cookie) | ❌                 | ❌ web-only (session cookie) | ❌                 |
-| View cart        | ❌                     | ❌                           | ❌                 | ❌                           | ❌                 |
+| View cart        | ✅ `cartlist` (RSS)    | ❌                           | ❌                 | ❌                           | ❌                 |
 
 ## Per-Indexer Notes
 
 **Treasure Maps:** no `grabs` attribute in search results, even with
 `extended=1`. `t=movie` must use `title=`: `q=` matches release-group names
 too (a search for "inception" returns the iNCEPTiON group's Saw remuxes).
+
+The API has no cart listing (`t=cart` answers 202); the "My Cart" RSS feed
+(`/rss?t=-2&r=KEY`) does, and echoes the key in its `atom:link`.
 
 **NZBgeek:** cart operations need a web session and internal release IDs the
 Newznab API does not expose. Download instead. A bad API key returns an empty

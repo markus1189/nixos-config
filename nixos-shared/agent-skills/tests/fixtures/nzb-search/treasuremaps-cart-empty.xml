@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:newznab="http://www.newznab.com/DTD/2010/feeds/attributes/">
+    <channel>
+        <atom:link href="https://treasure-maps.com/rss?t=-2&amp;r=testkey" rel="self" type="application/rss+xml" />
+        <title>Treasure Maps My Cart Feed</title>
+    </channel>
+</rss>
