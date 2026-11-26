@@ -39,9 +39,10 @@ let
       }
       trap cleanup EXIT
 
-      # Wait up to ~5s for the forward to come up. If ssh dies first
-      # (unreachable, auth unavailable, port collision), bail quietly.
-      for ((i=0; i<25; i++)); do
+      # Wait up to ~8s for the forward to come up, longer than ssh's
+      # ConnectTimeout=5 so a timed-out ssh is seen dying here. If ssh dies
+      # first (unreachable, auth unavailable, port collision), bail quietly.
+      for ((i=0; i<40; i++)); do
         if ! kill -0 "$ssh_pid" 2>/dev/null; then
           log "tunnel failed to establish (nuc unreachable or auth unavailable) - skipping"
           exit 0
@@ -51,6 +52,7 @@ let
         fi
         sleep 0.2
       done
+      ss -tln | grep -q ":$TUNNEL_PORT " || { log "tunnel not up after 8s - skipping"; exit 0; }
 
       if ! atuin sync; then
         log "atuin sync failed despite established tunnel - investigate"
