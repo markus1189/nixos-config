@@ -346,11 +346,13 @@ book() {
 # {"@attributes":{"id":""}}, which reads like a failure; errors (code 300 for
 # an unknown GUID) already die in check_response.
 cartadd() {
+    if [[ -n "${NZB_DRY_RUN:-}" ]]; then api "t=cartadd&id=$1"; return; fi
     api "t=cartadd&id=$1" > /dev/null
     echo "added $1"
 }
 
 cartdel() {
+    if [[ -n "${NZB_DRY_RUN:-}" ]]; then api "t=cartdel&id=$1"; return; fi
     api "t=cartdel&id=$1" > /dev/null
     echo "removed $1"
 }

@@ -227,6 +227,12 @@ answer() { # answer HOST FIXTURE
     assert_output "added bbb222"
 }
 
+@test "cartadd dry run prints the URL and claims nothing" {
+    NZB_DRY_RUN=1 run nzb cartadd bbb222
+    assert_success
+    assert_output "https://treasure-maps.com/api?t=cartadd&id=bbb222&o=json"
+}
+
 @test "cartadd fails on an unknown GUID" {
     answer treasure-maps.com treasuremaps-badkey.json
     run nzb cartadd nope
