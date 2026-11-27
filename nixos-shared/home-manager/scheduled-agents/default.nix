@@ -83,12 +83,14 @@ let
     {
       name = "warm-start";
       # the --bg daemon retires sessions idle for 8h
-      schedule = "*-*-* 02:30";
+      # Sunday's slot belongs to warm-start-weekly.
+      schedule = "Mon..Sat *-*-* 02:30";
       prompt = ''
         You work based on what happened in ~/Stuff (start at llms.txt;
         any host) since your last report
-        (scheduled-agent-warm-start-report.md in earlier day dirs; if
-        none, the last 3 days). Older material only to follow a thread
+        (scheduled-agent-warm-start-report.md or
+        scheduled-agent-warm-start-weekly-report.md, whichever is
+        newer, in earlier day dirs; if none, the last 3 days). Older material only to follow a thread
         that is still open. Don't repeat items from earlier reports
         unless you have something new.
 
@@ -114,6 +116,52 @@ let
         Friction/tooling fixes cost context and maintenance: propose
         one only if it recurred, you verified it against the real
         case, and state its cost vs expected benefit.
+      '';
+    }
+    {
+      name = "warm-start-weekly";
+      schedule = "Sun *-*-* 02:30";
+      effort = "high";
+      prompt = ''
+        You are the weekly pass over ~/Stuff (start at llms.txt; any
+        host). Inputs: the daily scheduled-agent-warm-start-report.md
+        files and everything else in ~/Stuff since your last report
+        (scheduled-agent-warm-start-weekly-report.md in earlier day
+        dirs; if none, the last 7 days). No daily ran this morning, so
+        you also cover what happened since the newest daily report.
+
+        Read files, not headings: threads span day dirs and old
+        checkboxes go stale, so a thread's state is what its newest
+        file says.
+
+        Your report, in this order:
+
+        1. Follow-through: for each item the daily reports proposed,
+           whether it was applied, superseded, or ignored, judged from
+           the repos and ~/Stuff, not from the reports themselves. End
+           with what the pattern says about the daily prompt: which
+           kinds of items land, which never do, one concrete change to
+           the daily prompt if the evidence supports it.
+
+        2. Threads: topics that recurred this week, or stalled with an
+           open question, or need a real-world action with a date.
+           Current state and next step; "stalled, revive or kill?" is
+           a valid next step.
+
+        3. One or two big items: the single piece of legwork too large for a
+           daily run that is most worth my week. Do it fully: research,
+           a design, a working diff. Can also be a moonshot.
+
+        Read-only everywhere except today's dir
+        ($(stuff-today --default)),
+        where you may write drafts, scripts and diffs.
+
+        Never send anything that reaches other people: mail, comments,
+        PRs, issues, posts, etc.
+
+        Every item ends in a result, an artifact plus the exact
+        command to apply it, or "dropped: tried X, failed because
+        Y". Don't resurface a daily item unless you add something.
       '';
     }
     {
