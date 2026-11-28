@@ -40,6 +40,12 @@ in
       owner = user;
     };
 
+    redditEnv = {
+      file = ../secrets/reddit.env.age;
+      name = "reddit.env";
+      owner = user;
+    };
+
     redditVisidata = {
       file = ../secrets/reddit-visidata.age;
       name = "reddit-visidata";

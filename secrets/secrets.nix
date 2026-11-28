@@ -52,6 +52,7 @@ in
   "viessmann-refresh-token.age".publicKeys = all;
   "authinfo.age".publicKeys = all;
   "reddit-visidata.age".publicKeys = all;
+  "reddit.env.age".publicKeys = all;
   "kagi-session.age".publicKeys = laptops;
   "splid.env.age".publicKeys = laptops;
 }

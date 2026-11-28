@@ -3,8 +3,8 @@
 """Reddit read-only CLI over the official OAuth API.
 
 Auth: app-only (client_credentials) by default; user context (personalised
-frontpage, subscriptions, saved/upvoted) once reddit_auth.py has stored a
-token at `pass api/reddit/refreshToken`. REDDIT_REFRESH_TOKEN overrides it.
+frontpage, subscriptions, saved/upvoted) once REDDIT_REFRESH_TOKEN (from
+reddit_auth.py) is in /run/agenix/reddit.env. Env vars override the file.
 """
 
 import argparse
@@ -24,6 +24,7 @@ import urllib.request
 UA = "claude-code:reddit-skill:v0.2 (by /u/markus1189)"
 API = "https://oauth.reddit.com"
 CACHE_DIR = os.path.expanduser("~/.cache/claude-reddit")
+ENV_FILE = "/run/agenix/reddit.env"
 
 HTTP_TIMEOUT = 30
 # Reddit allows 100 requests/minute. When the remaining budget for the current
@@ -42,41 +43,26 @@ def die(msg, code=1):
 
 # ---------------------------------------------------------------- auth
 
-def _pass(entry):
-    """Read the first line of a pass entry; None if it doesn't exist."""
-    import subprocess
-    for attempt in range(2):
-        try:
-            r = subprocess.run(["pass", entry], capture_output=True, text=True,
-                               timeout=20)
-        except (OSError, subprocess.TimeoutExpired):
-            return None
-        if r.returncode == 0:
-            break
-        # A missing entry is a normal fallthrough; anything else (locked
-        # gpg-agent, pinentry failure) must not masquerade as "no credentials".
-        err = r.stderr.strip()
-        if not err or "is not in the password store" in err:
-            return None
-        # gpg-agent sporadically answers "Wrong secret key used" under
-        # concurrent decrypts; the identical call succeeds a moment later.
-        if attempt == 0:
-            time.sleep(1)
-            continue
-        die(f"pass {entry} failed: {err[:300]}")
-    if not r.stdout.strip():
-        return None
-    return r.stdout.splitlines()[0].strip()
+def _secret(key):
+    """Env var wins; else the agenix env file; None if neither has it."""
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        with open(ENV_FILE) as f:
+            for line in f:
+                k, sep, v = line.strip().removeprefix("export ").partition("=")
+                if sep and k.strip() == key:
+                    return v.strip().strip("\"'") or None
+    except OSError:
+        pass
+    return None
 
 
 def _creds():
-    """Env vars win; otherwise fall back to the pass store."""
-    cid = os.environ.get("REDDIT_CLIENT_ID") or _pass("api/reddit/clientId")
-    csec = (os.environ.get("REDDIT_CLIENT_SECRET")
-            or _pass("api/reddit/clientSecret"))
+    cid, csec = _secret("REDDIT_CLIENT_ID"), _secret("REDDIT_CLIENT_SECRET")
     if not cid or not csec:
-        die("no credentials: set REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET, "
-            "or store them at pass api/reddit/{clientId,clientSecret}")
+        die(f"no credentials: set REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET in "
+            f"the environment or {ENV_FILE}")
     return cid, csec
 
 
@@ -98,20 +84,10 @@ _token = None
 
 
 def _cache_path():
-    """Token cache file, chosen WITHOUT touching pass.
-
-    Each pass read is a gpg decrypt; keying the cache on the pass contents
-    cost three of them per API call. Env credentials are free to read, so they
-    keep a content-derived key; pass credentials share one fixed slot, at the
-    price that a rotated refresh token is noticed only when the cached access
-    token expires (≤1h).
-    """
-    if os.environ.get("REDDIT_CLIENT_ID"):
-        ident = (f"{os.environ['REDDIT_CLIENT_ID']}:"
-                 f"{os.environ.get('REDDIT_REFRESH_TOKEN') or 'app'}")
-        key = hashlib.sha256(ident.encode()).hexdigest()[:16]
-    else:
-        key = "pass"
+    """One cache slot per (app, account), so a rotated token never reuses a stale entry."""
+    ident = (f"{_secret('REDDIT_CLIENT_ID')}:"
+             f"{_secret('REDDIT_REFRESH_TOKEN') or 'app'}")
+    key = hashlib.sha256(ident.encode()).hexdigest()[:16]
     os.makedirs(CACHE_DIR, mode=0o700, exist_ok=True)
     return os.path.join(CACHE_DIR, f"token-{key}.json")
 
@@ -134,8 +110,7 @@ def get_token():
             pass
 
     cid, csec = _creds()
-    refresh = (os.environ.get("REDDIT_REFRESH_TOKEN")
-               or _pass("api/reddit/refreshToken"))
+    refresh = _secret("REDDIT_REFRESH_TOKEN")
     if refresh:
         data = {"grant_type": "refresh_token", "refresh_token": refresh}
         user = True
@@ -471,8 +446,8 @@ def cmd_frontpage(args):
     token, user = get_token()
     if not user:
         die("frontpage needs your account. Run reddit_auth.py "
-            "(next to this script) once to store a token at pass "
-            "api/reddit/refreshToken; REDDIT_REFRESH_TOKEN overrides. Without it Reddit returns "
+            "(next to this script) once and put REDDIT_REFRESH_TOKEN into "
+            "secrets/reddit.env.age (agenix -e). Without it Reddit returns "
             "generic popular posts, not your feed.")
     path = "/best" if args.sort == "best" else f"/{args.sort}"
     kids = paginate(path, {"t": args.time}, args.limit)

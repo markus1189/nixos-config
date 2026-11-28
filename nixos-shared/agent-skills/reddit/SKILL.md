@@ -5,7 +5,7 @@ description: "Searches Reddit posts and comments, reads comment threads, browses
 
 # Reddit
 
-Read-only, via the official OAuth API. Credentials come from `pass` unaided — no
+Read-only, via the official OAuth API. Credentials come from `/run/agenix/reddit.env` unaided — no
 `env` prefix, no setup. Re-linking the account: [references/auth.md](references/auth.md).
 
 ## Commands

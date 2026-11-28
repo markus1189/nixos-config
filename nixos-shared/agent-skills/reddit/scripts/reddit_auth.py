@@ -6,7 +6,7 @@ Reddit's password grant only works for apps registered as type "script", and
 breaks under 2FA. The authorization-code flow works for any app type, survives
 2FA, and yields a refresh token that never expires. Run this once.
 
-    ./reddit_auth.py   # uses pass api/reddit/{clientId,clientSecret}
+    ./reddit_auth.py   # app credentials from /run/agenix/reddit.env
 """
 
 import argparse
@@ -14,7 +14,6 @@ import base64
 import http.server
 import json
 import secrets
-import subprocess
 import sys
 import threading
 import urllib.error
@@ -24,7 +23,7 @@ from pathlib import Path
 
 UA = "claude-code:reddit-skill:v0.2 (by /u/markus1189)"
 SCOPES = ["identity", "read", "mysubreddits", "history"]
-PASS_ENTRY = "api/reddit/refreshToken"
+ENV_FILE = Path("/run/agenix/reddit.env")
 
 _result = {}
 
@@ -47,11 +46,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         pass
 
 
-def sh(cmd):
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode != 0:
-        sys.exit(f"error: `{' '.join(cmd)}` failed: {r.stderr.strip()}")
-    return r.stdout.splitlines()[0].strip()
+def secret(key):
+    for line in ENV_FILE.read_text().splitlines():
+        k, sep, v = line.strip().removeprefix("export ").partition("=")
+        if sep and k.strip() == key:
+            return v.strip().strip("\"'")
+    sys.exit(f"error: no {key} in {ENV_FILE}")
 
 
 def main():
@@ -62,13 +62,9 @@ def main():
     ap.add_argument("--redirect-uri", default="http://localhost:8000",
                     help="must byte-exactly match the URI registered at "
                          "reddit.com/prefs/apps (default matches this account)")
-    ap.add_argument("--no-store", action="store_true",
-                    help="print the refresh token instead of writing to pass")
     args = ap.parse_args()
 
-    base = "api/reddit"
-    cid = sh(["pass", f"{base}/clientId"])
-    csec = sh(["pass", f"{base}/clientSecret"])
+    cid, csec = secret("REDDIT_CLIENT_ID"), secret("REDDIT_CLIENT_SECRET")
 
     # Bind the local server to the redirect's host:port; its path is irrelevant
     # to us but must be preserved verbatim in the token exchange.
@@ -97,7 +93,7 @@ def main():
     threading.Thread(target=srv.handle_request, daemon=True).start()
 
     print(f"""
-Reddit app  : {base}  (client_id {cid[:6]}…)
+Reddit app  : client_id {cid[:6]}…
 Redirect URI: {redirect}
 Scopes      : {' '.join(SCOPES)}   (read-only)
 
@@ -144,21 +140,14 @@ waiting for the callback on {redirect} …""", flush=True)
         sys.exit(f"error: no refresh_token in response: {tok}\n"
                  "(was duration=permanent honoured?)")
 
-    if args.no_store:
-        print(f"\nrefresh_token: {rt}")
-        return
-
-    p = subprocess.run(["pass", "insert", "-m", "-f", PASS_ENTRY],
-                       input=rt + "\n", capture_output=True, text=True)
-    if p.returncode != 0:
-        sys.exit(f"error: pass insert failed: {p.stderr.strip()}\n"
-                 f"refresh_token (store it yourself): {rt}")
-
+    # agenix files are root-encrypted and read-only at runtime, so the
+    # token can only reach reddit.env.age through a manual edit.
     print(f"""
-Stored refresh token at: pass {PASS_ENTRY}
+refresh_token: {rt}
 Granted scopes: {tok.get('scope')}
 
-Verify with:
+Store it: `agenix -e secrets/reddit.env.age` in nixos-config, set
+REDDIT_REFRESH_TOKEN=<token>, rebuild. Then verify with:
   {Path(__file__).resolve().parent / "reddit.py"} whoami
 """)
 
