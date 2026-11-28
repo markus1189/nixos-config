@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   my.wirelessInterface = "wlp0s20f3";
@@ -24,6 +24,13 @@
   };
 
   system.stateVersion = "20.09";
+
+  # calendar-today (p1/home.nix): `gws auth export --unmasked` per Google account
+  age.secrets = lib.genAttrs [ "gcal-codecentric.json" "gcal-private.json" ] (name: {
+    file = ../secrets/${name}.age;
+    inherit name;
+    owner = config.my.userName;
+  });
 
   # Every pushed change becomes a boot entry on the 510M ESP.
   boot.loader.systemd-boot.configurationLimit = 20;

@@ -17,6 +17,7 @@
   firefox,
   gawk,
   git,
+  gws,
   gnugrep,
   gnupg,
   gnuplot,
@@ -1578,6 +1579,12 @@ rec {
           builtins.readFile ./session-digest.py
         )
       );
+
+  # Hourly on p1 by the calendar-today-<account> user timers (../../../p1/home.nix). gws is pinned
+  # like git in session-digest: a user unit's PATH has neither.
+  calendarToday = writers.writePython3Bin "calendar-today" { } (
+    builtins.replaceStrings [ ''"@gws@"'' ] [ ''"${gws}/bin/gws"'' ] (builtins.readFile ./calendar-today.py)
+  );
 
   # Kagi search from the shell. Session link first (covered by the subscription), the paid
   # API as fallback; credentials from /run/agenix/kagi-{session,api-key} or env. Tests and

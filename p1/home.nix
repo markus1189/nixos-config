@@ -4,14 +4,42 @@
 # Autorandr profiles: BOE panel, external DisplayPorts enumerate as DP-1/2/3 (p1g8 has its
 # own set in p1g8/home.nix — different panel + connector names). Merged
 # into the shared laptop/home.nix config via home-manager.users.*.imports.
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 
 {
-  imports = [
-    ../nixos-shared/home-manager/claude-remote-control
-    ../nixos-shared/home-manager/scheduled-agents
-    ../nixos-shared/home-manager/claude-login-check
-  ];
+  # Today's calendar of each Google account into DD-<host>/autogen-<account>-calendar.md,
+  # ahead of warm-start (02:30) and refreshed as meetings change. A unit per account, so
+  # one expired login does not stop the other.
+  systemd.user =
+    let
+      accounts = [
+        "codecentric"
+        "private"
+      ];
+      unit = a: "calendar-today-${a}";
+    in
+    {
+      services = lib.genAttrs' accounts (a: lib.nameValuePair (unit a) {
+        Unit = {
+          Description = "Today's ${a} calendar into ~/Stuff";
+          ConditionPathExists = "/run/agenix/gcal-${a}.json";
+        };
+        Service = {
+          Type = "oneshot";
+          ExecStartPre = "${pkgs.myScripts.stuffToday}/bin/stuff-today --default";
+          ExecStart = "${pkgs.myScripts.calendarToday}/bin/calendar-today --account ${a} --write --host ${osConfig.my.hostTag}";
+        };
+      });
+      timers = lib.genAttrs' accounts (a: lib.nameValuePair (unit a) {
+        Unit.Description = "Hourly ${a} calendar for today";
+        Timer = {
+          OnCalendar = "hourly";
+          OnStartupSec = "0";
+          Persistent = true;
+        };
+        Install.WantedBy = [ "timers.target" ];
+      });
+    };
 
   programs.autorandr.profiles =
     let

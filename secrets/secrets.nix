@@ -55,4 +55,13 @@ in
   "reddit.env.age".publicKeys = all;
   "kagi-session.age".publicKeys = laptops;
   "splid.env.age".publicKeys = laptops;
+  # calendar-today on p1: `gws auth export --unmasked` per Google account
+  "gcal-codecentric.json.age".publicKeys = [
+    mainUser
+    nixosP1
+  ];
+  "gcal-private.json.age".publicKeys = [
+    mainUser
+    nixosP1
+  ];
 }
