@@ -7,7 +7,7 @@
 { lib, pkgs, osConfig, ... }:
 
 {
-  # Today's calendar of each Google account into DD-<host>/autogen-<account>-calendar.md,
+  # Today's calendar of each Google account into DD-<host>/autogen-calendar-<account>.md,
   # ahead of warm-start (02:30) and refreshed as meetings change. A unit per account, so
   # one expired login does not stop the other.
   systemd.user =

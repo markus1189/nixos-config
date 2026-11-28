@@ -4,7 +4,7 @@ calendar-today --account NAME [--date D]
     print one day (default today) of the account whose gws login is
     /run/agenix/gcal-NAME.json
 calendar-today --account NAME --write --host TAG
-    (over)write ~/Stuff/YYYY-MM/DD-TAG/autogen-NAME-calendar.md for today,
+    (over)write ~/Stuff/YYYY-MM/DD-TAG/autogen-calendar-NAME.md for today,
     only if its content changed
 """
 
@@ -236,7 +236,7 @@ def main(argv=None):
     if a.write and not a.host:
         ap.error("--write needs --host")
     creds = a.credentials or Path(f"/run/agenix/gcal-{a.account}.json")
-    name = f"autogen-{a.account}-calendar.md"
+    name = f"autogen-calendar-{a.account}.md"
     try:
         text = render(fetch(creds, a.date), a.date, a.account)
     except (RuntimeError, OSError, subprocess.TimeoutExpired) as e:
