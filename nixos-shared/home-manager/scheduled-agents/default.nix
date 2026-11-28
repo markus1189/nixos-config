@@ -148,9 +148,14 @@ let
            Current state and next step; "stalled, revive or kill?" is
            a valid next step.
 
-        3. One or two big items: the single piece of legwork too large for a
+        3. One big item: the single piece of legwork too large for a
            daily run that is most worth my week. Do it fully: research,
-           a design, a working diff. Can also be a moonshot.
+           a design, a working diff.
+
+        4. Optional moonshot, the one exception to the result rule:
+           something worth a weekend that changes how I work, new
+           against earlier reports. What, why, first concrete step,
+           rough cost. Skip it if nothing clears that bar.
 
         Read-only everywhere except today's dir
         ($(stuff-today --default)),
