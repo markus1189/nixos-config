@@ -68,7 +68,7 @@ recording and may begin or end mid-sentence.'
 
 usage() {
   cat >&2 <<EOF
-Usage: $SCRIPT_NAME [-o OUTPUT.md] <audio-file> [prompt]
+Usage: $SCRIPT_NAME [-o OUTPUT.md] [-c CONTEXT] <audio-file> [prompt]
 
 Arguments:
   audio-file    Audio file to transcribe (mp3, wav, ogg, m4a, flac, webm)
@@ -78,10 +78,13 @@ Options:
   -o OUTPUT.md  Write transcript atomically to OUTPUT.md (only on full success;
                 a failed run never creates or clobbers it). Without -o the
                 transcript goes to stdout.
+  -c CONTEXT    Participant names, roles and terms, appended to whichever
+                prompt is used, on every chunk.
 
 Examples:
   $SCRIPT_NAME meeting.mp3
   $SCRIPT_NAME meeting.mp3 -o meeting.md
+  $SCRIPT_NAME call.mp3 -c "Speakers: Markus (codecentric), Uwe. Terms: REWE, BT, OC" -o call.md
   $SCRIPT_NAME interview.wav "Transcribe this interview verbatim"
   $SCRIPT_NAME podcast.mp3 "Transcribe and extract key insights" -o podcast.md
 
@@ -98,6 +101,7 @@ error_exit() {
 # --- Argument parsing ---------------------------------------------------------
 # Accept -o/--output anywhere; keep positional FILE [PROMPT] backward-compatible.
 OUTPUT_PATH=""
+CONTEXT=""
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -106,6 +110,9 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || error_exit "-o requires an argument"
       OUTPUT_PATH="$2"; shift 2 ;;
     -o*) OUTPUT_PATH="${1#-o}"; shift ;;
+    -c|--context)
+      [[ $# -ge 2 ]] || error_exit "-c requires an argument"
+      CONTEXT="$2"; shift 2 ;;
     --) shift; while [[ $# -gt 0 ]]; do POSITIONAL+=("$1"); shift; done ;;
     -*) error_exit "Unknown option: $1" ;;
     *) POSITIONAL+=("$1"); shift ;;
@@ -215,6 +222,7 @@ curl_with_retry() {
 # If <audio_file> is not already a 16k mono mp3, it is downsampled first.
 transcribe_one() {
   local audio="$1" prompt="$2" slug="$3"
+  [[ -n "$CONTEXT" ]] && prompt+=$'\n\nContext from the user. Use these names as speaker labels and these spellings wherever the audio supports them:\n'"$CONTEXT"
   local mp3="$audio"
   local b64="$WORK_DIR/${slug}.b64"
   local payload="$WORK_DIR/${slug}.payload.json"

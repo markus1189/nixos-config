@@ -33,6 +33,7 @@ Run the script for each file, using `-o` so the transcript is written **atomical
 - Output file: same name as audio, with `.md` extension, same directory
 - Default prompt handles speaker identification, timestamps, summary, action items
 - Pass a custom prompt as second argument when the user requests different output or a focused transcription (see below)
+- Known participants or jargon (from the user, the file name, a calendar entry or nearby notes): pass them with `-c "Speakers: …. Terms: …"`; without it the model guesses their spelling
 - **Always prefer `-o <output.md>` over `> <output.md>`.** With `-o` the script
   writes a staging file and only renames it into place on full success, so a
   failed run (API 5xx, timeout) never creates or clobbers the `.md`. A bare `>`
